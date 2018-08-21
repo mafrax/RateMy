@@ -1,12 +1,16 @@
 function expandIframe(column, row){
 
 var cell = document.getElementById("cell"+row+"x"+column);
+var cell2;
 
-if(cell.getAttribute("class") === "col-sm-4" ){
-    cell.setAttribute("class", "col-sm-8" );
-} else if (cell.getAttribute("class") === "col-sm-8"){
-    cell.setAttribute("class", "col-sm-4" );
+
+if(cell.getAttribute("class") === "col-sm-4 align-self-start" ){
+    cell.setAttribute("class", "col-sm-8 align-self-start" );
+} else if (cell.getAttribute("class") === "col-sm-8 align-self-start"){
+    cell.setAttribute("class", "col-sm-4 align-self-start" );
 } else {
     console.log("cell not found");
 }
+
+
 }
