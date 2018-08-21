@@ -121,9 +121,6 @@ $(document).ready(function() {
             e = document.getElementById("input-slider-range-value-high"+i),
             f = [d, e];
 
-            console.log(c);
-
-            console.log($('.comon-slider-range'));
         noUiSlider.create(c, {
             start: [parseInt(d.getAttribute('data-range-value-low')), parseInt(e.getAttribute('data-range-value-high'))],
             connect: !0,
