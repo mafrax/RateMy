@@ -113,12 +113,17 @@ $(document).ready(function() {
         })
     }
 
-    if ($("#input-slider-range")[0]) {
-        var c = document.getElementById("input-slider-range"),
-            d = document.getElementById("input-slider-range-value-low"),
-            e = document.getElementById("input-slider-range-value-high"),
+    if ($('.comon-slider-range')[0]) {
+        $('.comon-slider-range').each(function() {
+        var i = 0;
+        var c = document.getElementById("input-slider-range"+i),
+            d = document.getElementById("input-slider-range-value-low"+i),
+            e = document.getElementById("input-slider-range-value-high"+i),
             f = [d, e];
 
+            console.log(c);
+
+            console.log($('.comon-slider-range'));
         noUiSlider.create(c, {
             start: [parseInt(d.getAttribute('data-range-value-low')), parseInt(e.getAttribute('data-range-value-high'))],
             connect: !0,
@@ -129,6 +134,8 @@ $(document).ready(function() {
         }), c.noUiSlider.on("update", function(a, b) {
             f[b].textContent = a[b]
         })
+        i++;
+    })
     }
 
 

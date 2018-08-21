@@ -24,6 +24,7 @@
     "passport-facebook": "^2.1.1",
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.4",
-    "pornhub": "0.0.5"
+    "pornhub": "0.0.5",
+    "request-promise": "^4.2.2"
   }
 }
