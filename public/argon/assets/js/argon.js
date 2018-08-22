@@ -17,7 +17,9 @@
 */
  
 "use strict";
-$(document).ready(function() {
+$(document).ready(initializeUI());   
+
+function initializeUI() {
 
     // Collapse navigation
     $('.navbar-main .collapse').on('hide.bs.collapse', function () {
@@ -164,4 +166,4 @@ $(document).ready(function() {
 
         event.preventDefault();
     });
- });   
+ }

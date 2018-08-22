@@ -265,8 +265,9 @@
             </div>
 
             <div id="demo" class="collapse" >
-              <div class="container" style="float: left;">
-                <!-- <div class="embed-responsive" id="progressBar1"> -->
+              <div class="container-fluid" style="float: left;" id="progressBarContainer1">
+
+                <div class="criterion" id="progressBar1">
                 <div class="progress-wrapper ">
                   <div class=" progress-info ">
                     <div class="progress-label ">
@@ -296,14 +297,13 @@
                   </div>
                 </div>
 
-                <!-- <input type="button" class="btn btn-sm btn-primary" onclick="addSearchCriterion()" value="Add"> -->
-                <form action="/save" method="post">
-                    <input type='submit' class="btn btn-sm btn-primary" value="truc">
-                    <input type='submit' class="btn btn-sm btn-primary" formaction="/save" value="valider">
-                  </form>
-                
-
+                </div>
+    
               </div>
+
+              <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
+              <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+
             </div>
           </div>
         </div>
@@ -2343,6 +2343,7 @@
   <script src="argon/assets/js/argon.js?v=1.0.0"></script>
   <script src="argon/assets/js/expand.js"></script>
   <script src="argon/assets/js/search.js"></script>
+  <script src="argon/assets/js/criterion.js"></script>
 </body>
 
 </html>
