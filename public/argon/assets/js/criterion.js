@@ -26,7 +26,9 @@ function edit_row(no) {
     console.log(document.getElementById("edit_button" + no));
     document.getElementById("edit_button" + no).style.display = "none";
     document.getElementById("save_button" + no).style.display = "inline-block";
-    var name = document.getElementById("title" + no);
+    var demo = document.getElementById("progressBar"+no);
+    console.log(demo);
+    var name = demo.querySelector("#criterionName"+no);
     var name_data = name.innerHTML;
     name.innerHTML = "<input type='text' id='name_text" + no + "' value='" + name_data + "'>";
 }
@@ -36,28 +38,32 @@ function save_row(no) {
     var hidden_field = document.getElementById("custId" + no);
     console.log(hidden_field);
     hidden_field.setAttribute("value", name_val);
-    document.getElementById("title" + no).innerHTML = name_val;
+    document.getElementById("criterionName" + no).innerHTML = name_val;
     document.getElementById("edit_button" + no).style.display = "inline-block";
     document.getElementById("save_button" + no).style.display = "none";
 }
 
-function add_criterion() {
+function add_criterion(videoNo) {
     // var new_name=document.getElementById("new_name").value;
     // console.log(n_sliders);
-    var max_div = document.getElementById("progressBarContainer1");
+    var max_div = document.getElementById("progressBarContainer"+videoNo);
     var truc = max_div.querySelectorAll("div.criterion");
     console.log(truc);
     var new_numero = truc.length + 1;
     console.log(new_numero);
     console.log($(".input-slider-container"));
-    var table = document.getElementById("progressBarContainer1");
+    
     var html =  '<div class="progress-wrapper ">'+
                     '<div class=" progress-info ">'+
                 '<div class="progress-label ">'+
-                    '<span>Task completed !!!!!!!!!!!!!!!!!!!!'+
+                    '<span id="criterionName'+new_numero+ '">Task completed'+ '!!!!!!!!!!!!!!!!!!!!'+
                     '</span>'+
+                    '<input type="hidden" id="custId'+new_numero+'">'+
                 '</div>'+
                 '<button type="button" id="edit_button'+new_numero+'" value="Edit" class="btn btn-sm btn-primary " onclick="edit_row('+new_numero+')" style="border-radius: 100vh">E</button>'+
+
+                '<button type="button" id="save_button'+new_numero+'" value="Save" class="btn btn-sm btn-primary " onclick="save_row('+new_numero+')" style="border-radius: 100vh">S</button>'+
+
 
                 '<div class="progress-percentage" style="display: flex" >'+
                     '<span style="color:rgba(248, 9, 176, 0.575)">40%</span>'+
@@ -87,36 +93,37 @@ function add_criterion() {
     new_element.setAttribute('id', 'progressBar' + new_numero + '');
     new_element.innerHTML = html;
     console.log(new_element);
-    table.appendChild(new_element);
+    max_div.appendChild(new_element);
 
     var newSliderContainer = new_element.querySelector('#slider-container'+new_numero);
 
     console.log("new_element"+ new_element);
     console.log("newSliderContainer"+ newSliderContainer);
 
-    initializeSlider(newSliderContainer);
+    initializeSlider(newSliderContainer,new_numero);
     
     document.getElementById("save_button" + new_numero).style.display = "none";
     
 
 }
 
-function initializeSlider(slider){
+function initializeSlider(sliderContainer, new_numero){
 
+    console.log(sliderContainer);
+
+    var slider = sliderContainer.querySelector('#input-slider'+new_numero);
     console.log(slider);
-
-    var sliderId = slider.('id');
-    var minValue = slider.data('range-value-min');
-    var maxValue = slider.data('range-value-max');
-    
-    var sliderValue = $(this).find('.range-slider-value');
-    var sliderValueId = sliderValue.attr('id');
-    var startValue = sliderValue.data('range-value-low');
-    
-    var c = document.getElementById(sliderId),
-    d = document.getElementById(sliderValueId);
-    
-    noUiSlider.create(c, {
+   
+    console.log(slider.id);
+    var maxValue = slider.getAttribute("data-range-value-max");
+    var minValue = slider.getAttribute("data-range-value-min");
+    console.log(maxValue);
+    console.log(minValue);
+    var sliderValue = sliderContainer.querySelector('#input-slider-value'+new_numero);
+    console.log(sliderValue);
+    var startValue = sliderValue.getAttribute("data-range-value-low");
+    console.log(startValue);
+    noUiSlider.create(slider, {
         start: [parseInt(startValue)],
         connect: [true, false],
         //step: 1000,
@@ -126,8 +133,8 @@ function initializeSlider(slider){
         }
     });
     
-    c.noUiSlider.on('update', function(a, b) {
-        d.textContent = a[b];
+    slider.noUiSlider.on('update', function(a, b) {
+        sliderValue.textContent = a[b];
     });
 }
     

@@ -265,16 +265,18 @@
             </div>
 
             <div id="demo" class="collapse" >
-              <div class="container-fluid" style="float: left;" id="progressBarContainer1">
+              <div class="container-fluid" style="float: left;" id="progressBarContainer0">
 
-                <div class="criterion" id="progressBar1">
+                <div class="criterion" id="progressBar0">
                 <div class="progress-wrapper ">
                   <div class=" progress-info ">
                     <div class="progress-label ">
-                      <span>Task completed !!!!!!!!!!!!!!!!!!!!
+                      <span id="criterionName0">Task completed !!!!!!!!!!!!!!!!!!!!
                       </span>
+                      <input type="hidden" id="custId0">
                     </div>
                     <button type="button" id="edit_button0" value="Edit" class="btn btn-sm btn-primary " onclick="edit_row(0)" style="border-radius: 100vh">E</button>
+                    <button type="button" id="save_button0" value="Save" class="btn btn-sm btn-primary " onclick="save_row(0)" style="border-radius: 100vh">S</button>
 
                     <div class="progress-percentage" style="display: flex" >
                       <span style='color:rgba(248, 9, 176, 0.575)'>40%</span>
@@ -301,7 +303,7 @@
     
               </div>
 
-              <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
+              <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(0)" value="Add" >
               <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
 
             </div>
@@ -328,7 +330,7 @@
             </div>
 
             <div id="demo2" class="collapse">
-              <div class="container" style="float: left;">
+              <div class="container" style="float: left;" id="progressBarContainer2">
 
                 <div class="progress-wrapper ">
                   <div class=" progress-info ">
@@ -359,11 +361,15 @@
                     </div>
                   </div>
 
-                <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
-                <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+                
                 <!-- </div> -->
 
               </div>
+
+              <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(2)" value="Add">
+              <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+
+
             </div>
           </div>
         </div>
@@ -388,7 +394,7 @@
             </div>
 
             <div id="demo3" class="collapse">
-              <div class="container" style="float: left;">
+              <div class="container" style="float: left;" id="progressBarContainer3">
 
                 <div class="progress-wrapper ">
                   <div class=" progress-info ">
@@ -419,13 +425,12 @@
                     </div>
                   </div>
 
-                            
-
-                <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
-                <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
-
 
               </div>
+
+              <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(3)" value="Add">
+              <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+
             </div>
           </div>
         </div>
@@ -442,15 +447,15 @@
             <div class="row col-12 align-self-start" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">
   
               <div class="row">
-                <button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo3" style="margin-left: 20px;">
+                <button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo4" style="margin-left: 20px;">
                   <span class="navbar-toggler-icon">V</span>
                 </button>
                 <input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">
                 <button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>
               </div>
   
-              <div id="demo3" class="collapse" >
-                <div class="container" style="float: left;">
+              <div id="demo4" class="collapse" >
+                <div class="container" style="float: left;" id="progressBarContainer4">
   
                   <div class="progress-wrapper ">
                     <div class=" progress-info ">
@@ -483,12 +488,13 @@
   
                               
   
-                  <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
-                  <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
-  
-  
                 </div>
-              </div>
+
+  
+                <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(4)" value="Add">
+                <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+
+            </div>
             </div>
         </div>
 
@@ -504,15 +510,15 @@
               <div class="row col-12 align-self-start" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">
     
                 <div class="row">
-                  <button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo3" style="margin-left: 20px;">
+                  <button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo5" style="margin-left: 20px;">
                     <span class="navbar-toggler-icon">V</span>
                   </button>
                   <input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">
                   <button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>
                 </div>
     
-                <div id="demo3" class="collapse">
-                  <div class="container" style="float: left;">
+                <div id="demo5" class="collapse">
+                  <div class="container" style="float: left;" id="progressBarContainer5">
     
                     <div class="progress-wrapper ">
                       <div class=" progress-info ">
@@ -544,12 +550,14 @@
                       </div>
     
                                 
-    
-                    <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
-                    <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
-    
+     
     
                   </div>
+
+                  
+                  <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(5)" value="Add">
+                  <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+
                 </div>
               </div>
         </div>
@@ -566,15 +574,15 @@
                 <div class="row col-12 align-self-start" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">
       
                   <div class="row">
-                    <button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo3" style="margin-left: 20px;">
+                    <button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo6" style="margin-left: 20px;">
                       <span class="navbar-toggler-icon">V</span>
                     </button>
                     <input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">
                     <button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>
                   </div>
       
-                  <div id="demo3" class="collapse">
-                    <div class="container" style="float: left;">
+                  <div id="demo6" class="collapse">
+                    <div class="container" style="float: left;" id="progressBarContainer6">
       
                       <div class="progress-wrapper ">
                         <div class=" progress-info ">
@@ -607,11 +615,15 @@
       
                                   
       
-                      <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion()" value="Add">
-                      <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+                      
       
       
                     </div>
+
+                    <input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(6)" value="Add">
+                    <input type='submit' class="btn btn-sm btn-primary" formaction="/user/save">
+
+
                   </div>
                 </div>
         </div>
