@@ -18487,7 +18487,7 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
 
 .input-slider-value-output:after
 {
-    position: absolute;
+    position: relative;
     bottom: 100%;
     left: 10px;
 

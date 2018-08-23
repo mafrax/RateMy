@@ -1,5 +1,6 @@
 var User = require('../models/user');
 var truc = require("pornhub");
+var crawler = require('../models/crawl');
 
 module.exports = function(app, passport) {
 
@@ -7,8 +8,14 @@ module.exports = function(app, passport) {
 
 	// show the home page (will also have our login links)
 	app.get('/', function(req, res) {
-		res.render('test');
+		res.render('argon');
 	});
+
+	app.post('/upload', function(req, res){
+		console.log(req.body);
+		crawler.crawl();
+	});
+
 
 	// PROFILE SECTION =========================
 	app.get('/profile', isLoggedIn, function(req, res) {
@@ -59,13 +66,13 @@ module.exports = function(app, passport) {
 	});
 
 		// Update User
-		app.post('/user/save', isLoggedIn, function(req, res) {
+		app.post('/save', function(req, res) {
 			console.log("save entered");
 			console.log(req);
 		//https://www.remwebdevelopment.com/blog/sql/some-basic-and-useful-cypher-queries-for-neo4j-201.html
 		//https://gist.github.com/DaniSancas/1d5265fc159a95ff457b940fc5046887
 
-		truc.details("https://fr.pornhub.com/view_video.php?viewkey=ph5b52390ece80f", function(err, details) {
+		truc.details("https://youtube.com/channel/UC9hUOU4rxr9_kSMaTpiqvDw", function(err, details) {
 			console.log(err, details);
 		  });
 
@@ -197,6 +204,8 @@ module.exports = function(app, passport) {
 
 
 };
+
+
 
 // route middleware to ensure user is logged in
 function isLoggedIn(req, res, next) {

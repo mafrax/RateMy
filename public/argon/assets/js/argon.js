@@ -17,7 +17,9 @@
 */
  
 "use strict";
-$(document).ready(function() {
+$(document).ready(initializeUI());   
+
+function initializeUI() {
 
     // Collapse navigation
     $('.navbar-main .collapse').on('hide.bs.collapse', function () {
@@ -113,10 +115,12 @@ $(document).ready(function() {
         })
     }
 
-    if ($("#input-slider-range")[0]) {
-        var c = document.getElementById("input-slider-range"),
-            d = document.getElementById("input-slider-range-value-low"),
-            e = document.getElementById("input-slider-range-value-high"),
+    if ($('.comon-slider-range')[0]) {
+        $('.comon-slider-range').each(function() {
+        var i = 0;
+        var c = document.getElementById("input-slider-range"+i),
+            d = document.getElementById("input-slider-range-value-low"+i),
+            e = document.getElementById("input-slider-range-value-high"+i),
             f = [d, e];
 
         noUiSlider.create(c, {
@@ -129,6 +133,8 @@ $(document).ready(function() {
         }), c.noUiSlider.on("update", function(a, b) {
             f[b].textContent = a[b]
         })
+        i++;
+    })
     }
 
 
@@ -160,4 +166,4 @@ $(document).ready(function() {
 
         event.preventDefault();
     });
- });   
+ }
