@@ -1,6 +1,11 @@
 http://talkerscode.com/webtricks/add-edit-and-delete-rows-from-table-dynamically-using-javascript.php
 console.log("tructruc");
-document.getElementById("save_button0").style.display = "none";
+
+var array = document.querySelectorAll('*[id^="save_button"]'); 
+console.log(array);
+array.forEach(function(element){
+    element.style.display = "none";});
+
 var hidden = document.getElementById("custId0");
 console.log(hidden);
 
@@ -48,18 +53,23 @@ function add_criterion(videoNo) {
                 '<button type="button" id="save_button'+new_numero+'" value="Save" class="btn btn-sm btn-primary " onclick="save_row('+new_numero+')" style="border-radius: 100vh">S</button>'+
 
 
-                '<div class="progress-percentage" style="display: flex" >'+
-                    '<span style="color:rgba(248, 9, 176, 0.575)" id="criterionNote'+new_numero+'">40%</span>'+
+                '<div class="progress-percentage" style="display: inline-block; padding-right: 4px; padding-left: 4px;" >'+
+                    '<span style="color:rgba(248, 9, 176, 0.575)" id="criterionNote'+new_numero+'">0.00</span>'+
                 '</div>'+
+
+                '<div class="progress-percentage" style="display: inline-block" >'+
+                    '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote'+new_numero+'">0.00</span>'+
+                '</div>'+
+
             '</div>'+
 
-            '<div class="progress">'+
+            '<div class="progress"  style="position: relative;">'+
                 '<div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%; background-color: rgba(248, 9, 176, 0.575);"></div>'+
             '</div>'+
         '</div>'+
 
 
-        '<div class="input-slider-container" id="slider-container'+new_numero+'">'+
+        '<div class="input-slider-container" id="slider-container'+new_numero+'"  style="position: relative;">'+
             '<div id="input-slider'+new_numero+'" class="input-slider" data-range-value-min="-100" data-range-value-max="100"></div>'+
             '<!-- Input slider values -->'+
   '<div class="row mt-3 d-none">'+
@@ -74,6 +84,8 @@ function add_criterion(videoNo) {
     var new_element = document.createElement("div");
     new_element.setAttribute('class', "criterion");
     new_element.setAttribute('id', 'progressBar' + new_numero + '');
+    new_element.setAttribute('style', 'position: relative;');
+    
     new_element.innerHTML = html;
     console.log(new_element);
     max_div.appendChild(new_element);
