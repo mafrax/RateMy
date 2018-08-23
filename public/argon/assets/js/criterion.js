@@ -1,20 +1,3 @@
-function link_slider(slider) {
-
-    console.log(slider);
-    console.log(slider.parentElement);
-    var match = slider.id.match(/\d+/);
-    var div_number = parseInt(match[0], 10);
-    var brother = document.getElementById("sima" + div_number);
-    console.log(brother);
-    console.log(div_number);
-    var counter = document.getElementById("counter" + div_number);
-    console.log(slider.value);
-    counter.innerHTML = slider.value;
-    brother.style.width = 50 + slider.value / 2 + "%";
-    brother.style.opacity = 1;
-}
-
-
 http://talkerscode.com/webtricks/add-edit-and-delete-rows-from-table-dynamically-using-javascript.php
 console.log("tructruc");
 document.getElementById("save_button0").style.display = "none";
@@ -66,7 +49,7 @@ function add_criterion(videoNo) {
 
 
                 '<div class="progress-percentage" style="display: flex" >'+
-                    '<span style="color:rgba(248, 9, 176, 0.575)">40%</span>'+
+                    '<span style="color:rgba(248, 9, 176, 0.575)" id="criterionNote'+new_numero+'">40%</span>'+
                 '</div>'+
             '</div>'+
 
@@ -77,11 +60,11 @@ function add_criterion(videoNo) {
 
 
         '<div class="input-slider-container" id="slider-container'+new_numero+'">'+
-            '<div id="input-slider'+new_numero+'" class="input-slider" data-range-value-min="100" data-range-value-max="500"></div>'+
+            '<div id="input-slider'+new_numero+'" class="input-slider" data-range-value-min="-100" data-range-value-max="100"></div>'+
             '<!-- Input slider values -->'+
   '<div class="row mt-3 d-none">'+
                 '<div class="col-6">'+
-                    '<span id="input-slider-value'+new_numero+'" class="range-slider-value" data-range-value-low="100"></span>'+
+                    '<span id="input-slider-value'+new_numero+'" class="range-slider-value" data-range-value-low="0"></span>'+
                 '</div>'+
             '</div>'+
         '</div>';
@@ -100,20 +83,20 @@ function add_criterion(videoNo) {
     console.log("new_element"+ new_element);
     console.log("newSliderContainer"+ newSliderContainer);
 
-    initializeSlider(newSliderContainer,new_numero);
+    initializeSlider(newSliderContainer,new_element, new_numero);
     
     document.getElementById("save_button" + new_numero).style.display = "none";
     
 
 }
 
-function initializeSlider(sliderContainer, new_numero){
+function initializeSlider(sliderContainer,new_element, new_numero){
 
     console.log(sliderContainer);
 
     var slider = sliderContainer.querySelector('#input-slider'+new_numero);
     console.log(slider);
-   
+   var sliderPercent = new_element.querySelector("#criterionNote"+new_numero);
     console.log(slider.id);
     var maxValue = slider.getAttribute("data-range-value-max");
     var minValue = slider.getAttribute("data-range-value-min");
@@ -135,6 +118,8 @@ function initializeSlider(sliderContainer, new_numero){
     
     slider.noUiSlider.on('update', function(a, b) {
         sliderValue.textContent = a[b];
+        console.log(sliderValue);
+        sliderPercent.innerHTML = sliderValue.innerHTML ;
     });
 }
     
