@@ -32,17 +32,23 @@ function save_row(no) {
 }
 
 function add_criterion(videoNo) {
+
+    var max_div = document.getElementById("progressBarContainer"+videoNo);
+    console.log(max_div);
+    var array = max_div.querySelectorAll('*[id^="save_button"]'); 
+    console.log(array);
+    array.forEach(function(element){
+        element.style.display = "none";});
+
     // var new_name=document.getElementById("new_name").value;
     // console.log(n_sliders);
-    var max_div = document.getElementById("progressBarContainer"+videoNo);
     var truc = max_div.querySelectorAll("div.criterion");
     console.log(truc);
     var new_numero = truc.length + 1;
     console.log(new_numero);
     console.log($(".input-slider-container"));
     
-    var html =  '<div class="progress-wrapper ">'+
-                    '<div class=" progress-info ">'+
+    var html1 = '<div class=" progress-info ">'+
                 '<div class="progress-label ">'+
                     '<span id="criterionName'+new_numero+ '">Task completed'+ '!!!!!!!!!!!!!!!!!!!!'+
                     '</span>'+
@@ -65,37 +71,45 @@ function add_criterion(videoNo) {
 
             '<div class="progress"  style="position: relative;">'+
                 '<div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%; background-color: rgba(248, 9, 176, 0.575);"></div>'+
-            '</div>'+
-        '</div>'+
+            
+        '</div>';
 
 
-        '<div class="input-slider-container" id="slider-container'+new_numero+'"  style="position: relative;">'+
-            '<div id="input-slider'+new_numero+'" class="input-slider" data-range-value-min="-100" data-range-value-max="100"></div>'+
+  var html2 =  '<div id="input-slider'+new_numero+'" class="input-slider" data-range-value-min="-100" data-range-value-max="100"></div>'+
             '<!-- Input slider values -->'+
   '<div class="row mt-3 d-none">'+
                 '<div class="col-6">'+
                     '<span id="input-slider-value'+new_numero+'" class="range-slider-value" data-range-value-low="0"></span>'+
                 '</div>'+
-            '</div>'+
         '</div>';
 
 
 
-    var new_element = document.createElement("div");
-    new_element.setAttribute('class', "criterion");
-    new_element.setAttribute('id', 'progressBar' + new_numero + '');
-    new_element.setAttribute('style', 'position: relative;');
+    var new_element1 = document.createElement("div");
+    new_element1.setAttribute('class', "progress-wrapper");
+    // new_element.setAttribute('id', 'progressBar' + new_numero + '');
+    // new_element.setAttribute('style', 'position: relative;');
     
-    new_element.innerHTML = html;
-    console.log(new_element);
-    max_div.appendChild(new_element);
+    new_element1.innerHTML = html1;
+    console.log(new_element1);
+    max_div.appendChild(new_element1);
+
+
+    var new_element2 = document.createElement("div");
+    new_element2.setAttribute('class', "input-slider-container");
+    new_element2.setAttribute('id', "slider-container"+new_numero);
+    // new_element.setAttribute('style', 'position: relative;');
+    
+    new_element2.innerHTML = html2;
+    console.log(new_element2);
+    max_div.appendChild(new_element2);
 
     var newSliderContainer = new_element.querySelector('#slider-container'+new_numero);
 
-    console.log("new_element"+ new_element);
+    console.log("new_element"+ new_element2);
     console.log("newSliderContainer"+ newSliderContainer);
 
-    initializeSlider(newSliderContainer,new_element, new_numero);
+    initializeSlider(new_element2,new_element1, new_numero);
     
     document.getElementById("save_button" + new_numero).style.display = "none";
     

@@ -1,6 +1,10 @@
 var User = require('../models/user');
 var truc = require("pornhub");
 var crawler = require('../models/crawl');
+var Pornsearch = require('pornsearch');
+var Searcher = new Pornsearch('tits');
+ 
+
 
 module.exports = function(app, passport) {
 

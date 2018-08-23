@@ -8,7 +8,21 @@ var Crawler = module.exports = function Crawler(_node) {
 }
 
 Crawler.crawl = function crawl(){
-    rp('https://fr.pornhub.com/')
+
+
+    var options = {
+        uri: 'https://fr.pornhub.com/view_video.php',
+        qs: {
+            access_token: '?viewkey=ph5b5bbe547bfe2' // -> uri + '?access_token=xxxxx%20xxxxx'
+        },
+        headers: {
+            'User-Agent': 'Request-Promise'
+        },
+        json: true // Automatically parses the JSON string in the response
+    };
+
+
+    rp(options)
         .then(function (response) {
             try {
                 var n = response.indexOf("embed");
