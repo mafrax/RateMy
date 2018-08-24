@@ -1,6 +1,9 @@
 http://talkerscode.com/webtricks/add-edit-and-delete-rows-from-table-dynamically-using-javascript.php
 console.log("tructruc");
 
+// document.getElementById("myAnchor").addEventListener("click", function(event){
+//     event.preventDefault()
+// });
 var array = document.querySelectorAll('*[id^="save_button"]'); 
 console.log(array);
 array.forEach(function(element){
