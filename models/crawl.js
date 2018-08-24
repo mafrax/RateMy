@@ -50,6 +50,7 @@ Crawler.crawl = function (url, cb) {
                 var res3 = res2.substring(sub + 2, sub2);
                 console.log(res3);
 
+                cb(res3);
 
             } catch (e) {
                 reject(e);
@@ -59,6 +60,7 @@ Crawler.crawl = function (url, cb) {
             console.log(err);
             // rejected
         });
+
 }
 
 Crawler.crawl2 = function () {
@@ -83,7 +85,7 @@ Crawler.crawl2 = function () {
 
 }
 
-Crawler.addModalDiv = function (cb) {
+Crawler.addModalDiv = function () {
 
     var html2 = '<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">' +
         '<div class="modal-dialog" role="document">' +
@@ -105,7 +107,7 @@ Crawler.addModalDiv = function (cb) {
         '</div>' +
         '</div>';
 
-        cb(html2);
+return html2;
 
     // var new_element = document.createElement("div");
     //     new_element.setAttribute('class', "modal fade");
