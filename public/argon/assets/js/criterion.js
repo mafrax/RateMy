@@ -106,8 +106,8 @@ function add_criterion(videoNo) {
 
     var newSliderContainer = new_element.querySelector('#slider-container'+new_numero);
 
-    console.log("new_element"+ new_element2);
-    console.log("newSliderContainer"+ newSliderContainer);
+    console.log("new_element "+ new_element2);
+    console.log("newSliderContainer "+ newSliderContainer);
 
     initializeSlider(new_element2,new_element1, new_numero);
     
