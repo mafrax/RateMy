@@ -12,7 +12,7 @@ module.exports = function (app, passport) {
 
 	// show the home page (will also have our login links)
 	app.get('/', function (req, res) {
-		res.render('argon', {dynamicVariable: "<div>truc</div>"});
+		res.render('argon', {dynamicVariable: "truc"});
 	});
 
 	app.post('/upload', function (req, res) {
@@ -21,9 +21,9 @@ module.exports = function (app, passport) {
 		// https://fr.pornhub.com/view_video.php?viewkey=ph5b5bbe547bfe2
 		crawler.crawl(req.body.field2, function(url){
 			console.log(url);
-			var html = crawler.addModalDiv();
+			var html = crawler.addModalDiv(url);
 			console.log(html);
-				res.render('argon', {dynamicVariable: html});
+				res.render('argon', {dynamicVariable: html.valueOf()});
 			});
 		});
 

@@ -1,6 +1,7 @@
 function expandIframe(column, row){
-
+console.log("cell"+row+"x"+column);
 var cell = document.getElementById("cell"+row+"x"+column);
+console.log(cell);
 var cell2;
 
 

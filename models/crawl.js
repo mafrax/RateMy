@@ -76,27 +76,103 @@ Crawler.crawl = function (url, cb) {
 
 }
 
-Crawler.addModalDiv = function () {
+Crawler.addModalDiv = function (url) {
 
-    var html2 = '<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">' +
-        '<div class="modal-dialog" role="document">' +
-        '<div class="modal-content">' +
-        '<div class="modal-header">' +
-        '<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>' +
-        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-        '<span aria-hidden="true">&times;</span>' +
-        '</button>' +
-        '</div>' +
-        '<div class="modal-body">' +
-        '...' +
-        '</div>' +
-        '<div class="modal-footer">' +
-        '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
-        '<button type="button" class="btn btn-primary">Save changes</button>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>';
+    var html2 = '<div class="modal-dialog" role="document" style="position: absolute; z-index: 1000;width: 100vh;">'+
+    '<div class="modal-content">'+
+      '<div class="modal-header">'+
+        '<h5 class="modal-title">Modal title</h5>'+
+        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">'+
+          '<span aria-hidden="true">&times;</span>'+
+        '</button>'+
+      '</div>'+
+      '<div class="modal-body">'+
+        
+
+      '<div class="col-sm-4 align-self-start" id="cell0x0" >'+
+      '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->'+
+      '<div class="row col-12 embed-responsive embed-responsive-16by9">'+
+        '<iframe class="embed-responsive-item" src="'+url+'" frameborder="0" allow="autoplay; encrypted-media"'+
+          'allowfullscreen>'+
+        '</iframe>'+
+        '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(0,0)">EX</button>'+
+      '</div>'+
+
+      '<div class="row col-12 align-self-start" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">'+
+        '<!-- <button class="row col-12 btn btn-sm btn-primary" data-toggle="collapse" data-target="#demo"> -->'+
+        '<!-- </button> -->'+
+        '<div class="row col-12">'+
+
+          '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo" aria-controls="nav-inner-primary"'+
+            'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">'+
+            '<span class="navbar-toggler-icon">V</span>'+
+          '</button>'+
+          '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">'+
+          '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>'+
+        '</div>'+
+
+        '<div id="demo" class="collapse" style="max-height: 50vh; overflow:auto">'+
+          '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer0">'+
+
+            '<div class="criterion" id="progressBar0"  style="position: relative;">'+
+            '<div class="progress-wrapper ">'+
+              '<div class=" progress-info ">'+
+                '<div class="progress-label ">'+
+                  '<span id="criterionName0">Task completed !!!!!!!!!!!!!!!!!!!!'+
+                  '</span>'+
+                  '<input type="hidden" id="custId0">'+
+                '</div>'+
+                '<button type="button" id="edit_button0" value="Edit" class="btn btn-sm btn-primary " onclick="edit_row(0)" style="border-radius: 100vh">E</button>'+
+                '<button type="button" id="save_button0" value="Save" class="btn btn-sm btn-primary " onclick="save_row(0)" style="border-radius: 100vh">S</button>'+
+
+                '<div class="progress-percentage" style="display: flex" >'+
+                  '<span style="color:rgba(248, 9, 176, 0.575)">40%</span>'+
+                '</div>'+
+              '</div>'+
+
+              '<div class="progress"  style="position: relative;">'+
+                '<div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%; background-color: rgba(248, 9, 176, 0.575);"></div>'+
+              '</div>'+
+            '</div>'+
+
+
+            '<div class="input-slider-container"  style="position: relative;">'+
+              '<div id="input-slider1" class="input-slider" data-range-value-min="100" data-range-value-max="500"></div>'+
+              '<!-- Input slider values -->'+
+              '<div class="row mt-3 d-none">'+
+                '<div class="col-6">'+
+                  '<span id="input-slider-value1" class="range-slider-value" data-range-value-low="100"></span>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+
+            '</div>'+
+
+          '</div>'+
+
+          '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(0)" value="Add" >'+
+          '<input type="submit" class="btn btn-sm btn-primary" formaction="/user/save">'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+
+
+
+
+
+
+
+
+
+      
+      '</div>'+
+      '<div class="modal-footer">'+
+        '<button type="button" class="btn btn-primary">Save changes</button>'+
+        '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
 
 return html2;
 
