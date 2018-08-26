@@ -23,7 +23,7 @@ module.exports = function (app, passport) {
 			console.log(url);
 			var html = crawler.addModalDiv();
 			console.log(html);
-				res.send({dynamicVariable: html});
+				res.render('argon', {dynamicVariable: html});
 			});
 		});
 

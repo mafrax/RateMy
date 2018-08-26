@@ -76,28 +76,6 @@ Crawler.crawl = function (url, cb) {
 
 }
 
-Crawler.crawl2 = function () {
-    var url = "https://fr.pornhub.com/view_video.php?viewkey=ph5b5bbe547bfe2";
-
-    request(url, function (error, response, body) {
-        if (!error) {
-            var $ = cheerio.load(body);
-
-            var title = $('title').text();
-            var content = $('body').text();
-            var freeArticles = $('.central-featured-lang.lang1 a small').text()
-
-            console.log('URL: ' + url);
-            console.log('Title: ' + title);
-            console.log('EN articles: ' + freeArticles);
-        }
-        else {
-            console.log("We’ve encountered an error: " + error);
-        }
-    });
-
-}
-
 Crawler.addModalDiv = function () {
 
     var html2 = '<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">' +
