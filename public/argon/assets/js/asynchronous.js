@@ -1,13 +1,13 @@
-function asynchronous(){
+function asynchronous(urlOrigin){
 
     console.log(document.getElementById("field2"));
-    var url = '/truc/'+document.getElementById("field2").nodeValue;
+    var url = '/upload/'+urlOrigin;
+    console.log(url);
     var xmlHttp = new XMLHttpRequest();
     
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
-            // here get the response from the server
-            // and display your data
+            document.getElementById("truc").innerHTML = xhttp.responseText;
         }
     }
     xmlHttp.open("POST", url, true); // false for synchronous request

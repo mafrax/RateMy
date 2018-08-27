@@ -15,11 +15,13 @@ module.exports = function (app, passport) {
 		res.render('argon', {dynamicVariable: "truc"});
 	});
 
-	app.post('/upload', function (req, res) {
-		console.log(req.body);
+	app.post('/upload/:url', function (req, res) {
+		// console.log(req.body);
+		console.log(url2);
 		// https://m.hclips.com/videos/a-tip-for-the-waitress-xxxpawn/?promo=1102
 		// https://fr.pornhub.com/view_video.php?viewkey=ph5b5bbe547bfe2
-		crawler.crawl(req.body.field2, function(url){
+		// crawler.crawl(req.body.field2, function(url){
+			crawler.crawl(url2, function(url){
 			console.log(url);
 			var html = crawler.addModalDiv(url);
 			console.log(html);
