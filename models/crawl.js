@@ -89,7 +89,7 @@ Crawler.addModalDiv = function (url) {
       '<div class="modal-body">'+
         
 
-      '<div class="col-sm-4 align-self-start" id="cell0x0" >'+
+      '<div class="col-12" id="cell0x0" >'+
       '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->'+
       '<div class="row col-12 embed-responsive embed-responsive-16by9">'+
         '<iframe class="embed-responsive-item" src="'+url+'" frameborder="0" allow="autoplay; encrypted-media"'+
@@ -98,10 +98,10 @@ Crawler.addModalDiv = function (url) {
         '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(0,0)">EX</button>'+
       '</div>'+
 
-      '<div class="row col-12 align-self-start" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">'+
+      '<div class="row col-12 " style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">'+
         '<!-- <button class="row col-12 btn btn-sm btn-primary" data-toggle="collapse" data-target="#demo"> -->'+
         '<!-- </button> -->'+
-        '<div class="row col-12">'+
+        '<div class="row col-12 flex">'+
 
           '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo" aria-controls="nav-inner-primary"'+
             'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">'+
@@ -111,10 +111,10 @@ Crawler.addModalDiv = function (url) {
           '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>'+
         '</div>'+
 
-        '<div id="demo" class="collapse" style="max-height: 50vh; overflow:auto">'+
+        '<div id="demo" class="collapse flex" style="max-height: 50vh; overflow:auto">'+
           '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer0">'+
 
-            '<div class="criterion" id="progressBar0"  style="position: relative;">'+
+            '<div class="criterion flex" id="progressBar0"  style="position: relative;">'+
             '<div class="progress-wrapper ">'+
               '<div class=" progress-info ">'+
                 '<div class="progress-label ">'+
