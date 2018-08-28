@@ -21,6 +21,14 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+
+// Chargement de socket.io
+var io = require('socket.io').listen(server);
+// Quand un client se connecte, on le note dans la console
+
+var handler = require('../models/eventHandler')(io);
+
+
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -28,6 +36,7 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
 
 /**
  * Normalize a port into a number, string, or false.

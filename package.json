@@ -28,6 +28,7 @@
     "pornhub": "0.0.5",
     "pornsearch": "^2.4.2",
     "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "socket.io": "^2.1.1"
   }
 }

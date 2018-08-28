@@ -74,8 +74,5 @@ module.exports = function(app, passport) {
 
 	});
 
-	app.post('/upload', function(req, res){
-		console.log(req.body);
-	});
 
 };

@@ -78,18 +78,7 @@ Crawler.crawl = function (url, cb) {
 
 Crawler.addModalDiv = function (url) {
 
-    var html2 = '<div class="modal-dialog" role="document" style="position: absolute; z-index: 1000;width: 100vh;">'+
-    '<div class="modal-content">'+
-      '<div class="modal-header">'+
-        '<h5 class="modal-title">Modal title</h5>'+
-        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">'+
-          '<span aria-hidden="true">&times;</span>'+
-        '</button>'+
-      '</div>'+
-      '<div class="modal-body">'+
-        
-
-      '<div class="col-12" id="cell0x0" >'+
+    var html2 = '<div class="col-12" id="cell0x0" >'+
       '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->'+
       '<div class="row col-12 embed-responsive embed-responsive-16by9">'+
         '<iframe class="embed-responsive-item" src="'+url+'" frameborder="0" allow="autoplay; encrypted-media"'+
@@ -154,25 +143,8 @@ Crawler.addModalDiv = function (url) {
           '<input type="submit" class="btn btn-sm btn-primary" formaction="/user/save">'+
         '</div>'+
       '</div>'+
-    '</div>'+
+    '</div>';
 
-
-
-
-
-
-
-
-
-
-      
-      '</div>'+
-      '<div class="modal-footer">'+
-        '<button type="button" class="btn btn-primary">Save changes</button>'+
-        '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>'+
-      '</div>'+
-    '</div>'+
-  '</div>';
 
 return html2;
 

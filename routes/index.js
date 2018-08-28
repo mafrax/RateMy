@@ -12,21 +12,11 @@ module.exports = function (app, passport) {
 
 	// show the home page (will also have our login links)
 	app.get('/', function (req, res) {
-		res.render('argon', {dynamicVariable: "truc"});
+		res.render('argon', {dynamicVariable: "<div></div>" });
 	});
 
-	app.post('/upload/:url', function (req, res) {
-		// console.log(req.body);
-		console.log(url2);
-		// https://m.hclips.com/videos/a-tip-for-the-waitress-xxxpawn/?promo=1102
-		// https://fr.pornhub.com/view_video.php?viewkey=ph5b5bbe547bfe2
-		// crawler.crawl(req.body.field2, function(url){
-			crawler.crawl(url2, function(url){
-			console.log(url);
-			var html = crawler.addModalDiv(url);
-			console.log(html);
-				res.render('argon', {dynamicVariable: html.valueOf()});
-			});
+	app.post('/upload', function (req, res) {
+		console.log("ca marche pas !!!!!!!!!!!!!!");
 		});
 
 
