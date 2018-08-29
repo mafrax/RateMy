@@ -8,8 +8,8 @@ exports = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
     console.log('Un client est connecté !');
  
-      // Quand le serveur reçoit un signal de type "message" du client    
-      socket.on('message', function (message) {
+      // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
+      socket.on('messageUploadfromClient', function (message) {
           console.log('Un client me parle ! Il me dit : ' + message);
 
           crawler.crawl(message, function(url, title){
@@ -17,8 +17,8 @@ exports = module.exports = function(io){
               console.log(url);
               console.log(title);
               var html = crawler.addModalDiv(url);
-              console.log(html);
-              socket.emit('message', {htmlfield: html, titlefield: title });                           
+
+              socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title });                           
               });
 
 
