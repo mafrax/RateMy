@@ -70,22 +70,27 @@ Crawler.crawl = function (url, cb) {
                 var title = response.substring(t1+7, t2);
 
                 htmlToJson.parse(response, {
- 
+                  
                   p: function (doc) {
                
                       return doc.find('title').text();
                
-                  }
+                  },
+
+                  q: function (doc) {
                
-              }).then(function (result) {
+                    return doc.find('url').text();             
+                }
+
                
+              }).then(function (result) {               
                   console.log(result.p); // 'this is only an example'
-               
-              });
-
-                console.log(title);
-
+                  console.log(result.q); // 'this is only an example'
+                  
+                });
+                
                 cb(res3, title);
+
 
             } catch (e) {
                 reject(e);
@@ -98,14 +103,15 @@ Crawler.crawl = function (url, cb) {
 
 }
 
-Crawler.addModalDiv = function (url) {
-
+Crawler.addModalDiv = function (url, originalUrl) {
+console.log(originalUrl);
     var html2 = '<div class="col-12 flex-wrap" id="cell0x0" >'+
       '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->'+
       '<div class="row col-12 embed-responsive embed-responsive-16by9">'+
         '<iframe class="embed-responsive-item" src="'+url+'" frameborder="0" allow="autoplay; encrypted-media"'+
-          'allowfullscreen>'+
+          'allowfullscreen id="modalEmbedVideoId">'+
         '</iframe>'+
+        '<input type="hidden" id="hiddenURl" value="'+originalUrl+'">'+
         '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(0,0)">EX</button>'+
       '</div>'+
 
@@ -135,17 +141,4 @@ Crawler.addModalDiv = function (url) {
 
 
 return html2;
-
-    // var new_element = document.createElement("div");
-    //     new_element.setAttribute('class', "modal fade");
-    //     new_element.setAttribute('id', 'exampleModal');
-    //     new_element.setAttribute('tabindex', '-1');
-    //     new_element.setAttribute('role', 'dialog');
-    //     new_element.setAttribute('aria-labelledby', 'exampleModalLabel');
-    //     new_element.setAttribute('aria-hidden', 'hidden');
-
-    //     new_element.innerHTML = html2;
-    //     console.log(new_element);
-    //     max_div.appendChild(new_element);
-
 }

@@ -16,13 +16,29 @@ exports = module.exports = function(io){
               // crawler.crawl(url2, function(url){
               console.log(url);
               console.log(title);
-              var html = crawler.addModalDiv(url);
+              var html = crawler.addModalDiv(url, message);
 
-              socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title });                           
+              socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message });                           
               });
 
 
       });	
+
+
+      socket.on('messageSavefromClient', function (message) {
+        console.log('Un client me parle ! Il me dit : ' + message);
+
+        crawler.crawl(message, function(url, title){
+            // crawler.crawl(url2, function(url){
+            console.log(url);
+            console.log(title);
+            var html = crawler.addModalDiv(url, message);
+
+            socket.emit('messageSavefromServer', {htmlfield: html, titlefield: title, originalUrlField: message });                           
+            });
+
+
+    });	
 
   });
 
