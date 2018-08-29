@@ -42,6 +42,9 @@ exports = module.exports = function(io){
           return next(err);
           console.log(video);
 
+          socket.emit('videoSavedfromServer');                           
+          
+
         });
 
     });	

@@ -6,6 +6,12 @@ var socket = io.connect('http://localhost:3000');
                 $('#exampleModalLabel').html(message.titlefield);
             })
 
+            socket.on('videoSavedfromServer', function() {
+                
+                $('#closeModalButton').trigger('click');
+               
+            })
+
 
 
                 $('#uploadForm').submit(function () {
