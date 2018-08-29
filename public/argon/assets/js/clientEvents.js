@@ -22,7 +22,7 @@ var socket = io.connect('http://localhost:3000');
                     
                     var title = $('#exampleModalLabel').val();
                     var originalUrl = $('#hiddenURl').val();
-                    var embedUrl = $('#modalEmbedVideoId').val();
+                    var embedUrl = $('#modalEmbedVideoId').attr('src');
                     console.log(title);
                     console.log(originalUrl);
                     console.log(embedUrl);

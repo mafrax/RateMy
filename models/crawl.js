@@ -79,7 +79,7 @@ Crawler.crawl = function (url, cb) {
 
                   q: function (doc) {
                
-                    return doc.find('url').text();             
+                    return doc.find('tag').text();             
                 }
 
                
