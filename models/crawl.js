@@ -63,7 +63,16 @@ Crawler.crawl = function (url, cb) {
                 var res3 = res2.substring(sub + 2, sub2);
                 console.log(res3);
 
-                cb(res3);
+
+                var t1 = response.indexOf("<title>");
+                var t2 = response.indexOf("</title>");
+                var title = response.substring(t1+7, t2);
+
+                console.log(title);
+
+
+
+                cb(res3, title);
 
             } catch (e) {
                 reject(e);
