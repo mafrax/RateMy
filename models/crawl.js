@@ -1,6 +1,8 @@
 var rp = require('request-promise');
 var request = require('request');
 var cheerio = require('cheerio');
+var htmlToJson = require('html-to-json');
+
 
 // private constructor:
 var Crawler = module.exports = function Crawler(_node) {
@@ -66,6 +68,20 @@ Crawler.crawl = function (url, cb) {
                 var t1 = response.indexOf("<title>");
                 var t2 = response.indexOf("</title>");
                 var title = response.substring(t1+7, t2);
+
+                htmlToJson.parse(response, {
+ 
+                  p: function (doc) {
+               
+                      return doc.find('title').text();
+               
+                  }
+               
+              }).then(function (result) {
+               
+                  console.log(result.p); // 'this is only an example'
+               
+              });
 
                 console.log(title);
 

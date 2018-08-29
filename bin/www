@@ -26,7 +26,7 @@ var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 // Quand un client se connecte, on le note dans la console
 
-var handler = require('../models/eventHandler')(io);
+var handler = require('../models/serverEvents')(io);
 
 
 /**
