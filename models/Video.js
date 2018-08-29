@@ -41,10 +41,7 @@ console.log(qp);
 // creates the user and persists (saves) it to the db, incl. indexing it:
 Video.create = function (data, callback) {
   console.log(data);
-  Video.getAll(function(err, cities){
-	var c = new Array();
-	c = cities;
-  })
+
 	var qp = {
 		query: [
             'CREATE (video:Video {data})',

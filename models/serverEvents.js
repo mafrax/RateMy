@@ -1,7 +1,7 @@
-var truc = require("pornhub");
+
 var crawler = require('../models/crawl');
-var Pornsearch = require('pornsearch');
-var Searcher = new Pornsearch('tits');
+var video = require('../models/Video');
+var pass = require('../config/passport');
 
 
 exports = module.exports = function(io){
@@ -27,16 +27,22 @@ exports = module.exports = function(io){
 
       socket.on('messageSavefromClient', function (message) {
         console.log('Un client me parle ! Il me dit : ' + message);
+        console.log(message);
 
-        crawler.crawl(message, function(url, title){
-            // crawler.crawl(url2, function(url){
-            console.log(url);
-            console.log(title);
-            var html = crawler.addModalDiv(url, message);
+        var newVideo = {};
+        newVideo.originalUrl = message.originalUrlField;
+        newVideo.embedUrl = message.embedUrlField;
+        newVideo.title = message.titlefield;
 
-            socket.emit('messageSavefromServer', {htmlfield: html, titlefield: title, originalUrlField: message });                           
-            });
 
+        video.create(newVideo, function (err, video) {
+						
+          console.log(err);
+          if (err)
+          return next(err);
+          console.log(video);
+
+        });
 
     });	
 

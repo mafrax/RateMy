@@ -1,7 +1,6 @@
 var socket = io.connect('http://localhost:3000');
 
             socket.on('messageUploadfromServer', function(message) {
-                console.log(document.getElementById("hiddenURl"));
                 console.log(message.originalUrlField);
                 $('#modal-body').html(message.htmlfield);
                 $('#exampleModalLabel').html(message.titlefield);
@@ -20,7 +19,7 @@ var socket = io.connect('http://localhost:3000');
 
                 $('#modalSaveButton').click(function () {
                     
-                    var title = $('#exampleModalLabel').val();
+                    var title = $('#exampleModalLabel').html();
                     var originalUrl = $('#hiddenURl').val();
                     var embedUrl = $('#modalEmbedVideoId').attr('src');
                     console.log(title);
