@@ -12,13 +12,13 @@ exports = module.exports = function(io){
       socket.on('messageUploadfromClient', function (message) {
           console.log('Un client me parle ! Il me dit : ' + message);
 
-          crawler.crawl(message, function(url, title){
+          crawler.crawl(message, function(url, title, tags){
               // crawler.crawl(url2, function(url){
               console.log(url);
               console.log(title);
               var html = crawler.addModalDiv(url, message);
-
-              socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message });                           
+              console.log(tags);
+              socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
               });
 
 

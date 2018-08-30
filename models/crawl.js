@@ -77,18 +77,26 @@ Crawler.crawl = function (url, cb) {
                 //     console.log(result);
                 //   })
 
+                var tagArray1 = new Array();
+
                 tags.getAll( function(err , allTags){
                     console.log(allTags);
                     allTags.forEach( function(element) {
                        
                         if(response.indexOf(" "+element.tag.properties.tagName+" ") !== -1){
                             console.log("fondTag: "+element.tag.properties.tagName );
+                            tagArray1.push(element.tag.properties.tagName);
                         }
                     })
 
                 } )
-                
-                cb(res3, title);
+                console.log(tagArray1);
+                var tagArray = new Array(tagArray1.length);
+                for(var i=0;i<tagArray1.length;i++){
+                    tagArray.push(tagArray1[i]) ;
+                  }
+                console.log(tagArray);
+                cb(res3, title, tagArray);
 
 
             } catch (e) {

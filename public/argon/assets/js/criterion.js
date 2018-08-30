@@ -37,7 +37,7 @@ function save_row(no) {
     document.getElementById("save_button" + no).style.display = "none";
 }
 
-function add_criterion(videoNo) {
+function add_criterion(videoNo, criterionTitle) {
 
     var max_div = document.getElementById("progressBarContainer"+videoNo);
     console.log(max_div);
@@ -53,10 +53,10 @@ function add_criterion(videoNo) {
     var new_numero = truc.length + 1;
     console.log(new_numero);
     console.log($(".input-slider-container"));
-    
+    console.log(criterionTitle);
     var html1 = '<div class=" progress-info flex-wrap">'+
                 '<div class="progress-label flex-wrap">'+
-                    '<span id="criterionName'+new_numero+ '">Task completed'+ '!!!!!!!!!!!!!!!!!!!!'+
+                    '<span id="criterionName'+new_numero+ '">'+criterionTitle+
                     '</span>'+
                     '<input type="hidden" id="custId'+new_numero+'">'+
                 '</div>'+

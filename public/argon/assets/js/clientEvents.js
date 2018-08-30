@@ -4,6 +4,11 @@ var socket = io.connect('http://localhost:3000');
                 console.log(message.originalUrlField);
                 $('#modal-body').html(message.htmlfield);
                 $('#exampleModalLabel').html(message.titlefield);
+                console.log(message);
+                console.log(message.tags);
+                message.tags.each( function(element){
+                    add_criterion(0 , element);
+                })
             })
 
             socket.on('videoSavedfromServer', function() {
