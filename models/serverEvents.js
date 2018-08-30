@@ -33,6 +33,7 @@ exports = module.exports = function(io){
         newVideo.originalUrl = message.originalUrlField;
         newVideo.embedUrl = message.embedUrlField;
         newVideo.title = message.titlefield;
+        newVideo.timestamp = new Date();
 
 
         video.create(newVideo, function (err, video) {

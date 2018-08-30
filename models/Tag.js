@@ -3,19 +3,19 @@ var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
 var bcrypt = require('bcrypt-nodejs');
 
 // private constructor:
-var Video = module.exports = function Video(_node) {
+var Tag = module.exports = function Tag(_node) {
 	// all we'll really store is the node; the rest of our properties will be
 	// derivable or just pass-through properties (see below).
 	this._node = _node;
 }
 
-Video.getBy = function (field, value, callback) {
+Tag.getBy = function (field, value, callback) {
 	console.log('entered getby');
 	console.log(value);
 	console.log(field);
 	var qp = {
 		query: [
-			'MATCH (video:video)','WHERE ' + field + ' = {value}','RETURN video',
+			'MATCH (tag:tag)','WHERE ' + field + ' = {value}','RETURN tag',
 		]
 		.join('\n')
 		,
@@ -39,33 +39,32 @@ console.log(qp);
 }
 
 // creates the user and persists (saves) it to the db, incl. indexing it:
-Video.create = function (data, callback) {
+Tag.create = function (data, callback) {
   console.log(data);
 
 	var qp = {
 		query: [
-            'CREATE (video:Video {data})',
-			'RETURN video',
+            'CREATE (tag:Tag {data})',
+			'RETURN tag',
 		].join('\n'),
 		params: {
-            data: data,
+			data: data
 		}
 	}
 	console.log('after query');
 	console.log(qp);
 	db.cypher(qp, function (err, results) {
         if (err) return callback(err);
-		callback(null, results[0]['video']);
+		callback(null, results[0]['tag']);
 		console.log(results);
 	});
 };
 
-Video.getAll = function (callback) {
+Tag.getAll = function (callback) {
 	var qp = {
 		query: [
-			'MATCH (video:Video)',
-			'RETURN video',
-			'LIMIT 100'
+			'MATCH (tag:Tag)',
+			'RETURN tag'
 		].join('\n')
 	}
 

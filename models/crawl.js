@@ -2,7 +2,7 @@ var rp = require('request-promise');
 var request = require('request');
 var cheerio = require('cheerio');
 var htmlToJson = require('html-to-json');
-
+var tags = require("../models/Tag")
 
 // private constructor:
 var Crawler = module.exports = function Crawler(_node) {
@@ -69,25 +69,24 @@ Crawler.crawl = function (url, cb) {
                 var t2 = response.indexOf("</title>");
                 var title = response.substring(t1+7, t2);
 
-                htmlToJson.parse(response, {
-                  
-                  p: function (doc) {
-               
-                      return doc.find('title').text();
-               
-                  },
+                // var promise = htmlToJson.request('https://www.nu-bay.com/categories?p=6', {
+                //     'title': ['a', function ($a) {
+                //       return $a.attr('title');
+                //     }]
+                //   }, function (err, result) {
+                //     console.log(result);
+                //   })
 
-                  q: function (doc) {
-               
-                    return doc.find('tag').text();             
-                }
+                tags.getAll( function(err , allTags){
+                    console.log(allTags);
+                    allTags.forEach( function(element) {
+                       
+                        if(response.indexOf(" "+element.tag.properties.tagName+" ") !== -1){
+                            console.log("fondTag: "+element.tag.properties.tagName );
+                        }
+                    })
 
-               
-              }).then(function (result) {               
-                  console.log(result.p); // 'this is only an example'
-                  console.log(result.q); // 'this is only an example'
-                  
-                });
+                } )
                 
                 cb(res3, title);
 
