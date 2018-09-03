@@ -36,7 +36,7 @@ exports = module.exports = function(io){
         newVideo.timestamp = new Date();
 
 
-        video.create(newVideo, function (err, video) {
+        video.create(newVideo, message.tags, function (err, video) {
 						
           console.log(err);
           if (err)

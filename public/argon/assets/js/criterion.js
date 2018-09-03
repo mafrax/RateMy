@@ -48,15 +48,15 @@ function add_criterion(videoNo, criterionTitle) {
 
     // var new_name=document.getElementById("new_name").value;
     // console.log(n_sliders);
-    var truc = max_div.querySelectorAll("div.criterion");
+    var truc = max_div.querySelectorAll("div.progress-label");
     console.log(truc);
-    var new_numero = truc.length + 1;
+    var new_numero = truc.length;
     console.log(new_numero);
     console.log($(".input-slider-container"));
     console.log(criterionTitle);
     var html1 = '<div class=" progress-info flex-wrap">'+
                 '<div class="progress-label flex-wrap">'+
-                    '<span id="criterionName'+new_numero+ '">'+criterionTitle+
+                    '<span class="criterionTitle" id="criterionName'+new_numero+ '">'+criterionTitle+
                     '</span>'+
                     '<input type="hidden" id="custId'+new_numero+'">'+
                 '</div>'+

@@ -69,34 +69,24 @@ Crawler.crawl = function (url, cb) {
                 var t2 = response.indexOf("</title>");
                 var title = response.substring(t1+7, t2);
 
-                // var promise = htmlToJson.request('https://www.nu-bay.com/categories?p=6', {
-                //     'title': ['a', function ($a) {
-                //       return $a.attr('title');
-                //     }]
-                //   }, function (err, result) {
-                //     console.log(result);
-                //   })
-
-                var tagArray1 = new Array();
-
+                var tagArray1 = [];
+i=0;
                 tags.getAll( function(err , allTags){
                     console.log(allTags);
                     allTags.forEach( function(element) {
                        
                         if(response.indexOf(" "+element.tag.properties.tagName+" ") !== -1){
                             console.log("fondTag: "+element.tag.properties.tagName );
-                            tagArray1.push(element.tag.properties.tagName);
+                            // tagArray1.push(element.tag.properties.tagName);
+                            tagArray1[i] = element.tag.properties.tagName;
+                            i++;
                         }
                     })
+                    console.log(tagArray1);
+                    cb(res3, title, tagArray1);
 
                 } )
-                console.log(tagArray1);
-                var tagArray = new Array(tagArray1.length);
-                for(var i=0;i<tagArray1.length;i++){
-                    tagArray.push(tagArray1[i]) ;
-                  }
-                console.log(tagArray);
-                cb(res3, title, tagArray);
+               
 
 
             } catch (e) {
@@ -141,7 +131,6 @@ console.log(originalUrl);
           '</div>'+
 
           '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(0)" value="Add" >'+
-          '<input type="submit" class="btn btn-sm btn-primary" formaction="/user/save">'+
         '</div>'+
       '</div>'+
     '</div>';
