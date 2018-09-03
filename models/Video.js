@@ -45,21 +45,15 @@ Video.create = function (data, tags, callback) {
 	if (tags) {
 		Video.computeQuery(data, tags, function (quer) {
 			console.log(quer);
-			var qp = {
-				query: [
-					quer
-				],
-				params: {
-					data: data,
-				}
+			var qp = quer;
 
-			}
+			
 
 			console.log(qp);
 
 			db.cypher(qp, function (err, results) {
 				if (err) return callback(err);
-				callback(null, results[0]['video']);
+				callback(null, results);
 				console.log(results);
 			});
 
@@ -108,21 +102,21 @@ Video.computeQuery = function (data, tags, callback) {
 	for (var prop in tags) {
 		if (tags.hasOwnProperty(prop)) {
 			console.log(prop);
-			quer += 'MATCH (tag' + i + ':Tag) WHERE tag' + i + '.name = "' + tags["tag" + i].tagName + '",\n';
+			quer += 'MATCH (tag' + i + ':Tag) WHERE tag' + i + '.tagName = "' + tags["tag" + i].tagName + '"\n';
 			i++;
 		}
 	}
 
 
-	quer += 'CREATE (video:Video {data}),\n';
+	quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: "'+ data.timestamp +'", title:"'+ data.title +'" })\n';
 
 
 	var i = 0;
 	for (var prop in tags) {
 		if (tags.hasOwnProperty(prop)) {
 			console.log(prop);
-			quer += '(video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + '),\n';
-			quer += '(tag' + i + ')-[:DEFINES {level:' + tags["tag" + i].tagValue + '}]->(video),\n';	
+			quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
+			quer += 'CREATE (tag' + i + ')-[:DEFINES {level:' + tags["tag" + i].tagValue + '}]->(video)\n';	
 			i++;
 		}
 	}
