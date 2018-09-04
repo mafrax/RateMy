@@ -100,41 +100,46 @@ Video.getAll = function (callback) {
 Video.computeQuery = function (data, tags, callback) {
 
 	var quer ="";
-    var i = 0;
+
 	for (var prop in tags) {
         if (tags.hasOwnProperty(prop)) {
         console.log(prop);
-        console.log(tags["tag" + i].tagName);
-        console.log(i);
-        Criterion.getBy('tag.tagName',tags["tag" + i].tagName, function(result){
-            console.log(result);
+		var no = prop.slice(3, prop.length);
+		console.log(no);
+        Criterion.getBy('tag.tagName',tags["tag" + no].tagName, function(err,result){
+			console.log(result);			
             if(result){
-                    console.log(prop);
-                    quer += 'MATCH (tag' + i + ':Tag) WHERE tag' + i + '.tagName = "' + tags["tag" + i].tagName + '"\n';                   
+				console.log(tags);
+				console.log(prop);
+				console.log(prop.length);
+				console.log(prop.slice(3, prop.length));
+				
+					quer += 'MATCH (tag' + no + ':Tag) WHERE tag' + no + '.tagName = "' + tags["tag" + no].tagName + '"\n'; 
+					                
                 } else {
                     console.log("not found");
                 }
+				quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
+			
+			
+				var i = 0;
+				for (var prop in tags) {
+					if (tags.hasOwnProperty(prop)) {
+						console.log(prop);
+						quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
+						i++;
+					}
+				}
+			
+			
+			
+			
+				callback(quer);
             } )
-            i++;
+            
         }            
 	}
 
 
-	quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
-
-
-	var i = 0;
-	for (var prop in tags) {
-		if (tags.hasOwnProperty(prop)) {
-			console.log(prop);
-			quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
-			i++;
-		}
-	}
-
-
-
-
-	callback(quer);
 
 }

@@ -15,17 +15,19 @@ Tag.getBy = function (field, value, callback) {
 	console.log(field);
 	var qp = {
 		query: [
-			'MATCH (tag:tag)','WHERE ' + field + ' = {value}','RETURN tag',
+			'MATCH (tag:Tag)',
+			'WHERE ' + field + ' = {value}',
+			'RETURN tag',
 		]
-		.join('\n')
-		,
+		.join('\n'),
 		params: {
 			value: value
 		}
 	}
 console.log(qp);
 	db.cypher(qp, function (err, result) {
-		if (err) return callback(err);		
+		if (err) return callback(err);	
+		console.log(result[0]['tag']);	
 			callback(null, result[0]['tag']);
 	});
 }
