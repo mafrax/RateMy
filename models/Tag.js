@@ -25,16 +25,8 @@ Tag.getBy = function (field, value, callback) {
 	}
 console.log(qp);
 	db.cypher(qp, function (err, result) {
-		if (err) return callback(err);
-		if (!result[0]) {
-			console.log('1');
-			console.log(result[0]);
-			callback(null, null);
-		} else {
-			console.log('2');
-            console.log(result[0]);
-			callback(null, result[0]['video']);
-		}
+		if (err) return callback(err);		
+			callback(null, result[0]['tag']);
 	});
 }
 

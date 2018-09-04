@@ -1,6 +1,8 @@
 var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
 var bcrypt = require('bcrypt-nodejs');
+var Criterion = require('./Tag');
+
 
 // private constructor:
 var Video = module.exports = function Video(_node) {
@@ -98,17 +100,27 @@ Video.getAll = function (callback) {
 Video.computeQuery = function (data, tags, callback) {
 
 	var quer ="";
-	var i = 0;
+    var i = 0;
 	for (var prop in tags) {
-		if (tags.hasOwnProperty(prop)) {
-			console.log(prop);
-			quer += 'MATCH (tag' + i + ':Tag) WHERE tag' + i + '.tagName = "' + tags["tag" + i].tagName + '"\n';
-			i++;
-		}
+        if (tags.hasOwnProperty(prop)) {
+        console.log(prop);
+        console.log(tags["tag" + i].tagName);
+        console.log(i);
+        Criterion.getBy('tag.tagName',tags["tag" + i].tagName, function(result){
+            console.log(result);
+            if(result){
+                    console.log(prop);
+                    quer += 'MATCH (tag' + i + ':Tag) WHERE tag' + i + '.tagName = "' + tags["tag" + i].tagName + '"\n';                   
+                } else {
+                    console.log("not found");
+                }
+            } )
+            i++;
+        }            
 	}
 
 
-	quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: "'+ data.timestamp +'", title:"'+ data.title +'" })\n';
+	quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
 
 
 	var i = 0;
@@ -116,7 +128,6 @@ Video.computeQuery = function (data, tags, callback) {
 		if (tags.hasOwnProperty(prop)) {
 			console.log(prop);
 			quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
-			quer += 'CREATE (tag' + i + ')-[:DEFINES {level:' + tags["tag" + i].tagValue + '}]->(video)\n';	
 			i++;
 		}
 	}
