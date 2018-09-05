@@ -49,8 +49,6 @@ Video.create = function (data, tags, callback) {
 			console.log(quer);
 			var qp = quer;
 
-			
-
 			console.log(qp);
 
 			db.cypher(qp, function (err, results) {
@@ -99,47 +97,53 @@ Video.getAll = function (callback) {
 
 Video.computeQuery = function (data, tags, callback) {
 
-	var quer ="";
-
-	for (var prop in tags) {
-        if (tags.hasOwnProperty(prop)) {
-        console.log(prop);
-		var no = prop.slice(3, prop.length);
-		console.log(no);
-        Criterion.getBy('tag.tagName',tags["tag" + no].tagName, function(err,result){
-			console.log(result);			
-            if(result){
-				console.log(tags);
-				console.log(prop);
-				console.log(prop.length);
-				console.log(prop.slice(3, prop.length));
+    Criterion.getAll( function(err, result){
+        var quer ="";
+        
+        for (var prop in tags) {
+            if (tags.hasOwnProperty(prop)) {
+                console.log(prop);
+                var no = prop.slice(3, prop.length);
+                console.log(no);
+       
+            console.log(result);
+            
+            var found = result.find(function(element) {
+                return element.tag.properties.tagName === tags[prop].tagName;
+              });
+            // console.log(found);
+            if(found){
+				// console.log(tags);
+				// console.log(prop);
+				// console.log(prop.length);
+				// console.log(prop.slice(3, prop.length));
 				
 					quer += 'MATCH (tag' + no + ':Tag) WHERE tag' + no + '.tagName = "' + tags["tag" + no].tagName + '"\n'; 
 					                
                 } else {
                     console.log("not found");
+                    quer += 'CREATE (tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"})\n';
                 }
-				quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
-			
-			
-				var i = 0;
-				for (var prop in tags) {
-					if (tags.hasOwnProperty(prop)) {
-						console.log(prop);
-						quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
-						i++;
-					}
-				}
-			
-			
-			
-			
-				callback(quer);
-            } )
-            
+         
         }            
-	}
-
+    }
+            quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
+                
+            var i = 0;
+            for (var prop in tags) {
+                if (tags.hasOwnProperty(prop)) {
+                    console.log(prop);
+                    quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
+                    i++;
+                }
+            }
+        
+        
+        
+        
+            callback(quer);
+            
+    })
 
 
 }

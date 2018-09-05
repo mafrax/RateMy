@@ -12,22 +12,22 @@ array.forEach(function(element){
 var hidden = document.getElementById("custId0");
 console.log(hidden);
 
-function edit_row(no) {
+function edit_row(no, videoNo) {
 
     
     console.log("edit_button" + no);
     console.log(document.getElementById("edit_button" + no));
     document.getElementById("edit_button" + no).style.display = "none";
     document.getElementById("save_button" + no).style.display = "inline-block";
-    console.log("progressBarContainer"+no);
-    var demo = document.getElementById("progressBarContainer"+no);
+    console.log("progressBarContainer"+videoNo);
+    var demo = document.getElementById("progressBarContainer"+videoNo);
     console.log(demo);
     var name = demo.querySelector("#criterionName"+no);
     var name_data = name.innerHTML;
     name.innerHTML = "<input type='text' id='name_text" + no + "' value='" + name_data + "'>";
 }
 
-function save_row(no) {
+function save_row(no, videoNo) {
     var name_val = document.getElementById("name_text" + no).value;
     var hidden_field = document.getElementById("custId" + no);
     console.log(hidden_field);
@@ -60,9 +60,9 @@ function add_criterion(videoNo, criterionTitle) {
                     '</span>'+
                     '<input type="hidden" id="custId'+new_numero+'">'+
                 '</div>'+
-                '<button type="button" id="edit_button'+new_numero+'" value="Edit" class="btn btn-sm btn-primary flex-wrap" onclick="edit_row('+new_numero+')" style="border-radius: 100vh">E</button>'+
+                '<button type="button" id="edit_button'+new_numero+'" value="Edit" class="btn btn-sm btn-primary flex-wrap" onclick="edit_row('+new_numero+','+videoNo+')" style="border-radius: 100vh">E</button>'+
 
-                '<button type="button" id="save_button'+new_numero+'" value="Save" class="btn btn-sm btn-primary flex-wrap" onclick="save_row('+new_numero+')" style="border-radius: 100vh">S</button>'+
+                '<button type="button" id="save_button'+new_numero+'" value="Save" class="btn btn-sm btn-primary flex-wrap" onclick="save_row('+new_numero+','+videoNo+')" style="border-radius: 100vh">S</button>'+
 
 
                 '<div class="progress-percentage flex-wrap" style="display: inline-block; padding-right: 4px; padding-left: 4px;" >'+
