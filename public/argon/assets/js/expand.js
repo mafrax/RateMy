@@ -1,14 +1,13 @@
-function expandIframe(column, row){
-console.log("cell"+row+"x"+column);
-var cell = document.getElementById("cell"+row+"x"+column);
+function expandIframe(id){
+var cell = document.getElementById("cell"+id);
 console.log(cell);
 var cell2;
 
 
-if(cell.getAttribute("class") === "col-sm-4 flex" ){
-    cell.setAttribute("class", "col-sm-8 flex" );
-} else if (cell.getAttribute("class") === "col-sm-8 flex"){
-    cell.setAttribute("class", "col-sm-4 flex" );
+if(cell.getAttribute("class") === "col-4 flex-wrap" ){
+    cell.setAttribute("class", "col-8 flex-wrap" );
+} else if (cell.getAttribute("class") === "col-8 flex-wrap"){
+    cell.setAttribute("class", "col-4 flex-wrap" );
 } else {
     console.log("cell not found");
 }

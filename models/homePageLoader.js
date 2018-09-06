@@ -26,10 +26,7 @@ HomePageL.loadHomePage = function(callback) {
 HomePageL.buildIframe = function(err, results, callback) {
   console.log("YOUHOU");
 
-  var html2 =
-  '<div class="col-12 flex-wrap" id="cell' +
-  results.v._id +
-  '" >' +
+  var html2 = 
   '<div class="row col-12 embed-responsive embed-responsive-16by9">' +
   '<iframe class="embed-responsive-item" src="' +
   results.v.properties.embedUrl +
@@ -56,7 +53,7 @@ HomePageL.buildIframe = function(err, results, callback) {
   "</div>" +
   '<div id="demo' +
   results.v._id +
-  '" class="collapse" style="max-height: 50vh; overflow:auto">' +
+  '" class="collapse col-12" style="max-height: 50vh; overflow:auto">' +
   '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer' +
   results.v._id +
   '">' +
@@ -64,7 +61,6 @@ HomePageL.buildIframe = function(err, results, callback) {
   '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(' +
   results.v._id +
   ')" value="Add" >' +
-  "</div>" +
   "</div>" +
   "</div>";
 

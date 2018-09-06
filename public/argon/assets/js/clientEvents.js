@@ -22,9 +22,11 @@ var socket = io.connect('http://localhost:3000');
 
 
             socket.on('loadHomePageFromServer', function(message) {
-               
+ 
                 var mainframe = document.getElementById("mainFrame1");
                 var newDiv = document.createElement("div");
+                newDiv.setAttribute('class', "col-4 flex-wrap" );
+                newDiv.setAttribute('id', "cell"+message.videoWithTags[0].v._id);
                 console.log(message.videoWithTags);
                 newDiv.innerHTML = message.htmlfield;
                 mainframe.appendChild(newDiv);
