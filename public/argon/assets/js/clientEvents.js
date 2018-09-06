@@ -42,7 +42,7 @@ var socket = io.connect('http://localhost:3000');
             socket.on('videoSavedfromServer', function() {
                 
                 $('#closeModalButton').trigger('click');
-               
+                socket.emit('reloadAfterSave');
             })
 
 

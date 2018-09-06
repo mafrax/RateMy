@@ -13,9 +13,14 @@ var serverEvents = module.exports = function(io){
     
     pageLoader.loadHomePage(function(html, videoWithTags){         
           socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
-        });
-	
- 
+    });
+
+    socket.on('reloadAfterSave', function () {
+      pageLoader.loadHomePage(function(html, videoWithTags){         
+        socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
+      });
+    });
+      
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
           console.log('Un client me parle ! Il me dit : ' + message);
