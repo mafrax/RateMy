@@ -25,8 +25,17 @@ var socket = io.connect('http://localhost:3000');
                
                 var mainframe = document.getElementById("mainFrame1");
                 var newDiv = document.createElement("div");
+                console.log(message.videoWithTags);
                 newDiv.innerHTML = message.htmlfield;
                 mainframe.appendChild(newDiv);
+
+                for (var prop in message.videoWithTags) {
+                    if (message.videoWithTags.hasOwnProperty(prop)) {
+                        console.log(message.videoWithTags[prop].t.properties.tagName);
+                        console.log(message.videoWithTags[prop].v._id);
+                        add_criterion(message.videoWithTags[prop].v._id, message.videoWithTags[prop].t.properties.tagName);
+                    }
+                }
 
             })
 

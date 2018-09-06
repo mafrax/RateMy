@@ -11,9 +11,8 @@ var serverEvents = module.exports = function(io){
 
     console.log('Un client est connecté !');
     
-    pageLoader.loadHomePage(function(html){         
-          console.log(html);
-          socket.emit('loadHomePageFromServer', {htmlfield: html});   
+    pageLoader.loadHomePage(function(html, videoWithTags){         
+          socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
         });
 	
  
