@@ -15,11 +15,11 @@ var serverEvents = module.exports = function(io){
           socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
     });
 
-    socket.on('reloadAfterSave', function () {
-      pageLoader.loadHomePage(function(html, videoWithTags){         
-        socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
-      });
-    });
+    // socket.on('reloadAfterSave', function () {
+    //   pageLoader.loadHomePage(function(html, videoWithTags){         
+    //     socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
+    //   });
+    // });
       
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
@@ -56,7 +56,7 @@ var serverEvents = module.exports = function(io){
           return next(err);
           console.log(video);
 
-          socket.emit('videoSavedfromServer');                           
+          socket.emit('videoSavedfromServer', {video, tagField: message.tags });                           
           
 
         });
