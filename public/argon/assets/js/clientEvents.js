@@ -1,5 +1,7 @@
 var socket = io.connect('http://localhost:3000');
 
+
+
             socket.on('messageUploadfromServer', function(message) {
                 console.log(message.originalUrlField);
                 $('#modal-body').html(message.htmlfield);
@@ -15,6 +17,16 @@ var socket = io.connect('http://localhost:3000');
                 }
 
 
+
+            })
+
+
+            socket.on('loadHomePageFromServer', function(message) {
+               
+                var mainframe = document.getElementById("mainFrame1");
+                var newDiv = document.createElement("div");
+                newDiv.innerHTML = message.htmlfield;
+                mainframe.appendChild(newDiv);
 
             })
 

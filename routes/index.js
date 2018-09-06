@@ -1,8 +1,8 @@
 var User = require('../models/user');
-var truc = require("pornhub");
-var crawler = require('../models/crawl');
-var Pornsearch = require('pornsearch');
-var Searcher = new Pornsearch('tits');
+
+
+var homePageLoader = require('../models/homePageLoader');
+
 
 
 
@@ -12,7 +12,7 @@ module.exports = function (app, passport) {
 
 	// show the home page (will also have our login links)
 	app.get('/', function (req, res) {
-		res.render('argon');
+		res.render('argon');		
 	});
 
 	app.post('/upload', function (req, res) {

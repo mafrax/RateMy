@@ -84,8 +84,7 @@ Video.getAll = function (callback) {
 	var qp = {
 		query: [
 			'MATCH (video:Video)',
-			'RETURN video',
-			'LIMIT 100'
+			'RETURN video'
 		].join('\n')
 	}
 

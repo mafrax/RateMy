@@ -1,12 +1,21 @@
 
 var crawler = require('../models/crawl');
+var pageLoader = require('../models/homePageLoader');
 var video = require('../models/Video');
 var pass = require('../config/passport');
 
-
-exports = module.exports = function(io){
+var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
+
+    
+
     console.log('Un client est connecté !');
+    
+    pageLoader.loadHomePage(function(html){         
+          console.log(html);
+          socket.emit('loadHomePageFromServer', {htmlfield: html});   
+        });
+	
  
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
@@ -48,11 +57,13 @@ exports = module.exports = function(io){
 
         });
 
-    });	
+    });
+    
+    
+
 
   });
 
-
-
-
 }
+
+
