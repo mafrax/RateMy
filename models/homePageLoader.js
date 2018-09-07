@@ -38,7 +38,9 @@ HomePageL.buildIframe = function(err, results, callback) {
   '">' +
   '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(' +
   results.v._id +
-  ')">EX</button>' +
+  ')"><span class="btn-inner--icon">'+
+  '<i class="ni ni-tv-2"></i></button>'+
+'</span></button>' +
   "</div>" +
   '<div class="row col-12 flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
   '<div class="row col-12 flex-wrap">' +
@@ -46,10 +48,15 @@ HomePageL.buildIframe = function(err, results, callback) {
   results.v._id +
   '" aria-controls="nav-inner-primary"' +
   'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">' +
-  '<span class="navbar-toggler-icon">V</span>' +
+  '<span class="navbar-toggler-icon"><span class="btn-inner--icon">'+
+  '<i class="ni ni-bold-down"></i></button>'+
+'</span></span>' +
   "</button>" +
   '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">' +
-  '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>' +
+  '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">'+
+  '<span class="btn-inner--icon">'+
+                      '<i class="ni ni-zoom-split-in"></i></button>'+
+                  '</span></button>' +
   "</div>" +
   '<div id="demo' +
   results.v._id +
