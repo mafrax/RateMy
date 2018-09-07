@@ -68,6 +68,7 @@ HomePageL.buildIframe = function(err, results, callback) {
   '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(' +
   results.v._id +
   ')" value="Add" >' +
+  '<input type="button" class="btn btn-sm btn-primary" value="Validate" >' +
   "</div>" +
   "</div>";
 

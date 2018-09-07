@@ -65,19 +65,21 @@ function add_criterion(videoNo, criterionTitle) {
                 '<button type="button" id="save_button'+new_numero+'" value="Save" class="btn btn-sm btn-primary flex-wrap" onclick="save_row('+new_numero+','+videoNo+')" style="border-radius: 100vh">S</button>'+
 
 
-                '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >'+
-                    '<span style="color:rgba(248, 9, 176, 0.575)" id="criterionNote'+new_numero+'">0.00</span>'+
-                '</div>'+
+               
 
                 '<div class="progress-percentage flex-wrap" >'+
                     '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote'+new_numero+'">0.00</span>'+
+                '</div>'+
+
+                '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >'+
+                '<span style="color: rgba(94, 114, 228)" id="criterionNote'+new_numero+'">0.00</span>'+
                 '</div>'+
 
             '</div>'+
 
             '<div class="progress flex-wrap"  >'+
                 '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%; background-color: rgba(248, 9, 176, 0.575);"></div>'+
-            
+               
         '</div>';
 
 
