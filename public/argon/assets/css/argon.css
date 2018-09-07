@@ -2326,6 +2326,7 @@ pre code
     border: 0;
 }
 
+
 .form-control
 {
     font-size: 1rem;
@@ -2493,7 +2494,7 @@ textarea.form-control
 
 .form-group
 {
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
 }
 
 .form-text
@@ -3014,6 +3015,11 @@ fieldset:disabled a.btn
 .show > .btn-primary.dropdown-toggle:focus
 {
     box-shadow: none, 0 0 0 0 rgba(94, 114, 228, .5);
+}
+
+.inSearch
+{
+    margin-left: -20%;
 }
 
 .btn-secondary

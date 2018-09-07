@@ -125,7 +125,7 @@ console.log(originalUrl);
           '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>'+
         '</div>'+
 
-        '<div id="demo" class="collapse" style="max-height: 50vh; overflow:auto">'+
+        '<div id="demo" class="collapse col-12" style="max-height: 50vh; overflow:auto">'+
           '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer0">'+
 
           '</div>'+

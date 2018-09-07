@@ -17,7 +17,7 @@ module.exports = function (app, passport) {
 
 	app.post('/upload', function (req, res) {
 		console.log("ca marche pas !!!!!!!!!!!!!!");
-		});
+	});
 
 
 

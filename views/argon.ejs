@@ -215,50 +215,70 @@
 
     <section style="padding: 3px">
       <div class="row justify-content-center" style="margin-right: 10px;">
-        <div class="col-sm-4">
-          <!-- <input class="form-control" placeholder="Search" type="text"> -->
-        </div>
-        <div class="col-sm-4">
-                <form method="post" action="/upload" id="uploadForm">
-                    <input type="test" name="field2" id="field2" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh;">
- 
-                    <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="poke" >
-                      UPLOAD LINK
-                    </button>
-                  </form>
+       <div class="col-4">
 
-                  
-                  <!-- Modal -->
-                  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel" >Modal title</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body" id="modal-body">
-                          ...
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeModalButton">Close</button>
-                          <button type="button" class="btn btn-primary"  id="modalSaveButton" >Save changes</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                 
-                      
+       </div>
+        
+       <div class="col-4">
+         
+         <form method="post" action="/upload" id="uploadForm">
+          <div class="input-group">
+            <input type="text" placeholder="Regular" class="form-control" name="field2" id="field2" />
+            <span class="input-group-btn">
+              <button type="submit" class="btn btn-primary " data-toggle="modal" data-target="#exampleModal" id="poke">
+                UPLOAD LINK
+              </button>
+            </span>
+          </div>
+        </form>
+        
+        
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body" id="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeModalButton">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSaveButton">Save changes</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-sm-4">
-          <div class="row pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);" id="searchCell0">
-            <input class="col-10 text" placeholder="Search" type="text" style="width: 80%;" id="mainSearch0">
-            <button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="addSearchCriterion()">V</button>
+        
+      </div>
+
+      <div class="col-4">
+         
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">
+                <i class="ni ni-zoom-split-in"></i>
+              </span>
+            </div>
+            <input class="form-control" placeholder="Search" type="text" id="mainSearch0">
+            <span class="input-group-btn">
+              <button type="button" value="Edit" class="btn btn-primary" onclick="addSearchCriterion()">
+                  <span class="btn-inner--icon">
+                      <i class="ni ni-fat-add"></i></button>
+                  </span>
+            </span>
           </div>
         </div>
       </div>
-
+      
+      
+    </div>
+      
     </section>
 
 
@@ -266,12 +286,12 @@
 
     <section style="padding-left: 20px; padding-top: 3px;">
       <div class="container-fluid">
-      <div class="d-flex flex-row flex-wrap" id="mainFrame1">
+        <div class="d-flex flex-row flex-wrap" id="mainFrame1">
 
-     
 
+
+        </div>
       </div>
-    </div>
     </section>
 
 
@@ -297,7 +317,7 @@
               </button>
               <button class="btn btn-icon btn-2 btn-primary" type="button">
                 <span class="btn-inner--icon">
-                  <i class="ni ni-bag-17"></i>
+                  <i class="ni ni-fat-add"></i>
                 </span>
               </button>
               <!-- Button wizes -->
@@ -1460,7 +1480,8 @@
           </div>
           <div class="col-sm-3 col-6 mt-5 mt-sm-0">
             <small class="d-block text-uppercase font-weight-bold mb-4">Circle Raised</small>
-            <img src="argon/assets/img/theme/team-4-800x800.jpg" alt="Raised circle image" class="img-fluid rounded-circle shadow-lg" style="width: 150px;">
+            <img src="argon/assets/img/theme/team-4-800x800.jpg" alt="Raised circle image" class="img-fluid rounded-circle shadow-lg"
+              style="width: 150px;">
           </div>
         </div>
         <h2 class="mt-lg mb-5">
@@ -1679,7 +1700,7 @@
 
 
 
-              
+
           </div>
         </div>
       </div>
@@ -2002,7 +2023,7 @@
   <script src="argon/assets/js/asynchronous.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="argon/assets/js/clientEvents.js"></script>
-  
+
 </body>
 
 </html>
