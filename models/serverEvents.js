@@ -38,30 +38,30 @@ var serverEvents = module.exports = function(io){
       });	
 
 
-      socket.on('messageSavefromClient', function (message) {
-        console.log('Un client me parle ! Il me dit : ' + message);
-        console.log(message);
+    //   socket.on('messageSavefromClient', function (message) {
+    //     console.log('Un client me parle ! Il me dit : ' + message);
+    //     console.log(message);
 
-        var newVideo = {};
-        newVideo.originalUrl = message.originalUrlField;
-        newVideo.embedUrl = message.embedUrlField;
-        newVideo.title = message.titlefield;
-        newVideo.timestamp = new Date();
+    //     var newVideo = {};
+    //     newVideo.originalUrl = message.originalUrlField;
+    //     newVideo.embedUrl = message.embedUrlField;
+    //     newVideo.title = message.titlefield;
+    //     newVideo.timestamp = new Date();
 
 
-        video.create(newVideo, message.tags, function (err, video) {
+    //     video.create(newVideo, message.tags, function (err, video) {
 						
-          console.log(err);
-          if (err)
-          return next(err);
-          console.log(video);
+    //       console.log(err);
+    //       if (err)
+    //       return next(err);
+    //       console.log(video);
 
-          socket.emit('videoSavedfromServer', {video, tagField: message.tags });                           
+    //       socket.emit('videoSavedfromServer', {video, tagField: message.tags });                           
           
 
-        });
+    //     });
 
-    });
+    // });
     
     
 

@@ -22,7 +22,8 @@ var socket = io.connect('http://localhost:3000');
 
 
             socket.on('loadHomePageFromServer', function(message) {
- 
+
+
                 var mainframe = document.getElementById("mainFrame1");
                 var newDiv = document.createElement("div");
                 newDiv.setAttribute('class', "col-4 flex-wrap" );
@@ -38,6 +39,7 @@ var socket = io.connect('http://localhost:3000');
                         add_criterion(message.videoWithTags[prop].v._id, message.videoWithTags[prop].t.properties.tagName);
                     }
                 }
+                initializeButoons();
 
             })
 
