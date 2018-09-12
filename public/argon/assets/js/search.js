@@ -11,6 +11,7 @@
 function addSearchCriterion() {
 
     var mainSearch = document.getElementById("ex1-input");
+    var searchCellContainer = document.getElementById("searchCellContainer");
     var searchCell = document.getElementById("searchCell");
     
     var truc = document.querySelectorAll("[id^='searchCriterion']");
@@ -27,12 +28,13 @@ function addSearchCriterion() {
         '<div class="progress-percentage" style="display: flex" >' +
         '<span style="color: rgba(248, 9, 176, 0.575); margin-right: 10px" id="criterionLowRange'+no+'">40%</span>' +
         '<span style="color: rgba(248, 9, 176, 0.575); margin-right: 10px" id="criterionHighRange'+no+'">40%</span>' +
-        '<button type="button" aria-label="delete" style="background: #d3d9e5; border-radius: 50%; id="deletesearchCriterion'+no+'" onclick="deleteSearchCriterion('+no+')">'+
+        
+            '</div>' +
+            '<button type="button" aria-label="delete" style="background: #d3d9e5; border-radius: 50%; id="deletesearchCriterion'+no+'" onclick="deleteSearchCriterion('+no+')">'+
         '<span class="btn-inner--icon">'+
         '<i class="ni ni-fat-remove"></i>'+
         '</span>'+
         '</button>'+
-            '</div>' +
             '</div>' +
             // '</div>' +
             // '</div>' +
@@ -61,9 +63,11 @@ function addSearchCriterion() {
 
             var new_element = document.createElement("div");
             new_element.setAttribute('id', "searchCriterion"+no);
+            new_element.setAttribute('class', "flex-wrap");
+            new_element.setAttribute('style', "max-weight:100%; padding-right:10px;");
             new_element.innerHTML = html;
 
-            searchCell.appendChild(new_element);
+            searchCellContainer.appendChild(new_element);
             searchCell.setAttribute("class", "col-12 collapse show");
 
 
@@ -102,6 +106,6 @@ function addSearchCriterion() {
 function deleteSearchCriterion(no) {
 
    var searchCriterion = document.getElementById("searchCriterion"+no);
-   var searchCell = document.getElementById("searchCell");
-   searchCell.removeChild(searchCriterion);
+   var searchCellContainer = document.getElementById("searchCellContainer");
+   searchCellContainer.removeChild(searchCriterion);
 }
