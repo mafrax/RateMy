@@ -1,8 +1,18 @@
+
+// $("#ex1-input").on('keyup', function (e) {
+//     if (e.keyCode == 13) {
+//         addSearchCriterion();  
+//         console.log($("#ex1-input")) ;
+//         $("#ex1-input").val('');   
+//     }
+// });
+
+
 function addSearchCriterion() {
 
-    var mainSearch = document.getElementById("mainSearch0");
-    var searchCell = document.getElementById("searchCell0");
-    // '<div class="container" style="float: left;">' +
+    var mainSearch = document.getElementById("ex1-input");
+    var searchCell = document.getElementById("searchCell");
+    
     var truc = document.querySelectorAll("[id^='searchCriterion']");
     var no = truc.length+1;
     console.log(no);
@@ -10,7 +20,7 @@ function addSearchCriterion() {
     console.log($('.comon-slider-range'));
     console.log($(".input-slider-container"));
 
-    var html = ' <div class="progress-wrapper col-12" style="float: left;">' +
+    var html = ' <div class="progress-wrapper">' +
         '<div class="progress-info ">' +
         ' <div class="progress-label ">' +
         ' <span>'+ mainSearch.value +' </span></div>' +
@@ -28,10 +38,10 @@ function addSearchCriterion() {
               '<div class="comon-slider-range" id="input-slider-range'+no+'" data-range-value-min="100"'+ 'data-range-value-max="500"></div>'+
               '<!-- Range slider values -->'+
               '<div class="row d-none">'+
-                '<div class="col-12">'+
+                '<div class="">'+
                   '<span class="range-slider-value value-low"'+ 'data-range-value-low="200"'+ 'id="input-slider-range-value-low'+no+'"></span>'+
                 '</div>'+
-                '<div class="col-12 text-right">'+
+                '<div class="text-right">'+
                   '<span class="range-slider-value value-high"'+ 'data-range-value-high="400"'+ 'id="input-slider-range-value-high'+no+'"></span>'+
                 '</div>'+
              '</div>'+
@@ -43,11 +53,11 @@ function addSearchCriterion() {
 
 
             var new_element = document.createElement("div");
-            new_element.setAttribute('class', "row col-sm-12");
             new_element.setAttribute('id', "searchCriterion"+no);
             new_element.innerHTML = html;
 
             searchCell.appendChild(new_element);
+            searchCell.setAttribute("class", "col-12 collapse show");
 
 
               var c = document.getElementById("input-slider-range"+no),

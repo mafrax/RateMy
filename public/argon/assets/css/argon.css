@@ -394,6 +394,29 @@ input[type='month']
     -webkit-appearance: listbox;
 }
 
+.listbox, .grid {
+	min-width: 230px;
+	background: white;	
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	z-index: 1;
+}
+
+.listbox .result {
+	cursor: default;
+	margin: 0;
+}
+
+.listbox .result:hover, .grid .result-row:hover {
+	background: rgb(139, 189, 225);
+}
+
+.listbox .focused, .grid .focused {
+	background: rgb(139, 189, 225);
+}
+
 textarea
 {
     overflow: auto;

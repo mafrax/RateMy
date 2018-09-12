@@ -60,14 +60,24 @@ HomePageL.buildIframe = function(err, results, callback) {
   "</div>" +
   '<div id="demo' +
   results.v._id +
-  '" class="collapse col-12" style="max-height: 50vh; overflow:auto">' +
+  '" class="collapse col-12" style="max-height: 50vh; overflow:auto; ">' +
   '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer' +
   results.v._id +
   '">' +
   "</div>" +
-  '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(' +
-  results.v._id +
-  ')" value="Add" >' +
+
+
+        '<div class="input-group">'+
+            '<input type="text" placeholder="new criterion" class="col-8 form-control" name="criterionAddField" id="criterionAddField'+results.v._id+'" />'+
+            '<span class="input-group-btn">'+
+              '<button type="button" class="btn btn-primary " onclick="add_criterion('+results.v._id+')"">'+
+               'Add'+
+              '</button>'+
+            '</span>'+
+          '</div>'+
+
+
+
   '<input type="button" class="btn btn-sm btn-primary" value="Validate" >' +
   "</div>" +
   "</div>";

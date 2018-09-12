@@ -43,6 +43,11 @@ var socket = io.connect('http://localhost:3000');
 
             })
 
+            socket.on('searchResults', function(message) {   
+                updateVeggies(message);
+                initializeCombobox();
+            });
+
             socket.on('videoSavedfromServer', function() {
                 
                 $('#closeModalButton').trigger('click');
@@ -55,6 +60,15 @@ var socket = io.connect('http://localhost:3000');
                     
                     var url1 = $('#field2').val();
                     socket.emit('messageUploadfromClient', url1);                           
+
+                   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
+                });
+
+
+                $('#ex1-input').on("input" , function () {
+                    
+                    console.log(this.value);
+                    socket.emit('searchCriterion', this.value);                              
 
                    return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
                 });
