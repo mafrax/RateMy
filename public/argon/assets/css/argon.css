@@ -404,7 +404,7 @@ input[type='month']
 }
 
 .combobox-wrapper {
-	display: inline-block;
+	/* display: inline-block; */
 	position: relative;
 	font-size: 16px;
 }
@@ -16960,7 +16960,6 @@ textarea[resize='horizontal']
 .progress-wrapper
 {
     position: relative;
-
     padding-top: 1.5rem;
 }
 
