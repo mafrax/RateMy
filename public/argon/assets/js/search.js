@@ -22,7 +22,7 @@ function addSearchCriterion() {
     console.log($(".input-slider-container"));
 
     var html = ' <div class="progress-wrapper">' +
-        '<div class="progress-info flex">' +
+        '<div class="progress-info flex-wrap">' +
         ' <div class="progress-label ">' +
         ' <span>'+ mainSearch.value +' </span></div>' +
         '<div class="progress-percentage" style="display: flex" >' +
