@@ -92,10 +92,10 @@ var tags = {};
 
                     console.log(i);
 
-                    console.log($('#criterionName'+i));
+                    console.log($('#criterionName'+i+'_0'));
 
                     var tag = {};
-                    tag["tagName"] = $('#criterionName'+i).html();
+                    tag["tagName"] = $('#criterionName'+i+'_0').html();
                     tag["tagValue"] = $('#criterionNote'+i).html();
                     tags["tag"+i] = tag;
 
