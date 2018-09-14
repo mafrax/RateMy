@@ -224,6 +224,10 @@ License - nucleoapp.com/license/
     content: "\ea0f";
 }
 
+.ni-order-down::before {
+    content: "\ea0f";
+}
+
 .ni-bold-left::before {
     content: "\ea10";
 }

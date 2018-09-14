@@ -99,7 +99,51 @@
     <section style="padding: 3px">
       <div class="row justify-content-center" style="margin-right: 10px;">
 
-        <div class="col-6">
+        <div class="combobox-wrapper col-4" id="comboboxOrder1">
+          <div role="combobox"
+               aria-expanded="false"
+               aria-owns="ex3-listbox"
+               aria-haspopup="listbox"
+               id="ex3-combobox">
+            <input type="text"
+                   aria-autocomplete="both"
+                   aria-controls="ex3-listbox"
+                   aria-labelledby="ex3-label"
+                   id="ex3-input" style="border: transparent;" placeholder="Order your page by criterion" class="form-control">
+            <div class="combobox-dropdown"
+                 id="ex3-combobox-arrow"
+                 tabindex="-1"
+                 role="button"
+                 aria-label="Show vegetable options">
+                 <span class="btn-inner--icon">
+                    <i class="ni ni-bold-down"></i>
+                  </span>
+            </div>
+          </div>
+          <ul aria-labelledby="ex3-label"
+              role="listbox"
+              id="ex3-listbox"
+              class="listbox hidden">
+          </ul>
+        </div>
+
+        <div class="progress-label hidden" id="orderCriterion" >
+            <span class="criterionTitle" id="orderCriterionName">                
+            </span>  
+            <button style="border: transparent;background: transparent; position: absolute;top: -10px; right: 43px;display: inline-block; width: 19px; height: 19px;  
+            transform: translateY(50%); text-align: center; opacity: 1; border-radius: 50%;" onclick="orderUp()">
+              <span class="btn-inner--icon">
+                 <i class="ni ni-bold-down" id="orderButton"></i>
+               </span>
+            </button>
+
+        </div>
+
+
+
+
+
+        <div class="col-4">
 
           <form method="post" action="/upload" id="uploadForm">
             <div class="input-group">
@@ -136,7 +180,7 @@
 
         </div>
 
-        <div class="col-6">
+        <div class="col-4">
 
             <!-- https://www.w3.org/TR/wai-aria-practices/examples/combobox/aria1.1pattern/listbox-combo.html -->
           <div id="ex1">
@@ -148,8 +192,9 @@
                     <span class="input-group-btn">
                       <button type="button" value="Edit" class="btn btn-primary" onclick="addSearchCriterion()" aria-controls="nav-inner-primary"
                         aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="btn-inner--icon">
+                        <span class="btn-inner--icon"> 
                           <i class="ni ni-zoom-split-in"></i>
+                        </span>
                       </button>
                       </span>
                   </div>

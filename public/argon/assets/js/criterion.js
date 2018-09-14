@@ -42,12 +42,12 @@ function save_row(no, videoNo) {
     document.getElementById("save_button" + no+"_"+videoNo).style.display = "none";
 }
 
-function add_criterion(videoNo, criterionTitle) {
+function add_criterion(videoNo, criterionTitle, level) {
 
     var max_div = document.getElementById("progressBarContainer"+videoNo);
 
     var array = max_div.querySelectorAll('*[id^="save_button"]'); 
-
+console.log(level);
     array.forEach(function(element){
         element.style.display = "none";});
 
@@ -55,6 +55,7 @@ function add_criterion(videoNo, criterionTitle) {
     // console.log(n_sliders);
     var truc = max_div.querySelectorAll("div.progress-label");
     var new_numero = truc.length;
+    var levelGlobal = 50 + level/2 ;
     var html1 = '<div class=" progress-info flex-wrap">'+
                 '<div class="progress-label flex-wrap">'+
                     '<span class="criterionTitle" id="criterionName'+new_numero+'_'+videoNo+'">'+criterionTitle+
@@ -69,18 +70,17 @@ function add_criterion(videoNo, criterionTitle) {
                
 
                 '<div class="progress-percentage flex-wrap" >'+
-                    '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote'+new_numero+'">0.00</span>'+
+                    '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote'+new_numero+'_'+videoNo+'">'+level+'</span>'+
                 '</div>'+
 
                 '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >'+
-                '<span style="color: rgba(94, 114, 228)" id="criterionNote'+new_numero+'">0.00</span>'+
+                '<span style="color: rgba(94, 114, 228)" id="criterionNote'+new_numero+'_'+videoNo+'">0.00</span>'+
                 '</div>'+
 
             '</div>'+
 
             '<div class="progress flex-wrap"  >'+
-                '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%; background-color: rgba(248, 9, 176, 0.575);"></div>'+
-               
+                '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: '+ levelGlobal +'%; background-color: rgba(248, 9, 176, 0.575);"></div>'+               
         '</div>';
 
 
@@ -114,7 +114,7 @@ function add_criterion(videoNo, criterionTitle) {
     var newSliderContainer = new_element1.querySelector('#slider-container'+new_numero);
 
 
-    initializeSlider(new_element2,new_element1, new_numero);
+    initializeSlider(new_element2,new_element1, new_numero, videoNo);
     
 
     document.getElementById("save_button" + new_numero+"_"+videoNo).style.display = "none";
@@ -122,11 +122,11 @@ function add_criterion(videoNo, criterionTitle) {
 
 }
 
-function initializeSlider(sliderContainer,new_element, new_numero){
+function initializeSlider(sliderContainer,new_element, new_numero, videoNo){
 
 
     var slider = sliderContainer.querySelector('#input-slider'+new_numero);
-   var sliderPercent = new_element.querySelector("#criterionNote"+new_numero);
+   var sliderPercent = new_element.querySelector("#criterionNote"+new_numero+'_'+videoNo);
     var maxValue = slider.getAttribute("data-range-value-max");
     var minValue = slider.getAttribute("data-range-value-min");
     var sliderValue = sliderContainer.querySelector('#input-slider-value'+new_numero);

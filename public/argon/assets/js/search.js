@@ -109,3 +109,14 @@ function deleteSearchCriterion(no) {
    var searchCellContainer = document.getElementById("searchCellContainer");
    searchCellContainer.removeChild(searchCriterion);
 }
+
+function orderUp() {
+
+    var button = document.getElementById("orderButton");
+    if(button.getAttribute('class') === "ni ni-bold-down"){
+        button.setAttribute('class',"ni ni-bold-up");
+    } else {
+        button.setAttribute('class',"ni ni-bold-down");
+    }
+    
+ }

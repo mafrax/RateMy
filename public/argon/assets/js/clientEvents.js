@@ -32,11 +32,13 @@ var socket = io.connect('http://localhost:3000');
                 newDiv.innerHTML = message.htmlfield;
                 mainframe.appendChild(newDiv);
 
+                console.log(message.videoWithTags);
                 for (var prop in message.videoWithTags) {
                     if (message.videoWithTags.hasOwnProperty(prop)) {
                         console.log(message.videoWithTags[prop].t.properties.tagName);
                         console.log(message.videoWithTags[prop].v._id);
-                        add_criterion(message.videoWithTags[prop].v._id, message.videoWithTags[prop].t.properties.tagName);
+                        console.log(message.videoWithTags[prop].r.properties.level);
+                        add_criterion(message.videoWithTags[prop].v._id, message.videoWithTags[prop].t.properties.tagName, message.videoWithTags[prop].r.properties.level);
                     }
                 }
                 initializeButoons();

@@ -448,9 +448,7 @@ input[type='month']
 	font-size: inherit;
   border: 1px solid #aaa;
 	border-radius: 2px;
-  line-height: 1.5em;
-	padding-right: 30px;
-  width: 200px;
+  line-height: 1.5em;	
 }
 
 .combobox-dropdown {
@@ -15276,11 +15274,36 @@ textarea[resize='horizontal']
 
 .has-success:after
 {
-    content: '\ea26';
+    content: '\ea0f';
 
     color: daken(#2dce89, 18%);
     background-color: #69deac;
 }
+
+.dropDownCustomButton::before{
+    font-family: 'NucleoIcons';
+    
+    font-size: 9px;
+    line-height: 19px;
+
+    position: absolute;
+    top: 2px;
+    right: 15px;
+
+    display: inline-block;
+
+    width: 19px;
+    height: 19px;
+
+    transform: translateY(50%);
+    text-align: center;
+
+    opacity: 1; 
+    border-radius: 50%;
+
+    content: '\ea0f';
+}
+
 
 .has-success .form-control
 {
