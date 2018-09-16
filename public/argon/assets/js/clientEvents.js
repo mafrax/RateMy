@@ -11,7 +11,7 @@ var socket = io.connect('http://localhost:3000');
                 for (key in message.tags) {
                     console.log(key);
                     if (message.tags.hasOwnProperty(key)){
-                        add_criterion(0 , message.tags[key]);
+                        add_criterion(0 , message.tags[key],0);
                         
                     } 
                 }
@@ -89,7 +89,7 @@ var socket = io.connect('http://localhost:3000');
                    var criterionTitlesNumber = $('#exampleModal span.criterionTitle').length;
                     
 var tags = {};
-
+console.log(criterionTitlesNumber);
                    for(i=0; i< criterionTitlesNumber; i++ ){
 
                     console.log(i);
@@ -98,7 +98,7 @@ var tags = {};
 
                     var tag = {};
                     tag["tagName"] = $('#criterionName'+i+'_0').html();
-                    tag["tagValue"] = $('#criterionNote'+i).html();
+                    tag["tagValue"] = $('#criterionNote'+i+'_0').html();
                     tags["tag"+i] = tag;
 
 
