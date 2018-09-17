@@ -99,7 +99,7 @@
     <section style="padding: 3px">
       <div class="row justify-content-center" style="margin-right: 10px;">
 
-        <div class="combobox-wrapper col-4" id="comboboxOrder1">
+        <!-- <div class="combobox-wrapper col-4" id="comboboxOrder1">
           <div role="combobox"
                aria-expanded="false"
                aria-owns="ex3-listbox"
@@ -125,21 +125,52 @@
               id="ex3-listbox"
               class="listbox hidden">
           </ul>
-        </div>
-
-        <div class="progress-label hidden" id="orderCriterion" >
-            <span class="criterionTitle" id="orderCriterionName">                
+        </div> -->
+<div class="col-4">
+        <div class="progress-label flex-wrap" id="orderCriterion" style="width:100%;" >
+            <div class="combobox-wrapper " id="comboboxOrder1">
+            <div role="combobox"
+            aria-expanded="false"
+            aria-owns="ex3-listbox"
+            aria-haspopup="listbox"
+            id="ex3-combobox">
+            <span class="criterionTitle" id="orderCriterionName" style="width:100%;">     
+                <input type="text"
+                aria-autocomplete="both"
+                aria-controls="ex3-listbox"
+                aria-labelledby="ex3-label"
+                id="ex3-input" style="border: transparent; background: transparent;width:100%;" placeholder="Order your page by criterion" >           
             </span>  
-            <button style="border: transparent;background: transparent; position: absolute;top: -10px; right: 43px;display: inline-block; width: 19px; height: 19px;  
-            transform: translateY(50%); text-align: center; opacity: 1; border-radius: 50%;" onclick="orderUp()">
-              <span class="btn-inner--icon">
-                 <i class="ni ni-bold-down" id="orderButton"></i>
-               </span>
-            </button>
-
+            <button style="border: transparent; position: relative; display: inline-block; top:-25px; right: -100%; 
+            text-align: left; opacity: 100; border-radius: 50%;" class="btn-inner--icon"  id="ex3-combobox-arrow" tabindex="-1"  aria-label="Show vegetable options">
+                 <i class="ni ni-bold-down" style="color:#5e72e4"></i>
+              </button>
+          </div>
+              <ul aria-labelledby="ex3-label"
+              role="listbox"
+              id="ex3-listbox"
+              class="listbox hidden">
+          </ul>
+        </div>
         </div>
 
+        <div class="progress-label flex-wrap hidden" id="orderCriterionValidated" style="width:100%;" >
+          
+            <span class="criterionTitle" id="orderCriterionNameValidated" >                              
+            </span>  
+            <button style="border: transparent; position: relative; display: inline-block;
+            text-align: left; opacity: 100; border-radius: 50%;" onclick="orderUp()" class="btn-inner--icon"  id="orderUpDownButton" tabindex="-1"  aria-label="Show vegetable options">
+                 <i class="ni ni-bold-down" id="orderButton" style="color:#5e72e4"></i>
+              </button>
+            <button style="border: transparent; position: relative; display: inline-block;
+            text-align: left; opacity: 100; border-radius: 50%;" class="btn-inner--icon"  id="deleteButton" tabindex="-1"  aria-label="Show vegetable options">
+                 <i class="ni ni-fat-remove" style="color:tomato"></i>
+              </button>
+            
+        
+        </div>
 
+      </div>
 
 
 

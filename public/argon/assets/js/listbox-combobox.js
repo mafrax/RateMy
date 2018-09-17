@@ -217,13 +217,12 @@ aria.ListboxCombobox = function (
         addSearchCriterion();  
           console.log($("#ex1-input")) ;           
       } else if(this.input.id === "ex3-input"){
-        var combobox3 = document.getElementById('comboboxOrder1');
-        combobox3.setAttribute('class','hidden');
-        var orderCriterion = document.getElementById('orderCriterion');
-        var orderCriterionName = document.getElementById('orderCriterionName');
-        orderCriterionName.innerHTML = item.innerText;
-        orderCriterion.setAttribute('class', 'col-4 progress-label flex-wrap');
-        orderCriterionName.setAttribute('style', 'width:100%;');
+        // var combobox3 = document.getElementById('comboboxOrder1');
+        // combobox3.setAttribute('class','hidden');
+        var orderCriterion = document.getElementById('orderCriterionValidated');
+        orderCriterion.setAttribute('class',"progress-label flex-wrap " );
+        var orderCriterionName = document.getElementById('orderCriterionNameValidated');
+        orderCriterionName.innerHTML = item.innerText;        
       }
       this.input.value = "";
       this.hideListbox();
