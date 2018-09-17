@@ -59,7 +59,7 @@ socket.on("searchResults", function(message) {
 
 socket.on("videoSavedfromServer", function() {
   $("#closeModalButton").trigger("click");
-  socket.emit("reloadAfterSave");
+  window.location.replace("/");
 });
 
 $("#uploadForm").submit(function() {

@@ -31,11 +31,10 @@ var serverEvents = module.exports = function(io){
           socket.emit('loadHomePageFromServer', {videoWithTags});   
     });
 
-    // socket.on('reloadAfterSave', function () {
-    //   pageLoader.loadHomePage(function(html, videoWithTags){         
-    //     socket.emit('loadHomePageFromServer', {htmlfield: html, videoWithTags});   
-    //   });
-    // });
+    socket.on('reloadAfterSave', function () {
+     
+
+    });
       
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
