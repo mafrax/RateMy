@@ -30,19 +30,13 @@ function addSearchCriterion() {
         '<span style="color: rgba(248, 9, 176, 0.575); margin-right: 10px" id="criterionHighRange'+no+'">40%</span>' +
         
             '</div>' +
-        //     '<button type="button" aria-label="delete" style="background: #d3d9e5; border-radius: 50%; id="deletesearchCriterion'+no+'" onclick="deleteSearchCriterion('+no+')">'+
-        // '<span class="btn-inner--icon">'+
-        // '<i class="ni ni-fat-remove"></i>'+
-        // '</span>'+
-        // '</button>'+
             '<button style="border: transparent; position: relative; display: inline-block;'+
             'text-align: left; opacity: 100; border-radius: 50%;" class="btn-inner--icon"  id="deletesearchCriterion'+no+'" tabindex="-1"  aria-label="Show vegetable options" onclick="deleteSearchCriterion('+no+')">'+
                  '<i class="ni ni-fat-remove" style="color:tomato"></i>'+
               '</button>'+
 
             '</div>' +
-            // '</div>' +
-            // '</div>' +
+
 
 
             '<!-- Range slider -->'+

@@ -102,7 +102,9 @@ aria.ListboxCombobox = function (
         resultItem.innerText = results[i];
         if (this.shouldAutoSelect && i === 0) {
           resultItem.setAttribute('aria-selected', 'true');
-          aria.Utils.addClass(resultItem, 'focused');
+          // aria.Utils.addClass(resultItem, 'focused');
+          console.log('hi3');
+          // console.log(resultItem);
           this.activeIndex = 0;
         }
         this.listbox.appendChild(resultItem);
@@ -177,6 +179,7 @@ aria.ListboxCombobox = function (
   
     if (prevActive) {
       aria.Utils.removeClass(prevActive, 'focused');
+      console.log('hi4');
       prevActive.setAttribute('aria-selected', 'false');
     }
   
@@ -186,6 +189,7 @@ aria.ListboxCombobox = function (
         'result-item-' + activeIndex
       );
       aria.Utils.addClass(activeItem, 'focused');
+      console.log('hi5');
       activeItem.setAttribute('aria-selected', 'true');
       if (this.hasInlineAutocomplete) {
         this.input.value = activeItem.innerText;
@@ -204,6 +208,7 @@ aria.ListboxCombobox = function (
   };
   
   aria.ListboxCombobox.prototype.clickItem = function (evt) {
+    console.log('hi6');
     if (evt.target && evt.target.nodeName == 'LI') {
       this.selectItem(evt.target);
     }
@@ -235,6 +240,7 @@ aria.ListboxCombobox = function (
   
   aria.ListboxCombobox.prototype.checkHide = function (evt) {
     if (evt.target === this.input || this.combobox.contains(evt.target)) {
+      console.log('hi7');
       return;
     }
     this.hideListbox();
@@ -259,14 +265,16 @@ aria.ListboxCombobox = function (
     if (this.activeIndex < 0) {
       return;
     }
+    console.log('hi1');
+    console.log(this.activeIndex);
     var activeItem = this.getItemAt(this.activeIndex);
     this.selectItem(activeItem);
   };
   
   aria.ListboxCombobox.prototype.autocompleteItem = function () {
     var autocompletedItem = this.listbox.querySelector('.focused');
-    var inputText = this.input.value;
-  
+    console.log('hi2');
+    
     if (!autocompletedItem || !inputText) {
       return;
     }

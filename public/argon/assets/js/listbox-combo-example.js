@@ -91,6 +91,7 @@ FRUITS_AND_VEGGIES2.push("Number of views");
         }
         else {
           document.getElementById('ex3-input').focus();
+          console.log('hi8');
           ex3Combobox.updateResults(true);
         }
       }
