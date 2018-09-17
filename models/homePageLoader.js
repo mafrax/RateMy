@@ -57,7 +57,7 @@ HomePageL.buildIframe = function(err, results, callback) {
           '<input type="hidden" id="hiddenURl" value="' +
           result2[0].v.properties.originalUrl +
           '">' +
-          '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(' +
+          '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-50%;" onclick="expandIframe(' +
           result2[0].v._id +
           ')"><span class="btn-inner--icon">' +
           '<i class="ni ni-tv-2"></i></button>' +
