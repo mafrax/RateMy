@@ -9,9 +9,7 @@ var HomePageL = (module.exports = function HomePageL(_node) {
 });
 
 HomePageL.loadHomePage = function(callback) {
-  console.log(callback);
   quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
-  console.log(quer);
 
   db.cypher(quer, function(err, results) {
     if (err) return callback(err);
@@ -19,18 +17,15 @@ HomePageL.loadHomePage = function(callback) {
       if (err) return callback(err);
       callback(videos);
     });
-    console.log(results);
   });
 };
 
 HomePageL.buildIframe = function(err, results, callback) {
-  console.log("YOUHOU");
 
   var array = [];
   var i = 0;
   for (var prop in results) {
     if (results.hasOwnProperty(prop)) {
-      console.log( results[prop].v._id);
       var quer2 =
         "MATCH p=(v:Video)-[r:RATED]->(t:Tag) WHERE ID(v)=" +
         results[prop].v._id +
@@ -40,12 +35,6 @@ HomePageL.buildIframe = function(err, results, callback) {
         if (err) return callback(err);
 
         var video = {};
-        console.log(quer2);
-        console.log(i);
-        console.log(results.length);
-        console.log(prop);
-        console.log(results[i].v._id);
-        console.log(result2[0].v._id);
 
         var html2 =
           '<div class="row col-12 embed-responsive embed-responsive-16by9">' +

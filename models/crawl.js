@@ -2,7 +2,8 @@ var rp = require('request-promise');
 var request = require('request');
 var cheerio = require('cheerio');
 var htmlToJson = require('html-to-json');
-var tags = require("../models/Tag")
+var tagsBase = require("../models/Tag");
+
 
 // private constructor:
 var Crawler = module.exports = function Crawler(_node) {
@@ -13,7 +14,7 @@ var Crawler = module.exports = function Crawler(_node) {
 
 Crawler.crawl = function (url, cb) {
 
-    if(url.includes("?")){
+    if (url.includes("?")) {
         var parts = url.split("?");
         console.log(parts[0]);
         var qsArray = parts[1].split("=");
@@ -21,11 +22,11 @@ Crawler.crawl = function (url, cb) {
         var vkValue = qsArray[1];
         var truc = vK.valueOf();
 
-        
-        
-        
+
+
+
         console.log(truc);
-        
+
         var options = {
             uri: parts[0],
             qs: {
@@ -34,11 +35,14 @@ Crawler.crawl = function (url, cb) {
             headers: {
                 'User-Agent': 'Request-Promise'
             },
-            json: true // Automatically parses the JSON string in the response
+            json: true, // Automatically parses the JSON string in the response
+            transform: function (body) {
+                return cheerio.load(body);
+            }
         };
 
         console.log(options.qs);
-    options.qs[vK.valueOf()] = vkValue;
+        options.qs[vK.valueOf()] = vkValue;
 
     } else {
         var options = {
@@ -46,51 +50,131 @@ Crawler.crawl = function (url, cb) {
             headers: {
                 'User-Agent': 'Request-Promise'
             },
-            json: true // Automatically parses the JSON string in the response
+            json: true, // Automatically parses the JSON string in the response
+            transform: function (body) {
+                return cheerio.load(body);
+            }
         };
     }
-        
-    
+
+
     console.log(options);
     rp(options)
-        .then(function (response) {
+        .then(function ($) {
             try {
-                var n = response.indexOf("/embed/");
-                var res2 = response.substring(n - 50, n + 100);
-                console.log(res2);
-                var sub = res2.search('="http');
-                console.log(sub);
-                var sub2 = res2.indexOf('"', sub+6);
-                console.log(sub2);
-                var res3 = res2.substring(sub + 2, sub2);
-                console.log(res3);
+                var n = $("div:contains('Tags')");
 
-                var t1 = response.indexOf("<title>");
-                var t2 = response.indexOf("</title>");
-                var title = response.substring(t1+7, t2);
 
-                var tagArray1 = [];
-i=0;
-                tags.getAll( function(err , allTags){
-                    console.log(allTags);
-                    allTags.forEach( function(element) {
-                       
-                        if(response.indexOf(" "+element.tag.properties.tagName+" ") !== -1){
-                            console.log("fondTag: "+element.tag.properties.tagName );
-                            // tagArray1.push(element.tag.properties.tagName);
-                            tagArray1[i] = element.tag.properties.tagName;
-                            i++;
+                var m = $("div:contains('Tags')").last();
+                var o = n.last();
+
+                var p = $("meta[content*='embed'][content*='https']");
+                var q = $("textarea:contains('iframe'):contains('embed')");
+                var newHtml = []
+
+                if (p.length > 0) {
+                    $("meta[content*='embed'][content*='https']").each(function (index) {
+                        newHtml.push($(this).attr().content);
+                    })
+                } else if (q) {
+                    $("textarea:contains('iframe'):contains('embed')").each(function (index) {
+                        var sub = $(this).text().substring($(this).text().indexOf("src=") + 5, ($(this).text().length - 1));
+                        var subsub = sub.substring(0, sub.indexOf('"'));
+                        newHtml.push(subsub);
+                    })
+                }
+
+                // var r = $("textarea:contains('iframe')")[0].childNodes[0].data;
+                var tqgs = $("a[href*='keyword']");
+                var tpgs = $("a[href*='categor']");
+                var tOgs = $("a[href*='tags']");
+                var tIgs = $("a[href*='search?search']");
+
+                var tags = [];
+
+                if (tpgs) {
+                    $("a[href*='categor']").each(function (index) {
+                        console.log($(this).closest("[class*='menu']"))
+                        if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
+                            console.log($(this).text());
+                            tags.push($(this).text());
                         }
                     })
-                    console.log(tagArray1);
-                    cb(res3, title, tagArray1);
+                }
 
-                } )
-               
+                if (tqgs) {
+                    $("a[href*='keyword']").each(function (index) {
+                        if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
+                            console.log($(this).text());
+                            tags.push($(this).text());
+                        }
+                    })
+                }
+
+                if (tOgs) {
+                    $("a[href*='tags']").each(function (index) {
+                        if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
+                            console.log($(this).text());
+                            tags.push($(this).text());
+                        }
+                    })
+                }
+
+                if (tIgs) {
+                    $("a[href*='search?search']").each(function (index) {
+                        if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
+                            console.log($(this).text());
+                            tags.push($(this).text());
+                        }
+                    })
+                }
+
+                var title = $("title").text();
+                var sourceEmbed;
+                if (newHtml.length < 2) {
+                    sourceEmbed = newHtml[0];
+                }
+
+
+
+                var uniqueTags = [];
+                tags.forEach(function (item) {
+                    if (uniqueTags.indexOf(item) < 0) {
+                        uniqueTags.push(item);
+                    }
+                });
+
+                cb(sourceEmbed, title, uniqueTags);
+
+
+                    uniqueTags.forEach(function (element) {
+                        var foundTag = [];
+                        tagsBase.getBy('tag.tagName', element, function(err, tag){
+                            if(tag.length >0) {
+                                console.log("tag already in base");
+                            } else {
+                                console.log(tag);
+                                var newTag = {};
+                                newTag.tagName = element;
+                                newTag.timestamp = new Date();
+
+                                tagsBase.create(newTag, function (err, tag) {
+                                    console.log(tag);
+                                    console.log(err);
+                                    if (err)
+                                        return next(err);
+                            })
+                            }
+                        })
+
+
+
+                    })
+             
 
 
             } catch (e) {
-                reject(e);
+                console.log(e);
             }
         })
         .catch(function (err) {
@@ -101,40 +185,40 @@ i=0;
 }
 
 Crawler.addModalDiv = function (url, originalUrl) {
-console.log(originalUrl);
-    var html2 = '<div class="col-12 flex-wrap" id="cell0x0" >'+
-      '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->'+
-      '<div class="row col-12 embed-responsive embed-responsive-16by9">'+
-        '<iframe class="embed-responsive-item" src="'+url+'" frameborder="0" allow="autoplay; encrypted-media"'+
-          'allowfullscreen id="modalEmbedVideoId">'+
-        '</iframe>'+
-        '<input type="hidden" id="hiddenURl" value="'+originalUrl+'">'+
-        '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(0,0)">EX</button>'+
-      '</div>'+
+    console.log(originalUrl);
+    var html2 = '<div class="col-12 flex-wrap" id="cell0x0" >' +
+        '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->' +
+        '<div class="row col-12 embed-responsive embed-responsive-16by9">' +
+        '<iframe class="embed-responsive-item" src="' + url + '" frameborder="0" allow="autoplay; encrypted-media"' +
+        'allowfullscreen id="modalEmbedVideoId">' +
+        '</iframe>' +
+        '<input type="hidden" id="hiddenURl" value="' + originalUrl + '">' +
+        '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(0,0)">EX</button>' +
+        '</div>' +
 
-      '<div class="row col-12 flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">'+
-        '<!-- <button class="row col-12 btn btn-sm btn-primary" data-toggle="collapse" data-target="#demo"> -->'+
-        '<!-- </button> -->'+
-        '<div class="row col-12 flex-wrap">'+
+        '<div class="row col-12 flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
+        '<!-- <button class="row col-12 btn btn-sm btn-primary" data-toggle="collapse" data-target="#demo"> -->' +
+        '<!-- </button> -->' +
+        '<div class="row col-12 flex-wrap">' +
 
-          '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo" aria-controls="nav-inner-primary"'+
-            'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">'+
-            '<span class="navbar-toggler-icon">V</span>'+
-          '</button>'+
-          '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">'+
-          '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>'+
-        '</div>'+
+        '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo" aria-controls="nav-inner-primary"' +
+        'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">' +
+        '<span class="navbar-toggler-icon">V</span>' +
+        '</button>' +
+        '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">' +
+        '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>' +
+        '</div>' +
 
-        '<div id="demo" class="collapse col-12" style="max-height: 50vh; overflow:auto">'+
-          '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer0">'+
+        '<div id="demo" class="collapse col-12" style="max-height: 50vh; overflow:auto">' +
+        '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer0">' +
 
-          '</div>'+
+        '</div>' +
 
-          '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(0)" value="Add" >'+
-        '</div>'+
-      '</div>'+
-    '</div>';
+        '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(0)" value="Add" >' +
+        '</div>' +
+        '</div>' +
+        '</div>';
 
 
-return html2;
+    return html2;
 }

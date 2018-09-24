@@ -9,26 +9,28 @@ var Tag = module.exports = function Tag(_node) {
 	this._node = _node;
 }
 
-Tag.getBy = function (field, value, callback) {
+Tag.getBy = function (field, value2, callback) {
 	console.log('entered getby');
-	console.log(value);
+	console.log(value2);
 	console.log(field);
 	var qp = {
 		query: [
 			'MATCH (tag:Tag)',
-			'WHERE ' + field + ' = {value}',
+			'WHERE ' + field + ' = "'+value2+'"',
 			'RETURN tag',
 		]
-		.join('\n'),
-		params: {
-			value: value
-		}
+		.join('\n')
+		// params: {
+		// 	value: value2
+		// }
 	}
 console.log(qp);
 	db.cypher(qp, function (err, result) {
-		if (err) return callback(err);	
-		console.log(result[0]['tag']);	
-			callback(null, result[0]['tag']);
+		if (err){
+			return callback(err);	
+		} 
+		console.log(result);	
+			callback(null, result);
 	});
 }
 

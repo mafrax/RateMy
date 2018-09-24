@@ -11,7 +11,6 @@ var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
 
     tag.getAll(function(err, result2){
-      console.log(result2);
       socket.emit('searchResults', result2);
     })
 
@@ -19,7 +18,6 @@ var serverEvents = module.exports = function(io){
     
     pageLoader.loadHomePage(function(videoWithTags){    
      
-      console.log(videoWithTags);  
 
       videoWithTags.sort(function(a, b) {
         a = a.video[0].v.properties.timeStamp;
@@ -42,10 +40,7 @@ var serverEvents = module.exports = function(io){
 
           crawler.crawl(message, function(url, title, tags){
               // crawler.crawl(url2, function(url){
-              console.log(url);
-              console.log(title);
               var html = crawler.addModalDiv(url, message);
-              console.log(tags);
               socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
               });
 
@@ -57,7 +52,6 @@ var serverEvents = module.exports = function(io){
 
       socket.on('messageSavefromClient', function (message) {
         console.log('Un client me parle ! Il me dit : ' + message);
-        console.log(message);
 
         var newVideo = {};
         newVideo.originalUrl = message.originalUrlField;
@@ -71,7 +65,6 @@ var serverEvents = module.exports = function(io){
           console.log(err);
           if (err)
           return next(err);
-          console.log(video);
 
           socket.emit('videoSavedfromServer', {video, tagField: message.tags });                           
           
