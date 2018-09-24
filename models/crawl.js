@@ -133,6 +133,8 @@ Crawler.crawl = function (url, cb) {
                 var sourceEmbed;
                 if (newHtml.length < 2) {
                     sourceEmbed = newHtml[0];
+                } else {
+                    sourceEmbed = newHtml[0];
                 }
 
 

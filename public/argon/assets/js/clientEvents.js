@@ -62,6 +62,28 @@ socket.on("videoSavedfromServer", function() {
   window.location.replace("/");
 });
 
+$("#validateSearchButton").submit(function() {
+  
+//   var searchcriterions = $("div[id*='searchCriterion']");
+
+//   $("div[id*='searchCriterion']").each(function (index) {
+//         console.log($(this).text());
+//         tags.push($(this).text());
+    
+// })
+
+var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
+var tagName = [];
+criterions.forEach(function(element){
+  tagName.push(criterions.querySelectorAll('span')[0].innerHTML);
+})
+
+socket.emit()
+
+
+  return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
+});
+
 $("#uploadForm").submit(function() {
   var url1 = $("#field2").val();
   socket.emit("messageUploadfromClient", url1);
