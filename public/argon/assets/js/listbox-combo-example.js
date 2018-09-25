@@ -18,8 +18,8 @@ FRUITS_AND_VEGGIES2.push("Number of views");
   function updateVeggies(results){
     FRUITS_AND_VEGGIES = [];
     FRUITS_AND_VEGGIES.push("Upload date");
-FRUITS_AND_VEGGIES.push("Global Note");
-FRUITS_AND_VEGGIES.push("Number of views");
+    FRUITS_AND_VEGGIES.push("Global Note");
+    FRUITS_AND_VEGGIES.push("Number of views");
     FRUITS_AND_VEGGIES2 = [];
     FRUITS_AND_VEGGIES2.push("Upload date");
     FRUITS_AND_VEGGIES2.push("Global Note");
@@ -39,7 +39,8 @@ FRUITS_AND_VEGGIES.push("Number of views");
   
     for (var i = 0; i < FRUITS_AND_VEGGIES.length; i++) {
       
-      var veggie = FRUITS_AND_VEGGIES[i];
+      var veggie1 = FRUITS_AND_VEGGIES[i];
+      var veggie = veggie1.toString().toLowerCase();
       if (veggie.indexOf(searchString) === 0) {
         results.push(FRUITS_AND_VEGGIES[i]);
       }
