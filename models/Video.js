@@ -40,6 +40,55 @@ Video.getBy = function (field, value, callback) {
 	});
 }
 
+
+Video.searchByCriterionLevel = function (tag, callback) {
+	console.log('entered searchByCriterionLevel');
+
+console.log(tag);
+
+
+var truc = [];
+var par = {};
+for (var prop in tag) {
+	if (tag.hasOwnProperty(prop)) {
+		truc.push('MATCH (v:Video)-[rel'+prop+':RATED]->(t'+prop+':Tag)');
+		truc.push('WHERE t'+prop+'.tagName =~ {value'+prop+'}');
+		truc.push('and rel'+prop+'.level>={lowerRange'+prop+'}');
+		truc.push(' and rel'+prop+'.level<{higherRange'+prop+'}');
+		par['value'+prop+''] = '(?i)' + tag[prop].name;
+		par['lowerRange'+prop+''] = tag[prop].lowerValue;
+		par['higherRange'+prop+''] = tag[prop].higherValue;
+
+	}
+}
+
+truc.push('RETURN v');
+truc;
+
+	var qp = {
+		// query: [
+		// 	'MATCH (v:Video)-[rel:RATED]->(t:Tag)', 'WHERE t.tagName =~ {value}',' and rel.level>={lowerRange}',' and rel.level<{higherRange}',  'RETURN v',
+		// ]
+		// 	.join('\n')
+		query:	truc.join('\n')
+		,
+		params: par
+	}
+	console.log(qp);
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		if (!result[0]) {
+			console.log('1');
+			console.log(result);
+			callback(null, result);
+		} else {
+			console.log('2');
+			console.log(result);
+			callback(null, result);
+		}
+	});
+}
+
 // creates the user and persists (saves) it to the db, incl. indexing it:
 Video.create = function (data, tags, callback) {
 	console.log(data);

@@ -5,6 +5,7 @@ var video = require('../models/Video');
 var tag = require('../models/Tag');
 var pass = require('../config/passport');
 var neo4j = require("neo4j");
+var index = require("../routes/index");
 var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
 
 var serverEvents = module.exports = function(io){
@@ -72,6 +73,52 @@ var serverEvents = module.exports = function(io){
         });
 
     });
+
+
+    socket.on('searchValidatedFromClient', function (searchTags) {
+      console.log('Un client me parle ! Il me dit : ' + searchTags);
+
+
+
+
+      // var newVideo = {};
+      // newVideo.originalUrl = message.originalUrlField;
+      // newVideo.embedUrl = message.embedUrlField;
+      // newVideo.title = message.titlefield;
+      // newVideo.timestamp = new Date();
+
+
+      video.searchByCriterionLevel(searchTags, function (err, videos) {
+ 
+
+        console.log(err);
+        if (err)
+        return next(err);
+
+        pageLoader.buildIframe(null, videos, function(videoWithTags) {
+          if(videoWithTags == null){
+            socket.emit('loadHomePageFromServer', {videoWithTags});    
+          } else {
+
+            if (err) return callback(err);
+            
+            videoWithTags.sort(function(a, b) {
+              a = a.video[0].v.properties.timeStamp;
+              b = b.video[0].v.properties.timeStamp;
+              return a>b ? -1 : a<b ? 1 : 0;
+            });
+            
+            socket.emit('loadHomePageFromServer', {videoWithTags});                           
+          }
+
+        });
+
+        
+
+      });
+
+  });
+
     
   });	
 

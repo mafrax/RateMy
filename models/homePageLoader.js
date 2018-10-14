@@ -24,6 +24,9 @@ HomePageL.buildIframe = function(err, results, callback) {
 
   var array = [];
   var i = 0;
+  if(results.length===0){
+    callback(null);
+  } else {
   for (var prop in results) {
     if (results.hasOwnProperty(prop)) {
       var quer2 =
@@ -99,7 +102,9 @@ HomePageL.buildIframe = function(err, results, callback) {
           callback(array);
         }
         i++;
+      
       });
     }
   }
+}
 };

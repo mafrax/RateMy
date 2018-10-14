@@ -18,23 +18,26 @@ socket.on("loadHomePageFromServer", function(message) {
   console.log(message);
   console.log(message.videoWithTags);
 
-  var arrayLength = message.videoWithTags.length;
-  console.log(arrayLength);
-  for (var i = 0; i < arrayLength; i++) {
-    console.log(message.videoWithTags[i]);
-    console.log(message.videoWithTags[i]["video"]);
-    console.log(message.videoWithTags[i]["video"][0].v._id);
-    var mainframe = document.getElementById("mainFrame1");
-    var newDiv = document.createElement("div");
-    newDiv.setAttribute("class", "col-4 flex-wrap");
-    newDiv.setAttribute(
-      "id",
-      "cell" + message.videoWithTags[i]["video"][0].v._id
-    );
-
+  var mainframe = document.getElementById("mainFrame1");
+  mainframe.innerHTML = "";
+  if(message.videoWithTags == null){
+    mainframe.innerHTML = "NO VIDEO FOUND THAT COULD SATISFY YOU, we are very sorry";
+  } else {
+    var arrayLength = message.videoWithTags.length;
+    for (var i = 0; i < arrayLength; i++) {
+      console.log(message.videoWithTags[i]);
+      console.log(message.videoWithTags[i]["video"]);
+      console.log(message.videoWithTags[i]["video"][0].v._id);
+      var newDiv = document.createElement("div");
+      newDiv.setAttribute("class", "col-4 flex-wrap");
+      newDiv.setAttribute(
+        "id",
+        "cell" + message.videoWithTags[i]["video"][0].v._id
+        );
+        
     newDiv.innerHTML = message.videoWithTags[i]["iframe"];
     mainframe.appendChild(newDiv);
-
+    
     console.log(message.videoWithTags[i]["video"]);
     for (var prop in message.videoWithTags[i]["video"]) {
       if (message.videoWithTags.hasOwnProperty(prop)) {
@@ -48,6 +51,7 @@ socket.on("loadHomePageFromServer", function(message) {
         );
       }
     }
+  }
     initializeButoons();
   }
 });
@@ -62,26 +66,42 @@ socket.on("videoSavedfromServer", function() {
   window.location.replace("/");
 });
 
-$("#validateSearchButton").submit(function() {
+$("#validateSearchButton").click(function() {
   
-//   var searchcriterions = $("div[id*='searchCriterion']");
-
-//   $("div[id*='searchCriterion']").each(function (index) {
-//         console.log($(this).text());
-//         tags.push($(this).text());
+  
+  //   $("div[id*='searchCriterion']").each(function (index) {
+    //         console.log($(this).text());
+    //         tags.push($(this).text());
     
-// })
+    // })
+    
+var searchcriterions = $("div[id*='searchCriterion']");
+if(searchcriterions.length === 0){
+  window.location.replace("/");
+} else {
 
+console.log(searchcriterions);
 var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
+console.log(criterions);
 var tagName = [];
 criterions.forEach(function(element){
-  tagName.push(criterions.querySelectorAll('span')[0].innerHTML);
+  var tag = {};
+  // console.log(element.querySelectorAll('span')[0]);
+  // var span = element.querySelectorAll('*[id^="criterionLowRange"]');
+  // console.log(span);
+  // console.log(span[0].innerHTML);
+  tag["name"] = element.querySelectorAll('span')[0].innerHTML.trim();
+  tag["lowerValue"] = parseInt(element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML);
+  tag["higherValue"] = parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML);
+  tagName.push(tag);
 })
+console.log(tagName);
+socket.emit("searchValidatedFromClient", tagName);
 
-socket.emit()
+}
+return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 
 
-  return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
 
 $("#uploadForm").submit(function() {
@@ -129,4 +149,6 @@ $("#modalSaveButton").click(function() {
   });
 
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
+
 });
+
