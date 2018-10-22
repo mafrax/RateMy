@@ -9,7 +9,7 @@ socket.on("messageUploadfromServer", function(message) {
   for (key in message.tags) {
     console.log(key);
     if (message.tags.hasOwnProperty(key)) {
-      add_criterion(0, message.tags[key]);
+      add_criterion(0,false, message.tags[key],0);
     }
   }
 });
@@ -26,7 +26,7 @@ socket.on("loadHomePageFromServer", function(message) {
     var arrayLength = message.videoWithTags.length;
     for (var i = 0; i < arrayLength; i++) {
       console.log(message.videoWithTags[i]);
-      console.log(message.videoWithTags[i]["video"]);
+      console.log(message.videoWithTags[i]['video']);
       console.log(message.videoWithTags[i]["video"][0].v._id);
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-4 flex-wrap");
@@ -45,10 +45,11 @@ socket.on("loadHomePageFromServer", function(message) {
         console.log(message.videoWithTags[i]["video"][prop].v._id);
         console.log(message.videoWithTags[i]["video"][prop].r.properties.level);
         add_criterion(
-          message.videoWithTags[i]["video"][prop].v._id,
+          message.videoWithTags[i]["video"][prop].v._id,false,
           message.videoWithTags[i]["video"][prop].t.properties.tagName,
           message.videoWithTags[i]["video"][prop].r.properties.level
         );
+        initializeCombobox1(message.videoWithTags[i]["video"][prop].v._id);
       }
     }
   }
@@ -58,7 +59,19 @@ socket.on("loadHomePageFromServer", function(message) {
 
 socket.on("searchResults", function(message) {
   updateVeggies(message);
-  initializeCombobox();
+  lists = document.querySelectorAll('*[id^="ex1-input"]');
+  console.log(lists);
+  for (var prop in lists) {
+    if (lists.hasOwnProperty(prop)) {
+      id = lists[prop].id.toString();
+        console.log(id);       
+        no = id.substring(9, id.length);  
+        console.log(no);
+        initializeCombobox1(no);
+
+    }
+}
+initializeCombobox3(0);
 });
 
 socket.on("videoSavedfromServer", function() {
@@ -111,7 +124,7 @@ $("#uploadForm").submit(function() {
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
 
-$("#ex1-input").on("input", function() {
+$("input[id^=ex1-input]").on("input", function() {
   console.log(this.value);
   socket.emit("searchCriterion", this.value);
 

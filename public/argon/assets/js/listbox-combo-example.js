@@ -62,43 +62,67 @@ FRUITS_AND_VEGGIES2.push("Number of views");
     return results;
   }
   
-  function initializeCombobox(){
+  function initializeCombobox1(no){
       console.log("lalala");
+      console.log(no);
     var ex1Combobox = new aria.ListboxCombobox(
-      document.getElementById('ex1-combobox'),
-      document.getElementById('ex1-input'),
-      document.getElementById('ex1-listbox'),
+      document.getElementById('ex1-combobox'+no),
+      document.getElementById('ex1-input'+no),
+      document.getElementById('ex1-listbox'+no),
       searchVeggies,
       false
     );
+  }
 
+  function initializeCustomCombobox1(no){
+    criterionContainer = document.getElementById("progressBarContainer"+no);
+    criterii = criterionContainer.querySelectorAll("*[id^=criterionName]");
+    var criterionList = [];
+    for (var prop in criterii) {
+      if (criterii.hasOwnProperty(prop)) {
+        criterionList.push(criterii[prop].innerHTML);
+      }
+    }
+   
+    console.log("lalala");
+    console.log(no);
+  var ex1Combobox = new aria.ListboxCombobox(
+    document.getElementById('ex1-combobox'+no),
+    document.getElementById('ex1-input'+no),
+    document.getElementById('ex1-listbox'+no),
+    criterionList,
+    false
+  );
+}
+
+  function initializeCombobox3(no){
     var ex3Combobox = new aria.ListboxCombobox(      
-      document.getElementById('ex3-combobox'),
-      document.getElementById('ex3-input'),
-      document.getElementById('ex3-listbox'),
+      document.getElementById('ex3-combobox'+no),
+      document.getElementById('ex3-input'+no),
+      document.getElementById('ex3-listbox'+no),
       searchVeggiesPlus,
       true,
       function () {
         // on show
-        document.getElementById('ex3-combobox-arrow')
+        document.getElementById('ex3-combobox-arrow'+no)
           .setAttribute('aria-label', 'Hide vegetable options');
       },
       function () {
         // on hide
-        document.getElementById('ex3-combobox-arrow')
+        document.getElementById('ex3-combobox-arrow'+no)
           .setAttribute('aria-label', 'Show vegetable options');
       }
     );
   
-    document.getElementById('ex3-combobox-arrow').addEventListener(
+    document.getElementById('ex3-combobox-arrow'+no).addEventListener(
       'click',
       function () {
         if (ex3Combobox.shown) {
-          document.getElementById('ex3-input').focus();
+          document.getElementById('ex3-input'+no).focus();
           ex3Combobox.hideListbox();
         }
         else {
-          document.getElementById('ex3-input').focus();
+          document.getElementById('ex3-input'+no).focus();
           console.log('hi8');
           ex3Combobox.updateResults(true);
         }

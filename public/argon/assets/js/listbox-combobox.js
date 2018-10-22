@@ -32,6 +32,7 @@ aria.ListboxCombobox = function (
   ) {
     // console.log("hello");
     console.log(this);
+    console.log(listbox);
     this.combobox = comboboxNode;
     this.input = input;
     this.listbox = listbox;
@@ -218,16 +219,24 @@ aria.ListboxCombobox = function (
     if (item) {
       this.input.value = item.innerText;
       console.log(this);
-      if(this.input.id === "ex1-input"){
+      if(this.input.id === "ex1-input0"){
         addSearchCriterion();  
-          console.log($("#ex1-input")) ;           
-      } else if(this.input.id === "ex3-input"){
+        console.log($("#ex1-input")) ;           
+      } else if(this.input.id === "input"){
         // var combobox3 = document.getElementById('comboboxOrder1');
         // combobox3.setAttribute('class','hidden');
         var orderCriterion = document.getElementById('orderCriterionValidated');
         orderCriterion.setAttribute('class',"progress-label flex-wrap " );
         var orderCriterionName = document.getElementById('orderCriterionNameValidated');
         orderCriterionName.innerHTML = item.innerText;        
+      } else {
+        id = this.input.id.toString();
+        console.log(id);
+        index = id.indexOf("ex1-input");
+        console.log(index);
+        no = id.substring(index, id.length);
+        console.log(no);
+        add_criterion(videoNo,newOrFound, criterionTitle, level)
       }
       this.input.value = "";
       this.hideListbox();

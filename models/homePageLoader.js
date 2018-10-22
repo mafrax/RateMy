@@ -10,13 +10,18 @@ var HomePageL = (module.exports = function HomePageL(_node) {
 
 HomePageL.loadHomePage = function(callback) {
   quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
-
+console.log(quer);
   db.cypher(quer, function(err, results) {
+    console.log(results);
     if (err) return callback(err);
-    HomePageL.buildIframe(null, results, function(videos) {
-      if (err) return callback(err);
-      callback(videos);
-    });
+
+    if(results.length != 0 ){
+      HomePageL.buildIframe(null, results, function(videos) {
+    if (err) return callback(err);
+    callback(videos);
+
+  });
+}
   });
 };
 
@@ -35,6 +40,9 @@ HomePageL.buildIframe = function(err, results, callback) {
         " RETURN p, v , t, r";
 
       db.cypher(quer2, function(err, result2) {
+
+        var test = "test";
+
         if (err) return callback(err);
 
         var video = {};
@@ -65,11 +73,26 @@ HomePageL.buildIframe = function(err, results, callback) {
           '<i class="ni ni-bold-down"></i></button>' +
           "</span></span>" +
           "</button>" +
-          '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">' +
-          '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">' +
-          '<span class="btn-inner--icon">' +
-          '<i class="ni ni-zoom-split-in"></i></button>' +
-          "</span></button>" +
+         
+'<div role="combobox" aria-expanded="false" aria-owns="ex1-listbox" aria-haspopup="listbox" id="ex1-combobox'+result2[0].v._id+'">'+
+                '<div class="form-group">'+
+                  '<div class="input-group">'+
+                    '<input type="text" aria-autocomplete="list" aria-controls="ex1-listbox" id="ex1-input'+result2[0].v._id+'" class="form-control" placeholder="Add a search criterion">'+
+                    '<span class="input-group-btn">'+
+                      '<button type="button" value="Edit" class="btn btn-primary" onclick="addSearchCriterion()" aria-controls="nav-inner-primary"'+
+                        'aria-expanded="false" aria-label="Toggle navigation">'+
+                        '<span class="btn-inner--icon">'+
+                          '<i class="ni ni-zoom-split-in"></i>'+
+                        '</span>'+
+                      '</button>'+
+                      '</span>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+             ' <ul aria-labelledby="ex1-label" role="listbox" id="ex1-listbox'+result2[0].v._id+'" class="listbox hidden" style="z-index: 2000; overflow: auto; max-height: 80vh;">'+
+              '</ul>'+
+
+
           "</div>" +
           '<div id="demo' +
           result2[0].v._id +
@@ -81,11 +104,11 @@ HomePageL.buildIframe = function(err, results, callback) {
           '<div class="input-group">' +
           '<input type="text" placeholder="new criterion" class="col-8 form-control" name="criterionAddField" id="criterionAddField' +
           result2[0].v._id +
-          '" />' +
+          '" >' +
           '<span class="input-group-btn">' +
           '<button type="button" class="btn btn-primary " onclick="add_criterion(' +
           result2[0].v._id +
-          ')"">' +
+          ', true )">' +
           "Add" +
           "</button>" +
           "</span>" +

@@ -1,7 +1,5 @@
 var rp = require('request-promise');
-var request = require('request');
 var cheerio = require('cheerio');
-var htmlToJson = require('html-to-json');
 var tagsBase = require("../models/Tag");
 
 
@@ -10,7 +8,7 @@ var Crawler = module.exports = function Crawler(_node) {
     // all we'll really store is the node; the rest of our properties will be
     // derivable or just pass-through properties (see below).
     this._node = _node;
-}
+};
 
 Crawler.crawl = function (url, cb) {
 
@@ -58,26 +56,20 @@ Crawler.crawl = function (url, cb) {
     }
 
 
-    console.log(options);
     rp(options)
         .then(function ($) {
             try {
-                var n = $("div:contains('Tags')");
-
-
-                var m = $("div:contains('Tags')").last();
-                var o = n.last();
 
                 var p = $("meta[content*='embed'][content*='https']");
                 var q = $("textarea:contains('iframe'):contains('embed')");
                 var newHtml = []
 
                 if (p.length > 0) {
-                    $("meta[content*='embed'][content*='https']").each(function (index) {
+                    $("meta[content*='embed'][content*='https']").each(function () {
                         newHtml.push($(this).attr().content);
                     })
                 } else if (q) {
-                    $("textarea:contains('iframe'):contains('embed')").each(function (index) {
+                    $("textarea:contains('iframe'):contains('embed')").each(function () {
                         var sub = $(this).text().substring($(this).text().indexOf("src=") + 5, ($(this).text().length - 1));
                         var subsub = sub.substring(0, sub.indexOf('"'));
                         newHtml.push(subsub);
@@ -93,7 +85,7 @@ Crawler.crawl = function (url, cb) {
                 var tags = [];
 
                 if (tpgs) {
-                    $("a[href*='categor']").each(function (index) {
+                    $("a[href*='categor']").each(function () {
                         console.log($(this).closest("[class*='menu']"))
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
                             console.log($(this).text());
@@ -103,7 +95,7 @@ Crawler.crawl = function (url, cb) {
                 }
 
                 if (tqgs) {
-                    $("a[href*='keyword']").each(function (index) {
+                    $("a[href*='keyword']").each(function () {
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
                             console.log($(this).text());
                             tags.push($(this).text());
@@ -112,7 +104,7 @@ Crawler.crawl = function (url, cb) {
                 }
 
                 if (tOgs) {
-                    $("a[href*='tags']").each(function (index) {
+                    $("a[href*='tags']").each(function () {
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
                             console.log($(this).text());
                             tags.push($(this).text());
@@ -121,7 +113,7 @@ Crawler.crawl = function (url, cb) {
                 }
 
                 if (tIgs) {
-                    $("a[href*='search?search']").each(function (index) {
+                    $("a[href*='search?search']").each(function () {
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
                             console.log($(this).text());
                             tags.push($(this).text());
@@ -150,8 +142,7 @@ Crawler.crawl = function (url, cb) {
 
 
                     uniqueTags.forEach(function (element) {
-                        var foundTag = [];
-                        tagsBase.getBy('tag.tagName', element, function(err, tag){
+                        tagsBase.getBy('tag.tagName', element, function(tag){
                             if(tag.length >0) {
                                 console.log("tag already in base");
                             } else {

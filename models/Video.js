@@ -93,7 +93,7 @@ truc;
 Video.create = function (data, tags, callback) {
 	console.log(data);
 
-	if (tags) {
+	if (tags.length > 0) {
 		Video.computeQuery(data, tags, function (quer) {
 			console.log(quer);
 			var qp = quer;
@@ -111,12 +111,9 @@ Video.create = function (data, tags, callback) {
 	} else {
 		var qp = {
 			query: [
-				'CREATE (video:Video {data})',
+				'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })',
 				'RETURN video',
-			].join('\n'),
-			params: {
-				data: data,
-			}
+			].join('\n')
 		}
 		console.log('after query');
 		console.log(qp);
