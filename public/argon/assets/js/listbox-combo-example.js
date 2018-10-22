@@ -25,11 +25,9 @@ FRUITS_AND_VEGGIES2.push("Number of views");
     FRUITS_AND_VEGGIES2.push("Global Note");
     FRUITS_AND_VEGGIES2.push("Number of views");
     console.log(results);
-    for (var prop in results) {
-        if (results.hasOwnProperty(prop)) {
-            FRUITS_AND_VEGGIES.push(results[prop].tag.properties.tagName);
-            FRUITS_AND_VEGGIES2.push(results[prop].tag.properties.tagName);
-        }
+    for (var i = 0; i < results.length; i++) {       
+            FRUITS_AND_VEGGIES.push(results[i]);
+            FRUITS_AND_VEGGIES2.push(results[i]);      
     }
     console.log(FRUITS_AND_VEGGIES);
   }
@@ -61,6 +59,26 @@ FRUITS_AND_VEGGIES2.push("Number of views");
   
     return results;
   }
+
+  function searchVeggiesPlusPlus(searchString, no) {
+    var results = [];
+    criterionContainer = document.getElementById("progressBarContainer"+no);
+    criterii = criterionContainer.querySelectorAll("*[id^=criterionName]");
+    var criterionList = [];
+    for (var prop in criterii) {
+      if (criterii.hasOwnProperty(prop)) {
+        criterionList.push(criterii[prop].innerHTML);
+      }
+    }
+    for (var i = 0; i < criterionList.length; i++) {
+      var veggie = criterionList[i].toLowerCase();
+      if (veggie.indexOf(searchString.toLowerCase()) === 0) {
+        results.push(criterionList[i]);
+      }
+    }
+  
+    return results;
+  }
   
   function initializeCombobox1(no){
       console.log("lalala");
@@ -75,22 +93,14 @@ FRUITS_AND_VEGGIES2.push("Number of views");
   }
 
   function initializeCustomCombobox1(no){
-    criterionContainer = document.getElementById("progressBarContainer"+no);
-    criterii = criterionContainer.querySelectorAll("*[id^=criterionName]");
-    var criterionList = [];
-    for (var prop in criterii) {
-      if (criterii.hasOwnProperty(prop)) {
-        criterionList.push(criterii[prop].innerHTML);
-      }
-    }
-   
+
     console.log("lalala");
     console.log(no);
   var ex1Combobox = new aria.ListboxCombobox(
     document.getElementById('ex1-combobox'+no),
     document.getElementById('ex1-input'+no),
     document.getElementById('ex1-listbox'+no),
-    criterionList,
+    searchVeggiesPlusPlus,
     false
   );
 }

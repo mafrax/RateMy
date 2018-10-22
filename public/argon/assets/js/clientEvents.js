@@ -49,29 +49,39 @@ socket.on("loadHomePageFromServer", function(message) {
           message.videoWithTags[i]["video"][prop].t.properties.tagName,
           message.videoWithTags[i]["video"][prop].r.properties.level
         );
-        initializeCombobox1(message.videoWithTags[i]["video"][prop].v._id);
+
       }
     }
+    
+    // initializeCustomCombobox1(message.videoWithTags[i]["video"][0].v._id);
   }
-    initializeButoons();
+  initializeButoons();
   }
 });
 
 socket.on("searchResults", function(message) {
-  updateVeggies(message);
+
+  tagNames = [];
+  console.log(message);
+  for (var prop in message) {
+    if (message.hasOwnProperty(prop)) {
+      tagNames.push(message[prop].tag.properties.tagName);
+    }
+  }
+  updateVeggies(tagNames);
+  initializeCombobox1(0);
+  initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-input"]');
   console.log(lists);
-  for (var prop in lists) {
-    if (lists.hasOwnProperty(prop)) {
-      id = lists[prop].id.toString();
-        console.log(id);       
-        no = id.substring(9, id.length);  
-        console.log(no);
-        initializeCombobox1(no);
+//   for (var prop in lists) {
+//     if (lists.hasOwnProperty(prop)) {
+//       id = lists[prop].id.toString();
+//         console.log(id);       
+//         no = id.substring(9, id.length);  
+//         console.log(no);
 
-    }
-}
-initializeCombobox3(0);
+//     }
+// }
 });
 
 socket.on("videoSavedfromServer", function() {
@@ -128,6 +138,12 @@ $("input[id^=ex1-input]").on("input", function() {
   console.log(this.value);
   socket.emit("searchCriterion", this.value);
 
+  return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
+});
+
+$("input[id^=searchVideoBar]").on("input", function() {
+  console.log(this.value); 
+  filterCriterion(this.value)
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
 

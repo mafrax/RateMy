@@ -86,7 +86,14 @@ aria.ListboxCombobox = function (
   
   aria.ListboxCombobox.prototype.updateResults = function (shouldShowAll) {
     var searchString = this.input.value;
-    var results = this.searchFn(searchString);
+
+        console.log(this);
+        var id = this.input.id;
+        console.log(id);       
+        var no = id.substring(9, id.length);  
+        console.log(no);
+
+    var results = this.searchFn(searchString, no);
   
     this.hideListbox();
   
@@ -230,13 +237,12 @@ aria.ListboxCombobox = function (
         var orderCriterionName = document.getElementById('orderCriterionNameValidated');
         orderCriterionName.innerHTML = item.innerText;        
       } else {
-        id = this.input.id.toString();
-        console.log(id);
-        index = id.indexOf("ex1-input");
-        console.log(index);
-        no = id.substring(index, id.length);
+        console.log(this);
+        var id = this.input.id;
+        console.log(id);       
+        var no = id.substring(9, id.length);  
         console.log(no);
-        add_criterion(videoNo,newOrFound, criterionTitle, level)
+        // make criterion go up the list
       }
       this.input.value = "";
       this.hideListbox();

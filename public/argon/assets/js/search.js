@@ -10,7 +10,7 @@
 
 function addSearchCriterion() {
 
-    var mainSearch = document.getElementById("ex1-input");
+    var mainSearch = document.getElementById("ex1-input0");
     var searchCellContainer = document.getElementById("searchCellContainer");
     var searchCell = document.getElementById("searchCell");
     
