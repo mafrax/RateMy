@@ -11,7 +11,7 @@ var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
 var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
 
-    tag.getAll(function(err, result2){
+    tag.getAll(function(_err, result2){
       socket.emit('searchResults', result2);
     })
 
@@ -53,31 +53,53 @@ var serverEvents = module.exports = function(io){
         console.log('Un client me parle ! Il me dit : ' + message);
 
 
-        video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(err, result){
+        video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(_err, result){
           console.log(result);
 
-          if(message.direction<0){
-            video.resetRelationLevel(result[0].rel._id, message.noteUser ,result[0].rel.properties.votes,message.noteUser, function(err, result2){
-              console.log(result2);
-              socket.emit('validatedNoteFromServer', {vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level});
-            });
-          } else{
-            if(result[0].rel.properties.votes == null){
-              video.updateRelationLevel(result[0].rel._id,result[0].rel.properties.level,0,message.noteUser,function(err, result2){
-                console.log(result2);
-                socket.emit('validatedNoteFromServer', {vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level});
-              });
-            } else {
-              video.updateRelationLevel(result[0].rel._id,result[0].rel.properties.level,result[0].rel.properties.votes,message.noteUser, function(err, result2){
-                console.log(result2);
-                socket.emit('validatedNoteFromServer', {vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level});
-              });
-            }
+          var newtagName = message.tagName.toUpperCase();
+
+          if(result.length===0){
+
+
+            tag.getAll(function(err, results){
+
+              var exists = []; 
+
+              for(prop in results){
+                if(results.hasOwnProperty(prop)){
+                  console.log(results[prop].tag.properties.tagName);
+                  if(results[prop].tag.properties.tagName.length>0){
+                    var resultName = results[prop].tag.properties.tagName.toUpperCase();
+                    console.log(resultName);
+                    console.log(newtagName);
+                    if(resultName === newtagName){
+                      exists.push(message.tagName);
+                        video.createRelationShipWithTag(message.videoId, message.noteUser,results[prop].tag._id, function(err, result){
+                          console.log(result);
+                          setTagLevel(message, result, socket);
+                        })
+                    }
+                  }
+                  
+                }
+              }
+
+              if(exists.length===0){
+                var data = {};
+                data["tagName"] = message.tagName;
+                tag.create(data, function(err, result){
+                  video.createRelationShipWithTag(message.videoId, message.noteUser,result._id, function(err, result){
+                    console.log(result);
+                    setTagLevel(message, result, socket);
+                  })
+                })
+              }
+
+            })
+
+          } else {
+            setTagLevel(message, result[0], socket);
           }
-
-            
-
-           
 
 
           })
@@ -170,4 +192,28 @@ var serverEvents = module.exports = function(io){
 
 
 
+
+
+function setTagLevel(message, result, socket) {
+  if (message.direction < 0) {
+    video.resetRelationLevel(result.rel._id, result.rel.properties.previousLevel, result.rel.properties.votes, function (_err, result2) {
+      console.log(result2);
+      socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2.rel.properties.level });
+    });
+  }
+  else {
+    if (result.rel.properties.votes == null) {
+      video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
+        console.log(result2);
+        socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
+      });
+    }
+    else {
+      video.updateRelationLevel(result.rel._id, result.rel.properties.level, result.rel.properties.votes, message.noteUser, message.previousNote, function (_err, result2) {
+        console.log(result2);
+        socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
+      });
+    }
+  }
+}
 

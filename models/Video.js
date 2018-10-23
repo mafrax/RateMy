@@ -231,7 +231,7 @@ var par = {};
 }
 
 
-Video.updateRelationLevel = function (relId,relLevel,numberofVotes,levelUser, callback) {
+Video.updateRelationLevel = function (relId,relLevel,numberofVotes,levelUser,previous, callback) {
 	console.log('entered searchByCriterionLevel');
 
 	var newVotes = numberofVotes+1;
@@ -246,7 +246,7 @@ var truc = [];
 var par = {};
 		truc.push('MATCH (v:Video)-[rel:RATED]->(t:Tag)');
 		truc.push('WHERE ID(rel) ='+relId+'');
-		truc.push('SET rel.level = '+roundednewLevel+' , rel.votes = '+newVotes+'');
+		truc.push('SET rel.level = '+roundednewLevel+' , rel.votes = '+newVotes+', rel.previousLevel = '+previous+'');
 		truc.push('RETURN rel');		
 
 	var qp = {
@@ -282,6 +282,38 @@ var par = {};
 		truc.push('SET rel.level = '+relLevel+' , rel.votes = '+newVotes+'');
 		truc.push('RETURN rel');		
 
+
+	var qp = {
+		query:	truc.join('\n')
+		,
+		params: par
+	}
+	console.log(qp);
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		console.log(result);
+		if (!result[0]) {
+			console.log('1');
+			console.log(result);
+			callback(null, result);
+		} else {
+			console.log('2');
+			console.log(result);
+			callback(null, result[0]);
+		}
+	});
+}
+
+
+Video.createRelationShipWithTag = function (vId,relLevel,tId, callback) {
+	
+
+var truc = [];
+var par = {};
+		truc.push('MATCH (v:Video), (t:Tag)');
+		truc.push('WHERE ID(v) ='+vId+' and ID(t) ='+tId+'');
+		truc.push('CREATE (v)-[rel:RATED {level:'+relLevel+'}]->(t)');
+		truc.push('RETURN rel');		
 
 	var qp = {
 		query:	truc.join('\n')

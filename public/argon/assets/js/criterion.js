@@ -270,8 +270,9 @@ function filterCriterion(event, videoNo) {
   var videoCriterions = container.querySelectorAll(
     "*[id^=criterionName" + videoNo + "_]"
   );
-  var value = document
-    .getElementById("searchVideoBar" + videoNo)
+  const searchBar = document
+    .getElementById("searchVideoBar" + videoNo);
+  var value = searchBar
     .value.toUpperCase();
   var criterionContainersToKeep = [];
 
@@ -309,7 +310,9 @@ function filterCriterion(event, videoNo) {
           container.querySelector("#slider-container" + prop).style.display =
             "initial";
           console.log("yep");
-          exist.push(value);
+          if(name === value){
+            exist.push(value);
+          }
         } else {
           console.log("nop");
           document.getElementById(
@@ -333,8 +336,28 @@ function filterCriterion(event, videoNo) {
       }
     }
     if (x === 13) {
-      
+      if(value.length>20){
+        searchBar.style.color = "red";
+        alert ("This Criterion is too long");
+      } else {
         addVideoSearchCriterion(videoNo);
+        document.getElementById(
+          "filterAddCriterion_" + videoNo
+        ).style.backgroundColor = "rgb(94, 114, 228)";
+
+
+        var wrappers2 = container.querySelectorAll(
+          "*[id^=wrapper" + videoNo + "]"
+        );
+        wrappers2.forEach(function(element) {
+          element.style.display = "initial";
+        });
+        var sliders2 = container.querySelectorAll("*[id^=slider-container]");
+        sliders2.forEach(function(element2) {
+          element2.style.display = "initial";
+        });
+      }     
+        
 
     }
   }
@@ -346,18 +369,8 @@ function addVideoSearchCriterion(videoNo){
     if(button.style.backgroundColor === "green"){
 
         var value = document.getElementById("searchVideoBar"+videoNo).value;
-    add_criterion(videoNo, true, value, 0);
-      var wrappers2 = container.querySelectorAll(
-        "*[id^=wrapper" + videoNo + "]"
-      );
-      wrappers2.forEach(function(element) {
-        element.style.display = "initial";
-      });
-      var sliders2 = container.querySelectorAll("*[id^=slider-container]");
-      sliders2.forEach(function(element2) {
-        element2.style.display = "initial";
-      });
-
+    add_criterion(videoNo, false, value, 0);
+      
       document
     .getElementById("searchVideoBar" + videoNo).value = "";
 

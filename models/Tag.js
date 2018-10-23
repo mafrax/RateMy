@@ -51,7 +51,7 @@ Tag.create = function (data, callback) {
 	console.log(qp);
 	db.cypher(qp, function (err, results) {
         if (err) return callback(err);
-		callback(null, results[0]['tag']);
+		callback(null, results[0].tag);
 		console.log(results);
 	});
 };

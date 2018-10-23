@@ -203,6 +203,8 @@ var handler = slider.querySelector(".noUi-handle");
 var note = container.querySelector("#criterionNote"+criterionno+"_"+videoNo);
 var globalNote = container.querySelector("#globalNote"+criterionno+"_"+videoNo);
 var button = document.getElementById("validateCriterionButton"+videoNo+"_"+criterionno);
+
+
 console.log(button.style.backgroundColor);
 
 var inOut;
@@ -220,6 +222,7 @@ socket.emit("validateNoteFromClient", {
   tagName: name.innerHTML,
   noteUser: note.innerHTML,
   videoId : videoNo,
+  previousNote : globalNote.innerHTML,
   tagNum : criterionno,
   direction : inOut
   });
@@ -233,7 +236,7 @@ socket.emit("validateNoteFromClient", {
   inOut=-1;
   socket.emit("validateNoteFromClient", {
     tagName: name.innerHTML,
-    noteUser: globalNote.innerHTML,
+    // noteUser: globalNote.innerHTML,
     videoId : videoNo,
     tagNum : criterionno,
     direction : inOut

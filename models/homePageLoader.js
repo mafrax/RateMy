@@ -10,6 +10,7 @@ var HomePageL = (module.exports = function HomePageL(_node) {
 
 HomePageL.loadHomePage = function(callback) {
   quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
+  
   console.log(quer);
   db.cypher(quer, function(err, results) {
     console.log(results);
