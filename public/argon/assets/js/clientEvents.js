@@ -89,7 +89,7 @@ socket.on("videoSavedfromServer", function() {
   window.location.replace("/");
 });
 
-$("#validateSearchButton").click(function() {
+$("#").click(function() {
   
   
   //   $("div[id*='searchCriterion']").each(function (index) {
@@ -134,18 +134,18 @@ $("#uploadForm").submit(function() {
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
 
-$("input[id^=ex1-input]").on("input", function() {
-  console.log(this.value);
-  socket.emit("searchCriterion", this.value);
+// $("input[id^=ex1-input]").on("input", function() {
+//   console.log(this.value);
+//   socket.emit("searchCriterion", this.value);
 
-  return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
-});
+//   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
+// });
 
-$("input[id^=searchVideoBar]").on("input", function() {
-  console.log(this.value); 
-  filterCriterion(this.value)
-  return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
-});
+// $("input[id^=searchVideoBar]").on("input", function() {
+//   console.log(this.value); 
+//   filterCriterion(this.value)
+//   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
+// });
 
 $("#modalSaveButton").click(function() {
   var title = $("#exampleModalLabel").html();
@@ -181,3 +181,38 @@ $("#modalSaveButton").click(function() {
 
 });
 
+
+function validateSearchButton(videoNo, criterionno){
+
+console.log(videoNo);
+console.log(criterionno);
+var container = document.getElementById("progressBarContainer" + videoNo);
+var slider = container.querySelector("#slider-container"+criterionno);
+var name = container.querySelector("#criterionName"+videoNo+"_"+criterionno);
+var handler = slider.querySelector(".noUi-handle");
+var note = container.querySelector("#criterionNote"+criterionno+"_"+videoNo);
+var button = document.getElementById("validateCriterionButton"+videoNo+"_"+criterionno);
+console.log(button.style.backgroundColor);
+if(button.style.backgroundColor !== "green"){
+  console.log("green");
+  button.style.backgroundColor = "green";
+  console.log(slider);
+  console.log(handler);
+  slider.style.display = 'none';
+  note.style.color = "green";
+
+console.log(name)
+
+  socket.emit("validateNoteFromClient", {
+    tagName: name.innerHTML,
+    noteUser: note.innerHTML,
+    });
+
+} else {
+  console.log("red");
+  button.style.backgroundColor = "#1fa2ff";
+  slider.style.display = 'initial';
+  note.style.color = "rgba(94, 114, 228)";
+}
+
+}
