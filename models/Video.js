@@ -63,7 +63,7 @@ for (var prop in tag) {
 }
 
 truc.push('RETURN v');
-truc;
+
 
 	var qp = {
 		// query: [
@@ -191,4 +191,115 @@ Video.computeQuery = function (data, tags, callback) {
     })
 
 
+}
+
+
+Video.getCriterionWithRelAndTag = function (videoId, tagName, callback) {
+	console.log('entered searchByCriterionLevel');
+
+
+
+
+var truc = [];
+var par = {};
+		truc.push('MATCH (v:Video)-[rel:RATED]->(t:Tag)');
+		truc.push('WHERE t.tagName =~ {value}');
+		truc.push('and ID(v) ='+videoId+'');
+		truc.push('RETURN v,rel,t');
+		par['value'] = '(?i)' + tagName;
+
+
+	var qp = {
+		query:	truc.join('\n')
+		,
+		params: par
+	}
+	console.log(qp);
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		console.log(result);
+		if (!result[0]) {
+			console.log('1');
+			console.log(result);
+			callback(null, result);
+		} else {
+			console.log('2');
+			console.log(result);
+			callback(null, result);
+		}
+	});
+}
+
+
+Video.updateRelationLevel = function (relId,relLevel,numberofVotes,levelUser, callback) {
+	console.log('entered searchByCriterionLevel');
+
+	var newVotes = numberofVotes+1;
+	var roundedNumber = Math.round(relLevel * 10) / 10;
+	var roundedUserNumber = Math.round(levelUser * 10) / 10;
+	var newLevel = (roundedNumber+roundedUserNumber)/newVotes;
+
+	var roundednewLevel = Math.round(newLevel * 10) / 10;
+
+
+var truc = [];
+var par = {};
+		truc.push('MATCH (v:Video)-[rel:RATED]->(t:Tag)');
+		truc.push('WHERE ID(rel) ='+relId+'');
+		truc.push('SET rel.level = '+roundednewLevel+' , rel.votes = '+newVotes+'');
+		truc.push('RETURN rel');		
+
+	var qp = {
+		query:	truc.join('\n')
+		,
+		params: par
+	}
+	console.log(qp);
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		console.log(result);
+		if (!result[0]) {
+			console.log('1');
+			console.log(result);
+			callback(null, result);
+		} else {
+			console.log('2');
+			console.log(result);
+			callback(null, result);
+		}
+	});
+}
+
+Video.resetRelationLevel = function (relId,relLevel,numberofVotes, callback) {
+	console.log('entered searchByCriterionLevel');
+
+	var newVotes = numberofVotes-1;
+
+var truc = [];
+var par = {};
+		truc.push('MATCH (v:Video)-[rel:RATED]->(t:Tag)');
+		truc.push('WHERE ID(rel) ='+relId+'');
+		truc.push('SET rel.level = '+relLevel+' , rel.votes = '+newVotes+'');
+		truc.push('RETURN rel');		
+
+
+	var qp = {
+		query:	truc.join('\n')
+		,
+		params: par
+	}
+	console.log(qp);
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		console.log(result);
+		if (!result[0]) {
+			console.log('1');
+			console.log(result);
+			callback(null, result);
+		} else {
+			console.log('2');
+			console.log(result);
+			callback(null, result[0]);
+		}
+	});
 }

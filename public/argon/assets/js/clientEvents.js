@@ -14,6 +14,16 @@ socket.on("messageUploadfromServer", function(message) {
   }
 });
 
+
+socket.on('validatedNoteFromServer', function (message) {
+  console.log("wtf");
+  console.log(message);
+  var globalNote = document.getElementById("globalNote"+message.tagId+'_'+message.vId);
+  console.log(globalNote);
+  globalNote.innerHTML= message.newLevel;
+
+})
+
 socket.on("loadHomePageFromServer", function(message) {
   console.log(message);
   console.log(message.videoWithTags);
@@ -191,8 +201,12 @@ var slider = container.querySelector("#slider-container"+criterionno);
 var name = container.querySelector("#criterionName"+videoNo+"_"+criterionno);
 var handler = slider.querySelector(".noUi-handle");
 var note = container.querySelector("#criterionNote"+criterionno+"_"+videoNo);
+var globalNote = container.querySelector("#globalNote"+criterionno+"_"+videoNo);
 var button = document.getElementById("validateCriterionButton"+videoNo+"_"+criterionno);
 console.log(button.style.backgroundColor);
+
+var inOut;
+
 if(button.style.backgroundColor !== "green"){
   console.log("green");
   button.style.backgroundColor = "green";
@@ -200,19 +214,42 @@ if(button.style.backgroundColor !== "green"){
   console.log(handler);
   slider.style.display = 'none';
   note.style.color = "green";
-
-console.log(name)
-
-  socket.emit("validateNoteFromClient", {
-    tagName: name.innerHTML,
-    noteUser: note.innerHTML,
-    });
+  inOut=1;
+console.log(name);
+socket.emit("validateNoteFromClient", {
+  tagName: name.innerHTML,
+  noteUser: note.innerHTML,
+  videoId : videoNo,
+  tagNum : criterionno,
+  direction : inOut
+  });
+  
 
 } else {
   console.log("red");
   button.style.backgroundColor = "#1fa2ff";
   slider.style.display = 'initial';
   note.style.color = "rgba(94, 114, 228)";
-}
+  inOut=-1;
+  socket.emit("validateNoteFromClient", {
+    tagName: name.innerHTML,
+    noteUser: globalNote.innerHTML,
+    videoId : videoNo,
+    tagNum : criterionno,
+    direction : inOut
+    });
 
 }
+
+
+
+}
+
+
+// '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote' +
+//     new_numero +
+//     "_" +
+//     videoNo +
+//     '">' +
+//     level +
+//     "</span>

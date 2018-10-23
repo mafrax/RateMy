@@ -52,7 +52,37 @@ var serverEvents = module.exports = function(io){
       socket.on('validateNoteFromClient', function (message) {
         console.log('Un client me parle ! Il me dit : ' + message);
 
-        
+
+        video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(err, result){
+          console.log(result);
+
+          if(message.direction<0){
+            video.resetRelationLevel(result[0].rel._id, message.noteUser ,result[0].rel.properties.votes,message.noteUser, function(err, result2){
+              console.log(result2);
+              socket.emit('validatedNoteFromServer', {vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level});
+            });
+          } else{
+            if(result[0].rel.properties.votes == null){
+              video.updateRelationLevel(result[0].rel._id,result[0].rel.properties.level,0,message.noteUser,function(err, result2){
+                console.log(result2);
+                socket.emit('validatedNoteFromServer', {vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level});
+              });
+            } else {
+              video.updateRelationLevel(result[0].rel._id,result[0].rel.properties.level,result[0].rel.properties.votes,message.noteUser, function(err, result2){
+                console.log(result2);
+                socket.emit('validatedNoteFromServer', {vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level});
+              });
+            }
+          }
+
+            
+
+           
+
+
+          })
+
+        })
 
         // crawler.crawl(message, function(url, title, tags){
         //     // crawler.crawl(url2, function(url){
@@ -60,8 +90,6 @@ var serverEvents = module.exports = function(io){
         //     socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
         //     });
 
-
-    });
 
   
 
@@ -138,7 +166,7 @@ var serverEvents = module.exports = function(io){
   });	
 
 
-  }
+ } 
 
 
 
