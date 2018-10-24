@@ -237,7 +237,7 @@ Video.updateRelationLevel = function (relId,relLevel,numberofVotes,levelUser,pre
 	var newVotes = numberofVotes+1;
 	var roundedNumber = Math.round(relLevel * 10) / 10;
 	var roundedUserNumber = Math.round(levelUser * 10) / 10;
-	var newLevel = (roundedNumber+roundedUserNumber)/newVotes;
+	var newLevel = ((roundedNumber*numberofVotes)+roundedUserNumber)/newVotes;
 
 	var roundednewLevel = Math.round(newLevel * 10) / 10;
 

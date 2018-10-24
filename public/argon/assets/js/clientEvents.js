@@ -81,7 +81,7 @@ socket.on("searchResults", function(message) {
   updateVeggies(tagNames);
   initializeCombobox1(0);
   initializeCombobox3(0);
-  lists = document.querySelectorAll('*[id^="ex1-input"]');
+  lists = document.querySelectorAll('*[id^="ex1-"]');
   console.log(lists);
 //   for (var prop in lists) {
 //     if (lists.hasOwnProperty(prop)) {
@@ -99,14 +99,10 @@ socket.on("videoSavedfromServer", function() {
   window.location.replace("/");
 });
 
-$("#").click(function() {
+$("#validateSearchButton").click(function() {
   
   
-  //   $("div[id*='searchCriterion']").each(function (index) {
-    //         console.log($(this).text());
-    //         tags.push($(this).text());
-    
-    // })
+
     
 var searchcriterions = $("div[id*='searchCriterion']");
 if(searchcriterions.length === 0){
@@ -139,19 +135,47 @@ return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, 
 
 $("#uploadForm").submit(function() {
   var url1 = $("#field2").val();
-  socket.emit("messageUploadfromClient", url1);
+
+  console.log( $('#poke'));
+
+  if(url1 === ""){
+    console.log("fils depute :" + url1);   
+  } else {
+    $('#poke').modal('toggle');
+    socket.emit("messageUploadfromClient", url1);
+  }
 
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
 
-// $("input[id^=ex1-input]").on("input", function() {
-//   console.log(this.value);
-//   socket.emit("searchCriterion", this.value);
+$('#uploadTooltip').mouseleave(function(){
+  console.log("focusout");
+  $(this).tooltip('hide')
+  .attr('data-original-title', "Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website")
 
-//   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
-// });
+});
 
-// $("input[id^=searchVideoBar]").on("input", function() {
+
+
+$("#field2").on("input", function() {
+  console.log("YIPYIOP");
+  console.log(this.value);
+
+  if(this.value.includes("https:") && this.value.includes("www.")){
+    $('#uploadTooltip').tooltip('hide')
+    .attr('data-original-title', "Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website")
+    $('#poke').removeAttr("disabled");
+  
+  } else {
+    $('#uploadTooltip').tooltip('hide')
+          .attr('data-original-title', "Please enter a valid url")
+          .tooltip('show');
+    $('#poke').attr("disabled", "disabled");
+  }
+
+});
+
+// $("[id^=searchVideoBar]").on("", function() {
 //   console.log(this.value); 
 //   filterCriterion(this.value)
 //   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
@@ -205,6 +229,11 @@ var globalNote = container.querySelector("#globalNote"+criterionno+"_"+videoNo);
 var button = document.getElementById("validateCriterionButton"+videoNo+"_"+criterionno);
 
 
+$(button).tooltip('hide')
+          .attr('data-original-title', "By clicking here again you can revert your previous note")
+          .tooltip('show');
+
+
 console.log(button.style.backgroundColor);
 
 var inOut;
@@ -234,6 +263,11 @@ socket.emit("validateNoteFromClient", {
   slider.style.display = 'initial';
   note.style.color = "rgba(94, 114, 228)";
   inOut=-1;
+
+  $(button).tooltip('hide')
+  .attr('data-original-title', "clic here to validate and save your note and criterion");
+
+
   socket.emit("validateNoteFromClient", {
     tagName: name.innerHTML,
     // noteUser: globalNote.innerHTML,

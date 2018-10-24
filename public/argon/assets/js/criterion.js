@@ -125,11 +125,13 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level) {
     videoNo +
     '">0.00</span>' +
     "</div>" +
-    '<div class="flex-wrap" style="height: 20px; width:20px;">'+
+    '<div class="flex-wrap" '+
+    'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"'+
+    'style="height: 20px; width:20px;" >'+
     '<button type="submit" class="validateCriterion"'+ 
     'id="validateCriterionButton'+videoNo +"_" +new_numero +'" onclick="validateSearchButton('+
     ''+videoNo +"," +new_numero +')'+
-    '" style="background-color: #1fa2ff";></button>'+
+    '" style="background-color: #1fa2ff;"></button>'+
     "</div>" +
     "</div>" +
     '<div class="progress flex-wrap"  >' +
@@ -181,11 +183,13 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level) {
     videoNo +
     '">0.00</span>' +
     "</div>" +
-    '<div class="flex-wrap" style="height: 20px; width:20px;">'+
+    '<div class="flex-wrap" '+
+    'style="height: 20px; width:20px;" >'+
     '<button type="submit" class="validateCriterion"'+ 
+    'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"'+
     'id="validateCriterionButton'+videoNo +"_" +new_numero +'" onclick="validateSearchButton('+
     ''+videoNo +"," +new_numero +')'+
-    '" style="background-color: #1fa2ff";></button>'+
+    '" style="background-color: #1fa2ff;"></button>'+
     "</div>" +
     "</div>" +
     '<div class="progress flex-wrap"  >' +
@@ -220,8 +224,10 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level) {
   var newSliderContainer = new_element1.querySelector(
     "#slider-container" + new_numero
   );
+ 
 
-  initializeSlider(new_element2, new_element1, new_numero, videoNo);
+    $('[data-toggle="tooltip"]').tooltip();
+   initializeSlider(new_element2, new_element1, new_numero, videoNo);
 
   if (newOrFound === true) {
     document.getElementById(
