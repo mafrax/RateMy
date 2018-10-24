@@ -52,7 +52,8 @@ socket.on("loadHomePageFromServer", function(message) {
     
     console.log(message.videoWithTags[i]["video"]);
     for (var prop in message.videoWithTags[i]["video"]) {
-      if (message.videoWithTags.hasOwnProperty(prop)) {
+      if (message.videoWithTags[i]["video"].hasOwnProperty(prop)) {
+        console.log(prop);
         console.log(message.videoWithTags[i]["video"][prop].t.properties.tagName);
         console.log(message.videoWithTags[i]["video"][prop].v._id);
         console.log(message.videoWithTags[i]["video"][prop].r.properties.level);
