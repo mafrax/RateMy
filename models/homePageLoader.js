@@ -56,8 +56,9 @@ HomePageL.buildIframe = function(err, results, callback) {
             result2[0].v.properties.originalUrl +
             '">' +
             '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-50%;" onclick="expandIframe(' +
-            result2[0].v._id +
-            ')"><span class="btn-inner--icon">' +
+            result2[0].v._id +')" '+
+            'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" '+
+            ' id="expandButton'+result2[0].v._id+'"><span class="btn-inner--icon">' +
             '<i class="ni ni-tv-2"></i></button>' +
             "</span></button>" +
             "</div>" +
@@ -67,7 +68,9 @@ HomePageL.buildIframe = function(err, results, callback) {
             result2[0].v._id +
             '" aria-controls="nav-inner-primary"' +
             'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">' +
-            '<span class="navbar-toggler-icon"><span class="btn-inner--icon">' +
+            '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
+            'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
+            '>' +
             '<i class="ni ni-bold-down"></i></button>' +
             "</span></span>" +
             "</button>" +
@@ -97,6 +100,8 @@ HomePageL.buildIframe = function(err, results, callback) {
             '>' +
             '<span class="input-group-btn">' +
             '<button type="submit" class="btn btn-primary "' +
+            'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
+            'If not then you can add it to the list"'+
             'id="filterAddCriterion_' +
             result2[0].v._id +
             '" onclick=addVideoSearchCriterion('+result2[0].v._id+')>' +
