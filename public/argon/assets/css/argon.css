@@ -18644,3 +18644,11 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
     /* background-color: #1fa2ff; */
     border-color: #1fd0f0;
 }
+
+.validateCriterion:hover{
+    box-shadow: 0 0 11px rgba(33,33,33,.2);
+}
+
+.input-slider-container:hover{
+    box-shadow: 0 0 11px rgba(33,33,33,.2);
+}

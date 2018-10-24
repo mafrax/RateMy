@@ -210,8 +210,9 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
 
   if (newOrFound === true) {
     // console.log(/*)("1");
-    new_element1.innerHTML = html1;
-    max_div.appendChild(new_element1);
+    new_element1.innerHTML = html3;
+    max_div.insertBefore(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
+
   } else {
     // console.log(/*)("2");
     new_element1.innerHTML = html3;
@@ -224,7 +225,13 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   // new_element.setAttribute('style', 'position: relative;');
 
   new_element2.innerHTML = html2;
-  max_div.appendChild(new_element2);
+
+  if (newOrFound === true) {
+    max_div.insertBefore(new_element2, document.getElementById("wrapper"+ videoNo + "_0"));
+  } else {
+    max_div.appendChild(new_element2);
+  }
+ 
 
   var newSliderContainer = new_element1.querySelector(
     "#slider-container" + new_numero
@@ -234,11 +241,11 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     $('[data-toggle="tooltip"]').tooltip();
    initializeSlider(new_element2, new_element1, new_numero, videoNo);
 
-  if (newOrFound === true) {
-    document.getElementById(
-      "save_button" + new_numero + "_" + videoNo
-    ).style.display = "none";
-  }
+  // if (newOrFound === true) {
+  //   document.getElementById(
+  //     "save_button" + new_numero + "_" + videoNo
+  //   ).style.display = "none";
+  // }
 
   return new_numero;
 
@@ -393,7 +400,7 @@ function addVideoSearchCriterion(videoNo){
     if(button.style.backgroundColor === "green"){
 
         var value = document.getElementById("searchVideoBar"+videoNo).value;
-    var criterionno = add_criterion(videoNo, false, value, 0);
+    var criterionno = add_criterion(videoNo, true, value, 0,1);
       
       document
     .getElementById("searchVideoBar" + videoNo).value = "";
@@ -403,9 +410,6 @@ function addVideoSearchCriterion(videoNo){
     $(button2).tooltip('hide')
       .attr('data-original-title', "Please validate the new criterion and its note by clicking here")
       .tooltip('show');
-
-    
-
 
 
     } else {
