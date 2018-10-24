@@ -2000,15 +2000,15 @@
 										
 											function link_slider(slider){
 												
-												console.log(slider);
-												console.log(slider.parentElement);
+												// console.log(/*)(slider);
+												// console.log(/*)(slider.parentElement);
 												var match = slider.id.match(/\d+/);
 												var div_number = parseInt(match[0], 10);
 												var brother = document.getElementById("sima"+div_number);
-												console.log(brother);
-												console.log(div_number);
+												// console.log(/*)(brother);
+												// console.log(/*)(div_number);
 												var counter = document.getElementById("counter"+div_number);
-												console.log(slider.value);
+												// console.log(/*)(slider.value);
 												counter.innerHTML = slider.value;									
 												brother.style.width = 50 + slider.value/2 + "%";
 												brother.style.opacity = 1;	
@@ -2016,14 +2016,14 @@
 											
 											
 											http://talkerscode.com/webtricks/add-edit-and-delete-rows-from-table-dynamically-using-javascript.php
-											console.log("tructruc");
+											// console.log(/*)("tructruc");
 											document.getElementById("save_button0").style.display="none";
 											var hidden = document.getElementById("custId0");
-											console.log(hidden);
+											// console.log(/*)(hidden);
 
 											function edit_row(no){	
-											console.log("edit_button"+no);
-											console.log(document.getElementById("edit_button"+no));								
+											// console.log(/*)("edit_button"+no);
+											// console.log(/*)(document.getElementById("edit_button"+no));								
 											document.getElementById("edit_button"+no).style.display="none";
 											document.getElementById("save_button"+no).style.display="inline-block";
 												var name=document.getElementById("title"+no);																			
@@ -2034,7 +2034,7 @@
 										function save_row(no){
 											var name_val=document.getElementById("name_text"+no).value;	
 											var hidden_field = document.getElementById("custId"+no);
-											console.log(hidden_field);
+											// console.log(/*)(hidden_field);
 											hidden_field.setAttribute("value", name_val);							
 											document.getElementById("title"+no).innerHTML=name_val;
 											document.getElementById("edit_button"+no).style.display="inline-block";
@@ -2043,12 +2043,12 @@
 
 										function add_criterion(){
 											// var new_name=document.getElementById("new_name").value;
-											// console.log(n_sliders);
+											// // console.log(/*)(n_sliders);
 											var max_div = document.getElementById("progressBar1");
 											var truc = max_div.querySelectorAll("div.skills-item");
-											console.log(truc);
+											// console.log(/*)(truc);
 											var new_numero = truc.length+1;
-											console.log(new_numero);	
+											// console.log(/*)(new_numero);	
 											var table=document.getElementById("progressBar1");
 											var html = 		'<div class="skills-item-info id="sii'+new_numero+'">'+
 																'<span class="skills-item-title" id="title'+new_numero+'">Yellow Progress</span>'+
@@ -2073,7 +2073,7 @@
 											new_element.setAttribute('class', "skills-item");
 											new_element.setAttribute('id', 'si'+new_numero+'');
 											new_element.innerHTML = html;
-											console.log(new_element);
+											// console.log(/*)(new_element);
 											table.appendChild(new_element);
 											document.getElementById("save_button"+new_numero).style.display="none";
 

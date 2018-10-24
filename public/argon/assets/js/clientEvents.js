@@ -1,13 +1,13 @@
 var socket = io.connect("http://localhost:3000");
 
 socket.on("messageUploadfromServer", function(message) {
-  console.log(message.originalUrlField);
+  // console.log(/*)(message.originalUrlField);
   $("#modal-body").html(message.htmlfield);
   $("#exampleModalLabel").html(message.titlefield);
-  console.log(message);
-  console.log(message.tags);
+  // console.log(/*)(message);
+  // console.log(/*)(message.tags);
   for (key in message.tags) {
-    console.log(key);
+    // console.log(/*)(key);
     if (message.tags.hasOwnProperty(key)) {
       add_criterion(0,false, message.tags[key],0);
     }
@@ -16,10 +16,10 @@ socket.on("messageUploadfromServer", function(message) {
 
 
 socket.on('validatedNoteFromServer', function (message) {
-  console.log("wtf");
-  console.log(message);
+  // console.log(/*)("wtf");
+  // console.log(/*)(message);
   var globalNote = document.getElementById("globalNote"+message.tagId+'_'+message.vId);
-  console.log(globalNote);
+  // console.log(/*)(globalNote);
   globalNote.innerHTML= message.newLevel;
   displayOtherCriterions(message.vId, message.tagId);
   // document.getElementById('criterionName'+message.vId).scrollIntoView(true);
@@ -27,8 +27,8 @@ socket.on('validatedNoteFromServer', function (message) {
 })
 
 socket.on("loadHomePageFromServer", function(message) {
-  console.log(message);
-  console.log(message.videoWithTags);
+  // console.log(/*)(message);
+  // console.log(/*)(message.videoWithTags);
 
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
@@ -37,9 +37,9 @@ socket.on("loadHomePageFromServer", function(message) {
   } else {
     var arrayLength = message.videoWithTags.length;
     for (var i = 0; i < arrayLength; i++) {
-      console.log(message.videoWithTags[i]);
-      console.log(message.videoWithTags[i]['video']);
-      console.log(message.videoWithTags[i]["video"][0].v._id);
+      // console.log(/*)(message.videoWithTags[i]);
+      // console.log(/*)(message.videoWithTags[i]['video']);
+      // console.log(/*)(message.videoWithTags[i]["video"][0].v._id);
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-4 flex-wrap");
       newDiv.setAttribute(
@@ -50,13 +50,13 @@ socket.on("loadHomePageFromServer", function(message) {
     newDiv.innerHTML = message.videoWithTags[i]["iframe"];
     mainframe.appendChild(newDiv);
     
-    console.log(message.videoWithTags[i]["video"]);
+    // console.log(/*)(message.videoWithTags[i]["video"]);
     for (var prop in message.videoWithTags[i]["video"]) {
       if (message.videoWithTags[i]["video"].hasOwnProperty(prop)) {
-        console.log(prop);
-        console.log(message.videoWithTags[i]["video"][prop].t.properties.tagName);
-        console.log(message.videoWithTags[i]["video"][prop].v._id);
-        console.log(message.videoWithTags[i]["video"][prop].r.properties.level);
+        // console.log(/*)(prop);
+        // console.log(/*)(message.videoWithTags[i]["video"][prop].t.properties.tagName);
+        // console.log(/*)(message.videoWithTags[i]["video"][prop].v._id);
+        // console.log(/*)(message.videoWithTags[i]["video"][prop].r.properties.level);
         add_criterion(
           message.videoWithTags[i]["video"][prop].v._id,false,
           message.videoWithTags[i]["video"][prop].t.properties.tagName,
@@ -76,7 +76,7 @@ socket.on("loadHomePageFromServer", function(message) {
 socket.on("searchResults", function(message) {
 
   tagNames = [];
-  console.log(message);
+  // console.log(/*)(message);
   for (var prop in message) {
     if (message.hasOwnProperty(prop)) {
       tagNames.push(message[prop].tag.properties.tagName);
@@ -86,13 +86,13 @@ socket.on("searchResults", function(message) {
   initializeCombobox1(0);
   // initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-"]');
-  console.log(lists);
+  // console.log(/*)(lists);
 //   for (var prop in lists) {
 //     if (lists.hasOwnProperty(prop)) {
 //       id = lists[prop].id.toString();
-//         console.log(id);       
+//         // console.log(/*)(id);       
 //         no = id.substring(9, id.length);  
-//         console.log(no);
+//         // console.log(/*)(no);
 
 //     }
 // }
@@ -113,22 +113,22 @@ if(searchcriterions.length === 0){
   window.location.replace("/");
 } else {
 
-console.log(searchcriterions);
+// console.log(/*)(searchcriterions);
 var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
-console.log(criterions);
+// console.log(/*)(criterions);
 var tagName = [];
 criterions.forEach(function(element){
   var tag = {};
-  // console.log(element.querySelectorAll('span')[0]);
+  // // console.log(/*)(element.querySelectorAll('span')[0]);
   // var span = element.querySelectorAll('*[id^="criterionLowRange"]');
-  // console.log(span);
-  // console.log(span[0].innerHTML);
+  // // console.log(/*)(span);
+  // // console.log(/*)(span[0].innerHTML);
   tag["name"] = element.querySelectorAll('span')[0].innerHTML.trim();
   tag["lowerValue"] = parseInt(element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML);
   tag["higherValue"] = parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML);
   tagName.push(tag);
 })
-console.log(tagName);
+// console.log(/*)(tagName);
 socket.emit("searchValidatedFromClient", tagName);
 
 }
@@ -140,10 +140,10 @@ return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, 
 $("#uploadForm").submit(function() {
   var url1 = $("#field2").val();
 
-  console.log( $('#poke'));
+  // console.log(/*)( $('#poke'));
 
   if(url1 === ""){
-    console.log("fils depute :" + url1);   
+    // console.log(/*)("fils depute :" + url1);   
   } else {
     $('#poke').modal('toggle');
     socket.emit("messageUploadfromClient", url1);
@@ -153,7 +153,7 @@ $("#uploadForm").submit(function() {
 });
 
 $('#uploadTooltip').mouseleave(function(){
-  console.log("focusout");
+  // console.log(/*)("focusout");
   $(this).tooltip('hide')
   .attr('data-original-title', "Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website")
 
@@ -162,8 +162,8 @@ $('#uploadTooltip').mouseleave(function(){
 
 
 $("#field2").on("input", function() {
-  console.log("YIPYIOP");
-  console.log(this.value);
+  // console.log(/*)("YIPYIOP");
+  // console.log(/*)(this.value);
 
   if(this.value.includes("https:") && this.value.includes("www.")){
     $('#uploadTooltip').tooltip('hide')
@@ -180,7 +180,7 @@ $("#field2").on("input", function() {
 });
 
 // $("[id^=searchVideoBar]").on("", function() {
-//   console.log(this.value); 
+//   // console.log(/*)(this.value); 
 //   filterCriterion(this.value)
 //   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 // });
@@ -189,18 +189,18 @@ $("#modalSaveButton").click(function() {
   var title = $("#exampleModalLabel").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
-  console.log(title);
-  console.log(originalUrl);
-  console.log(embedUrl);
+  // console.log(/*)(title);
+  // console.log(/*)(originalUrl);
+  // console.log(/*)(embedUrl);
 
   var criterionTitlesNumber = $("#exampleModal span.criterionTitle").length;
 
   var tags = {};
 
   for (i = 0; i < criterionTitlesNumber; i++) {
-    console.log(i);
+    // console.log(/*)(i);
 
-    console.log($("#criterionName" + i + "_0"));
+    // console.log(/*)($("#criterionName" + i + "_0"));
 
     var tag = {};
     tag["tagName"] = $("#criterionName" + i + "_0").html();
@@ -222,8 +222,8 @@ $("#modalSaveButton").click(function() {
 
 function validateSearchButton(videoNo, criterionno){
 
-console.log(videoNo);
-console.log(criterionno);
+// console.log(/*)(videoNo);
+// console.log(/*)(criterionno);
 var container = document.getElementById("progressBarContainer" + videoNo);
 var slider = container.querySelector("#slider-container"+criterionno);
 var name = container.querySelector("#criterionName"+videoNo+"_"+criterionno);
@@ -238,19 +238,19 @@ $(button).tooltip('hide')
           .tooltip('show');
 
 
-console.log(button.style.backgroundColor);
+// console.log(/*)(button.style.backgroundColor);
 
 var inOut;
 
 if(button.style.backgroundColor !== "green"){
-  console.log("green");
+  // console.log(/*)("green");
   button.style.backgroundColor = "green";
-  console.log(slider);
-  console.log(handler);
+  // console.log(/*)(slider);
+  // console.log(/*)(handler);
   slider.style.display = 'none';
   note.style.color = "green";
   inOut=1;
-console.log(name);
+// console.log(/*)(name);
 socket.emit("validateNoteFromClient", {
   tagName: name.innerHTML,
   noteUser: note.innerHTML,
@@ -262,7 +262,7 @@ socket.emit("validateNoteFromClient", {
   
 
 } else {
-  console.log("red");
+  // console.log(/*)("red");
   button.style.backgroundColor = "#1fa2ff";
   slider.style.display = 'initial';
   note.style.color = "rgba(94, 114, 228)";

@@ -14,7 +14,7 @@ Crawler.crawl = function (url, cb) {
 
     if (url.includes("?")) {
         var parts = url.split("?");
-        console.log(parts[0]);
+        // console.log(/*)(parts[0]);
         var qsArray = parts[1].split("=");
         var vK = qsArray[0];
         var vkValue = qsArray[1];
@@ -23,7 +23,7 @@ Crawler.crawl = function (url, cb) {
 
 
 
-        console.log(truc);
+        // console.log(/*)(truc);
 
         var options = {
             uri: parts[0],
@@ -39,7 +39,7 @@ Crawler.crawl = function (url, cb) {
             }
         };
 
-        console.log(options.qs);
+        // console.log(/*)(options.qs);
         options.qs[vK.valueOf()] = vkValue;
 
     } else {
@@ -86,9 +86,9 @@ Crawler.crawl = function (url, cb) {
 
                 if (tpgs) {
                     $("a[href*='categor']").each(function () {
-                        console.log($(this).closest("[class*='menu']"))
+                        // console.log(/*)($(this).closest("[class*='menu']"))
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
-                            console.log($(this).text());
+                            // console.log(/*)($(this).text());
                             tags.push($(this).text());
                         }
                     })
@@ -97,7 +97,7 @@ Crawler.crawl = function (url, cb) {
                 if (tqgs) {
                     $("a[href*='keyword']").each(function () {
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
-                            console.log($(this).text());
+                            // console.log(/*)($(this).text());
                             tags.push($(this).text());
                         }
                     })
@@ -106,7 +106,7 @@ Crawler.crawl = function (url, cb) {
                 if (tOgs) {
                     $("a[href*='tags']").each(function () {
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
-                            console.log($(this).text());
+                            // console.log(/*)($(this).text());
                             tags.push($(this).text());
                         }
                     })
@@ -115,7 +115,7 @@ Crawler.crawl = function (url, cb) {
                 if (tIgs) {
                     $("a[href*='search?search']").each(function () {
                         if ($(this).closest("div[id*='menu']").length === 0 && $(this).closest("[class*='menu']").length === 0 && $(this).closest("[class*='aside']").length === 0 && $(this).closest("[class*='header']").length === 0) {
-                            console.log($(this).text());
+                            // console.log(/*)($(this).text());
                             tags.push($(this).text());
                         }
                     })
@@ -144,16 +144,16 @@ Crawler.crawl = function (url, cb) {
                     uniqueTags.forEach(function (element) {
                         tagsBase.getBy('tag.tagName', element, function(tag){
                             if(tag.length >0) {
-                                console.log("tag already in base");
+                                // console.log(/*)("tag already in base");
                             } else {
-                                console.log(tag);
+                                // console.log(/*)(tag);
                                 var newTag = {};
                                 newTag.tagName = element;
                                 newTag.timestamp = new Date();
 
                                 tagsBase.create(newTag, function (err, tag) {
-                                    console.log(tag);
-                                    console.log(err);
+                                    // console.log(/*)(tag);
+                                    // console.log(/*)(err);
                                     if (err)
                                         return next(err);
                             })
@@ -167,18 +167,18 @@ Crawler.crawl = function (url, cb) {
 
 
             } catch (e) {
-                console.log(e);
+                // console.log(/*)(e);
             }
         })
         .catch(function (err) {
-            console.log(err);
+            // console.log(/*)(err);
             // rejected
         });
 
 }
 
 Crawler.addModalDiv = function (url, originalUrl) {
-    console.log(originalUrl);
+    // console.log(/*)(originalUrl);
     var html2 = '<div class="col-12 flex-wrap" id="cell0x0" >' +
         '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->' +
         '<div class="row col-12 embed-responsive embed-responsive-16by9">' +

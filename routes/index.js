@@ -16,16 +16,16 @@ module.exports = function (app, passport) {
 	});
 
 	app.post('/upload', function (req, res) {
-		console.log("ca marche pas !!!!!!!!!!!!!!");
+		// console.log(/*)("ca marche pas !!!!!!!!!!!!!!");
 	});
 
 
 
 	// PROFILE SECTION =========================
 	app.get('/profile', isLoggedIn, function (req, res) {
-		console.log(req.user.properties);
-		console.log(req.body.username);
-		console.log(req.user.properties.firstName);
+		// console.log(/*)(req.user.properties);
+		// console.log(/*)(req.body.username);
+		// console.log(/*)(req.user.properties.firstName);
 		res.render('profile.ejs', {
 			user: req.user,
 			message: req.flash('connectMessage')
@@ -41,7 +41,7 @@ module.exports = function (app, passport) {
 
 	// Update User
 	app.post('/user/update', isLoggedIn, function (req, res) {
-		console.log(req);
+		// console.log(/*)(req);
 		var updateUser = {};
 		updateUser.id = req.user._id;
 		updateUser.props = {};
@@ -60,7 +60,7 @@ module.exports = function (app, passport) {
 		if (req.body.city) {
 			updateUser.props.city = req.body.city;
 		}
-		console.log(updateUser);
+		// console.log(/*)(updateUser);
 
 		User.update(updateUser, function (err, user) {
 			if (err)
@@ -71,13 +71,13 @@ module.exports = function (app, passport) {
 
 	// Update User
 	app.post('/save', function (req, res) {
-		console.log("save entered");
-		console.log(req);
+		// console.log(/*)("save entered");
+		// console.log(/*)(req);
 		//https://www.remwebdevelopment.com/blog/sql/some-basic-and-useful-cypher-queries-for-neo4j-201.html
 		//https://gist.github.com/DaniSancas/1d5265fc159a95ff457b940fc5046887
 
 		truc.details("https://youtube.com/channel/UC9hUOU4rxr9_kSMaTpiqvDw", function (err, details) {
-			console.log(err, details);
+			// console.log(/*)(err, details);
 		});
 
 	});
@@ -90,7 +90,7 @@ module.exports = function (app, passport) {
 	// LOGIN ===============================
 	// show the login form
 	app.get('/login', function (req, res) {
-		console.log('casse-couille');
+		// console.log(/*)('casse-couille');
 		res.render('error', { message: req.flash('loginMessage') });
 	});
 
@@ -106,7 +106,7 @@ module.exports = function (app, passport) {
 	// SIGNUP =================================
 	// show the signup form
 	app.get('/signup', function (req, res) {
-		console.log('render signup');
+		// console.log(/*)('render signup');
 		res.render('auth/signup.ejs', { message: req.flash('loginMessage') });
 	});
 
@@ -213,9 +213,9 @@ module.exports = function (app, passport) {
 
 // route middleware to ensure user is logged in
 function isLoggedIn(req, res, next) {
-	console.log(req.user);
+	// console.log(/*)(req.user);
 	if (req.isAuthenticated())
 		return next();
-	console.log('redirected');
+	// console.log(/*)('redirected');
 	res.redirect('/');
 }

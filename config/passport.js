@@ -43,33 +43,33 @@ module.exports = function(passport) {
 	},
 	function(req, email, password, done) {
 		// asynchronous
-		console.log('pas cool 0');
+		// console.log(/*)('pas cool 0');
 		process.nextTick(function() {
 			User.getBy('user.localEmail', email, function(err, user) {
-				console.log('pas cool 0.2')
+				// console.log(/*)('pas cool 0.2')
 				// if there are any errors, return the error
 				if (err) {
-					console.log('pas cool 1');
-					console.log(req);
+					// console.log(/*)('pas cool 1');
+					// console.log(/*)(req);
 						return done(err);
 
 				}
 
 				// if no user is found, return the message
 				if (!user) {
-					console.log('pas trouvé');
+					// console.log(/*)('pas trouvé');
 						return done(null, false, req.flash('loginMessage', 'No user found.'));
 
 				}
 
 				if (!User.validPassword(password, user.properties.localPassword)){
-					console.log('pas cool 3');
+					// console.log(/*)('pas cool 3');
 						return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.'));
 				}
 
 				// all is well, return user
 				else 	{
-					console.log('cool');					
+					// console.log(/*)('cool');					
 						return done(null, user);
 				}
 				
@@ -89,9 +89,9 @@ module.exports = function(passport) {
 	function(req, email, password, done) {
 		// asynchronous
 
-		console.log('entered passport signup');
-		console.log('user.localEmail');
-		console.log(email);
+		// console.log(/*)('entered passport signup');
+		// console.log(/*)('user.localEmail');
+		// console.log(/*)(email);
 		process.nextTick(function() {
 			//  Whether we're signing up or connecting an account, we'll need
 			//  to know if the email address is in use.
@@ -99,12 +99,12 @@ module.exports = function(passport) {
 				// if there are any errors, return the error
 				if (err){
 					return done(err);
-					console.log('error 1 (any)');
+					// console.log(/*)('error 1 (any)');
 				}
 
 				// check to see if there's already a user with that email
 				if (existingUser) {
-					console.log('existing user');
+					// console.log(/*)('existing user');
 					return done(null, false, req.flash('loginMessage', 'That email is already in use.'));
 				}
 
@@ -132,10 +132,10 @@ module.exports = function(passport) {
 						newUser.localPassword = User.generateHash(password);
 					User.create(newUser, function (err, user) {
 						
-						console.log(err);
+						// console.log(/*)(err);
 						if (err)
 						return next(err);
-						console.log(user);
+						// console.log(/*)(user);
 						return done(null, user);
 					});
 				}
@@ -232,15 +232,15 @@ module.exports = function(passport) {
 	// 	passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
 	// },
 	// function(req, token, tokenSecret, profile, done) {
-	// 	console.log('twitter req:' + req);
-	// 	console.log('req.user: ' + req.user);
-	// 	console.log('twitter profile.id: ' + profile.id);
+	// 	// console.log(/*)('twitter req:' + req);
+	// 	// console.log(/*)('req.user: ' + req.user);
+	// 	// console.log(/*)('twitter profile.id: ' + profile.id);
 	// 	// asynchronous
 	// 	process.nextTick(function() {
 	// 		// check if the user is already logged in
 	// 		if (!req.user) {
 	// 			User.getBy('user.twitterId', profile.id, function(err, user) {
-	// 				console.log('twitter user: ' + user);
+	// 				// console.log(/*)('twitter user: ' + user);
 	// 				if (err)
 	// 					return done(err);
 
