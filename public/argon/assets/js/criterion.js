@@ -55,9 +55,14 @@ function save_row(no, videoNo) {
     "none";
 }
 
-function add_criterion(videoNo, newOrFound, criterionTitle, level) {
+function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   console.log(videoNo);
   var max_div = document.getElementById("progressBarContainer" + videoNo);
+
+  var numberOfVotes = 0;
+  if(votes !== null){
+    numberOfVotes = votes;
+  }
 
   if (newOrFound === true) {
     console.log("true");
@@ -172,7 +177,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level) {
     new_numero +
     "_" +
     videoNo +
-    '">' +
+    '" data-toggle="tooltip" data-placement="top" title="Average note on '+numberOfVotes+' votes in total">' +
     level +
     "</span>" +
     "</div>" +

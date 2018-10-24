@@ -23,7 +23,7 @@ socket.on('validatedNoteFromServer', function (message) {
   globalNote.innerHTML= message.newLevel;
   displayOtherCriterions(message.vId, message.tagId);
   // document.getElementById('criterionName'+message.vId).scrollIntoView(true);
-  $('#demo'+message.vId+'').scrollTop($('#demo'+message.vId+'')[0].scrollHeight);
+  // $('#demo'+message.vId+'').scrollTop($('#demo'+message.vId+'')[0].scrollHeight);
 })
 
 socket.on("loadHomePageFromServer", function(message) {
@@ -60,7 +60,8 @@ socket.on("loadHomePageFromServer", function(message) {
         add_criterion(
           message.videoWithTags[i]["video"][prop].v._id,false,
           message.videoWithTags[i]["video"][prop].t.properties.tagName,
-          message.videoWithTags[i]["video"][prop].r.properties.level
+          message.videoWithTags[i]["video"][prop].r.properties.level, 
+          message.videoWithTags[i]["video"][prop].r.properties.votes
         );
 
       }

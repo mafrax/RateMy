@@ -67,30 +67,13 @@ HomePageL.buildIframe = function(err, results, callback) {
             '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo' +
             result2[0].v._id +
             '" aria-controls="nav-inner-primary"' +
-            'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">' +
+            'aria-expanded="false" aria-label="Toggle navigation" >' +
             '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
             'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
             '>' +
             '<i class="ni ni-bold-down"></i></button>' +
             "</span></span>" +
             "</button>" +
-            // '<div role="combobox" aria-expanded="false" aria-owns="ex1-listbox" aria-haspopup="listbox" id="ex1-combobox'+result2[0].v._id+'">'+
-            //                 '<div class="form-group">'+
-            //                   '<div class="input-group">'+
-            //                     '<input type="text" aria-autocomplete="list" aria-controls="ex1-listbox" id="ex1-input'+result2[0].v._id+'" class="form-control" placeholder="Add a search criterion">'+
-            //                     '<span class="input-group-btn">'+
-            //                       '<button type="button" value="Edit" class="btn btn-primary" onclick="addSearchCriterion()" aria-controls="nav-inner-primary"'+
-            //                         'aria-expanded="false" aria-label="Toggle navigation">'+
-            //                         '<span class="btn-inner--icon">'+
-            //                           '<i class="ni ni-zoom-split-in"></i>'+
-            //                         '</span>'+
-            //                       '</button>'+
-            //                       '</span>'+
-            //                   '</div>'+
-            //                 '</div>'+
-            //               '</div>'+
-            //              ' <ul aria-labelledby="ex1-label" role="listbox" id="ex1-listbox'+result2[0].v._id+'" class="listbox hidden" style="z-index: 2000; overflow: auto; max-height: 80vh;">'+
-            //               '</ul>'+
 
             '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;" id="searchVideoBar' +
             result2[0].v._id +'"'+
@@ -98,6 +81,7 @@ HomePageL.buildIframe = function(err, results, callback) {
             result2[0].v._id +
             ' )"'+
             '>' +
+            // '<div class="input-group">'+
             '<span class="input-group-btn">' +
             '<button type="submit" class="btn btn-primary "' +
             'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
@@ -108,7 +92,7 @@ HomePageL.buildIframe = function(err, results, callback) {
             "ADD" +
             "</button>" +
             "</span>" +
-            "</div>" +
+            // "</div>" +
             '<div id="demo' +
             result2[0].v._id +
             '" class="collapse col-12" style="max-height: 50vh; overflow:auto; ">' +
