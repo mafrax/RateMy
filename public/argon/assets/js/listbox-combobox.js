@@ -32,6 +32,7 @@ aria.ListboxCombobox = function (
   ) {
     // console.log("hello");
     console.log(this);
+    console.log(comboboxNode);
     console.log(listbox);
     this.combobox = comboboxNode;
     this.input = input;

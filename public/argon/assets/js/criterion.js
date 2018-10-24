@@ -234,6 +234,9 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level) {
       "save_button" + new_numero + "_" + videoNo
     ).style.display = "none";
   }
+
+  return new_numero;
+
 }
 
 function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
@@ -342,7 +345,7 @@ function filterCriterion(event, videoNo) {
       }
     }
     if (x === 13) {
-      if(value.length>20){
+      if(value.length>50){
         searchBar.style.color = "red";
         alert ("This Criterion is too long");
       } else {
@@ -352,16 +355,6 @@ function filterCriterion(event, videoNo) {
         ).style.backgroundColor = "rgb(94, 114, 228)";
 
 
-        var wrappers2 = container.querySelectorAll(
-          "*[id^=wrapper" + videoNo + "]"
-        );
-        wrappers2.forEach(function(element) {
-          element.style.display = "initial";
-        });
-        var sliders2 = container.querySelectorAll("*[id^=slider-container]");
-        sliders2.forEach(function(element2) {
-          element2.style.display = "initial";
-        });
       }     
         
 
@@ -369,16 +362,46 @@ function filterCriterion(event, videoNo) {
   }
 }
 
+function displayOtherCriterions(videoNo, criterionNo) {
+  var container = document.getElementById("progressBarContainer" + videoNo);
+  var wrappers2 = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
+  console.log(criterionNo);
+  wrappers2.forEach(function (element) {
+    element.style.display = "initial";
+  });
+  var sliders2 = container.querySelectorAll("*[id^=slider-container]");
+  sliders2.forEach(function (element2) {
+    var elementId = element2.id.substring(16, element2.id.length);
+    var button2 =   document.getElementById("validateCriterionButton"+videoNo+"_"+elementId);
+    console.log(elementId);
+    if(button2.style.backgroundColor !== "green"){
+      console.log(button2.style.backgroundColor);
+      element2.style.display = "initial";
+    }
+  });
+}
+
+
 function addVideoSearchCriterion(videoNo){
     var container = document.getElementById("progressBarContainer" + videoNo);
     var button = document.getElementById("filterAddCriterion_"+videoNo);
     if(button.style.backgroundColor === "green"){
 
         var value = document.getElementById("searchVideoBar"+videoNo).value;
-    add_criterion(videoNo, false, value, 0);
+    var criterionno = add_criterion(videoNo, false, value, 0);
       
       document
     .getElementById("searchVideoBar" + videoNo).value = "";
+
+    var button2 = document.getElementById("validateCriterionButton"+videoNo+"_"+criterionno);
+
+    $(button2).tooltip('hide')
+      .attr('data-original-title', "Please validate the new criterion and its note by clicking here")
+      .tooltip('show');
+
+    
+
+
 
     } else {
         alert ("This criterion is already present or is not Valid");

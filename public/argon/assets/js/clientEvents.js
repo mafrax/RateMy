@@ -21,7 +21,9 @@ socket.on('validatedNoteFromServer', function (message) {
   var globalNote = document.getElementById("globalNote"+message.tagId+'_'+message.vId);
   console.log(globalNote);
   globalNote.innerHTML= message.newLevel;
-
+  displayOtherCriterions(message.vId, message.tagId);
+  // document.getElementById('criterionName'+message.vId).scrollIntoView(true);
+  $('#demo'+message.vId+'').scrollTop($('#demo'+message.vId+'')[0].scrollHeight);
 })
 
 socket.on("loadHomePageFromServer", function(message) {
@@ -80,7 +82,7 @@ socket.on("searchResults", function(message) {
   }
   updateVeggies(tagNames);
   initializeCombobox1(0);
-  initializeCombobox3(0);
+  // initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-"]');
   console.log(lists);
 //   for (var prop in lists) {
