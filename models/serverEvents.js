@@ -141,7 +141,7 @@ var serverEvents = module.exports = function(io){
 
 
     socket.on('searchValidatedFromClient', function (searchTags) {
-      // console.log(/*)('Un client me parle ! Il me dit : ' + searchTags);
+      console.log('Un client me parle ! Il me dit : ' + searchTags);
 
 
 
