@@ -24,12 +24,12 @@ FRUITS_AND_VEGGIES2.push("Number of views");
     FRUITS_AND_VEGGIES2.push("Upload date");
     FRUITS_AND_VEGGIES2.push("Global Note");
     FRUITS_AND_VEGGIES2.push("Number of views");
-    // console.log(/*)(results);
+    console.log(results);
     for (var i = 0; i < results.length; i++) {       
             FRUITS_AND_VEGGIES.push(results[i]);
             FRUITS_AND_VEGGIES2.push(results[i]);      
     }
-    // console.log(/*)(FRUITS_AND_VEGGIES);
+    console.log(FRUITS_AND_VEGGIES);
   }
   
   function searchVeggies(searchString) {
@@ -81,8 +81,8 @@ FRUITS_AND_VEGGIES2.push("Number of views");
   }
   
   function initializeCombobox1(no){
-      // console.log(/*)("lalala");
-      // console.log(/*)(no);
+      console.log("lalala");
+      console.log(no);
     var ex1Combobox = new aria.ListboxCombobox(
       document.getElementById('ex1-combobox'+no),
       document.getElementById('ex1-input'+no),
@@ -94,8 +94,8 @@ FRUITS_AND_VEGGIES2.push("Number of views");
 
   function initializeCustomCombobox1(no){
 
-    // console.log(/*)("lalala");
-    // console.log(/*)(no);
+    console.log("lalala");
+    console.log(no);
   var ex1Combobox = new aria.ListboxCombobox(
     document.getElementById('ex1-combobox'+no),
     document.getElementById('ex1-input'+no),
@@ -133,7 +133,7 @@ FRUITS_AND_VEGGIES2.push("Number of views");
         }
         else {
           document.getElementById('ex3-input'+no).focus();
-          // console.log(/*)('hi8');
+          console.log('hi8');
           ex3Combobox.updateResults(true);
         }
       }

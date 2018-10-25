@@ -15,7 +15,7 @@ var serverEvents = module.exports = function(io){
       socket.emit('searchResults', result2);
     })
 
-    // console.log(/*)('Un client est connecté !');
+    console.log('Un client est connecté !');
     
     pageLoader.loadHomePage(function(videoWithTags){    
      
@@ -37,7 +37,7 @@ var serverEvents = module.exports = function(io){
       
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
-          // console.log(/*)('Un client me parle ! Il me dit : ' + message);
+          console.log('Un client me parle ! Il me dit : ' + message);
 
           crawler.crawl(message, function(url, title, tags){
               // crawler.crawl(url2, function(url){
@@ -50,11 +50,11 @@ var serverEvents = module.exports = function(io){
 
 
       socket.on('validateNoteFromClient', function (message) {
-        // console.log(/*)('Un client me parle ! Il me dit : ' + message);
+        console.log('Un client me parle ! Il me dit : ' + message);
 
 
         video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(_err, result){
-          // console.log(/*)(result);
+          console.log(result);
 
           var newtagName = message.tagName.toUpperCase();
 
@@ -67,15 +67,15 @@ var serverEvents = module.exports = function(io){
 
               for(prop in results){
                 if(results.hasOwnProperty(prop)){
-                  // console.log(/*)(results[prop].tag.properties.tagName);
+                  console.log(results[prop].tag.properties.tagName);
                   if(results[prop].tag.properties.tagName.length>0){
                     var resultName = results[prop].tag.properties.tagName.toUpperCase();
-                    // console.log(/*)(resultName);
-                    // console.log(/*)(newtagName);
+                    console.log(resultName);
+                    console.log(newtagName);
                     if(resultName === newtagName){
                       exists.push(message.tagName);
                         video.createRelationShipWithTag(message.videoId, message.noteUser,results[prop].tag._id, function(err, result){
-                          // console.log(/*)(result);
+                          console.log(result);
                           setTagLevel(message, result, socket);
                         })
                     }
@@ -89,7 +89,7 @@ var serverEvents = module.exports = function(io){
                 data["tagName"] = message.tagName;
                 tag.create(data, function(err, result){
                   video.createRelationShipWithTag(message.videoId, message.noteUser,result._id, function(err, result){
-                    // console.log(/*)(result);
+                    console.log(result);
                     setTagLevel(message, result, socket);
                   })
                 })
@@ -117,7 +117,7 @@ var serverEvents = module.exports = function(io){
 
 
       socket.on('messageSavefromClient', function (message) {
-        // console.log(/*)('Un client me parle ! Il me dit : ' + message);
+        console.log('Un client me parle ! Il me dit : ' + message);
 
         var newVideo = {};
         newVideo.originalUrl = message.originalUrlField;
@@ -128,7 +128,7 @@ var serverEvents = module.exports = function(io){
 
         video.create(newVideo, message.tags, function (err, video) {
 						
-          // console.log(/*)(err);
+          console.log(err);
           if (err)
           return next(err);
 
@@ -141,7 +141,7 @@ var serverEvents = module.exports = function(io){
 
 
     socket.on('searchValidatedFromClient', function (searchTags) {
-      // console.log(/*)('Un client me parle ! Il me dit : ' + searchTags);
+      console.log('Un client me parle ! Il me dit : ' + searchTags);
 
 
 
@@ -156,7 +156,7 @@ var serverEvents = module.exports = function(io){
       video.searchByCriterionLevel(searchTags, function (err, videos) {
  
 
-        // console.log(/*)(err);
+        console.log(err);
         if (err)
         return next(err);
 
@@ -197,20 +197,20 @@ var serverEvents = module.exports = function(io){
 function setTagLevel(message, result, socket) {
   if (message.direction < 0) {
     video.resetRelationLevel(result.rel._id, result.rel.properties.previousLevel, result.rel.properties.votes, function (_err, result2) {
-      // console.log(/*)(result2);
+      console.log(result2);
       socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2.rel.properties.level });
     });
   }
   else {
     if (result.rel.properties.votes == null) {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
-        // console.log(/*)(result2);
+        console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
       });
     }
     else {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, result.rel.properties.votes, message.noteUser, message.previousNote, function (_err, result2) {
-        // console.log(/*)(result2);
+        console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
       });
     }

@@ -1,5 +1,5 @@
 //talkerscode.com/webtricks/add-edit-and-delete-rows-from-table-dynamically-using-javascript.php
-http: // console.log(/*)("tructruc");
+http: console.log("tructruc");
 
 // document.getElementById("myAnchor").addEventListener("click", function(event){
 //     event.preventDefault()
@@ -7,10 +7,10 @@ http: // console.log(/*)("tructruc");
 
 function initializeButoons() {
   var array = document.querySelectorAll('*[id^="cell"]');
-  // console.log(/*)(array);
+  console.log(array);
   array.forEach(function(element) {
     var buttons = element.querySelectorAll('*[id^="save_button"]');
-    // console.log(/*)(buttons);
+    console.log(buttons);
     buttons.forEach(function(button) {
       button.style.display = "none";
     });
@@ -18,7 +18,7 @@ function initializeButoons() {
 }
 
 var hidden = document.getElementById("custId0");
-// console.log(/*)(hidden);
+console.log(hidden);
 
 function edit_row(no, videoNo) {
   document.getElementById("edit_button" + no + "_" + videoNo).style.display =
@@ -56,7 +56,7 @@ function save_row(no, videoNo) {
 }
 
 function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
-  // console.log(/*)(videoNo);
+  console.log(videoNo);
   var max_div = document.getElementById("progressBarContainer" + videoNo);
 
   var numberOfVotes = 0;
@@ -65,16 +65,16 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   }
 
   if (newOrFound === true) {
-    // console.log(/*)("true");
+    console.log("true");
     var array = max_div.querySelectorAll('*[id^="save_button"]');
-    // console.log(/*)(level);
+    console.log(level);
     array.forEach(function(element) {
       element.style.display = "none";
     });
   }
-  // console.log(/*)(criterionTitle);
+  console.log(criterionTitle);
   // var new_name=document.getElementById("new_name").value;
-  // // console.log(/*)(n_sliders);
+  // console.log(n_sliders);
   var truc = max_div.querySelectorAll("div.progress-label");
   var new_numero = truc.length;
   var levelGlobal = 50 + level / 2;
@@ -209,12 +209,12 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   // new_element.setAttribute('style', 'position: relative;');
 
   if (newOrFound === true) {
-    // console.log(/*)("1");
+    console.log("1");
     new_element1.innerHTML = html3;
     max_div.insertBefore(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
 
   } else {
-    // console.log(/*)("2");
+    console.log("2");
     new_element1.innerHTML = html3;
     max_div.appendChild(new_element1);
   }
@@ -274,23 +274,25 @@ function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
 
   slider.noUiSlider.on("update", function(a, b) {
     sliderValue.textContent = a[b];
-    // console.log(/*)(sliderValue);
+    console.log(sliderValue);
     sliderPercent.innerHTML = sliderValue.innerHTML;
   });
 }
 
 function filterCriterion(event, videoNo) {
   var x = event.keyCode;
-  // console.log(/*)(x);
-  // console.log(/*)("criterion filtering");
+  console.log(x);
+  console.log("criterion filtering");
 
   var collapsable = document.getElementById("demo" + videoNo);
   collapsable.setAttribute("class", "col-12 collapse show");
+  console.log(collapsable);
 
   var container = document.getElementById("progressBarContainer" + videoNo);
   var videoCriterions = container.querySelectorAll(
     "*[id^=criterionName" + videoNo + "_]"
   );
+  console.log(videoCriterions);
   const searchBar = document
     .getElementById("searchVideoBar" + videoNo);
   var value = searchBar
@@ -298,7 +300,7 @@ function filterCriterion(event, videoNo) {
   var criterionContainersToKeep = [];
 
   if (value === "") {
-    // console.log(/*)("no value");
+    console.log("no value");
     var wrappers = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
     wrappers.forEach(function(element) {
       element.style.display = "initial";
@@ -313,49 +315,54 @@ function filterCriterion(event, videoNo) {
     ).style.backgroundColor = "#5e72e4";
   } else {
     var exist = [];
-    for (prop in videoCriterions) {
-      if (videoCriterions.hasOwnProperty(prop)) {
-        var name = videoCriterions[prop].innerHTML.toUpperCase();
-        // console.log(/*)(name);
-        // console.log(/*)(value);
-        // console.log(/*)(prop);
 
-        // var criterionNum =videoCriterions[prop].id.substring(13, videoCriterions[prop].id.length);
-        // // console.log(/*)(videoCriterions[prop].id);
-        // // console.log(/*)(videoCriterions[prop].id.length);
-        // // console.log(/*)(criterionNum);
-        if (name.startsWith(value)) {
-          document.getElementById(
-            "wrapper" + videoNo + "_" + prop
-          ).style.display = "initial";
-          container.querySelector("#slider-container" + prop).style.display =
-            "initial";
-          // console.log(/*)("yep");
-          if(name === value){
-            exist.push(value);
-          }
-        } else {
-          // console.log(/*)("nop");
-          document.getElementById(
-            "wrapper" + videoNo + "_" + prop
-          ).style.display = "none";
-          container.querySelector("#slider-container" + prop).style.display =
-            "none";
-        }
-
-        if (exist.length > 0) {
-          // console.log(/*)(exist);
-          document.getElementById(
-            "filterAddCriterion_" + videoNo
-          ).style.backgroundColor = "red";
-        } else {
-          // console.log(/*)(exist);
-          document.getElementById(
-            "filterAddCriterion_" + videoNo
+    if (videoCriterions.length === 0){
+      console.log(exist);
+            document.getElementById(
+              "filterAddCriterion_" + videoNo
           ).style.backgroundColor = "green";
+    } else {
+      for (prop in videoCriterions) {
+        if (videoCriterions.hasOwnProperty(prop)) {
+          var name = videoCriterions[prop].innerHTML.toUpperCase();
+          console.log(name);
+          console.log(value);
+          console.log(prop);
+  
+          if (name.startsWith(value)) {
+            document.getElementById(
+              "wrapper" + videoNo + "_" + prop
+            ).style.display = "initial";
+            container.querySelector("#slider-container" + prop).style.display =
+              "initial";
+            console.log("yep");
+            if(name === value){
+              exist.push(value);
+            }
+          } else {
+            console.log("nop");
+            document.getElementById(
+              "wrapper" + videoNo + "_" + prop
+            ).style.display = "none";
+            container.querySelector("#slider-container" + prop).style.display =
+              "none";
+          }
+  
+          if (exist.length > 0) {
+            console.log(exist);
+            document.getElementById(
+              "filterAddCriterion_" + videoNo
+            ).style.backgroundColor = "red";
+          } else {
+            console.log(exist);
+            document.getElementById(
+              "filterAddCriterion_" + videoNo
+            ).style.backgroundColor = "green";
+          }
         }
       }
     }
+
     if (x === 13) {
       if(value.length>50){
         searchBar.style.color = "red";
@@ -366,9 +373,7 @@ function filterCriterion(event, videoNo) {
           "filterAddCriterion_" + videoNo
         ).style.backgroundColor = "rgb(94, 114, 228)";
 
-
-      }     
-        
+      }             
 
     }
   }
@@ -377,7 +382,7 @@ function filterCriterion(event, videoNo) {
 function displayOtherCriterions(videoNo, criterionNo) {
   var container = document.getElementById("progressBarContainer" + videoNo);
   var wrappers2 = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
-  // console.log(/*)(criterionNo);
+  console.log(criterionNo);
   wrappers2.forEach(function (element) {
     element.style.display = "initial";
   });
@@ -385,9 +390,9 @@ function displayOtherCriterions(videoNo, criterionNo) {
   sliders2.forEach(function (element2) {
     var elementId = element2.id.substring(16, element2.id.length);
     var button2 =   document.getElementById("validateCriterionButton"+videoNo+"_"+elementId);
-    // console.log(/*)(elementId);
+    console.log(elementId);
     if(button2.style.backgroundColor !== "green"){
-      // console.log(/*)(button2.style.backgroundColor);
+      console.log(button2.style.backgroundColor);
       element2.style.display = "initial";
     }
   });
@@ -395,8 +400,10 @@ function displayOtherCriterions(videoNo, criterionNo) {
 
 
 function addVideoSearchCriterion(videoNo){
+  console.log(videoNo);
     var container = document.getElementById("progressBarContainer" + videoNo);
     var button = document.getElementById("filterAddCriterion_"+videoNo);
+    console.log(button);
     if(button.style.backgroundColor === "green"){
 
         var value = document.getElementById("searchVideoBar"+videoNo).value;
@@ -410,8 +417,6 @@ function addVideoSearchCriterion(videoNo){
     $(button2).tooltip('hide')
       .attr('data-original-title', "Please validate the new criterion and its note by clicking here")
       .tooltip('show');
-
-
     } else {
         alert ("This criterion is already present or is not Valid");
     }

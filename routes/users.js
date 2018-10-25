@@ -33,7 +33,7 @@ module.exports = function(app, passport) {
 
 		User.getAll(function(err,users){
 			users.forEach(element => {
-				// console.log(/*)(element);
+				console.log(element);
 			});
 		})
 				res.render('29-YourAccount-AccountSettings.ejs', {

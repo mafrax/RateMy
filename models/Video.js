@@ -12,9 +12,9 @@ var Video = module.exports = function Video(_node) {
 }
 
 Video.getBy = function (field, value, callback) {
-	// console.log(/*)('entered getby');
-	// console.log(/*)(value);
-	// console.log(/*)(field);
+	console.log('entered getby');
+	console.log(value);
+	console.log(field);
 	var qp = {
 		query: [
 			'MATCH (video:video)', 'WHERE ' + field + ' = {value}', 'RETURN video',
@@ -25,16 +25,16 @@ Video.getBy = function (field, value, callback) {
 			value: value
 		}
 	}
-	// console.log(/*)(qp);
+	console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {
-			// console.log(/*)('1');
-			// console.log(/*)(result[0]);
+			console.log('1');
+			console.log(result[0]);
 			callback(null, null);
 		} else {
-			// console.log(/*)('2');
-			// console.log(/*)(result[0]);
+			console.log('2');
+			console.log(result[0]);
 			callback(null, result[0]['video']);
 		}
 	});
@@ -42,9 +42,9 @@ Video.getBy = function (field, value, callback) {
 
 
 Video.searchByCriterionLevel = function (tag, callback) {
-	// console.log(/*)('entered searchByCriterionLevel');
+	console.log('entered searchByCriterionLevel');
 
-// console.log(/*)(tag);
+console.log(tag);
 
 
 var truc = [];
@@ -74,16 +74,16 @@ truc.push('RETURN v');
 		,
 		params: par
 	}
-	// console.log(/*)(qp);
+	console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {
-			// console.log(/*)('1');
-			// console.log(/*)(result);
+			console.log('1');
+			console.log(result);
 			callback(null, result);
 		} else {
-			// console.log(/*)('2');
-			// console.log(/*)(result);
+			console.log('2');
+			console.log(result);
 			callback(null, result);
 		}
 	});
@@ -91,19 +91,19 @@ truc.push('RETURN v');
 
 // creates the user and persists (saves) it to the db, incl. indexing it:
 Video.create = function (data, tags, callback) {
-	// console.log(/*)(data);
+	console.log(data);
 
 	if (tags.length > 0) {
 		Video.computeQuery(data, tags, function (quer) {
-			// console.log(/*)(quer);
+			console.log(quer);
 			var qp = quer;
 
-			// console.log(/*)(qp);
+			console.log(qp);
 
 			db.cypher(qp, function (err, results) {
 				if (err) return callback(err);
 				callback(null, results);
-				// console.log(/*)(results);
+				console.log(results);
 			});
 
 		})
@@ -115,12 +115,12 @@ Video.create = function (data, tags, callback) {
 				'RETURN video',
 			].join('\n')
 		}
-		// console.log(/*)('after query');
-		// console.log(/*)(qp);
+		console.log('after query');
+		console.log(qp);
 		db.cypher(qp, function (err, results) {
 			if (err) return callback(err);
 			callback(null, results[0]['video']);
-			// console.log(/*)(results);
+			console.log(results);
 		});
 	}
 
@@ -147,26 +147,26 @@ Video.computeQuery = function (data, tags, callback) {
         
         for (var prop in tags) {
             if (tags.hasOwnProperty(prop)) {
-                // console.log(/*)(prop);
+                console.log(prop);
                 var no = prop.slice(3, prop.length);
-                // console.log(/*)(no);
+                console.log(no);
        
-            // console.log(/*)(result);
+            console.log(result);
             
             var found = result.find(function(element) {
                 return element.tag.properties.tagName === tags[prop].tagName;
               });
-            // // console.log(/*)(found);
+            // console.log(found);
             if(found){
-				// // console.log(/*)(tags);
-				// // console.log(/*)(prop);
-				// // console.log(/*)(prop.length);
-				// // console.log(/*)(prop.slice(3, prop.length));
+				// console.log(tags);
+				// console.log(prop);
+				// console.log(prop.length);
+				// console.log(prop.slice(3, prop.length));
 				
 					quer += 'MATCH (tag' + no + ':Tag) WHERE tag' + no + '.tagName = "' + tags["tag" + no].tagName + '"\n'; 
 					                
                 } else {
-                    // console.log(/*)("not found");
+                    console.log("not found");
                     quer += 'CREATE (tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"})\n';
                 }
          
@@ -177,7 +177,7 @@ Video.computeQuery = function (data, tags, callback) {
             var i = 0;
             for (var prop in tags) {
                 if (tags.hasOwnProperty(prop)) {
-                    // console.log(/*)(prop);
+                    console.log(prop);
                     quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
                     i++;
                 }
@@ -195,7 +195,7 @@ Video.computeQuery = function (data, tags, callback) {
 
 
 Video.getCriterionWithRelAndTag = function (videoId, tagName, callback) {
-	// console.log(/*)('entered searchByCriterionLevel');
+	console.log('entered searchByCriterionLevel');
 
 
 
@@ -214,17 +214,17 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(/*)(qp);
+	console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(/*)(result);
+		console.log(result);
 		if (!result[0]) {
-			// console.log(/*)('1');
-			// console.log(/*)(result);
+			console.log('1');
+			console.log(result);
 			callback(null, result);
 		} else {
-			// console.log(/*)('2');
-			// console.log(/*)(result);
+			console.log('2');
+			console.log(result);
 			callback(null, result);
 		}
 	});
@@ -232,7 +232,7 @@ var par = {};
 
 
 Video.updateRelationLevel = function (relId,relLevel,numberofVotes,levelUser,previous, callback) {
-	// console.log(/*)('entered searchByCriterionLevel');
+	console.log('entered searchByCriterionLevel');
 
 	var newVotes = numberofVotes+1;
 	var roundedNumber = Math.round(relLevel * 10) / 10;
@@ -254,24 +254,24 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(/*)(qp);
+	console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(/*)(result);
+		console.log(result);
 		if (!result[0]) {
-			// console.log(/*)('1');
-			// console.log(/*)(result);
+			console.log('1');
+			console.log(result);
 			callback(null, result);
 		} else {
-			// console.log(/*)('2');
-			// console.log(/*)(result);
+			console.log('2');
+			console.log(result);
 			callback(null, result);
 		}
 	});
 }
 
 Video.resetRelationLevel = function (relId,relLevel,numberofVotes, callback) {
-	// console.log(/*)('entered searchByCriterionLevel');
+	console.log('entered searchByCriterionLevel');
 
 	var newVotes = numberofVotes-1;
 
@@ -288,17 +288,17 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(/*)(qp);
+	console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(/*)(result);
+		console.log(result);
 		if (!result[0]) {
-			// console.log(/*)('1');
-			// console.log(/*)(result);
+			console.log('1');
+			console.log(result);
 			callback(null, result);
 		} else {
-			// console.log(/*)('2');
-			// console.log(/*)(result);
+			console.log('2');
+			console.log(result);
 			callback(null, result[0]);
 		}
 	});
@@ -320,17 +320,17 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(/*)(qp);
+	console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(/*)(result);
+		console.log(result);
 		if (!result[0]) {
-			// console.log(/*)('1');
-			// console.log(/*)(result);
+			console.log('1');
+			console.log(result);
 			callback(null, result);
 		} else {
-			// console.log(/*)('2');
-			// console.log(/*)(result);
+			console.log('2');
+			console.log(result);
 			callback(null, result[0]);
 		}
 	});

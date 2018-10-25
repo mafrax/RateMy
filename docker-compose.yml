@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  ratemy:
+    image: ratemy
+    build: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
