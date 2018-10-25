@@ -65,8 +65,7 @@ socket.on("loadHomePageFromServer", function(message) {
         );
 
       }
-    }
-    
+    }   
     // initializeCustomCombobox1(message.videoWithTags[i]["video"][0].v._id);
   }
   initializeButoons();
@@ -104,10 +103,7 @@ socket.on("videoSavedfromServer", function() {
 });
 
 $("#validateSearchButton").click(function() {
-  
-  
 
-    
 var searchcriterions = $("div[id*='searchCriterion']");
 if(searchcriterions.length === 0){
   window.location.replace("/");
@@ -119,10 +115,14 @@ console.log(criterions);
 var tagName = [];
 criterions.forEach(function(element){
   var tag = {};
+<<<<<<< HEAD
   // console.log(element.querySelectorAll('span')[0]);
   // var span = element.querySelectorAll('*[id^="criterionLowRange"]');
   // console.log(span);
   // console.log(span[0].innerHTML);
+=======
+  
+>>>>>>> 5b1bc5f93e43c0eece76d119c3d427f2cc128f6c
   tag["name"] = element.querySelectorAll('span')[0].innerHTML.trim();
   tag["lowerValue"] = parseInt(element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML);
   tag["higherValue"] = parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML);
@@ -162,13 +162,23 @@ $('#uploadTooltip').mouseleave(function(){
 
 
 $("#field2").on("input", function() {
+<<<<<<< HEAD
   console.log("YIPYIOP");
   console.log(this.value);
+=======
+>>>>>>> 5b1bc5f93e43c0eece76d119c3d427f2cc128f6c
 
   if(this.value.includes("https:") && this.value.includes("www.")){
-    $('#uploadTooltip').tooltip('hide')
-    .attr('data-original-title', "Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website")
-    $('#poke').removeAttr("disabled");
+    if(this.value.includes("katestube")){
+      $('#uploadTooltip').tooltip('hide')
+          .attr('data-original-title', "Katestube is not supported, sorry")
+          .tooltip('show');
+    $('#poke').attr("disabled", "disabled");
+    } else {
+      $('#uploadTooltip').tooltip('hide')
+      .attr('data-original-title', "Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website")
+      $('#poke').removeAttr("disabled");
+    }
   
   } else {
     $('#uploadTooltip').tooltip('hide')
@@ -204,7 +214,7 @@ $("#modalSaveButton").click(function() {
 
     var tag = {};
     tag["tagName"] = $("#criterionName" + i + "_0").html();
-    tag["tagValue"] = $("#criterionNote" + i+ "_0").html();
+    tag["tagValue"] = $("#criterionNote" + i + "_0").html();
     tags["tag" + i] = tag;
   }
 
@@ -222,8 +232,11 @@ $("#modalSaveButton").click(function() {
 
 function validateSearchButton(videoNo, criterionno){
 
+<<<<<<< HEAD
 console.log(videoNo);
 console.log(criterionno);
+=======
+>>>>>>> 5b1bc5f93e43c0eece76d119c3d427f2cc128f6c
 var container = document.getElementById("progressBarContainer" + videoNo);
 var slider = container.querySelector("#slider-container"+criterionno);
 var name = container.querySelector("#criterionName"+videoNo+"_"+criterionno);
