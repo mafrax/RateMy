@@ -292,6 +292,12 @@ function filterCriterion(event, videoNo) {
   var videoCriterions = container.querySelectorAll(
     "*[id^=criterionName" + videoNo + "_]"
   );
+
+  //not continued yet, its just a start to order criterions in alphabetical order inside the container
+  var paraArr = [].slice.call(videoCriterions).sort(function (a, b) {
+    return a.textContent > b.textContent ? 1 : -1;
+});
+
   console.log(videoCriterions);
   const searchBar = document
     .getElementById("searchVideoBar" + videoNo);

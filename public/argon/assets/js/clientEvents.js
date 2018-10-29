@@ -69,6 +69,7 @@ socket.on("loadHomePageFromServer", function(message) {
     // initializeCustomCombobox1(message.videoWithTags[i]["video"][0].v._id);
   }
   initializeButoons();
+  fillOrderList();
   }
 });
 
@@ -115,14 +116,10 @@ console.log(criterions);
 var tagName = [];
 criterions.forEach(function(element){
   var tag = {};
-<<<<<<< HEAD
   // console.log(element.querySelectorAll('span')[0]);
   // var span = element.querySelectorAll('*[id^="criterionLowRange"]');
   // console.log(span);
   // console.log(span[0].innerHTML);
-=======
-  
->>>>>>> 5b1bc5f93e43c0eece76d119c3d427f2cc128f6c
   tag["name"] = element.querySelectorAll('span')[0].innerHTML.trim();
   tag["lowerValue"] = parseInt(element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML);
   tag["higherValue"] = parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML);
@@ -162,13 +159,11 @@ $('#uploadTooltip').mouseleave(function(){
 
 
 $("#field2").on("input", function() {
-<<<<<<< HEAD
   console.log("YIPYIOP");
   console.log(this.value);
-=======
->>>>>>> 5b1bc5f93e43c0eece76d119c3d427f2cc128f6c
 
-  if(this.value.includes("https:") && this.value.includes("www.")){
+
+  if(this.value.includes("https:")){
     if(this.value.includes("katestube")){
       $('#uploadTooltip').tooltip('hide')
           .attr('data-original-title', "Katestube is not supported, sorry")
@@ -232,11 +227,8 @@ $("#modalSaveButton").click(function() {
 
 function validateSearchButton(videoNo, criterionno){
 
-<<<<<<< HEAD
 console.log(videoNo);
 console.log(criterionno);
-=======
->>>>>>> 5b1bc5f93e43c0eece76d119c3d427f2cc128f6c
 var container = document.getElementById("progressBarContainer" + videoNo);
 var slider = container.querySelector("#slider-container"+criterionno);
 var name = container.querySelector("#criterionName"+videoNo+"_"+criterionno);

@@ -11,25 +11,25 @@ FRUITS_AND_VEGGIES.push("Upload date");
 FRUITS_AND_VEGGIES.push("Global Note");
 FRUITS_AND_VEGGIES.push("Number of views");
 var FRUITS_AND_VEGGIES2 = [];
-FRUITS_AND_VEGGIES2.push("Upload date");
-FRUITS_AND_VEGGIES2.push("Global Note");
-FRUITS_AND_VEGGIES2.push("Number of views");
+
 
   function updateVeggies(results){
     FRUITS_AND_VEGGIES = [];
-    FRUITS_AND_VEGGIES.push("Upload date");
-    FRUITS_AND_VEGGIES.push("Global Note");
-    FRUITS_AND_VEGGIES.push("Number of views");
+
     FRUITS_AND_VEGGIES2 = [];
-    FRUITS_AND_VEGGIES2.push("Upload date");
-    FRUITS_AND_VEGGIES2.push("Global Note");
-    FRUITS_AND_VEGGIES2.push("Number of views");
+ 
     console.log(results);
     for (var i = 0; i < results.length; i++) {       
             FRUITS_AND_VEGGIES.push(results[i]);
             FRUITS_AND_VEGGIES2.push(results[i]);      
     }
     console.log(FRUITS_AND_VEGGIES);
+
+    FRUITS_AND_VEGGIES2.sort(function (a, b) {
+      return a < b ? -1 : a > b ? 1 : 0;
+  });
+
+
   }
   
   function searchVeggies(searchString) {
@@ -43,7 +43,10 @@ FRUITS_AND_VEGGIES2.push("Number of views");
         results.push(FRUITS_AND_VEGGIES[i]);
       }
     }
-  
+    results.sort(function (a, b) {
+      return a < b ? -1 : a > b ? 1 : 0;
+  });
+
     return results;
   }
 
@@ -56,7 +59,10 @@ FRUITS_AND_VEGGIES2.push("Number of views");
         results.push(FRUITS_AND_VEGGIES2[i]);
       }
     }
-  
+    results.sort(function (a, b) {
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
+
     return results;
   }
 
@@ -76,6 +82,10 @@ FRUITS_AND_VEGGIES2.push("Number of views");
         results.push(criterionList[i]);
       }
     }
+
+    results.sort(function (a, b) {
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
   
     return results;
   }

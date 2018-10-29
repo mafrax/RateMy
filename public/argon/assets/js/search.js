@@ -45,7 +45,7 @@ function addSearchCriterion() {
         var html = ' <div class="progress-wrapper">' +
             '<div class="progress-info flex-wrap">' +
             ' <div class="progress-label ">' +
-            ' <span>'+ mainSearch.value +' </span></div>' +
+            ' <span id="spanCriterionName'+no+'">'+ mainSearch.value +' </span></div>' +
             '<div class="progress-percentage" style="display: flex" >' +
             '<span style="color: rgba(248, 9, 176, 0.575); margin-right: 10px" id="criterionLowRange'+no+'">40%</span>' +
             '<span style="color: rgba(248, 9, 176, 0.575); margin-right: 10px" id="criterionHighRange'+no+'">40%</span>' +
@@ -121,7 +121,7 @@ function addSearchCriterion() {
     
                   console.log(d.getAttribute('data-range-value-low'));
     }
-
+    fillOrderList();
 
 }
 
