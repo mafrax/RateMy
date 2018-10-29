@@ -37,9 +37,9 @@ socket.on("loadHomePageFromServer", function(message) {
   } else {
     var arrayLength = message.videoWithTags.length;
     for (var i = 0; i < arrayLength; i++) {
-      console.log(message.videoWithTags[i]);
-      console.log(message.videoWithTags[i]['video']);
-      console.log(message.videoWithTags[i]["video"][0].v._id);
+      // console.log(message.videoWithTags[i]);
+      // console.log(message.videoWithTags[i]['video']);
+      // console.log(message.videoWithTags[i]["video"][0].v._id);
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-4 flex-wrap");
       newDiv.setAttribute(
@@ -208,10 +208,11 @@ $("#modalSaveButton").click(function() {
     console.log($("#criterionName" + i + "_0"));
 
     var tag = {};
-    tag["tagName"] = $("#criterionName" + i + "_0").html();
+    tag["tagName"] = $("#criterionName0_"+ i ).html();
     tag["tagValue"] = $("#criterionNote" + i + "_0").html();
     tags["tag" + i] = tag;
   }
+  console.log(tags);
 
   socket.emit("messageSavefromClient", {
     titlefield: title,

@@ -93,7 +93,7 @@ truc.push('RETURN v');
 Video.create = function (data, tags, callback) {
 	console.log(data);
 
-	if (tags.length > 0) {
+	if (tags !== null) {
 		Video.computeQuery(data, tags, function (quer) {
 			console.log(quer);
 			var qp = quer;

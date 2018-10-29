@@ -142,7 +142,7 @@ Crawler.crawl = function (url, cb) {
 
 
                     uniqueTags.forEach(function (element) {
-                        tagsBase.getBy('tag.tagName', element, function(tag){
+                        tagsBase.getBy('tag.tagName', element, function(err,tag){
                             if(tag.length >0) {
                                 console.log("tag already in base");
                             } else {
