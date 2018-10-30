@@ -9,7 +9,7 @@ function initializeAllvids() {
 }
 
 function fillOrderList() {
-  var selectList = document.getElementById("monselect");
+  var selectList = document.getElementById("myDatalist");
 
   var searchList = document.getElementById("searchCell");
   var searchCriterions = searchList.querySelectorAll(
