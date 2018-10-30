@@ -44,9 +44,10 @@ HomePageL.buildIframe = function(err, results, callback) {
           if (err) return callback(err);
 
           var video = {};
-
+          // padding: 3px;
           var html2 =
-            '<div class="row col-12 embed-responsive embed-responsive-16by9">' +
+          '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
+            '<div class="embed-responsive embed-responsive-16by9">' +
             '<iframe class="embed-responsive-item" src="' +
             result2[0].v.properties.embedUrl +
             '" frameborder="0" allow="autoplay; encrypted-media"' +
@@ -62,26 +63,17 @@ HomePageL.buildIframe = function(err, results, callback) {
             '<i class="ni ni-tv-2"></i></button>' +
             "</span></button>" +
             "</div>" +
-            '<div class="row col-12 flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
-            '<div class="row col-12 flex-wrap">' +
-            '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo' +
-            result2[0].v._id +
-            '" aria-controls="nav-inner-primary"' +
-            'aria-expanded="false" aria-label="Toggle navigation" >' +
-            '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
-            'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
-            '>' +
-            '<i class="ni ni-bold-down"></i></button>' +
-            "</span></span>" +
-            "</button>" +
 
-            '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;" id="searchVideoBar' +
+            
+            '<div class="flex-wrap">' +
+
+            '<div class="input-group">'+
+            '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar' +
             result2[0].v._id +'"'+
             'onkeyUp="filterCriterion(event,' +
             result2[0].v._id +
             ' )"'+
             '>' +
-            // '<div class="input-group">'+
             '<span class="input-group-btn">' +
             '<button type="submit" class="btn btn-primary "' +
             'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
@@ -92,7 +84,20 @@ HomePageL.buildIframe = function(err, results, callback) {
             "ADD" +
             "</button>" +
             "</span>" +
-            // "</div>" +
+            '<span class="input-group-btn">' +
+            '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
+            result2[0].v._id +
+            '" aria-controls="nav-inner-primary"' +
+            'aria-expanded="false" aria-label="Toggle navigation" >' +
+            '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
+            'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
+            '>' +
+            '<i class="ni ni-bold-down"></i></button>' +
+            "</span></span>" +
+            "</button>" +
+            "</span>" +
+            "</div>" +
+
             '<div id="demo' +
             result2[0].v._id +
             '" class="collapse col-12" style="max-height: 50vh; overflow:auto; ">' +
@@ -100,19 +105,6 @@ HomePageL.buildIframe = function(err, results, callback) {
             result2[0].v._id +
             '">' +
             "</div>" +
-            // '<div class="input-group">' +
-            // '<input type="text" placeholder="new criterion" class="col-8 form-control" name="criterionAddField" id="criterionAddField' +
-            // result2[0].v._id +
-            // '" >' +
-            // '<span class="input-group-btn">' +
-            // '<button type="button" class="btn btn-primary " onclick="add_criterion(' +
-            // result2[0].v._id +
-            // ', true )">' +
-            // "Add" +
-            // "</button>" +
-            // "</span>" +
-            // "</div>" +
-            // '<input type="button" class="btn btn-sm btn-primary" value="Validate" >' +
             "</div>" +
             "</div>";
 
