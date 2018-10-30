@@ -229,6 +229,7 @@ aria.ListboxCombobox = function (
       console.log(this);
       if(this.input.id === "ex1-input0"){
         addSearchCriterion();  
+        fillOrderList();
         console.log($("#ex1-input")) ;           
       } else if(this.input.id === "input"){
         // var combobox3 = document.getElementById('comboboxOrder1');

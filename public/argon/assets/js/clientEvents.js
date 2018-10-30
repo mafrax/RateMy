@@ -70,6 +70,7 @@ socket.on("loadHomePageFromServer", function(message) {
   }
   initializeButoons();
   fillOrderList();
+  initializeAllvids();
   }
 });
 
@@ -126,6 +127,7 @@ criterions.forEach(function(element){
   tagName.push(tag);
 })
 console.log(tagName);
+fillOrderList();
 socket.emit("searchValidatedFromClient", tagName);
 
 }
