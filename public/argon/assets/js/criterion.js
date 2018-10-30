@@ -202,7 +202,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     '<div class="progress flex-wrap"  >' +
     '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: ' +
     levelGlobal +
-    '%; background-color: rgba(248, 9, 176, 0.575);"></div>' +   
+    '%;background-image: linear-gradient(to top,rgb(255, 191, 250),rgba(248, 9, 176, 0.575));"></div>' +   
     "</div>"    ;
 
   var new_element1 = document.createElement("div");

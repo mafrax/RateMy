@@ -5383,6 +5383,7 @@ input[type='button'].btn-block
     flex-direction: column;
 
     margin-bottom: 0;
+    margin-top: -5px;
     padding-left: 0;
 
     list-style: none;
@@ -18691,3 +18692,4 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
 .input-slider-container:hover{
     box-shadow: 0 0 11px rgba(33,33,33,.2);
 }
+
