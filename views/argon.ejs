@@ -127,13 +127,27 @@
           </ul>
         </div> -->
 <div class="col-4">
-       
-    <select id="monselect" class="form-control">
-        <option value="valeur1" selected>None</option> 
-        <option value="valeur2" >date</option>
-        <option value="valeur3">Number of votes</option>
-      </select>
+  
+    
 
+    <div class="input-group">
+          <span class="badge badge-primary badge-pill text-uppercase " >
+            <span style="display: table-cell; vertical-align: middle;">Order by:</span>
+          </span>
+      
+      <input list="myDatalist" class="form-control" id="monselect">
+      <datalist id="myDatalist">
+          <option selected>None</option> 
+          <option>date</option>
+          <option>Number of votes</option>
+      </datalist> 
+
+
+
+      </div>
+
+
+      
 </div>
 
 

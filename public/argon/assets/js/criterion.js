@@ -80,7 +80,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   var levelGlobal = 50 + level / 2;
   var html1 =
     '<div class=" progress-info flex-wrap">' +
-    '<div class="progress-label flex-wrap">' +
+    '<div class="progress-label">' +
     '<span class="criterionTitle" id="criterionName' +
     new_numero +
     "_" +
@@ -172,7 +172,8 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     new_numero +
     '">' +
     "</div>" +
-    '<div class="progress-percentage flex-wrap" >' +
+    '<div class="progress-label2 flex-wrap">' +
+    '<div class="progress-percentage" >' +
     '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote' +
     new_numero +
     "_" +
@@ -180,6 +181,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     '" data-toggle="tooltip" data-placement="top" title="Average note on '+numberOfVotes+' votes in total">' +
     level +
     "</span>" +
+    "</div>" +
     "</div>" +
     '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >' +
     '<span style="color: rgba(94, 114, 228)" id="criterionNote' +

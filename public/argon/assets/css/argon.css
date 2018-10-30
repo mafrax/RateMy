@@ -2435,6 +2435,7 @@ pre code
     background-clip: padding-box;
     box-shadow: none;
 }
+
 @media screen and (prefers-reduced-motion: reduce)
 {
     .form-control
@@ -7292,6 +7293,27 @@ button.close
 
     width: 50px;
     height: 50px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: rgb(161, 197, 252); 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: rgb(105, 124, 230); 
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(84, 106, 230); 
 }
 
 @media (min-width: 576px)
@@ -17050,14 +17072,31 @@ textarea[resize='horizontal']
 
     text-transform: uppercase;
 
-    color: #5e72e4;
+    color: #ffffff;
     border-radius: 30px; 
-    background: rgba(94, 114, 228, .1);
+    background: #5e72e4;
+}
+
+.progress-label2 span
+{
+    font-size: .625rem;
+    font-weight: 600;
+
+    display: inline-block;
+
+    padding: .25rem 1rem;
+
+    text-transform: uppercase;
+
+    /* color: rgba(248, 9, 176, 0.575); */
+    border-radius: 30px; 
+    background: rgb(255, 255, 255) ;
 }
 
 .progress-percentage
 {
     text-align: right;
+    margin-left: 5px;
 }
 .progress-percentage span
 {
