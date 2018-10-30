@@ -59,7 +59,7 @@ $("#monselect").change(function() {
   var foundtaginCell = [];
   console.log(ALL_VID);
   console.log(ordercriterion);
-  if (ordercriterion == "None") {
+  if (ordercriterion == "None" || ordercriterion == "") {
     console.log("NONONONE");
     mainFrame.innerHTML = "";
     for (i = 0; i < ALL_VID.length; i++) {
