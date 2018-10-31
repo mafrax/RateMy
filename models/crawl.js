@@ -180,73 +180,45 @@ Crawler.crawl = function (url, cb) {
 Crawler.addModalDiv = function (url, originalUrl) {
     console.log(originalUrl);
     var html2 = '<div class="col-12 flex-wrap" id="cell0x0" >' +
-        '<!-- <div class="pl-4" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);"> -->' +
-        '<div class="row col-12 embed-responsive embed-responsive-16by9">' +
+        '<div class="embed-responsive embed-responsive-16by9">' +
         '<iframe class="embed-responsive-item" src="' + url + '" frameborder="0" allow="autoplay; encrypted-media"' +
         'allowfullscreen id="modalEmbedVideoId">' +
         '</iframe>' +
         '<input type="hidden" id="hiddenURl" value="' + originalUrl + '">' +
-        '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;" onclick="expandIframe(0,0)">EX</button>' +
         '</div>' +
 
-        '<div class="row col-12 flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; padding: 3px; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
-        '<div class="row col-12 flex-wrap">' +
+        '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
 
-        // '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo" aria-controls="nav-inner-primary"' +
-        // 'aria-expanded="false" aria-label="Toggle navigation" style="margin-left: 20px;">' +
-        // '<span class="navbar-toggler-icon">V</span>' +
-        // '</button>' +
-        // '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;">' +
-
-
-        '<button class="col-2 btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#demo0' +
+        '<div class="input-group">'+
+        '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar0' +
+        '"'+
+        'onkeyUp="filterCriterion(event,' +
+        '0' +
+        ' )"'+
+        '>' +
+        '<span class="input-group-btn">' +
+        '<button type="submit" class="btn btn-block btn-primary "' +
+        'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
+        'If not then you can add it to the list"'+
+        'id="filterAddCriterion_' +
+        '0' +
+        '" onclick=addVideoSearchCriterion(0)>' +
+        "ADD" +
+        "</button>" +
+        "</span>" +
+        '<span class="input-group-btn">' +
+        '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
+        '0' +
         '" aria-controls="nav-inner-primary"' +
         'aria-expanded="false" aria-label="Toggle navigation" >' +
         '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
         'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
         '>' +
-        '<i class="ni ni-bold-down"></i>' +
+        '<i class="ni ni-bold-down"></i></button>' +
         "</span></span>" +
         "</button>" +
-
-        '<input class="col-6 form-control" placeholder="Search" type="text" style="width: 80%;" id="searchVideoBar0" ' +
-        'onkeyUp="filterCriterion(event,0' +
-        ' )"'+
-        '>' +  
-
-
-
-
-
-
-
-
-
-        // '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;">S</button>' +
-        
-        '<span class="input-group-btn">' +
-        '<button type="submit" class="btn btn-primary "' +
-        'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
-        'If not then you can add it to the list"'+
-        'id="filterAddCriterion_0' +
-        '" onclick=addVideoSearchCriterion(0)>' +
-        "ADD" +
-        "</button>" +
         "</span>" +
-        
-        
-        
-        
-        
-        '</div>' +
-
-        // '<div id="demo" class="collapse col-12" style="max-height: 50vh; overflow:auto">' +
-        // '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer0">' +
-
-        // '</div>' +
-
-        // '<input type="button" class="btn btn-sm btn-primary" onclick="add_criterion(0)" value="Add" >' +
-        // '</div>' +
+        "</div>" +
 
 
         '<div id="demo0' +

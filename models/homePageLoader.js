@@ -47,7 +47,12 @@ HomePageL.buildIframe = function(err, results, callback) {
           // padding: 3px;
           var html2 =
           '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
-            '<div class="embed-responsive embed-responsive-16by9">' +
+          '<div class="titleText">'+
+          '<a href="'+result2[0].v.properties.embedUrl+'" class="hrefTitle">'+
+          result2[0].v.properties.title +
+          '</a>'+
+          '</div>' +
+          '<div class="embed-responsive embed-responsive-16by9">' +
             '<iframe class="embed-responsive-item" src="' +
             result2[0].v.properties.embedUrl +
             '" frameborder="0" allow="autoplay; encrypted-media"' +
@@ -75,7 +80,7 @@ HomePageL.buildIframe = function(err, results, callback) {
             ' )"'+
             '>' +
             '<span class="input-group-btn">' +
-            '<button type="submit" class="btn btn-primary "' +
+            '<button type="submit" class="btn btn-block btn-primary "' +
             'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
             'If not then you can add it to the list"'+
             'id="filterAddCriterion_' +

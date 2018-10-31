@@ -136,7 +136,8 @@ return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, 
 
 });
 
-$("#uploadForm").submit(function() {
+
+function launchCrawl(){
   var url1 = $("#field2").val();
 
   console.log( $('#poke'));
@@ -144,12 +145,12 @@ $("#uploadForm").submit(function() {
   if(url1 === ""){
     console.log("fils depute :" + url1);   
   } else {
-    $('#poke').modal('toggle');
+    // $('#poke').modal('toggle');
     socket.emit("messageUploadfromClient", url1);
   }
 
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
-});
+}
 
 $('#uploadTooltip').mouseleave(function(){
   console.log("focusout");

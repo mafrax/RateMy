@@ -64,14 +64,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     numberOfVotes = votes;
   }
 
-  if (newOrFound === true) {
-    console.log("true");
-    var array = max_div.querySelectorAll('*[id^="save_button"]');
-    console.log(level);
-    array.forEach(function(element) {
-      element.style.display = "none";
-    });
-  }
+
   console.log(criterionTitle);
   // var new_name=document.getElementById("new_name").value;
   // console.log(n_sliders);
@@ -79,71 +72,28 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   var new_numero = truc.length;
   var levelGlobal = 50 + level / 2;
   var html1 =
-    '<div class=" progress-info flex-wrap">' +
-    '<div class="progress-label">' +
-    '<span class="criterionTitle" id="criterionName' +
-    new_numero +
-    "_" +
-    videoNo +
-    '">' +
-    criterionTitle +
-    "</span>" +
-    '<input type="hidden" id="custId' +
-    new_numero +
-    '">' +
-    "</div>" +
-    '<div class="flex-wrap" style="height: 20px; width:20px;">'+
-    '<button type="button" id="edit_button' +
-    new_numero +
-    "_" +
-    videoNo +
-    '" value="Edit" class="validateCriterion" onclick="edit_row(' +
-    new_numero +
-    "," +
-    videoNo +
-    ')" style="border-radius: 100vh">E</button>' +
-    "</div>" +
-    '<div class="flex-wrap" style="height: 20px; width:20px;">'+
-    '<button type="button" id="save_button' +
-    new_numero +
-    "_" +
-    videoNo +
-    '" value="Save" class="validateCriterion" onclick="save_row(' +
-    new_numero +
-    "," +
-    videoNo +
-    ')" style="border-radius: 100vh">S</button>' +
-    "</div>" +
-    '<div class="progress-percentage flex-wrap" >' +
-    '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote' +
-    new_numero +
-    "_" +
-    videoNo +
-    '">' +
-    level +
-    "</span>" +
-    "</div>" +
-    '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >' +
-    '<span style="color: rgba(94, 114, 228)" id="criterionNote' +
-    new_numero +
-    "_" +
-    videoNo +
-    '">0.00</span>' +
-    "</div>" +
-    '<div class="flex-wrap" '+
-    'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"'+
-    'style="height: 20px; width:20px;" >'+
-    '<button type="submit" class="validateCriterion"'+ 
-    'id="validateCriterionButton'+videoNo +"_" +new_numero +'" onclick="validateSearchButton('+
-    ''+videoNo +"," +new_numero +')'+
-    '" style="background-color: #1fa2ff;"></button>'+
-    "</div>" +
-    "</div>" +
-    '<div class="progress flex-wrap"  >' +
-    '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: ' +
-    levelGlobal +
-    '%; background-color: rgba(248, 9, 176, 0.575);"></div>' +
-    "</div>";
+  '<div class=" progress-info flex-wrap">' +
+  '<div class="progress-label flex-wrap">' +
+  '<span class="criterionTitle" id="criterionName' +
+  videoNo +
+  "_" +
+  new_numero +
+  '">' +
+  criterionTitle +
+  "</span>" +
+  '<input type="hidden" id="custId' +
+  new_numero +
+  '">' +
+  "</div>" +
+ 
+  '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >' +
+  '<span style="color: rgba(94, 114, 228)" id="criterionNote' +
+  new_numero +
+  "_" +
+  videoNo +
+  '">0.00</span>' +
+  "</div>" +
+  "</div>";
 
   var html2 =
     '<div id="input-slider' +
@@ -210,15 +160,18 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   new_element1.setAttribute("id", "wrapper" + videoNo + "_" + new_numero + "");
   // new_element.setAttribute('style', 'position: relative;');
 
-  if (newOrFound === true) {
+  if (videoNo === 0) {
     console.log("1");
-    new_element1.innerHTML = html3;
-    max_div.insertBefore(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
-
+    new_element1.innerHTML = html1;
+    max_div.appendChild(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
   } else {
     console.log("2");
     new_element1.innerHTML = html3;
-    max_div.appendChild(new_element1);
+    if(newOrFound){
+      max_div.insertBefore(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
+    } else {
+      max_div.appendChild(new_element1);
+    }
   }
 
   var new_element2 = document.createElement("div");
@@ -228,10 +181,14 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
 
   new_element2.innerHTML = html2;
 
-  if (newOrFound === true) {
-    max_div.insertBefore(new_element2, document.getElementById("wrapper"+ videoNo + "_0"));
-  } else {
+  if (videoNo === 0) {
     max_div.appendChild(new_element2);
+  } else {
+    if(newOrFound){
+      max_div.insertBefore(new_element2, document.getElementById("wrapper"+ videoNo + "_0"));
+    } else {
+      max_div.appendChild(new_element2);
+    }
   }
  
 
@@ -414,8 +371,12 @@ function addVideoSearchCriterion(videoNo){
     console.log(button);
     if(button.style.backgroundColor === "green"){
 
-        var value = document.getElementById("searchVideoBar"+videoNo).value;
-    var criterionno = add_criterion(videoNo, true, value, 0,1);
+    var value = document.getElementById("searchVideoBar"+videoNo).value;
+      var bool = false;
+    if(videoNo === 0){
+      bool=true;
+    }
+    var criterionno = add_criterion(videoNo, bool, value, 0,1);
       
       document
     .getElementById("searchVideoBar" + videoNo).value = "";

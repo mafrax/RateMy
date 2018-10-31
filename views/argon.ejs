@@ -20,7 +20,7 @@
   <link type="text/css" href="argon/assets/css/docs.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body style="background-image:linear-gradient(to right, rgb(90,64,171), rgb(215,130,217));">
     <!-- style="background-image: linear-gradient(150deg, #281483 15%, #8f6ed5 70%, #d782d9 94%)" -->
   <header class="header-global">
     <nav id="navbar-main" class="navbar navbar-main navbar-expand-lg navbar-transparent navbar-light">
@@ -106,21 +106,21 @@
   
     
 
-    <div class="input-group">
-          <span class="badge badge-primary badge-pill text-uppercase " >
+    <!-- <div class="input-group"> -->
+          <!-- <span class="badge badge-primary badge-pill text-uppercase " >
             <span style="display: table-cell; vertical-align: middle;">Order by:</span>
-          </span>
+          </span> -->
       
-      <input list="myDatalist" class="form-control" id="monselect">
+      <input list="myDatalist" class="form-control" id="monselect" placeholder="Order by:">
       <datalist id="myDatalist">
-          <option selected>None</option> 
+          <option selected>----</option> 
           <option>date</option>
           <option>Number of votes</option>
       </datalist> 
 
 
 
-      </div>
+      <!-- </div> -->
 
 
       
@@ -134,8 +134,8 @@
             <div class="input-group">
               <input type="text" placeholder="Link" class="form-control" name="field2" id="field2" />
               <span class="input-group-btn" tabindex="-1" data-toggle="tooltip" data-placement="top" title="Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website" id="uploadTooltip">
-                <button type="submit" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-default"  id="poke" disabled>
-                  <!-- style="pointer-events: none;" -->
+                <!-- If button type = button modal works fine but data nt imported -->
+                <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-default"  id="poke" onclick="launchCrawl()" disabled>
                   UPLOAD LINK
                 </button>
               </span>
@@ -148,9 +148,9 @@
             <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="modal-defaultLabel">Modal title</h5>
+                  <h6 class="modal-title" id="modal-defaultLabel">Modal title</h6>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">x</span>
                   </button>
                 </div>
                 <div class="modal-body" id="modal-body">
@@ -176,7 +176,7 @@
                   <div class="input-group">
                     <input type="text" aria-autocomplete="list" aria-controls="ex1-listbox" id="ex1-input0" class="form-control" placeholder="Add a search criterion">
                     <span class="input-group-btn">
-                      <button type="button" id="mainSearchButton" value="Edit" class="btn btn-primary" onclick="addSearchCriterion()" aria-controls="nav-inner-primary"
+                      <button type="button" id="mainSearchButton" value="Edit" class="btn btn-block btn-primary" onclick="addSearchCriterion()" aria-controls="nav-inner-primary"
                         aria-expanded="false" aria-label="Toggle navigation" data-toggle="tooltip" data-placement="top" title="Here you can add as many search criterii as you want. Each criterion can be searched with a lower and higher value. Use this to find your perfect porn video">
                         <span class="btn-inner--icon"> 
                           <i class="ni ni-zoom-split-in"></i>
