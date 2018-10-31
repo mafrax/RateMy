@@ -41,11 +41,14 @@ var serverEvents = module.exports = function(io){
 
           crawler.crawl(message, function(url, title, tags){
               // crawler.crawl(url2, function(url){
-              var html = crawler.addModalDiv(url, message);
-              socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
+              if(url===null){
+                var html = crawler.addModalDiv(url, message);
+                socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags }); 
+              } else {
+                var html = crawler.addModalDiv(url, message);
+                socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
+              }
               });
-
-
       });
 
 

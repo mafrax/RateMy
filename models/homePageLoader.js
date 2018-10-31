@@ -25,6 +25,20 @@ HomePageL.loadHomePage = function(callback) {
   });
 };
 
+function timeConverter(UNIX_timestamp){
+  var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+  d.setUTCMilliseconds(UNIX_timestamp);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = d.getFullYear();
+  var month = months[d.getMonth()];
+  var date = d.getDate();
+  var hour = d.getHours();
+  var min = d.getMinutes();
+  var sec = d.getSeconds();
+  var time = date + ' ' + month + ' ' + year ;
+  return time;
+}
+
 HomePageL.buildIframe = function(err, results, callback) {
   var array = [];
   var i = 0;
@@ -41,17 +55,27 @@ HomePageL.buildIframe = function(err, results, callback) {
         db.cypher(quer2, function(err, result2) {
           var test = "test";
 
+          var time =  timeConverter(result2[0].v.properties.timeStamp);
+
           if (err) return callback(err);
 
           var video = {};
           // padding: 3px;
           var html2 =
-          '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
+          '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-image: linear-gradient(150deg, #ffdddd 15%, #ffffff 94%); margin-bottom:5px;">' +
+          // '<div style="white-space:nowrap;">'+
           '<div class="titleText">'+
-          '<a href="'+result2[0].v.properties.embedUrl+'" class="hrefTitle">'+
+          // '<a href="'+result2[0].v.properties.embedUrl+'" class="hrefTitle">'+
+          '<a href="#" class="hrefTitle">'+
           result2[0].v.properties.title +
           '</a>'+
           '</div>' +
+          '<div class="titleText2">'+
+          time+
+          '</div>' +
+          '<div class="titleText2" id="totalVotes'+result2[0].v._id+'">'+
+          '</div>' +
+          // '</div>'+
           '<div class="embed-responsive embed-responsive-16by9">' +
             '<iframe class="embed-responsive-item" src="' +
             result2[0].v.properties.embedUrl +

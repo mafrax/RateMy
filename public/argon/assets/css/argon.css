@@ -4075,27 +4075,51 @@ fieldset:disabled a.btn
 .titleText{
     padding: 5px;
     margin : 2px;
-    /* display: block; */
-
-
-
+    display: inline-block;
 
     height: calc(2.75rem + 2px);
     width: 65%;
     color: #fff;
+    border-radius: 3px;
     border-color: rgb(94, 114, 228);
-    background-color: #5e72e4;
+    /* background-color: #5e72e4; */
+    /* background-color: #ff3300; */
+    background-image: linear-gradient(150deg, #8a0101 15%, #d10000 94%);
     box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
     overflow: hidden;
 }
 
+.titleText2{
+    padding: 5px;
+    margin : 2px;
+    display: inline-block;
+
+    height: calc(2.75rem + 2px);
+    width: 15%;
+    color: #fff;
+    border-radius: 3px;
+    border-color: rgb(94, 114, 228);
+    /* background-color: #5e72e4; */
+    /* background-color: #961f01; */
+    background-image: linear-gradient(150deg, #8a0101 15%, #d10000 94%);
+    /* opacity: 0.6; */
+    box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
+    overflow: hidden;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+/* .badge-primary[href]:hover, */
 .hrefTitle{
     
     font-size: 0.8rem;
-    /* font-weight: 400; */
+    font-weight: 800;
     line-height: 1.5;
-    color: #fff;
+    color: rgb(233, 213, 213);
     display: flex;
+}
+
+.hrefTitle[href]:hover {
+    color: rgb(180, 174, 174);
 }
 
 .btn-block
@@ -6336,7 +6360,7 @@ input[type='button'].btn-block
     text-decoration: none;
 
     color: #fff;
-    background-color: #324cdd;
+    background-color: #d8dae9;
 }
 
 .badge-secondary

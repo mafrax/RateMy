@@ -6,7 +6,7 @@ socket.on("messageUploadfromServer", function(message) {
   $("#modal-defaultLabel").html(message.titlefield);
   console.log(message);
   console.log(message.tags);
-  for (key in message.tags) {
+  for (var key in message.tags) {
     console.log(key);
     if (message.tags.hasOwnProperty(key)) {
       add_criterion(0,false, message.tags[key],0);
@@ -40,6 +40,9 @@ socket.on("loadHomePageFromServer", function(message) {
       // console.log(message.videoWithTags[i]);
       // console.log(message.videoWithTags[i]['video']);
       // console.log(message.videoWithTags[i]["video"][0].v._id);
+
+      var totalVotes = 0;
+
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-4 flex-wrap");
       newDiv.setAttribute(
@@ -64,8 +67,19 @@ socket.on("loadHomePageFromServer", function(message) {
           message.videoWithTags[i]["video"][prop].r.properties.votes
         );
 
+        if(message.videoWithTags[i]["video"][prop].r.properties.votes != null || message.videoWithTags[i]["video"][prop].r.properties.votes != undefined){
+          console.log(message.videoWithTags[i]["video"][prop].r.properties.votes);
+          totalVotes = totalVotes + message.videoWithTags[i]["video"][prop].r.properties.votes;
+          console.log(totalVotes);
+        }
       }
-    }   
+    } 
+    
+    console.log(message.videoWithTags[i]["video"][0].v._id);
+    var totalVotesSquare = document.getElementById("totalVotes"+message.videoWithTags[i]["video"][0].v._id);
+    if(totalVotesSquare != null || totalVotesSquare!=undefined){
+      totalVotesSquare.innerHTML = "Total: "+ totalVotes +" vote(s)";
+    }
     // initializeCustomCombobox1(message.videoWithTags[i]["video"][0].v._id);
   }
   initializeButoons();
@@ -88,15 +102,7 @@ socket.on("searchResults", function(message) {
   // initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-"]');
   console.log(lists);
-//   for (var prop in lists) {
-//     if (lists.hasOwnProperty(prop)) {
-//       id = lists[prop].id.toString();
-//         console.log(id);       
-//         no = id.substring(9, id.length);  
-//         console.log(no);
 
-//     }
-// }
 });
 
 socket.on("videoSavedfromServer", function() {
