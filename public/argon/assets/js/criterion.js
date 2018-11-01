@@ -86,7 +86,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   '">' +
   "</div>" +
  
-  '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >' +
+  '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;float: right;" >' +
   '<span style="color: rgba(94, 114, 228)" id="criterionNote' +
   new_numero +
   "_" +
@@ -110,7 +110,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
 
   var html3 =
     '<div class=" progress-info flex-wrap">' +
-    '<div class="progress-label flex-wrap">' +
+    '<div class="progress-label3 flex-wrap">' +
     '<span class="criterionTitle" id="criterionName' +
     videoNo +
     "_" +
@@ -133,15 +133,18 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     "</span>" +
     "</div>" +
     "</div>" +
-    '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;" >' +
+    // style="padding-right: 4px; padding-left: 4px;" 
+    // flex-wrap
+    '<div class="progress-percentage2 " >' +
     '<span style="color: rgba(94, 114, 228)" id="criterionNote' +
     new_numero +
     "_" +
     videoNo +
     '">0.00</span>' +
     "</div>" +
-    '<div class="flex-wrap" '+
-    'style="height: 20px; width:20px;" >'+
+    // flex-wrap 
+    '<div class="validateCriterionContainer" '+
+    '>'+
     '<button type="submit" class="validateCriterion"'+ 
     'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"'+
     'id="validateCriterionButton'+videoNo +"_" +new_numero +'" onclick="validateSearchButton('+
@@ -152,7 +155,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     '<div class="progress flex-wrap"  >' +
     '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: ' +
     levelGlobal +
-    '%;background-image: linear-gradient(to top,rgb(255, 191, 250),rgba(248, 9, 176, 0.575));"></div>' +   
+    '%;background-image: linear-gradient(to top,rgb(255, 224, 237),rgb(252, 151, 218));"></div>' +   
     "</div>"    ;
 
   var new_element1 = document.createElement("div");

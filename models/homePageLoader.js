@@ -62,7 +62,8 @@ HomePageL.buildIframe = function(err, results, callback) {
           var video = {};
           // padding: 3px;
           var html2 =
-          '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-image: linear-gradient(150deg, #ffdddd 15%, #ffffff 94%); margin-bottom:5px;">' +
+          '<div class="flex-wrap videoContainer" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh;  margin-bottom:5px;">' +
+          // background-image: linear-gradient(150deg, #ffdddd 15%, #ffffff 94%);
           // '<div style="white-space:nowrap;">'+
           '<div class="titleText">'+
           // '<a href="'+result2[0].v.properties.embedUrl+'" class="hrefTitle">'+
