@@ -165,6 +165,7 @@ var serverEvents = module.exports = function(io){
 
         pageLoader.buildIframe(null, videos, function(videoWithTags) {
           if(videoWithTags == null){
+            console.log(ALL_VID);
             socket.emit('loadHomePageFromServer', {videoWithTags});    
           } else {
 
@@ -205,7 +206,7 @@ function setTagLevel(message, result, socket) {
     });
   }
   else {
-    if (result.rel.properties.votes === null) {
+    if (result.rel.properties.votes == null) {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
         console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });

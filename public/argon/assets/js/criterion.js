@@ -323,8 +323,8 @@ function filterCriterion(event, videoNo) {
             container.querySelector("#slider-container" + prop).style.display =
               "none";
           }
-  
-          if (exist.length > 0) {
+          console.log(value);
+          if (exist.length > 0 || value.length>50 || value.includes("http") || value.includes("\/") || value.includes(":") || value.includes(".") || value.includes("#")) {
             console.log(exist);
             document.getElementById(
               "filterAddCriterion_" + videoNo
@@ -340,7 +340,8 @@ function filterCriterion(event, videoNo) {
     }
 
     if (x === 13) {
-      if(value.length>50){
+      console.log(value);
+      if(value.length>50 || value.includes("http") || value.includes("\/") || value.includes(":") || value.includes(".") || value.includes("#")){
         searchBar.style.color = "red";
         alert ("This Criterion is too long");
       } else {
@@ -382,7 +383,7 @@ function addVideoSearchCriterion(videoNo){
     var container = document.getElementById("progressBarContainer" + videoNo);
     var button = document.getElementById("filterAddCriterion_"+videoNo);
     console.log(button);
-    if(button.style.backgroundColor === "green"){
+    if(button.style.backgroundImage === "linear-gradient(87deg, rgb(54, 245, 172) 0px, rgb(17, 230, 123) 100%)"){
 
     var value = document.getElementById("searchVideoBar"+videoNo).value;
       var bool = false;

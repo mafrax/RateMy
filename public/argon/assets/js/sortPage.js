@@ -26,7 +26,7 @@ function fillOrderList() {
         var new_element = document.createElement("option");
         new_element.setAttribute("id", "orderListCriterion" + props);
         new_element.innerHTML = text;
-        selectList.innerHTML = "<option selected>None</option><option>date</option><option>Number of votes</option>";
+        selectList.innerHTML = "<option selected>----</option><option>date</option><option>Number of votes</option>";
         selectList.appendChild(new_element);
       }
     }
@@ -34,7 +34,7 @@ function fillOrderList() {
 
   } else {
     console.log(FRUITS_AND_VEGGIES2);
-
+    selectList.innerHTML = "<option selected>----</option><option>date</option><option>Number of votes</option>";
     var i = 0;
     FRUITS_AND_VEGGIES2.forEach(function(element) {
       var new_element = document.createElement("option");
@@ -59,6 +59,40 @@ $("#monselect").change(function() {
   var foundtaginCell = [];
   console.log(ALL_VID);
   console.log(ordercriterion);
+
+
+  // switch (ordercriterion) {
+  //   case '----':
+  //   mainFrame.innerHTML = "";
+  //   for (i = 0; i < ALL_VID.length; i++) {
+  //       mainFrame.appendChild(ALL_VID[i]);
+  //     }
+  //     break;
+  //   case '':
+  //   mainFrame.innerHTML = "";
+  //   for (i = 0; i < ALL_VID.length; i++) {
+  //       mainFrame.appendChild(ALL_VID[i]);
+  //     }
+  //     break;
+  //   case 'date':
+  //     console.log('Mangoes and papayas are $2.79 a pound.');
+  //     // expected output: "Mangoes and papayas are $2.79 a pound."
+  //     break;
+  //   case 'Number of votes':
+  //     console.log('Mangoes and papayas are $2.79 a pound.');
+  //     // expected output: "Mangoes and papayas are $2.79 a pound."
+  //     break;
+
+  //   default:
+  //     console.log('Sorry, we are out of ' + expr + '.');
+  // }
+
+
+
+
+
+
+
   if (ordercriterion == "----" || ordercriterion == "") {
     console.log("NONONONE");
     mainFrame.innerHTML = "";
@@ -82,6 +116,7 @@ $("#monselect").change(function() {
             .innerHTML;
           console.log(tagNote);
           map["tagValue"] = tagNote;
+          
           console.log("hello there i found a tag");
           foundtaginCell.push(map);
           // cells[i].style.display = "show";
@@ -105,7 +140,12 @@ $("#monselect").change(function() {
     var mainFrame = document.getElementById("mainFrame1");
     mainFrame.innerHTML = "";
     for (i = 0; i < foundtaginCell.length; ++i) {
+      var vidNo2 = foundtaginCell[i].cell.id.substring(4, foundtaginCell[i].cell.id.length);
       mainFrame.appendChild(foundtaginCell[i].cell);
+      var inputBar = foundtaginCell[i].cell.querySelector("#searchVideoBar"+vidNo2);
+      inputBar.value = ordercriterion;
+      var event = new Event('keyup');
+      inputBar.dispatchEvent(event);
     }
   }
 

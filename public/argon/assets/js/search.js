@@ -137,7 +137,17 @@ function deleteSearchCriterion(no) {
    var remains = searchCellContainer.querySelectorAll("[id^='searchCriterion']");
    console.log(remains);
    if(remains.length===0){
-    window.location.replace("/");
+
+    var mainFrame = document.getElementById("mainFrame1");
+    mainFrame.innerHTML = "";
+    console.log(ALL_VID);
+    for (i = 0; i < ALL_VID.length; i++) {
+        mainFrame.appendChild(ALL_VID[i]);
+      }
+      $('#collapseSearchButton').click();
+      $('#collapseSearchButton').hide();
+      fillOrderList();
+    //    window.location.replace("/");
    }
 
 }

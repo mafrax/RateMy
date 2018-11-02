@@ -29,7 +29,7 @@ socket.on('validatedNoteFromServer', function (message) {
 socket.on("loadHomePageFromServer", function(message) {
   console.log(message);
   console.log(message.videoWithTags);
-
+console.log(ALL_VID);
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
   if(message.videoWithTags == null){
@@ -84,7 +84,9 @@ socket.on("loadHomePageFromServer", function(message) {
   }
   initializeButoons();
   fillOrderList();
-  initializeAllvids();
+  if(ALL_VID.length===0){
+    initializeAllvids();
+  }
   }
 });
 
@@ -112,6 +114,7 @@ socket.on("videoSavedfromServer", function() {
 
 $("#validateSearchButton").click(function() {
 
+  console.log(ALL_VID);
 var searchcriterions = $("div[id*='searchCriterion']");
 if(searchcriterions.length === 0){
   window.location.replace("/");

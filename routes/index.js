@@ -20,6 +20,10 @@ module.exports = function (app, passport) {
 	});
 
 
+	app.get('/aboutus', function (req, res) {
+		res.render('aboutus.ejs');		
+	});
+
 
 	// PROFILE SECTION =========================
 	app.get('/profile', isLoggedIn, function (req, res) {

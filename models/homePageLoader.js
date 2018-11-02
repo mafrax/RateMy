@@ -100,14 +100,14 @@ HomePageL.buildIframe = function(err, results, callback) {
             '<div class="input-group">'+
             '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar' +
             result2[0].v._id +'"'+
+            'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
+            'If not then you can add it to the list"'+
             'onkeyUp="filterCriterion(event,' +
             result2[0].v._id +
             ' )"'+
             '>' +
             '<span class="input-group-btn">' +
-            '<button type="submit" class="btn btn-block btn-primary "' +
-            'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
-            'If not then you can add it to the list"'+
+            '<button type="submit" class="btn btn-block btn-primary "' +            
             'id="filterAddCriterion_' +
             result2[0].v._id +
             '" onclick=addVideoSearchCriterion('+result2[0].v._id+')>' +
