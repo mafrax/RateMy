@@ -68,7 +68,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   console.log(criterionTitle);
   // var new_name=document.getElementById("new_name").value;
   // console.log(n_sliders);
-  var truc = max_div.querySelectorAll("div.progress-label");
+  var truc = max_div.querySelectorAll("div.progress-info");
   var new_numero = truc.length;
   var levelGlobal = 50 + level / 2;
   var html1 =
@@ -147,9 +147,9 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     '>'+
     '<button type="submit" class="validateCriterion"'+ 
     'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"'+
-    'id="validateCriterionButton'+videoNo +"_" +new_numero +'" onclick="validateSearchButton('+
+    'id="validateCriterionButton'+videoNo +"_"+new_numero +'" onclick="validateSearchButton('+
     ''+videoNo +"," +new_numero +')'+
-    '" style="background-color: #1fa2ff;"></button>'+
+    '"></button>'+
     "</div>" +
     "</div>" +
     '<div class="progress flex-wrap"  >' +
@@ -180,7 +180,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   var new_element2 = document.createElement("div");
   new_element2.setAttribute("class", "input-slider-container flex-wrap");
   new_element2.setAttribute("id", "slider-container" + new_numero);
-  // new_element.setAttribute('style', 'position: relative;');
+
 
   new_element2.innerHTML = html2;
 
@@ -352,15 +352,17 @@ function displayOtherCriterions(videoNo, criterionNo) {
   var wrappers2 = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
   console.log(criterionNo);
   wrappers2.forEach(function (element) {
-    element.style.display = "initial";
+    // console.log(element);
+    element.style.display = "show";
   });
   var sliders2 = container.querySelectorAll("*[id^=slider-container]");
   sliders2.forEach(function (element2) {
     var elementId = element2.id.substring(16, element2.id.length);
     var button2 =   document.getElementById("validateCriterionButton"+videoNo+"_"+elementId);
-    console.log(elementId);
-    if(button2.style.backgroundColor !== "green"){
-      console.log(button2.style.backgroundColor);
+    // console.log(elementId);
+    // console.log(element2);
+    if(button2.className !== "validateCriterion2"){
+      // console.log(button2.className);
       element2.style.display = "initial";
     }
   });

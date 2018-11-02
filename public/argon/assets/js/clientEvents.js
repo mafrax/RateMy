@@ -257,13 +257,12 @@ console.log(button.style.backgroundColor);
 
 var inOut;
 
-if(button.style.backgroundColor !== "green"){
-  console.log("green");
-  button.style.backgroundColor = "green";
+if(button.className !== "validateCriterion2"){
+  console.log(button.className);
+  button.setAttribute("class" , "validateCriterion2" );
   console.log(slider);
   console.log(handler);
   slider.style.display = 'none';
-  note.style.color = "green";
   inOut=1;
 console.log(name);
 socket.emit("validateNoteFromClient", {
@@ -277,10 +276,10 @@ socket.emit("validateNoteFromClient", {
   
 
 } else {
-  console.log("red");
-  button.style.backgroundColor = "#1fa2ff";
+  console.log(button.className);
+  button.setAttribute("class" , "validateCriterion" );
+  console.log(slider);
   slider.style.display = 'initial';
-  note.style.color = "rgba(94, 114, 228)";
   inOut=-1;
 
   $(button).tooltip('hide')
@@ -289,7 +288,6 @@ socket.emit("validateNoteFromClient", {
 
   socket.emit("validateNoteFromClient", {
     tagName: name.innerHTML,
-    // noteUser: globalNote.innerHTML,
     videoId : videoNo,
     tagNum : criterionno,
     direction : inOut

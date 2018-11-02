@@ -32,6 +32,8 @@ function addSearchCriterion() {
         $('#mainSearchButton').tooltip('hide')
           .attr('data-original-title', "Please enter a valid search criterion")
           .tooltip('show');
+
+          $('#collapseSearchButton').hide();
         
     } else {
 
@@ -120,6 +122,8 @@ function addSearchCriterion() {
                   })
     
                   console.log(d.getAttribute('data-range-value-low'));
+                  console.log($('#collapseSearchButton'));
+                  $('#collapseSearchButton').show();
     }
     fillOrderList();
 
@@ -130,6 +134,13 @@ function deleteSearchCriterion(no) {
    var searchCriterion = document.getElementById("searchCriterion"+no);
    var searchCellContainer = document.getElementById("searchCellContainer");
    searchCellContainer.removeChild(searchCriterion);
+   var remains = searchCellContainer.querySelectorAll("[id^='searchCriterion']");
+   console.log(remains);
+   if(remains.length===0){
+    $('#collapseSearchButton').click();
+    $('#collapseSearchButton').hide();
+   }
+
 }
 
 function orderUp() {

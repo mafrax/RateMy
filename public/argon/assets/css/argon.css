@@ -4073,7 +4073,7 @@ fieldset:disabled a.btn
 }
 
 .videoContainer{
-    background-color: rgb(233, 233, 233);
+    background-color: rgb(255, 248, 251);
     /* background-image: linear-gradient(87deg, #f5365c 0, #f56036 100%); */
 }
 
@@ -4120,7 +4120,8 @@ fieldset:disabled a.btn
     font-size: 0.8rem;
     font-weight: 800;
     line-height: 1.5;
-    color: rgb(130, 32, 221);
+    color:rgba(253, 64, 196, 0.575);
+    /* color: rgb(130, 32, 221); */
     /* font-family:  */
     /* color: rgb(94, 114, 228); */
     /* color: rgb(165, 165, 165); */
@@ -7362,12 +7363,15 @@ button.close
 
 /* Track */
 ::-webkit-scrollbar-track {
-    background: rgb(253, 180, 137); 
+    background: rgb(255, 243, 237);
+    /* rgb(255, 243, 237) */
+    /* background-image: linear-gradient(to right, #ffa2aa , #f58c36); */
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: rgb(224, 33, 74); 
+    background: rgba(187, 144, 174, 0.575); 
+    /* background-image: linear-gradient(70deg, #f5365c 0, #f56036 100%);  */
     border-radius: 5px;
 }
 
@@ -18785,10 +18789,25 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
     border-radius:50%;
     /* background-color: #1fa2ff; */
     border-color: #1fd0f0;
+    background-color: #1fa2ff;
+
 }
 
 .validateCriterion:hover{
     box-shadow: 0 0 11px rgba(33,33,33,.2);
+}
+
+.validateCriterion2{
+    /* position: inline-block; */
+    width: 100%;
+    height: 100%;
+
+    border-radius:50%;
+    /* background-color: #1fa2ff; */
+    border-color: #1fd0f0;
+    /* background-color: #ffa51f; */
+    background: linear-gradient(87deg, #f5365c 0, #f56036 100%)
+
 }
 
 .input-slider-container:hover{
