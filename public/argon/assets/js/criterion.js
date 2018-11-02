@@ -271,16 +271,24 @@ function filterCriterion(event, videoNo) {
     console.log("no value");
     var wrappers = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
     wrappers.forEach(function(element) {
-      element.style.display = "show";
+      element.style.display = "";
     });
     var sliders = container.querySelectorAll("*[id^=slider-container]");
     sliders.forEach(function(element2) {
-      element2.style.display = "show";
+      element2.style.display = "";
     });
 
     document.getElementById(
       "filterAddCriterion_" + videoNo
+    ).style.backgroundImage = "";
+
+    document.getElementById(
+      "filterAddCriterion_" + videoNo
     ).style.backgroundColor = "#5e72e4";
+
+    console.log(document.getElementById(
+      "filterAddCriterion_" + videoNo
+    ));
   } else {
     var exist = [];
 
@@ -320,12 +328,12 @@ function filterCriterion(event, videoNo) {
             console.log(exist);
             document.getElementById(
               "filterAddCriterion_" + videoNo
-            ).style.backgroundColor = "red";
+            ).style.backgroundImage = "linear-gradient(87deg, #f5365c 0, #f56036 100%)";
           } else {
             console.log(exist);
             document.getElementById(
               "filterAddCriterion_" + videoNo
-            ).style.backgroundColor = "green";
+            ).style.backgroundImage = "linear-gradient(87deg, #36f5ac 0, #11e67b 100%)";
           }
         }
       }
