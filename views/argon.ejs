@@ -135,8 +135,9 @@
 
           <form method="post" action="/upload" id="uploadForm">
             <div class="input-group">
-              <input type="text" placeholder="Link" class="form-control" name="field2" id="field2" />
-              <span class="input-group-btn" tabindex="-1" data-toggle="tooltip" data-placement="top" title="Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website" id="uploadTooltip">
+              <input type="text" placeholder="Link" class="form-control" name="field2" id="field2" data-toggle="tooltip" data-placement="top" title="Here you can upload a link to a page that contains an actual porn video (we will search for the first iframe in that page) from any website" />
+              <span class="input-group-btn"   id="uploadTooltip">
+                  <!-- tabindex="-1" -->
                 <!-- If button type = button modal works fine but data nt imported -->
                 <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-default"  id="poke" onclick="launchCrawl()" disabled>
                   UPLOAD LINK
@@ -177,10 +178,10 @@
               <div role="combobox" aria-expanded="false" aria-owns="ex1-listbox" aria-haspopup="listbox" id="ex1-combobox0">
                 <div class="form-group">
                   <div class="input-group">
-                    <input type="text" aria-autocomplete="list" aria-controls="ex1-listbox" id="ex1-input0" class="form-control" placeholder="Add a search criterion">
+                    <input type="text" aria-autocomplete="list" aria-controls="ex1-listbox" id="ex1-input0" class="form-control" placeholder="Add a search criterion" data-toggle="tooltip" data-placement="top" title="Here you can add as many search criterii as you want. Each criterion can be searched with a lower and higher value. Use this to find your perfect porn video">
                     <span class="input-group-btn">
                       <button type="button" id="mainSearchButton" value="Edit" class="btn btn-block btn-primary" onclick="addSearchCriterion()" aria-controls="nav-inner-primary"
-                        aria-expanded="false" aria-label="Toggle navigation" data-toggle="tooltip" data-placement="top" title="Here you can add as many search criterii as you want. Each criterion can be searched with a lower and higher value. Use this to find your perfect porn video">
+                        aria-expanded="false" aria-label="Toggle navigation" >
                         <span class="btn-inner--icon"> 
                           <i class="ni ni-zoom-split-in"></i>
                         </span>
@@ -192,7 +193,7 @@
               <ul aria-labelledby="ex1-label" role="listbox" id="ex1-listbox0" class="listbox hidden" style="z-index: 2000; overflow: auto; max-height: 80vh;">
               </ul>
               <button type="button" data-toggle="collapse" data-target="#searchCell" aria-controls="nav-inner-primary" aria-expanded="false" aria-label="Toggle navigation"
-                style="display: none;width: 100%; height: 20px;" class="btn btn-sm btn-primary" id="collapseSearchButton">
+                style="display: none;width: 100%; height: 20px; margin-top: 0px; margin-bottom: 2px;" class="btn btn-sm btn-primary" id="collapseSearchButton">
                 <span class="navbar-toggler-icon">
                   <span class="btn-inner--icon">
                     <i class="ni ni-bold-down"></i>

@@ -137,8 +137,7 @@ function deleteSearchCriterion(no) {
    var remains = searchCellContainer.querySelectorAll("[id^='searchCriterion']");
    console.log(remains);
    if(remains.length===0){
-    $('#collapseSearchButton').click();
-    $('#collapseSearchButton').hide();
+    window.location.replace("/");
    }
 
 }

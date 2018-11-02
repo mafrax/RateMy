@@ -271,11 +271,11 @@ function filterCriterion(event, videoNo) {
     console.log("no value");
     var wrappers = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
     wrappers.forEach(function(element) {
-      element.style.display = "initial";
+      element.style.display = "show";
     });
     var sliders = container.querySelectorAll("*[id^=slider-container]");
     sliders.forEach(function(element2) {
-      element2.style.display = "initial";
+      element2.style.display = "show";
     });
 
     document.getElementById(
@@ -288,7 +288,7 @@ function filterCriterion(event, videoNo) {
       console.log(exist);
             document.getElementById(
               "filterAddCriterion_" + videoNo
-          ).style.backgroundColor = "green";
+          ).setAttribute("class" , "validateCriterion2");
     } else {
       for (prop in videoCriterions) {
         if (videoCriterions.hasOwnProperty(prop)) {
@@ -300,9 +300,9 @@ function filterCriterion(event, videoNo) {
           if (name.startsWith(value)) {
             document.getElementById(
               "wrapper" + videoNo + "_" + prop
-            ).style.display = "initial";
+            ).style.display = "show";
             container.querySelector("#slider-container" + prop).style.display =
-              "initial";
+              "show";
             console.log("yep");
             if(name === value){
               exist.push(value);
@@ -352,8 +352,8 @@ function displayOtherCriterions(videoNo, criterionNo) {
   var wrappers2 = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
   console.log(criterionNo);
   wrappers2.forEach(function (element) {
-    // console.log(element);
-    element.style.display = "show";
+    console.log(element);
+    element.style.display = "";
   });
   var sliders2 = container.querySelectorAll("*[id^=slider-container]");
   sliders2.forEach(function (element2) {
@@ -363,7 +363,7 @@ function displayOtherCriterions(videoNo, criterionNo) {
     // console.log(element2);
     if(button2.className !== "validateCriterion2"){
       // console.log(button2.className);
-      element2.style.display = "initial";
+      element2.style.display = "";
     }
   });
 }
