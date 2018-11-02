@@ -96,9 +96,17 @@ $("#monselect").change(function() {
   if (ordercriterion == "----" || ordercriterion == "") {
     console.log("NONONONE");
     mainFrame.innerHTML = "";
+    console.log(ALL_VID);
     for (i = 0; i < ALL_VID.length; i++) {
         mainFrame.appendChild(ALL_VID[i]);
       }
+      var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
+      for (i = 0; i < inputBars.length; i++) {
+        inputBars[i].value = ordercriterion;
+        var event = new Event('keyup');
+        inputBars[i].dispatchEvent(event);
+      }
+      
 
   } else {
     for (i = 0; i < cells.length; i++) {
