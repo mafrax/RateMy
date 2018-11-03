@@ -101,11 +101,13 @@ $("#monselect").change(function() {
         mainFrame.appendChild(ALL_VID[i]);
       }
       var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
+      var collapseButtons = mainFrame.querySelectorAll('*[id^="collapseVideoButton"]');
       for (i = 0; i < inputBars.length; i++) {
         inputBars[i].value = ordercriterion;
         var event = new Event('keyup');
         inputBars[i].dispatchEvent(event);
       }
+      $('.collapse').collapse("hide");
       
 
   } else {

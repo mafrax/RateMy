@@ -118,7 +118,7 @@ HomePageL.buildIframe = function(err, results, callback) {
             '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
             result2[0].v._id +
             '" aria-controls="nav-inner-primary"' +
-            'aria-expanded="false" aria-label="Toggle navigation" >' +
+            'aria-expanded="false" aria-label="Toggle navigation" id="collapseVideoButton'+result2[0].v._id +'">' +
             '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
             'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
             '>' +
