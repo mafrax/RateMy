@@ -30,6 +30,7 @@ var serverEvents = module.exports = function(io){
         
       }
     });
+    
 
     socket.on('reloadAfterSave', function () {
      
@@ -147,8 +148,6 @@ var serverEvents = module.exports = function(io){
     socket.on('searchValidatedFromClient', function (searchTags) {
       console.log('Un client me parle ! Il me dit : ' + searchTags);
 
-
-
       video.searchByCriterionLevel(searchTags, function (err, videos) {
  
 
@@ -156,22 +155,21 @@ var serverEvents = module.exports = function(io){
         if (err)
         return next(err);
 
-        pageLoader.buildIframe(null, videos, function(videoWithTags) {
-          if(videoWithTags == null){
-            console.log(ALL_VID);
-            socket.emit('loadHomePageFromServer', {videoWithTags});    
-          } else {
 
-            if (err) return callback(err);
-            
-            videoWithTags.sort(function(a, b) {
-              a = a.video[0].v.properties.timeStamp;
-              b = b.video[0].v.properties.timeStamp;
-              return a>b ? -1 : a<b ? 1 : 0;
-            });
-            
-            socket.emit('loadHomePageFromServer', {videoWithTags});                           
+        console.log(videos);
+        var vidIds = [];
+        videos.sort(function(a, b) {
+          a = a.v.properties.timeStamp;
+          b = b.v.properties.timeStamp;
+          return a>b ? -1 : a<b ? 1 : 0;
+        });
+
+        for(var prop in videos){
+          if(videos.hasOwnProperty(prop)){
+            vidIds.push(videos[prop].v._id);
           }
+        }
+        socket.emit('loadHomePageFromServer2', vidIds);    
 
         });
 
@@ -179,17 +177,7 @@ var serverEvents = module.exports = function(io){
 
       });
 
-  });
-
-    
-  });	
-
-
- } 
-
-
-
-
+    })
 
 function setTagLevel(message, result, socket) {
   if (message.direction < 0) {
@@ -214,3 +202,4 @@ function setTagLevel(message, result, socket) {
   }
 }
 
+}

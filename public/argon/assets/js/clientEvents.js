@@ -28,9 +28,9 @@ socket.on("loadHomePageFromServer", function(message) {
         );
 
         var videoWithIframe = buildIframe(message.videos[prop]);
-        globalVar.push(videoWithIframe);
         newDiv.innerHTML = videoWithIframe["iframe"];
         mainframe.appendChild(newDiv);
+        globalVar.push(videoWithIframe);
 
         for (var prop2 in message.videos[prop].tags) {
           if (message.videos[prop].tags.hasOwnProperty(prop2)) {
@@ -77,6 +77,44 @@ socket.on("loadHomePageFromServer", function(message) {
     if (ALL_VID.length === 0) {
       initializeAllvids();
     }
+
+});
+
+socket.on("loadHomePageFromServer2", function(listofFoundIds) {
+
+
+  console.log(listofFoundIds);
+
+  var mainframe = document.getElementById("mainFrame1");
+  mainframe.innerHTML = "";
+  console.log(globalVar);
+  for(var prop in globalVar){
+    if(globalVar.hasOwnProperty(prop)){
+        if(listofFoundIds.includes(globalVar[prop].video["video"]._id)){
+          var newDiv = document.createElement("div");
+          newDiv.setAttribute("class", "col-4 flex-wrap");
+          newDiv.setAttribute(
+            "id",
+            "cell" + globalVar[prop].video["video"]._id
+          );
+          newDiv.innerHTML = globalVar[prop].iframe;
+          mainframe.appendChild(newDiv);
+
+          for (var prop2 in globalVar[prop].video.tags){
+            if(globalVar[prop].video.tags.hasOwnProperty(prop2)){
+              add_criterion(
+                globalVar[prop].video["video"]._id,
+                false,
+                globalVar[prop].video.tags[prop2].t.properties.tagName,
+                globalVar[prop].video.tags[prop2].r.properties.level,
+                globalVar[prop].video.tags[prop2].r.properties.votes
+              );
+            }
+          }
+
+        }
+    }
+  }
 
 });
 
@@ -136,6 +174,7 @@ $("#validateSearchButton").click(function() {
     });
     console.log(tagName);
     fillOrderList();
+    
     socket.emit("searchValidatedFromClient", tagName);
   }
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()

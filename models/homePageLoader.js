@@ -17,36 +17,35 @@ HomePageL.loadHomePage = function(callback) {
     console.log(results);
     if (err) return callback(err);
 
-    var localArray= {};
-    var i=0;
-    for (var prop in results) {
-      if (results.hasOwnProperty(prop)) {
-
-
-
-        if(prop>0 && results[prop].v._id !==  results[prop-1].v._id){
-
-          function filtrerParID(obj) {
-            const newLocal_1 = results[prop].v._id;
-            const newLocal = obj.v._id;
-            // Si c'est un nombre
-            if (newLocal === newLocal_1) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-          
-          var arrByID = results.filter(filtrerParID);
-          var newObject = {video:results[prop].v, tags:arrByID }
-          localArray["video_"+results[prop].v._id] = newObject;
-          
-          console.log("truc");
-        }
-          
-      }
-    }
+    var localArray = createArray(results);
       callback(localArray);
 
   });
 };
+
+function createArray(results) {
+  var localArray = {};
+  var i = 0;
+  for (var prop in results) {
+    if (results.hasOwnProperty(prop)) {
+      if (prop > 0 && results[prop].v._id !== results[prop - 1].v._id) {
+        function filtrerParID(obj) {
+          const newLocal_1 = results[prop].v._id;
+          const newLocal = obj.v._id;
+          // Si c'est un nombre
+          if (newLocal === newLocal_1) {
+            return true;
+          }
+          else {
+            return false;
+          }
+        }
+        var arrByID = results.filter(filtrerParID);
+        var newObject = { video: results[prop].v, tags: arrByID };
+        localArray["video_" + results[prop].v._id] = newObject;
+        console.log("truc");
+      }
+    }
+  }
+  return localArray;
+}
