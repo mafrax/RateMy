@@ -19,7 +19,7 @@ HomePageL.loadHomePage = function(callback) {
     if (err) return callback(err, results);
 
     var localArray = createArray(results);
-      callback(localArray);
+    callback(localArray);
 
   });
 };

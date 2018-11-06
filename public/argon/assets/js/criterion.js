@@ -7,10 +7,8 @@ http: console.log("tructruc");
 
 function initializeButoons() {
   var array = document.querySelectorAll('*[id^="cell"]');
-  console.log(array);
   array.forEach(function(element) {
     var buttons = element.querySelectorAll('*[id^="save_button"]');
-    console.log(buttons);
     buttons.forEach(function(button) {
       button.style.display = "none";
     });
@@ -18,7 +16,6 @@ function initializeButoons() {
 }
 
 var hidden = document.getElementById("custId0");
-console.log(hidden);
 
 function edit_row(no, videoNo) {
   document.getElementById("edit_button" + no + "_" + videoNo).style.display =
@@ -56,7 +53,6 @@ function save_row(no, videoNo) {
 }
 
 function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
-  console.log(videoNo);
   var max_div = document.getElementById("progressBarContainer" + videoNo);
 
   var numberOfVotes = 0;
@@ -65,7 +61,6 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   }
 
 
-  console.log(criterionTitle);
   // var new_name=document.getElementById("new_name").value;
   // console.log(n_sliders);
   var truc = max_div.querySelectorAll("div.progress-info");
@@ -164,11 +159,9 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   // new_element.setAttribute('style', 'position: relative;');
 
   if (videoNo === 0) {
-    console.log("1");
     new_element1.innerHTML = html1;
     max_div.appendChild(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
   } else {
-    console.log("2");
     new_element1.innerHTML = html3;
     if(newOrFound){
       max_div.insertBefore(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
@@ -236,19 +229,15 @@ function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
 
   slider.noUiSlider.on("update", function(a, b) {
     sliderValue.textContent = a[b];
-    console.log(sliderValue);
     sliderPercent.innerHTML = sliderValue.innerHTML;
   });
 }
 
 function filterCriterion(event, videoNo) {
   var x = event.keyCode;
-  console.log(x);
-  console.log("criterion filtering");
 
   var collapsable = document.getElementById("demo" + videoNo);
   collapsable.setAttribute("class", "col-12 collapse show");
-  console.log(collapsable);
 
   var container = document.getElementById("progressBarContainer" + videoNo);
   var videoCriterions = container.querySelectorAll(
@@ -260,7 +249,6 @@ function filterCriterion(event, videoNo) {
     return a.textContent > b.textContent ? 1 : -1;
 });
 
-  console.log(videoCriterions);
   const searchBar = document
     .getElementById("searchVideoBar" + videoNo);
   var value = searchBar
@@ -268,7 +256,6 @@ function filterCriterion(event, videoNo) {
   var criterionContainersToKeep = [];
 
   if (value === "") {
-    console.log("no value");
     var wrappers = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
     wrappers.forEach(function(element) {
       element.style.display = "";
@@ -286,9 +273,6 @@ function filterCriterion(event, videoNo) {
       "filterAddCriterion_" + videoNo
     ).style.backgroundColor = "#5e72e4";
 
-    console.log(document.getElementById(
-      "filterAddCriterion_" + videoNo
-    ));
   } else {
     var exist = [];
 
@@ -300,9 +284,6 @@ function filterCriterion(event, videoNo) {
       for (prop in videoCriterions) {
         if (videoCriterions.hasOwnProperty(prop)) {
           var name = videoCriterions[prop].innerHTML.toUpperCase();
-          console.log(name);
-          console.log(value);
-          console.log(prop);
   
           if (name.startsWith(value)) {
             document.getElementById(
@@ -310,26 +291,21 @@ function filterCriterion(event, videoNo) {
             ).style.display = "show";
             container.querySelector("#slider-container" + prop).style.display =
               "show";
-            console.log("yep");
             if(name === value){
               exist.push(value);
             }
           } else {
-            console.log("nop");
             document.getElementById(
               "wrapper" + videoNo + "_" + prop
             ).style.display = "none";
             container.querySelector("#slider-container" + prop).style.display =
               "none";
           }
-          console.log(value);
           if (exist.length > 0 || value.length>50 || value.includes("http") || value.includes("\/") || value.includes(":") || value.includes(".") || value.includes("#")) {
-            console.log(exist);
             document.getElementById(
               "filterAddCriterion_" + videoNo
             ).style.backgroundImage = "linear-gradient(87deg, #f5365c 0, #f56036 100%)";
           } else {
-            console.log(exist);
             document.getElementById(
               "filterAddCriterion_" + videoNo
             ).style.backgroundImage = "linear-gradient(87deg, #36f5ac 0, #11e67b 100%)";
@@ -339,7 +315,6 @@ function filterCriterion(event, videoNo) {
     }
 
     if (x === 13) {
-      console.log(value);
       if(value.length>50 || value.includes("http") || value.includes("\/") || value.includes(":") || value.includes(".") || value.includes("#")){
         searchBar.style.color = "red";
         alert ("This Criterion is too long");
@@ -358,9 +333,7 @@ function filterCriterion(event, videoNo) {
 function displayOtherCriterions(videoNo, criterionNo) {
   var container = document.getElementById("progressBarContainer" + videoNo);
   var wrappers2 = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
-  console.log(criterionNo);
   wrappers2.forEach(function (element) {
-    console.log(element);
     element.style.display = "";
   });
   var sliders2 = container.querySelectorAll("*[id^=slider-container]");
@@ -378,10 +351,8 @@ function displayOtherCriterions(videoNo, criterionNo) {
 
 
 function addVideoSearchCriterion(videoNo){
-  console.log(videoNo);
     var container = document.getElementById("progressBarContainer" + videoNo);
     var button = document.getElementById("filterAddCriterion_"+videoNo);
-    console.log(button);
     if(button.style.backgroundImage === "linear-gradient(87deg, rgb(54, 245, 172) 0px, rgb(17, 230, 123) 100%)"){
 
     var value = document.getElementById("searchVideoBar"+videoNo).value;

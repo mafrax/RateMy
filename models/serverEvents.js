@@ -15,7 +15,6 @@ var serverEvents = module.exports = function(io){
     
     pageLoader.loadHomePage(function(videoWithTags){    
      
-      console.log(videoWithTags);
       if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
 
         // videoWithTags.sort(function(a, b) {
@@ -59,7 +58,6 @@ var serverEvents = module.exports = function(io){
 
 
         video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(_err, result){
-          console.log(result);
 
           var newtagName = message.tagName.toUpperCase();
 
@@ -72,15 +70,14 @@ var serverEvents = module.exports = function(io){
 
               for(prop in results){
                 if(results.hasOwnProperty(prop)){
-                  console.log(results[prop].tag.properties.tagName);
+
                   if(results[prop].tag.properties.tagName.length>0){
                     var resultName = results[prop].tag.properties.tagName.toUpperCase();
-                    console.log(resultName);
-                    console.log(newtagName);
+
                     if(resultName === newtagName){
                       exists.push(message.tagName);
                         video.createRelationShipWithTag(message.videoId, message.noteUser,results[prop].tag._id, function(err, result){
-                          console.log(result);
+
                           setTagLevel(message, result, socket);
                         })
                     }
@@ -137,6 +134,7 @@ var serverEvents = module.exports = function(io){
           if (err)
           return next(err);
 
+          console.log("AFTER CREATE: "+video);
           socket.emit('videoSavedfromServer', {video, tagField: message.tags });                           
           
 

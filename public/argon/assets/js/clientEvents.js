@@ -5,19 +5,20 @@ var globalVar = [];
 
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
-  console.log(message.video);
+
   // console.log(message.videoWithTags);
 
   fillLists(message);
 
-  console.log(ALL_VID);
+
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
+
+  console.log("NEEEEEEEEEEEEW FUCKING VERSION");
 
     for (var prop in message.videos) {
       if (message.videos.hasOwnProperty(prop)) {
 
-        console.log(prop);
 
         var totalVotes = 0;
         var newDiv = document.createElement("div");
@@ -151,6 +152,7 @@ socket.on("validatedNoteFromServer", function(message) {
 
 
 socket.on("videoSavedfromServer", function() {
+  console.log("reload page");
   $("#closeModalButton").trigger("click");
   window.location.replace("/");
 });
