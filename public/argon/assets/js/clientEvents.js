@@ -1,66 +1,122 @@
 var socket = io.connect("http://localhost:3000");
 
+var globalVar = [];
+
+
+
+socket.on("searchResults", function(message) {
+  tagNames = [];
+  console.log(message);
+  for (var prop in message) {
+    if (message.hasOwnProperty(prop)) {
+      tagNames.push(message[prop].tag.properties.tagName);
+    }
+  }
+  console.log(tagNames);
+  updateVeggies(tagNames);
+  console.log(FRUITS_AND_VEGGIES2);
+  initializeCombobox1(0);
+  console.log(FRUITS_AND_VEGGIES2);
+  // initializeCombobox3(0);
+  lists = document.querySelectorAll('*[id^="ex1-"]');
+  console.log(lists);
+});
+
+
+
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
-  console.log(message);
+  console.log(message.video);
   // console.log(message.videoWithTags);
+
+
+
+  tagNames = [];
+  console.log(message.tags);
+  for (var prop in message.tags) {
+    if (message.tags.hasOwnProperty(prop)) {
+      tagNames.push(message.tags[prop].tag.properties.tagName);
+    }
+  }
+  console.log(tagNames);
+  updateVeggies(tagNames);
+  console.log(FRUITS_AND_VEGGIES2);
+  initializeCombobox1(0);
+  console.log(FRUITS_AND_VEGGIES2);
+  // initializeCombobox3(0);
+  lists = document.querySelectorAll('*[id^="ex1-"]');
+  console.log(lists);
+
+
+
   console.log(ALL_VID);
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
-  if (message === null) {
-    mainframe.innerHTML =
-      "NO VIDEO FOUND THAT COULD SATISFY YOU, we are very sorry";
-  } else {
-    var arrayLength = message.videoWithTags.length;
-    for (var i = 0; i < arrayLength; i++) {
-      var totalVotes = 0;
-      var newDiv = document.createElement("div");
-      newDiv.setAttribute("class", "col-4 flex-wrap");
-      newDiv.setAttribute(
-        "id",
-        "cell" + message.videoWithTags[i]["video"][0].v._id
-      );
 
-      newDiv.innerHTML = message.videoWithTags[i]["iframe"];
-      mainframe.appendChild(newDiv);
+    for (var prop in message.videos) {
+      if (message.videos.hasOwnProperty(prop)) {
 
-      for (var prop in message.videoWithTags[i]["video"]) {
-        if (message.videoWithTags[i]["video"].hasOwnProperty(prop)) {
-          console.log(prop);
-          add_criterion(
-            message.videoWithTags[i]["video"][prop].v._id,
-            false,
-            message.videoWithTags[i]["video"][prop].t.properties.tagName,
-            message.videoWithTags[i]["video"][prop].r.properties.level,
-            message.videoWithTags[i]["video"][prop].r.properties.votes
-          );
+        console.log(prop);
 
-          if (
-            message.videoWithTags[i]["video"][prop].r.properties.votes !=
-              null ||
-            message.videoWithTags[i]["video"][prop].r.properties.votes !=
-              undefined
-          ) {
-            totalVotes =
-              totalVotes +
-              message.videoWithTags[i]["video"][prop].r.properties.votes;
+        var totalVotes = 0;
+        var newDiv = document.createElement("div");
+        newDiv.setAttribute("class", "col-4 flex-wrap");
+        newDiv.setAttribute(
+          "id",
+          "cell" + message.videos[prop].video._id
+        );
+
+        var videoWithIframe = buildIframe(message.videos[prop]);
+        globalVar.push(videoWithIframe);
+        newDiv.innerHTML = videoWithIframe["iframe"];
+        mainframe.appendChild(newDiv);
+
+        for (var prop2 in message.videos[prop].tags) {
+          if (message.videos[prop].tags.hasOwnProperty(prop2)) {
+
+            add_criterion(
+              message.videos[prop].video._id,
+              false,
+              message.videos[prop].tags[prop2].t.properties.tagName,
+              message.videos[prop].tags[prop2].r.properties.level,
+              message.videos[prop].tags[prop2].r.properties.votes
+            );
+
+
+            if (
+              message.videos[prop].tags[prop2].r.properties.votes !=
+                null ||
+                message.videos[prop].tags[prop2].r.properties.votes !=
+                undefined
+            ) {
+              totalVotes =
+                totalVotes +
+                message.videos[prop].tags[prop2].r.properties.votes;
+            }
+
+
           }
         }
-      }
 
-      var totalVotesSquare = document.getElementById(
-        "totalVotes" + message.videoWithTags[i]["video"][0].v._id
-      );
-      if (totalVotesSquare != null || totalVotesSquare != undefined) {
-        totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
+
+        var totalVotesSquare = document.getElementById(
+          "totalVotes" + message.videos[prop].video._id
+        );
+        if (totalVotesSquare != null || totalVotesSquare != undefined) {
+          totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
+        }
+
       }
     }
+
     initializeButoons();
+    console.log(FRUITS_AND_VEGGIES2);
     fillOrderList();
+    console.log(globalVar);
     if (ALL_VID.length === 0) {
       initializeAllvids();
     }
-  }
+
 });
 
 socket.on("messageUploadfromServer", function(message) {
@@ -88,20 +144,7 @@ socket.on("validatedNoteFromServer", function(message) {
   displayOtherCriterions(message.vId, message.tagId);
 });
 
-socket.on("searchResults", function(message) {
-  tagNames = [];
-  console.log(message);
-  for (var prop in message) {
-    if (message.hasOwnProperty(prop)) {
-      tagNames.push(message[prop].tag.properties.tagName);
-    }
-  }
-  updateVeggies(tagNames);
-  initializeCombobox1(0);
-  // initializeCombobox3(0);
-  lists = document.querySelectorAll('*[id^="ex1-"]');
-  console.log(lists);
-});
+
 
 socket.on("videoSavedfromServer", function() {
   $("#closeModalButton").trigger("click");

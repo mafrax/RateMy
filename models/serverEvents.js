@@ -24,8 +24,10 @@ var serverEvents = module.exports = function(io){
         //   return a>b ? -1 : a<b ? 1 : 0;
         // });
         
+        tag.getAll(function(_err, result2){          
+          socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
+        });
         
-        socket.emit('loadHomePageFromServer', {videoWithTags});   
       }
     });
 

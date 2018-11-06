@@ -12,13 +12,12 @@ function timeConverter(UNIX_timestamp){
     return time;
   }
   
-  HomePageL.buildIframe = function(err, video) {
+function   buildIframe(video) {
 
 
   
             var time =  timeConverter(video["video"].properties.timeStamp);
-  
-            if (err) return callback(err);
+
   
             var video2 = {};
 
@@ -49,7 +48,7 @@ function timeConverter(UNIX_timestamp){
               '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-80%;" onclick="expandIframe(' +
               video["video"]._id +')" '+
               'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" '+
-              ' id="expandButton'+result2[0].v._id+'"><span class="btn-inner--icon">' +
+              ' id="expandButton'+video["video"]._id+'"><span class="btn-inner--icon">' +
               '<i class="ni ni-tv-2"></i></button>' +
               "</span></button>" +
               "</div>" +
