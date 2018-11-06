@@ -3,51 +3,12 @@ var socket = io.connect("http://localhost:3000");
 var globalVar = [];
 
 
-
-socket.on("searchResults", function(message) {
-  tagNames = [];
-  console.log(message);
-  for (var prop in message) {
-    if (message.hasOwnProperty(prop)) {
-      tagNames.push(message[prop].tag.properties.tagName);
-    }
-  }
-  console.log(tagNames);
-  updateVeggies(tagNames);
-  console.log(FRUITS_AND_VEGGIES2);
-  initializeCombobox1(0);
-  console.log(FRUITS_AND_VEGGIES2);
-  // initializeCombobox3(0);
-  lists = document.querySelectorAll('*[id^="ex1-"]');
-  console.log(lists);
-});
-
-
-
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
   console.log(message.video);
   // console.log(message.videoWithTags);
 
-
-
-  tagNames = [];
-  console.log(message.tags);
-  for (var prop in message.tags) {
-    if (message.tags.hasOwnProperty(prop)) {
-      tagNames.push(message.tags[prop].tag.properties.tagName);
-    }
-  }
-  console.log(tagNames);
-  updateVeggies(tagNames);
-  console.log(FRUITS_AND_VEGGIES2);
-  initializeCombobox1(0);
-  console.log(FRUITS_AND_VEGGIES2);
-  // initializeCombobox3(0);
-  lists = document.querySelectorAll('*[id^="ex1-"]');
-  console.log(lists);
-
-
+  fillLists(message);
 
   console.log(ALL_VID);
   var mainframe = document.getElementById("mainFrame1");
@@ -179,6 +140,25 @@ $("#validateSearchButton").click(function() {
   }
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
+
+function fillLists(message) {
+  tagNames = [];
+  console.log(message.tags);
+  for (var prop in message.tags) {
+    if (message.tags.hasOwnProperty(prop)) {
+      tagNames.push(message.tags[prop].tag.properties.tagName);
+    }
+  }
+  console.log(tagNames);
+  updateVeggies(tagNames);
+  console.log(FRUITS_AND_VEGGIES2);
+  initializeCombobox1(0);
+  console.log(FRUITS_AND_VEGGIES2);
+  // initializeCombobox3(0);
+  lists = document.querySelectorAll('*[id^="ex1-"]');
+  console.log(lists);
+
+}
 
 function launchCrawl() {
   var url1 = $("#field2").val();
