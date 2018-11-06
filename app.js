@@ -6,16 +6,16 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var flash = require('connect-flash');
-var routes = require('./routes');
+// var routes = require('./routes');
 var session = require('express-session');
 var app = express();
 
 
 /*  PASSPORT SETUP  */
 
-const passport = require('passport');
+// const passport = require('passport');
 
-require('./config/passport')(passport); // pass passport for configuration
+// require('./config/passport')(passport); // pass passport for configuration
 app.use(morgan('dev'));
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
@@ -27,8 +27,8 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }))
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 app.use(flash());
 
 
@@ -44,8 +44,8 @@ app.use(express.urlencoded({ extended: false }));
 
 console.log(__dirname);
 
-require('./routes/index.js')(app, passport);
-require('./routes/users.js')(app, passport);
+require('./routes/index.js')(app);
+// require('./routes/users.js')(app, passport);
 
 app.use(express.static(path.join(__dirname, '/public')));
 

@@ -1,5 +1,5 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:mafrax@5.39.80.142:7474');
 var bcrypt = require('bcrypt-nodejs');
 var Criterion = require('./Tag');
 
@@ -89,11 +89,14 @@ truc.push('RETURN v');
 	});
 }
 
+
 // creates the user and persists (saves) it to the db, incl. indexing it:
 Video.create = function (data, tags, callback) {
 	console.log(data);
 
-	if (tags !== null) {
+	var size = Object.keys(tags).length;
+
+	if (size>0) {
 		Video.computeQuery(data, tags, function (quer) {
 			console.log(quer);
 			var qp = quer;
@@ -102,6 +105,7 @@ Video.create = function (data, tags, callback) {
 
 			db.cypher(qp, function (err, results) {
 				if (err) return callback(err);
+				console.log("Video CREATED "+results);
 				callback(null, results);
 				console.log(results);
 			});
@@ -119,6 +123,7 @@ Video.create = function (data, tags, callback) {
 		console.log(qp);
 		db.cypher(qp, function (err, results) {
 			if (err) return callback(err);
+			console.log("Video CREATED "+results[0]['video']);
 			callback(null, results[0]['video']);
 			console.log(results);
 		});

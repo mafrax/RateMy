@@ -3,7 +3,7 @@ var crawler = require('../models/crawl');
 var pageLoader = require('../models/homePageLoader');
 var video = require('../models/Video');
 var tag = require('../models/Tag');
-var pass = require('../config/passport');
+// var pass = require('../config/passport');
 var neo4j = require("neo4j");
 var index = require("../routes/index");
 var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
@@ -17,17 +17,19 @@ var serverEvents = module.exports = function(io){
 
     console.log('Un client est connecté !');
     
-    pageLoader.loadHomePage(function(videoWithTags){    
+    pageLoader.loadHomePage(function(err, videoWithTags){    
      
+      console.log("server event error:" + err);
+if(err === null){
+  videoWithTags.sort(function(a, b) {
+    a = a.video[0].v.properties.timeStamp;
+    b = b.video[0].v.properties.timeStamp;
+    return a>b ? -1 : a<b ? 1 : 0;
+});
+  
 
-      videoWithTags.sort(function(a, b) {
-        a = a.video[0].v.properties.timeStamp;
-        b = b.video[0].v.properties.timeStamp;
-        return a>b ? -1 : a<b ? 1 : 0;
-    });
-      
-
-          socket.emit('loadHomePageFromServer', {videoWithTags});   
+      socket.emit('loadHomePageFromServer', {videoWithTags});   
+}
     });
 
     socket.on('reloadAfterSave', function () {

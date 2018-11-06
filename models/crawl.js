@@ -123,7 +123,6 @@ Crawler.crawl = function(url, cb) {
                 $(this).closest("[class*='aside']").length === 0 &&
                 $(this).closest("[class*='header']").length === 0
               ) {
-                console.log($(this).text());
                 tags.push($(this).text());
               }
             });
@@ -162,20 +161,23 @@ Crawler.crawl = function(url, cb) {
 
           uniqueTags.forEach(function(element) {
             tagsBase.getBy("tag.tagName", element, function(err, tag) {
-              if (tag.length > 0) {
-                console.log("tag already in base");
-              } else {
-                console.log(tag);
-                var newTag = {};
-                newTag.tagName = element;
-                newTag.timestamp = new Date();
-
-                tagsBase.create(newTag, function(err, tag) {
+                console.log("tag "+tag);
+                console.log("error "+err);
+                if (err!=null && tag !== "undefined") {
+                  console.log("tag already in base");
+                } else {
                   console.log(tag);
-                  console.log(err);
-                  if (err) return next(err);
-                });
-              }
+                  var newTag = {};
+                  newTag.tagName = element;
+                  newTag.timestamp = new Date();
+  
+                  tagsBase.create(newTag, function(err, tag) {
+                    console.log(tag);
+                    console.log(err);
+                    if (err) return next(err);
+                  });
+                }
+              
             });
           });
         }

@@ -1,4 +1,4 @@
-var socket = io.connect("http://localhost:3000");
+var socket = io.connect("http://5.39.80.142:3000");
 
 socket.on("messageUploadfromServer", function(message) {
   console.log(message.originalUrlField);
