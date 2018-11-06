@@ -43,7 +43,6 @@ function createArray(results) {
         var arrByID = results.filter(filtrerParID);
         var newObject = { video: results[prop].v, tags: arrByID };
         localArray["video_" + results[prop].v._id] = newObject;
-        console.log("truc");
       }
     }
   }

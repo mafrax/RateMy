@@ -116,12 +116,17 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
     }
   }
 
+  initializeButoons();
+  console.log(FRUITS_AND_VEGGIES2);
+  fillOrderList();
+
 });
 
 socket.on("messageUploadfromServer", function(message) {
   console.log(message.originalUrlField);
   $("#modal-body").html(message.htmlfield);
   $("#modal-defaultLabel").html(message.titlefield);
+  initializeButoons();
   console.log(message);
   console.log(message.tags);
   for (var key in message.tags) {
@@ -362,11 +367,3 @@ function validateSearchButton(videoNo, criterionno) {
     });
   }
 }
-
-// '<span style="color:rgba(248, 9, 176, 0.575)" id="globalNote' +
-//     new_numero +
-//     "_" +
-//     videoNo +
-//     '">' +
-//     level +
-//     "</span>
