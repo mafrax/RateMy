@@ -13,7 +13,7 @@ var serverEvents = module.exports = function(io){
 
     console.log('Un client est connecté !');
     
-    pageLoader.loadHomePage(function(err, videoWithTags){    
+    pageLoader.loadHomePage(function(videoWithTags){    
      
       console.log(videoWithTags);
       if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
