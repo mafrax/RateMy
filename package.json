@@ -17,6 +17,7 @@
     "ejs": "~2.5.7",
     "express": "~4.16.0",
     "express-session": "^1.15.6",
+    "helmet": "^3.14.0",
     "html-to-json": "^0.6.0",
     "http-errors": "~1.6.2",
     "jslint": "^0.12.0",

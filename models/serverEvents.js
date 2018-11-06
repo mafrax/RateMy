@@ -11,23 +11,22 @@ var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
 var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
 
-    tag.getAll(function(_err, result2){
-      socket.emit('searchResults', result2);
-    })
-
     console.log('Un client est connecté !');
     
     pageLoader.loadHomePage(function(videoWithTags){    
      
+      console.log(videoWithTags);
+      if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
 
-      videoWithTags.sort(function(a, b) {
-        a = a.video[0].v.properties.timeStamp;
-        b = b.video[0].v.properties.timeStamp;
-        return a>b ? -1 : a<b ? 1 : 0;
-    });
-      
-
-          socket.emit('loadHomePageFromServer', {videoWithTags});   
+        // videoWithTags.sort(function(a, b) {
+        //   a = a.video[0].v.properties.timeStamp;
+        //   b = b.video[0].v.properties.timeStamp;
+        //   return a>b ? -1 : a<b ? 1 : 0;
+        // });
+        
+        
+        socket.emit('loadHomePageFromServer', {videoWithTags});   
+      }
     });
 
     socket.on('reloadAfterSave', function () {
@@ -146,14 +145,6 @@ var serverEvents = module.exports = function(io){
     socket.on('searchValidatedFromClient', function (searchTags) {
       console.log('Un client me parle ! Il me dit : ' + searchTags);
 
-
-
-
-      // var newVideo = {};
-      // newVideo.originalUrl = message.originalUrlField;
-      // newVideo.embedUrl = message.embedUrlField;
-      // newVideo.title = message.titlefield;
-      // newVideo.timestamp = new Date();
 
 
       video.searchByCriterionLevel(searchTags, function (err, videos) {
