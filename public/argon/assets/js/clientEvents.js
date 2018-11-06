@@ -1,4 +1,4 @@
-var socket = io.connect("http://5.39.80.142:3000");
+var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 
@@ -15,11 +15,12 @@ socket.on("loadHomePageFromServer", function(message) {
   mainframe.innerHTML = "";
 
   console.log("NEEEEEEEEEEEEW FUCKING VERSION");
+console.log(message);
 
     for (var prop in message.videos) {
       if (message.videos.hasOwnProperty(prop)) {
 
-
+        console.log("inside loading 1 :  "+message.videos[prop].video._id);
         var totalVotes = 0;
         var newDiv = document.createElement("div");
         newDiv.setAttribute("class", "col-4 flex-wrap");
@@ -29,6 +30,7 @@ socket.on("loadHomePageFromServer", function(message) {
         );
 
         var videoWithIframe = buildIframe(message.videos[prop]);
+        console.log("inside loading 2 :  "+videoWithIframe);
         newDiv.innerHTML = videoWithIframe["iframe"];
         mainframe.appendChild(newDiv);
         globalVar.push(videoWithIframe);

@@ -1,5 +1,5 @@
 var neo4j = require("neo4j");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
 
 // private constructor:
 var HomePageL = (module.exports = function HomePageL(_node) {
@@ -12,10 +12,10 @@ HomePageL.loadHomePage = function(callback) {
   // quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
   quer = "MATCH p=(v:Video)-[r:RATED]->(t:Tag) Return r,t,v";
 
-  console.log(quer);
+  // console.log(quer);
   db.cypher(quer, function(err, results) {
-    console.log(results);
-    console.log(err);
+    // console.log(results);
+    // console.log(err);
     if (err) return callback(err, results);
 
     var localArray = createArray(results);
