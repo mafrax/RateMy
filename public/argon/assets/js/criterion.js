@@ -293,10 +293,9 @@ function filterCriterion(event, videoNo) {
     var exist = [];
 
     if (videoCriterions.length === 0){
-      console.log(exist);
-            document.getElementById(
-              "filterAddCriterion_" + videoNo
-          ).setAttribute("class" , "validateCriterion2");
+          document.getElementById(
+            "filterAddCriterion_" + videoNo
+          ).style.backgroundImage = "linear-gradient(87deg, rgb(54, 245, 172) 0px, rgb(17, 230, 123) 100%)";
     } else {
       for (prop in videoCriterions) {
         if (videoCriterions.hasOwnProperty(prop)) {

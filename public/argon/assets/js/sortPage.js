@@ -13,7 +13,7 @@ function fillOrderList() {
 
   var searchList = document.getElementById("searchCell");
   var searchCriterions = searchList.querySelectorAll(
-    '*[id^="spanCriterionName"]'
+    '*[id^="criterionName"]'
   );
 
   console.log(searchCriterions);

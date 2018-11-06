@@ -6,31 +6,31 @@ var tag = require('../models/Tag');
 // var pass = require('../config/passport');
 var neo4j = require("neo4j");
 var index = require("../routes/index");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
 
 var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
-
-    tag.getAll(function(_err, result2){
-      socket.emit('searchResults', result2);
-    })
 
     console.log('Un client est connecté !');
     
     pageLoader.loadHomePage(function(err, videoWithTags){    
      
-      console.log("server event error:" + err);
-if(err === null){
-  videoWithTags.sort(function(a, b) {
-    a = a.video[0].v.properties.timeStamp;
-    b = b.video[0].v.properties.timeStamp;
-    return a>b ? -1 : a<b ? 1 : 0;
-});
-  
+      console.log(videoWithTags);
+      if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
 
-      socket.emit('loadHomePageFromServer', {videoWithTags});   
-}
+        // videoWithTags.sort(function(a, b) {
+        //   a = a.video[0].v.properties.timeStamp;
+        //   b = b.video[0].v.properties.timeStamp;
+        //   return a>b ? -1 : a<b ? 1 : 0;
+        // });
+        
+        tag.getAll(function(_err, result2){          
+          socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
+        });
+        
+      }
     });
+    
 
     socket.on('reloadAfterSave', function () {
      
@@ -148,16 +148,6 @@ if(err === null){
     socket.on('searchValidatedFromClient', function (searchTags) {
       console.log('Un client me parle ! Il me dit : ' + searchTags);
 
-
-
-
-      // var newVideo = {};
-      // newVideo.originalUrl = message.originalUrlField;
-      // newVideo.embedUrl = message.embedUrlField;
-      // newVideo.title = message.titlefield;
-      // newVideo.timestamp = new Date();
-
-
       video.searchByCriterionLevel(searchTags, function (err, videos) {
  
 
@@ -165,22 +155,21 @@ if(err === null){
         if (err)
         return next(err);
 
-        pageLoader.buildIframe(null, videos, function(videoWithTags) {
-          if(videoWithTags == null){
-            console.log(ALL_VID);
-            socket.emit('loadHomePageFromServer', {videoWithTags});    
-          } else {
 
-            if (err) return callback(err);
-            
-            videoWithTags.sort(function(a, b) {
-              a = a.video[0].v.properties.timeStamp;
-              b = b.video[0].v.properties.timeStamp;
-              return a>b ? -1 : a<b ? 1 : 0;
-            });
-            
-            socket.emit('loadHomePageFromServer', {videoWithTags});                           
+        console.log(videos);
+        var vidIds = [];
+        videos.sort(function(a, b) {
+          a = a.v.properties.timeStamp;
+          b = b.v.properties.timeStamp;
+          return a>b ? -1 : a<b ? 1 : 0;
+        });
+
+        for(var prop in videos){
+          if(videos.hasOwnProperty(prop)){
+            vidIds.push(videos[prop].v._id);
           }
+        }
+        socket.emit('loadHomePageFromServer2', vidIds);    
 
         });
 
@@ -188,17 +177,7 @@ if(err === null){
 
       });
 
-  });
-
-    
-  });	
-
-
- } 
-
-
-
-
+    })
 
 function setTagLevel(message, result, socket) {
   if (message.direction < 0) {
@@ -223,3 +202,4 @@ function setTagLevel(message, result, socket) {
   }
 }
 
+}
