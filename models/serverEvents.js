@@ -122,7 +122,7 @@ var serverEvents = module.exports = function(io){
 
 
       socket.on('messageSavefromClient', function (message) {
-        console.log('Un client me parle ! Il me dit : ' + message);
+        console.log('Un client me parle ! Il me dit messageSavefromClient: ' + message);
 
         var newVideo = {};
         newVideo.originalUrl = message.originalUrlField;
