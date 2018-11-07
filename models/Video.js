@@ -150,7 +150,7 @@ Video.computeQuery = function (data, tags, callback) {
 
     Criterion.getAll( function(err, result){
         var quer ="";
-        console.log("inside compute query, criterion getAll: "+ result);
+        // console.log("inside compute query, criterion getAll: "+ result);
         for (var prop in tags) {
             if (tags.hasOwnProperty(prop)) {
                 // console.log(prop);
@@ -189,10 +189,10 @@ Video.computeQuery = function (data, tags, callback) {
                 }
             }
         
+        quer += "return video;"
         
         
-        
-            callback(quer);
+        callback(quer);
             
     })
 

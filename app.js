@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var flash = require('connect-flash');
+var helmet = require('helmet');
 // var routes = require('./routes');
 var session = require('express-session');
 var app = express();
@@ -20,12 +21,13 @@ app.use(morgan('dev'));
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(helmet());
 
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { secure: true }
 }))
 // app.use(passport.initialize());
 // app.use(passport.session());

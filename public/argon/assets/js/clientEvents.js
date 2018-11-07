@@ -268,7 +268,8 @@ $("#field2").on("input", function() {
 //   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 // });
 
-$("#modalSaveButton").click(function() {
+
+function modalSaveButtonClick(){
   var title = $("#modal-defaultLabel").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
@@ -300,7 +301,7 @@ $("#modalSaveButton").click(function() {
   });
 
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
-});
+};
 
 function validateSearchButton(videoNo, criterionno) {
   console.log(videoNo);
