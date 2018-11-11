@@ -5,4 +5,5 @@ COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
 RUN npm install --production --silent && mv node_modules ../
 COPY . .
 EXPOSE 3000
-CMD npm start
+# EXPOSE 9229
+CMD CMD ["node", "--debug=5858","./bin/www.js"]

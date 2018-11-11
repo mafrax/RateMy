@@ -6,13 +6,13 @@ var tag = require('../models/Tag');
 // var pass = require('../config/passport');
 var neo4j = require("neo4j");
 var index = require("../routes/index");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
 
 var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
 
-    // console.log('Un client est connecté !');
-    
+    console.log('Un client est connecté !');
+    console.log('Un client est connecté ! again');
     pageLoader.loadHomePage(function(videoWithTags){    
      
       if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
@@ -38,7 +38,7 @@ var serverEvents = module.exports = function(io){
       
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
-          // console.log('Un client me parle ! Il me dit : ' + message);
+          console.log('Un client me parle ! Il me dit : ' + message);
 
           crawler.crawl(message, function(url, title, tags){
               // crawler.crawl(url2, function(url){
@@ -54,7 +54,7 @@ var serverEvents = module.exports = function(io){
 
 
       socket.on('validateNoteFromClient', function (message) {
-        // console.log('Un client me parle ! Il me dit : ' + message);
+        console.log('Un client me parle ! Il me dit : ' + message);
 
 
         video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(_err, result){
@@ -91,7 +91,7 @@ var serverEvents = module.exports = function(io){
                 data["tagName"] = message.tagName;
                 tag.create(data, function(err, result){
                   video.createRelationShipWithTag(message.videoId, message.noteUser,result._id, function(err, result){
-                    // console.log(result);
+                    console.log(result);
                     setTagLevel(message, result, socket);
                   })
                 })
@@ -119,7 +119,7 @@ var serverEvents = module.exports = function(io){
 
 
       socket.on('messageSavefromClient', function (message) {
-        // console.log('Un client me parle ! Il me dit : ' + message);
+        console.log('Un client me parle ! Il me dit : ' + message);
 
         var newVideo = {};
         newVideo.originalUrl = message.originalUrlField;
@@ -145,17 +145,17 @@ var serverEvents = module.exports = function(io){
 
 
     socket.on('searchValidatedFromClient', function (searchTags) {
-      // console.log('Un client me parle ! Il me dit : ' + searchTags);
+      console.log('Un client me parle ! Il me dit : ' + searchTags);
 
       video.searchByCriterionLevel(searchTags, function (err, videos) {
  
 
-        // console.log(err);
+        console.log(err);
         if (err)
         return next(err);
 
 
-        // console.log(videos);
+        console.log(videos);
         var vidIds = [];
         videos.sort(function(a, b) {
           a = a.v.properties.timeStamp;
@@ -181,20 +181,20 @@ var serverEvents = module.exports = function(io){
 function setTagLevel(message, result, socket) {
   if (message.direction < 0) {
     video.resetRelationLevel(result.rel._id, result.rel.properties.previousLevel, result.rel.properties.votes, function (_err, result2) {
-      // console.log(result2);
+      console.log(result2);
       socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2.rel.properties.level });
     });
   }
   else {
     if (result.rel.properties.votes == null) {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
-        // console.log(result2);
+        console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
       });
     }
     else {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, result.rel.properties.votes, message.noteUser, message.previousNote, function (_err, result2) {
-        // console.log(result2);
+        console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
       });
     }

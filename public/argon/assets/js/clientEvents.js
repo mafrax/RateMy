@@ -1,4 +1,4 @@
-var socket = io.connect("http://localhost:3000");
+var socket = io.connect("http://5.39.80.142:3000");
 
 var globalVar = [];
 
@@ -6,7 +6,7 @@ var globalVar = [];
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
 
-  // console.log(message.videoWithTags);
+  console.log(message.videoWithTags);
 
   fillLists(message);
 
@@ -18,6 +18,9 @@ socket.on("loadHomePageFromServer", function(message) {
 console.log(message);
 
     for (var prop in message.videos) {
+
+      console.log("in for loop"+ message);
+
       if (message.videos.hasOwnProperty(prop)) {
 
         console.log("inside loading 1 :  "+message.videos[prop].video._id);
@@ -77,6 +80,7 @@ console.log(message);
     console.log(FRUITS_AND_VEGGIES2);
     fillOrderList();
     console.log(globalVar);
+    console.log("globalVar");
     if (ALL_VID.length === 0) {
       initializeAllvids();
     }

@@ -1,5 +1,5 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:mafrax@5.39.80.142:7474');
 var bcrypt = require('bcrypt-nodejs');
 
 // private constructor:
@@ -10,9 +10,9 @@ var Tag = module.exports = function Tag(_node) {
 }
 
 Tag.getBy = function (field, value2, callback) {
-	// console.log('entered getby');
-	// console.log(value2);
-	// console.log(field);
+	console.log('entered getby');
+	console.log(value2);
+	console.log(field);
 	var qp = {
 		query: [
 			'MATCH (tag:Tag)',
@@ -24,19 +24,19 @@ Tag.getBy = function (field, value2, callback) {
 		// 	value: value2
 		// }
 	}
-// console.log(qp);
+console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err){
 			return callback(err);	
 		} 
-		// console.log(result);	
+		console.log(result);	
 			callback(null, result);
 	});
 }
 
 // creates the user and persists (saves) it to the db, incl. indexing it:
 Tag.create = function (data, callback) {
-  // console.log(data);
+  console.log(data);
 
 	var qp = {
 		query: [
@@ -47,12 +47,12 @@ Tag.create = function (data, callback) {
 			data: data
 		}
 	}
-	// console.log('after query');
-	// console.log(qp);
+	console.log('after query');
+	console.log(qp);
 	db.cypher(qp, function (err, results) {
         if (err) return callback(err);
 		callback(null, results[0].tag);
-		// console.log(results);
+		console.log(results);
 	});
 };
 

@@ -30,7 +30,7 @@ aria.ListboxCombobox = function (
     onShow,
     onHide
   ) {
-    // console.log("hello");
+    console.log("hello");
     console.log(this);
     console.log(comboboxNode);
     console.log(listbox);
@@ -51,8 +51,8 @@ aria.ListboxCombobox = function (
   };
   
   aria.ListboxCombobox.prototype.setupEvents = function () {
-    // console.log("darkness");
-    // console.log(this);
+    console.log("darkness");
+    console.log(this);
     document.body.addEventListener('click', this.checkHide.bind(this));
     this.input.addEventListener('keyup', this.checkKey.bind(this));
     this.input.addEventListener('keydown', this.setActiveItem.bind(this));
@@ -63,7 +63,7 @@ aria.ListboxCombobox = function (
   
   aria.ListboxCombobox.prototype.checkKey = function (evt) {
     var key = evt.which || evt.keyCode;
-    // console.log("old friend");
+    console.log("old friend");
     switch (key) {
       case aria.KeyCode.UP:
       case aria.KeyCode.DOWN:
@@ -113,7 +113,7 @@ aria.ListboxCombobox = function (
           resultItem.setAttribute('aria-selected', 'true');
           // aria.Utils.addClass(resultItem, 'focused');
           console.log('hi3');
-          // console.log(resultItem);
+          console.log(resultItem);
           this.activeIndex = 0;
         }
         this.listbox.appendChild(resultItem);
@@ -264,7 +264,7 @@ aria.ListboxCombobox = function (
   };
   
   aria.ListboxCombobox.prototype.hideListbox = function () {
-    // console.log("how are you");
+    console.log("how are you");
     this.shown = false;
     this.activeIndex = -1;
     this.listbox.innerHTML = '';

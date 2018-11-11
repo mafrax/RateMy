@@ -62,7 +62,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
 
 
   // var new_name=document.getElementById("new_name").value;
-  // console.log(n_sliders);
+  console.log(n_sliders);
   var truc = max_div.querySelectorAll("div.progress-info");
   var new_numero = truc.length;
   var levelGlobal = 50 + level / 2;
@@ -340,10 +340,10 @@ function displayOtherCriterions(videoNo, criterionNo) {
   sliders2.forEach(function (element2) {
     var elementId = element2.id.substring(16, element2.id.length);
     var button2 =   document.getElementById("validateCriterionButton"+videoNo+"_"+elementId);
-    // console.log(elementId);
-    // console.log(element2);
+    console.log(elementId);
+    console.log(element2);
     if(button2.className !== "validateCriterion2"){
-      // console.log(button2.className);
+      console.log(button2.className);
       element2.style.display = "";
     }
   });
