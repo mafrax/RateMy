@@ -58,8 +58,21 @@ function createArray(results) {
       }
 
       if(prop == 0 ){
+        function filtrerParID(obj) {
+          const newLocal_1 = results[prop].v._id;
+          const newLocal = obj.v._id;
+          // Si c'est un nombre
+          if (newLocal === newLocal_1) {
+            console.log("LOCAL ARRAY1: " + "Found");
+            return true;
+          }
+          else {
+            return false;
+          }
+        }
+        var arrByID = results.filter(filtrerParID);
         console.log("LOCAL ARRAY Id: " + results[prop].v);
-        var newObject = { video: results[prop].v};
+        var newObject = { video: results[prop].v, tags: arrByID };
         console.log("LOCAL ARRAY2: " + results[prop].v);
         localArray["video_" + results[prop].v._id] = newObject;
       }
