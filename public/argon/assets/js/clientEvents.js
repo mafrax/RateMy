@@ -41,6 +41,10 @@ console.log(message);
         for (var prop2 in message.videos[prop].tags) {
           if (message.videos[prop].tags.hasOwnProperty(prop2)) {
 
+
+            console.log(message.videos[prop].video._id);
+            console.log(message.videos[prop].tags[prop2].t.properties.tagName);
+            
             add_criterion(
               message.videos[prop].video._id,
               false,

@@ -62,7 +62,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
 
 
   // var new_name=document.getElementById("new_name").value;
-  console.log(n_sliders);
+  // console.log(n_sliders);
   var truc = max_div.querySelectorAll("div.progress-info");
   var new_numero = truc.length;
   var levelGlobal = 50 + level / 2;
