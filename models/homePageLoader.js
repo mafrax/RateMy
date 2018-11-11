@@ -56,6 +56,13 @@ function createArray(results) {
         console.log("LOCAL ARRAY2: " + results[prop].v);
         localArray["video_" + results[prop].v._id] = newObject;
       }
+
+      if(prop === 0 ){
+        console.log("LOCAL ARRAY Id: " + results[prop].v);
+        var newObject = { video: results[prop].v};
+        console.log("LOCAL ARRAY2: " + results[prop].v);
+        localArray["video_" + results[prop].v._id] = newObject;
+      }
       console.log(prop);
     }
   }
