@@ -1,4 +1,4 @@
-var socket = io.connect("http://5.39.80.142:3000");
+var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 
@@ -44,7 +44,7 @@ console.log(message);
 
             console.log(message.videos[prop].video._id);
             console.log(message.videos[prop].tags[prop2].t.properties.tagName);
-            
+
             add_criterion(
               message.videos[prop].video._id,
               false,

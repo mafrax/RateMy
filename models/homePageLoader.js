@@ -1,5 +1,5 @@
 var neo4j = require("neo4j");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
 
 // private constructor:
 var HomePageL = (module.exports = function HomePageL(_node) {
