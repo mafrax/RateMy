@@ -58,6 +58,7 @@ Crawler.crawl = function(url, cb) {
 
         if (p.length > 0) {
           $("meta[content*='embed'][content*='https']").each(function() {
+            console.log($(this).attr().content);
             newHtml.push($(this).attr().content);
           });
         } else if (q) {
@@ -71,6 +72,7 @@ Crawler.crawl = function(url, cb) {
                 $(this).text().length - 1
               );
             var subsub = sub.substring(0, sub.indexOf('"'));
+            console.log(subsub)
             newHtml.push(subsub);
           });
         }
@@ -194,7 +196,7 @@ Crawler.crawl = function(url, cb) {
 Crawler.addModalDiv = function(url, originalUrl) {
   console.log(originalUrl);
 
-  if(url===null){
+  if(url==null){
       return "We are very sorry, but we couldn't find any embed video on this page. Please make sure you used the correct link or send us an email with the link and we will try our best to troubleshoot your problem";
   }
 

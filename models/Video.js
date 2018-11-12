@@ -169,22 +169,22 @@ Video.computeQuery = function (data, tags, callback) {
 				// console.log(prop.length);
 				// console.log(prop.slice(3, prop.length));
 				
-					quer += 'MATCH (tag' + no + ':Tag) WHERE tag' + no + '.tagName = "' + tags["tag" + no].tagName + '"\n'; 
+					quer += 'MERGE (tag' + no + ':Tag {tagName:"' + tags["tag" + no].tagName + '"})\n'; 
 					                
                 } else {
                     console.log("not found");
-                    quer += 'CREATE (tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"})\n';
+                    quer += 'MERGE (tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"})\n';
                 }
          
         }            
     }
-            quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
+            quer += 'MERGE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
                 
             var i = 0;
             for (var prop in tags) {
                 if (tags.hasOwnProperty(prop)) {
                     console.log(prop);
-                    quer += 'CREATE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
+                    quer += 'MERGE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
                     i++;
                 }
             }
