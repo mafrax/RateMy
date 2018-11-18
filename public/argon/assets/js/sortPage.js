@@ -16,10 +16,10 @@ function fillOrderList() {
     '*[id^="criterionName"]'
   );
 
-  console.log(searchCriterions);
+  // console.log(searchCriterions);
 
   if (searchCriterions.length > 0) {
-    console.log("lenthg >0");
+    // console.log("lenthg >0");
     for (var props in searchCriterions) {
       if (searchCriterions.hasOwnProperty(props)) {
         var text = searchCriterions[props].innerHTML;
@@ -30,10 +30,10 @@ function fillOrderList() {
         selectList.appendChild(new_element);
       }
     }
-    console.log(selectList);
+    // console.log(selectList);
 
   } else {
-    console.log(FRUITS_AND_VEGGIES2);
+    // console.log(FRUITS_AND_VEGGIES2);
     selectList.innerHTML = "<option selected>----</option><option>date</option><option>Number of votes</option>";
     var i = 0;
     FRUITS_AND_VEGGIES2.forEach(function(element) {
@@ -53,12 +53,12 @@ $("#monselect").change(function() {
   var cells = document.querySelectorAll('*[id^="cell"]');
   var hidden = document.querySelectorAll("[style='display:none']");
   var cellNotFound = [];
-  console.log(cells);
-  console.log(hidden);
-  console.log("hello there");
+  // console.log(cells);
+  // console.log(hidden);
+  // console.log("hello there");
   var foundtaginCell = [];
-  console.log(ALL_VID);
-  console.log(ordercriterion);
+  // console.log(ALL_VID);
+  // console.log(ordercriterion);
 
 
   // switch (ordercriterion) {
@@ -75,16 +75,16 @@ $("#monselect").change(function() {
   //     }
   //     break;
   //   case 'date':
-  //     console.log('Mangoes and papayas are $2.79 a pound.');
+  //     // console.log('Mangoes and papayas are $2.79 a pound.');
   //     // expected output: "Mangoes and papayas are $2.79 a pound."
   //     break;
   //   case 'Number of votes':
-  //     console.log('Mangoes and papayas are $2.79 a pound.');
+  //     // console.log('Mangoes and papayas are $2.79 a pound.');
   //     // expected output: "Mangoes and papayas are $2.79 a pound."
   //     break;
 
   //   default:
-  //     console.log('Sorry, we are out of ' + expr + '.');
+  //     // console.log('Sorry, we are out of ' + expr + '.');
   // }
 
 
@@ -94,9 +94,9 @@ $("#monselect").change(function() {
 
 
   if (ordercriterion == "----" || ordercriterion == "") {
-    console.log("NONONONE");
+    // console.log("NONONONE");
     mainFrame.innerHTML = "";
-    console.log(ALL_VID);
+    // console.log(ALL_VID);
     for (i = 0; i < ALL_VID.length; i++) {
         mainFrame.appendChild(ALL_VID[i]);
       }
@@ -114,20 +114,20 @@ $("#monselect").change(function() {
     for (i = 0; i < cells.length; i++) {
       var vidNo = cells[i].id.substring(4, cells[i].id.length);
       var cellTags = cells[i].querySelectorAll('*[id^="criterionName"]');
-      console.log(vidNo);
+      // console.log(vidNo);
       var boolFound = false;
 
       for (j = 0; j < cellTags.length; j++) {
         if (cellTags[j].innerHTML === ordercriterion) {
           var map = {};
           map["cell"] = cells[i];
-          console.log("cellNo:" + j + " vidNo:" + vidNo);
+          // console.log("cellNo:" + j + " vidNo:" + vidNo);
           var tagNote = cells[i].querySelector("#globalNote" + j + "_" + vidNo)
             .innerHTML;
-          console.log(tagNote);
+          // console.log(tagNote);
           map["tagValue"] = tagNote;
           
-          console.log("hello there i found a tag");
+          // console.log("hello there i found a tag");
           foundtaginCell.push(map);
           // cells[i].style.display = "show";
           cells[i].setAttribute("style", 'style="display:show;"');
@@ -139,7 +139,7 @@ $("#monselect").change(function() {
         }
       }
     }
-    console.log(foundtaginCell);
+    // console.log(foundtaginCell);
 
     foundtaginCell.sort(function(a, b) {
       a = parseFloat(a.tagValue);
@@ -161,5 +161,5 @@ $("#monselect").change(function() {
 
  
 
-  console.log(foundtaginCell);
+  // console.log(foundtaginCell);
 });

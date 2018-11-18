@@ -1,9 +1,9 @@
 function asynchronous(urlOrigin){
 
-    console.log(document.getElementById("field2"));
-    console.log(urlOrigin);
+    // console.log(document.getElementById("field2"));
+    // console.log(urlOrigin);
     var url = '/upload/'+urlOrigin;
-    console.log(url);
+    // console.log(url);
     var xmlHttp = new XMLHttpRequest();
     
     xmlHttp.onreadystatechange = function () {

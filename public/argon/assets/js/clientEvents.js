@@ -1,4 +1,4 @@
-var socket = io.connect("http://5.39.80.142:3000");
+var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 
@@ -6,7 +6,7 @@ var globalVar = [];
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
 
-  console.log(message.videoWithTags);
+  // console.log(message.videoWithTags);
 
   fillLists(message);
 
@@ -14,16 +14,16 @@ socket.on("loadHomePageFromServer", function(message) {
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
 
-  console.log("NEEEEEEEEEEEEW FUCKING VERSION");
-console.log(message);
+  // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
+// console.log(message);
 
     for (var prop in message.videos) {
 
-      console.log("in for loop"+ message);
+      // console.log("in for loop"+ message);
 
       if (message.videos.hasOwnProperty(prop)) {
 
-        console.log("inside loading 1 :  "+message.videos[prop].video._id);
+        // console.log("inside loading 1 :  "+message.videos[prop].video._id);
         var totalVotes = 0;
         var newDiv = document.createElement("div");
         newDiv.setAttribute("class", "col-4 flex-wrap");
@@ -33,7 +33,7 @@ console.log(message);
         );
 
         var videoWithIframe = buildIframe(message.videos[prop]);
-        console.log("inside loading 2 :  "+videoWithIframe);
+        // console.log("inside loading 2 :  "+videoWithIframe);
         newDiv.innerHTML = videoWithIframe["iframe"];
         mainframe.appendChild(newDiv);
         globalVar.push(videoWithIframe);
@@ -42,8 +42,8 @@ console.log(message);
           if (message.videos[prop].tags.hasOwnProperty(prop2)) {
 
 
-            console.log(message.videos[prop].video._id);
-            console.log(message.videos[prop].tags[prop2].t.properties.tagName);
+            // console.log(message.videos[prop].video._id);
+            // console.log(message.videos[prop].tags[prop2].t.properties.tagName);
 
             add_criterion(
               message.videos[prop].video._id,
@@ -81,10 +81,10 @@ console.log(message);
     }
 
     initializeButoons();
-    console.log(FRUITS_AND_VEGGIES2);
+    // console.log(FRUITS_AND_VEGGIES2);
     fillOrderList();
-    console.log(globalVar);
-    console.log("globalVar");
+    // console.log(globalVar);
+    // console.log("globalVar");
     if (ALL_VID.length === 0) {
       initializeAllvids();
     }
@@ -94,11 +94,11 @@ console.log(message);
 socket.on("loadHomePageFromServer2", function(listofFoundIds) {
 
 
-  console.log(listofFoundIds);
+  // console.log(listofFoundIds);
 
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
-  console.log(globalVar);
+  // console.log(globalVar);
   for(var prop in globalVar){
     if(globalVar.hasOwnProperty(prop)){
         if(listofFoundIds.includes(globalVar[prop].video["video"]._id)){
@@ -128,20 +128,20 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
   }
 
   initializeButoons();
-  console.log(FRUITS_AND_VEGGIES2);
+  // console.log(FRUITS_AND_VEGGIES2);
   fillOrderList();
 
 });
 
 socket.on("messageUploadfromServer", function(message) {
-  console.log(message.originalUrlField);
+  // console.log(message.originalUrlField);
   $("#modal-body").html(message.htmlfield);
   $("#modal-defaultLabel").html(message.titlefield);
   initializeButoons();
-  console.log(message);
-  console.log(message.tags);
+  // console.log(message);
+  // console.log(message.tags);
   for (var key in message.tags) {
-    console.log(key);
+    // console.log(key);
     if (message.tags.hasOwnProperty(key)) {
       add_criterion(0, false, message.tags[key], 0);
     }
@@ -149,12 +149,12 @@ socket.on("messageUploadfromServer", function(message) {
 });
 
 socket.on("validatedNoteFromServer", function(message) {
-  console.log("wtf");
-  console.log(message);
+  // console.log("wtf");
+  // console.log(message);
   var globalNote = document.getElementById(
     "globalNote" + message.tagId + "_" + message.vId
   );
-  console.log(globalNote);
+  // console.log(globalNote);
   globalNote.innerHTML = message.newLevel;
   displayOtherCriterions(message.vId, message.tagId);
 });
@@ -162,20 +162,20 @@ socket.on("validatedNoteFromServer", function(message) {
 
 
 socket.on("videoSavedfromServer", function() {
-  console.log("reload page");
+  // console.log("reload page");
   $("#closeModalButton").trigger("click");
   window.location.replace("/");
 });
 
 $("#validateSearchButton").click(function() {
-  console.log(ALL_VID);
+  // console.log(ALL_VID);
   var searchcriterions = $("div[id*='searchCriterion']");
   if (searchcriterions.length === 0) {
     window.location.replace("/");
   } else {
-    console.log(searchcriterions);
+    // console.log(searchcriterions);
     var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
-    console.log(criterions);
+    // console.log(criterions);
     var tagName = [];
     criterions.forEach(function(element) {
       var tag = {};
@@ -189,7 +189,7 @@ $("#validateSearchButton").click(function() {
       );
       tagName.push(tag);
     });
-    console.log(tagName);
+    // console.log(tagName);
     fillOrderList();
     
     socket.emit("searchValidatedFromClient", tagName);
@@ -199,30 +199,30 @@ $("#validateSearchButton").click(function() {
 
 function fillLists(message) {
   tagNames = [];
-  console.log(message.tags);
+  // console.log(message.tags);
   for (var prop in message.tags) {
     if (message.tags.hasOwnProperty(prop)) {
       tagNames.push(message.tags[prop].tag.properties.tagName);
     }
   }
-  console.log(tagNames);
+  // console.log(tagNames);
   updateVeggies(tagNames);
-  console.log(FRUITS_AND_VEGGIES2);
+  // console.log(FRUITS_AND_VEGGIES2);
   initializeCombobox1(0);
-  console.log(FRUITS_AND_VEGGIES2);
+  // console.log(FRUITS_AND_VEGGIES2);
   // initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-"]');
-  console.log(lists);
+  // console.log(lists);
 
 }
 
 function launchCrawl() {
   var url1 = $("#field2").val();
 
-  console.log($("#poke"));
+  // console.log($("#poke"));
 
   if (url1 === "") {
-    console.log("fils depute :" + url1);
+    // console.log("fils depute :" + url1);
   } else {
     // $('#poke').modal('toggle');
     socket.emit("messageUploadfromClient", url1);
@@ -232,7 +232,7 @@ function launchCrawl() {
 }
 
 $("#uploadTooltip").mouseleave(function() {
-  console.log("focusout");
+  // console.log("focusout");
   $(this)
     .tooltip("hide")
     .attr(
@@ -242,8 +242,8 @@ $("#uploadTooltip").mouseleave(function() {
 });
 
 $("#field2").on("input", function() {
-  console.log("YIPYIOP");
-  console.log(this.value);
+  // console.log("YIPYIOP");
+  // console.log(this.value);
 
   if (this.value.includes("https:")) {
     if (this.value.includes("katestube")) {
@@ -271,7 +271,7 @@ $("#field2").on("input", function() {
 });
 
 // $("[id^=searchVideoBar]").on("", function() {
-//   console.log(this.value);
+//   // console.log(this.value);
 //   filterCriterion(this.value)
 //   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 // });
@@ -281,25 +281,25 @@ function modalSaveButtonClick(){
   var title = $("#modal-defaultLabel").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
-  console.log(title);
-  console.log(originalUrl);
-  console.log(embedUrl);
+  // console.log(title);
+  // console.log(originalUrl);
+  // console.log(embedUrl);
 
   var criterionTitlesNumber = $("#modal-default span.criterionTitle").length;
 
   var tags = {};
 
   for (i = 0; i < criterionTitlesNumber; i++) {
-    console.log(i);
+    // console.log(i);
 
-    console.log($("#criterionName" + i + "_0"));
+    // console.log($("#criterionName" + i + "_0"));
 
     var tag = {};
     tag["tagName"] = $("#criterionName0_" + i).html();
     tag["tagValue"] = $("#criterionNote" + i + "_0").html();
     tags["tag" + i] = tag;
   }
-  console.log(tags);
+  // console.log(tags);
 
   socket.emit("messageSavefromClient", {
     titlefield: title,
@@ -312,8 +312,8 @@ function modalSaveButtonClick(){
 };
 
 function validateSearchButton(videoNo, criterionno) {
-  console.log(videoNo);
-  console.log(criterionno);
+  // console.log(videoNo);
+  // console.log(criterionno);
   var container = document.getElementById("progressBarContainer" + videoNo);
   var slider = container.querySelector("#slider-container" + criterionno);
   var name = container.querySelector(
@@ -338,18 +338,18 @@ function validateSearchButton(videoNo, criterionno) {
     )
     .tooltip("show");
 
-  console.log(button.style.backgroundColor);
+  // console.log(button.style.backgroundColor);
 
   var inOut;
 
   if (button.className !== "validateCriterion2") {
-    console.log(button.className);
+    // console.log(button.className);
     button.setAttribute("class", "validateCriterion2");
-    console.log(slider);
-    console.log(handler);
+    // console.log(slider);
+    // console.log(handler);
     slider.style.display = "none";
     inOut = 1;
-    console.log(name);
+    // console.log(name);
     socket.emit("validateNoteFromClient", {
       tagName: name.innerHTML,
       noteUser: note.innerHTML,
@@ -359,9 +359,9 @@ function validateSearchButton(videoNo, criterionno) {
       direction: inOut
     });
   } else {
-    console.log(button.className);
+    // console.log(button.className);
     button.setAttribute("class", "validateCriterion");
-    console.log(slider);
+    // console.log(slider);
     slider.style.display = "initial";
     inOut = -1;
 
