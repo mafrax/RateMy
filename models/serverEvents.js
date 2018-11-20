@@ -20,11 +20,6 @@ var serverEvents = module.exports = function(io){
      
       if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
 
-        // videoWithTags.sort(function(a, b) {
-        //   a = a.video[0].v.properties.timeStamp;
-        //   b = b.video[0].v.properties.timeStamp;
-        //   return a>b ? -1 : a<b ? 1 : 0;
-        // });
         
         tag.getAll(function(_err, result2){          
           socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   

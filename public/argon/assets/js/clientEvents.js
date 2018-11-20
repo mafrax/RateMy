@@ -16,13 +16,12 @@ socket.on("loadHomePageFromServer", function(message) {
 
   // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
 // console.log(message);
-
+i=0;
     for (var prop in message.videos) {
-
-      // console.log("in for loop"+ message);
 
       if (message.videos.hasOwnProperty(prop)) {
 
+        
         // console.log("inside loading 1 :  "+message.videos[prop].video._id);
         var totalVotes = 0;
         var newDiv = document.createElement("div");
@@ -30,13 +29,16 @@ socket.on("loadHomePageFromServer", function(message) {
         newDiv.setAttribute(
           "id",
           "cell" + message.videos[prop].video._id
-        );
-
-        var videoWithIframe = buildIframe(message.videos[prop]);
+          );
+          
+          var videoWithIframe = buildIframe(message.videos[prop]);
         // console.log("inside loading 2 :  "+videoWithIframe);
         newDiv.innerHTML = videoWithIframe["iframe"];
-        mainframe.appendChild(newDiv);
         globalVar.push(videoWithIframe);
+        
+        if(i<36){
+      
+        mainframe.appendChild(newDiv);
 
         for (var prop2 in message.videos[prop].tags) {
           if (message.videos[prop].tags.hasOwnProperty(prop2)) {
@@ -76,7 +78,9 @@ socket.on("loadHomePageFromServer", function(message) {
         if (totalVotesSquare != null || totalVotesSquare != undefined) {
           totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
         }
+        i++;
 
+      }
       }
     }
 
@@ -99,6 +103,7 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
   // console.log(globalVar);
+  i=0;
   for(var prop in globalVar){
     if(globalVar.hasOwnProperty(prop)){
         if(listofFoundIds.includes(globalVar[prop].video["video"]._id)){
@@ -109,6 +114,7 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
             "cell" + globalVar[prop].video["video"]._id
           );
           newDiv.innerHTML = globalVar[prop].iframe;
+          if(i<36){
           mainframe.appendChild(newDiv);
 
           for (var prop2 in globalVar[prop].video.tags){
@@ -124,6 +130,8 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
           }
 
         }
+        i++;
+      }
     }
   }
 
@@ -201,10 +209,19 @@ function fillLists(message) {
   tagNames = [];
   // console.log(message.tags);
   for (var prop in message.tags) {
-    if (message.tags.hasOwnProperty(prop)) {
+    if (message.tags.hasOwnProperty(prop) && !tagNames.includes(message.tags[prop].tag.properties.tagName)) {
       tagNames.push(message.tags[prop].tag.properties.tagName);
     }
   }
+
+  console.log(tagNames);
+
+  tagNames.sort(function(a, b){
+    if(a < b) { return -1; }
+    if(a > b) { return 1; }
+    return 0;
+})
+
   // console.log(tagNames);
   updateVeggies(tagNames);
   // console.log(FRUITS_AND_VEGGIES2);

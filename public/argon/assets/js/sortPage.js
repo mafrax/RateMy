@@ -3,8 +3,19 @@ ALL_VID = [];
 function initializeAllvids() {
   var cells = document.querySelectorAll('*[id^="cell"]');
 
-  for (i = 0; i < cells.length; i++) {
-    ALL_VID.push(cells[i]);
+  // for (i = 0; i < cells.length; i++) {
+  //   ALL_VID.push(cells[i]);
+  // }
+  for(var props in globalVar){
+    if(globalVar.hasOwnProperty(props)){
+console.log(globalVar[props].video.video)
+      var new_element = document.createElement("div");
+        new_element.setAttribute("class", "col-4 flex-wrap");
+        new_element.setAttribute("id", "cell" + globalVar[props].video.video._id);
+        new_element.innerHTML = globalVar[props].iframe;
+
+      ALL_VID.push(new_element)
+    }
   }
 }
 
@@ -97,7 +108,7 @@ $("#monselect").change(function() {
     // console.log("NONONONE");
     mainFrame.innerHTML = "";
     // console.log(ALL_VID);
-    for (i = 0; i < ALL_VID.length; i++) {
+    for (i = 0; i < 36; i++) {
         mainFrame.appendChild(ALL_VID[i]);
       }
       var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');

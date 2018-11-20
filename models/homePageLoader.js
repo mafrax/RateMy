@@ -10,7 +10,7 @@ var HomePageL = (module.exports = function HomePageL(_node) {
 
 HomePageL.loadHomePage = function(callback) {
   // quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
-  quer = "MATCH p=(v:Video)-[r:RATED]->(t:Tag) Return r,t,v";
+  quer = "MATCH p=(v:Video)-[r:RATED]->(t:Tag)  Return r,t,v ORDER BY v.timeStamp DESC";
 
   // console.log(quer);
   
