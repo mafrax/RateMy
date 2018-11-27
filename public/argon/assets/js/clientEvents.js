@@ -136,7 +136,6 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
   }
 
   initializeButoons();
-  // console.log(FRUITS_AND_VEGGIES2);
   fillOrderList();
 
 });

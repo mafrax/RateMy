@@ -20,7 +20,6 @@ var serverEvents = module.exports = function(io){
      
       if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
 
-        
         tag.getAll(function(_err, result2){          
           socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
         });
@@ -104,15 +103,6 @@ var serverEvents = module.exports = function(io){
           })
 
         })
-
-        // crawler.crawl(message, function(url, title, tags){
-        //     // crawler.crawl(url2, function(url){
-        //     var html = crawler.addModalDiv(url, message);
-        //     socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
-        //     });
-
-
-  
 
 
       socket.on('messageSavefromClient', function (message) {
