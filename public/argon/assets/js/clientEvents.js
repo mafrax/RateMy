@@ -37,7 +37,7 @@ i=0;
         globalVar.push(videoWithIframe);
         
         if(i<36){
-      
+        newDiv.setAttribute()
         mainframe.appendChild(newDiv);
 
         for (var prop2 in message.videos[prop].tags) {

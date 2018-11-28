@@ -72,38 +72,6 @@ $("#monselect").change(function() {
   // console.log(ordercriterion);
 
 
-  // switch (ordercriterion) {
-  //   case '----':
-  //   mainFrame.innerHTML = "";
-  //   for (i = 0; i < ALL_VID.length; i++) {
-  //       mainFrame.appendChild(ALL_VID[i]);
-  //     }
-  //     break;
-  //   case '':
-  //   mainFrame.innerHTML = "";
-  //   for (i = 0; i < ALL_VID.length; i++) {
-  //       mainFrame.appendChild(ALL_VID[i]);
-  //     }
-  //     break;
-  //   case 'date':
-  //     // console.log('Mangoes and papayas are $2.79 a pound.');
-  //     // expected output: "Mangoes and papayas are $2.79 a pound."
-  //     break;
-  //   case 'Number of votes':
-  //     // console.log('Mangoes and papayas are $2.79 a pound.');
-  //     // expected output: "Mangoes and papayas are $2.79 a pound."
-  //     break;
-
-  //   default:
-  //     // console.log('Sorry, we are out of ' + expr + '.');
-  // }
-
-
-
-
-
-
-
   if (ordercriterion == "----" || ordercriterion == "") {
     // console.log("NONONONE");
     mainFrame.innerHTML = "";
