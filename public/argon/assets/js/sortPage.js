@@ -14,7 +14,7 @@ console.log(globalVar[props].video.video)
         new_element.setAttribute("id", "cell" + globalVar[props].video.video._id);
         new_element.innerHTML = globalVar[props].iframe;
 
-      ALL_VID.push(new_element)
+      ALL_VID.push(new_element);
     }
   }
 }
@@ -58,7 +58,7 @@ function fillOrderList() {
 }
 
 $("#monselect").change(function() {
-  
+  console.log(globalObj);
     var ordercriterion = $(this).val();
   var mainFrame = document.getElementById("mainFrame1");
   var cells = document.querySelectorAll('*[id^="cell"]');
@@ -90,35 +90,78 @@ $("#monselect").change(function() {
       
 
   } else {
-    for (i = 0; i < cells.length; i++) {
-      var vidNo = cells[i].id.substring(4, cells[i].id.length);
-      var cellTags = cells[i].querySelectorAll('*[id^="criterionName"]');
-      // console.log(vidNo);
-      var boolFound = false;
+    
+    for(var props in globalObj){
+      if(globalObj.hasOwnProperty(props)){
+        var vidNo = globalObj[props].video._id;
+        var cellTags =  globalObj[props].tags;
 
-      for (j = 0; j < cellTags.length; j++) {
-        if (cellTags[j].innerHTML === ordercriterion) {
-          var map = {};
-          map["cell"] = cells[i];
-          // console.log("cellNo:" + j + " vidNo:" + vidNo);
-          var tagNote = cells[i].querySelector("#globalNote" + j + "_" + vidNo)
-            .innerHTML;
-          // console.log(tagNote);
-          map["tagValue"] = tagNote;
+        var boolFound = false;
+
+        for (j = 0; j < cellTags.length; j++) {
+          console.log(cellTags[j].t.labels[0]);
+          if (cellTags[j].t.properties.tagName === ordercriterion) {
+         
+            var map = {};
+
+
+            var newDiv = document.createElement("div");
+            newDiv.setAttribute("class", "col-4 flex-wrap");
+            newDiv.setAttribute(
+          "id",
+          "cell" + vidNo
+          );
           
-          // console.log("hello there i found a tag");
-          foundtaginCell.push(map);
-          // cells[i].style.display = "show";
-          cells[i].setAttribute("style", 'style="display:show;"');
-          boolFound = true;
+          var videoWithIframe = buildIframe(globalObj[props]);
+        // console.log("inside loading 2 :  "+videoWithIframe);
+        newDiv.innerHTML = videoWithIframe["iframe"];
+
+console.log(videoWithIframe);
+            map["cell"] = newDiv;
+
+            var tagNote = cellTags[j].r.properties.level
+
+            map["tagValue"] = tagNote;
+
+            console.log(map);
+            foundtaginCell.push(map);
+
+          }
         }
-        if (!boolFound) {
-          // cells[i].style.display = "none";
-          cells[i].setAttribute("style", 'style="display:none;"');
-        }
+
       }
     }
-    // console.log(foundtaginCell);
+
+
+    // for (i = 0; i < cells.length; i++) {
+    //   var vidNo = cells[i].id.substring(4, cells[i].id.length);
+    //   var cellTags = cells[i].querySelectorAll('*[id^="criterionName"]');
+    //   // console.log(vidNo);
+    //   var boolFound = false;
+
+    //   for (j = 0; j < cellTags.length; j++) {
+    //     if (cellTags[j].innerHTML === ordercriterion) {
+    //       var map = {};
+    //       map["cell"] = cells[i];
+    //       // console.log("cellNo:" + j + " vidNo:" + vidNo);
+    //       var tagNote = cells[i].querySelector("#globalNote" + j + "_" + vidNo)
+    //         .innerHTML;
+    //       // console.log(tagNote);
+    //       map["tagValue"] = tagNote;
+          
+    //       // console.log("hello there i found a tag");
+    //       foundtaginCell.push(map);
+    //       // cells[i].style.display = "show";
+    //       cells[i].setAttribute("style", 'style="display:show;"');
+    //       boolFound = true;
+    //     }
+    //     if (!boolFound) {
+    //       // cells[i].style.display = "none";
+    //       cells[i].setAttribute("style", 'style="display:none;"');
+    //     }
+    //   }
+    // }
+console.log(foundtaginCell);
 
     foundtaginCell.sort(function(a, b) {
       a = parseFloat(a.tagValue);
@@ -136,6 +179,20 @@ $("#monselect").change(function() {
       var event = new Event('keyup');
       inputBar.dispatchEvent(event);
     }
+
+    // var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
+    // var tagName = [];
+    
+    // var tag = {};
+    
+    // tag["name"] = ordercriterion;
+    // tag["lowerValue"] = -100;
+    // tag["higherValue"] = 100;
+    // tagName.push(tag);
+    // console.log(tagName);
+    
+    // socket.emit("searchValidatedFromClient", tagName);
+
   }
 
  

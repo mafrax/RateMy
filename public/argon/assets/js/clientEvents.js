@@ -2,6 +2,8 @@ var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 
+var globalObj = {};
+
 
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
@@ -15,7 +17,7 @@ socket.on("loadHomePageFromServer", function(message) {
   mainframe.innerHTML = "";
 
   // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
-// console.log(message);
+console.log(message);
 i=0;
     for (var prop in message.videos) {
 
@@ -33,28 +35,31 @@ i=0;
           
           var videoWithIframe = buildIframe(message.videos[prop]);
         // console.log("inside loading 2 :  "+videoWithIframe);
-        newDiv.innerHTML = videoWithIframe["iframe"];
+
+        newDiv.innerHTML = videoWithIframe["iframe"].outerHTML ;
         globalVar.push(videoWithIframe);
         
+        
         if(i<36){
-        newDiv.setAttribute()
+
         mainframe.appendChild(newDiv);
+
+var demo = document.getElementById("demo"+message.videos[prop].video._id);
+console.log(demo);
+var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
+console.log(slidercontainers);
+for (k=0; k<=slidercontainers.length; k++ ){
+  l= k+1
+  var container = demo.querySelector("#slider-container"+k);
+  var wrapper = demo.querySelector("#wrapper"+message.videos[prop].video._id+"_"+k);
+  console.log(container);
+  console.log(wrapper);
+  initializeSlider(container, wrapper, k, message.videos[prop].video._id);
+}
+
 
         for (var prop2 in message.videos[prop].tags) {
           if (message.videos[prop].tags.hasOwnProperty(prop2)) {
-
-
-            // console.log(message.videos[prop].video._id);
-            // console.log(message.videos[prop].tags[prop2].t.properties.tagName);
-
-            add_criterion(
-              message.videos[prop].video._id,
-              false,
-              message.videos[prop].tags[prop2].t.properties.tagName,
-              message.videos[prop].tags[prop2].r.properties.level,
-              message.videos[prop].tags[prop2].r.properties.votes
-            );
-
 
             if (
               message.videos[prop].tags[prop2].r.properties.votes !=
@@ -116,6 +121,8 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
           newDiv.innerHTML = globalVar[prop].iframe;
           if(i<36){
           mainframe.appendChild(newDiv);
+
+
 
           for (var prop2 in globalVar[prop].video.tags){
             if(globalVar[prop].video.tags.hasOwnProperty(prop2)){
@@ -213,7 +220,9 @@ function fillLists(message) {
     }
   }
 
-  console.log(tagNames);
+  globalObj = message.videos;
+
+  console.log(globalObj);
 
   tagNames.sort(function(a, b){
     if(a < b) { return -1; }

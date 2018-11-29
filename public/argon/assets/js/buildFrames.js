@@ -21,10 +21,11 @@ function   buildIframe(video) {
   
             var video2 = {};
 
-            var html2 =
-            '<div class="flex-wrap videoContainer" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh;  margin-bottom:5px;">' +
 
-            '<div class="titleText">'+
+            var vidCont = document.createElement("div");
+            vidCont.setAttribute("class", "flex-wrap videoContainer");
+            vidCont.setAttribute("style", "border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh;  margin-bottom:5px;");
+            vidCont.innerHTML = '<div class="titleText">'+
 
             '<a href="#" class="hrefTitle">'+
             video["video"].properties.title +
@@ -85,22 +86,39 @@ function   buildIframe(video) {
               "</span></span>" +
               "</button>" +
               "</span>" +
-              "</div>" +
-  
-              '<div id="demo' +
-              video["video"]._id +
-              '" class="collapse col-12" style="max-height: 50vh; overflow:auto; ">' +
-              '<div class="container-fluid justify-content-center" style="float: left;" id="progressBarContainer' +
-              video["video"]._id +
-              '">' +
-              "</div>" +
-              "</div>" +
-              "</div>";
-  
-            video2["iframe"] = html2;
+              "</div>" ;
+
+              var demo = document.createElement("div");
+              demo.setAttribute("class", "collapse col-12");
+              demo.setAttribute("id", "demo"+video["video"]._id);
+              demo.setAttribute("style", "max-height: 50vh; overflow:auto;"); 
+
+
+              var pbCont = document.createElement("div");
+              pbCont.setAttribute("class", "container-fluid justify-content-center");
+              pbCont.setAttribute("id", "progressBarContainer"+video["video"]._id);
+              pbCont.setAttribute("style", "float: left;");
+
+              
+
+
+            if(video["tags"].length > 0 ){
+
+              for(i=0; i < video["tags"].length; i++) {
+              
+                add_criterion_core(i,video["tags"][i].r.properties.level, video["video"]._id, video["tags"][i].t.properties.tagName, video["tags"][i].r.properties.votes, pbCont, false)
+              }
+
+            }
+            demo.appendChild(pbCont);
+            vidCont.appendChild(demo);
+
+            console.log(pbCont);
+                
+            video2["iframe"] = vidCont;
             video2["video"] = video;
 
-    return video2;
 
-    
+            return video2;
+
   };

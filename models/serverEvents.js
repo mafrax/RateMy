@@ -137,12 +137,12 @@ var serverEvents = module.exports = function(io){
       video.searchByCriterionLevel(searchTags, function (err, videos) {
  
 
-        // console.log(err);
+        console.log(err);
         if (err)
         return next(err);
 
 
-        // console.log(videos);
+        console.log(videos);
         var vidIds = [];
         videos.sort(function(a, b) {
           a = a.v.properties.timeStamp;

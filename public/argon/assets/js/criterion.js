@@ -4,7 +4,7 @@ http: // console.log("tructruc");
 // document.getElementById("myAnchor").addEventListener("click", function(event){
 //     event.preventDefault()
 // });
-
+var sliders = {};
 function initializeButoons() {
   var array = document.querySelectorAll('*[id^="cell"]');
   array.forEach(function(element) {
@@ -54,44 +54,44 @@ function save_row(no, videoNo) {
 
 function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   var max_div = document.getElementById("progressBarContainer" + videoNo);
-
+  console.log(max_div);
   var numberOfVotes = 0;
   if(votes !== null){
     numberOfVotes = votes;
   }
-
-
-  // var new_name=document.getElementById("new_name").value;
-  // // console.log(n_sliders);
   var truc = max_div.querySelectorAll("div.progress-info");
-  var new_numero = truc.length;
-  var levelGlobal = 50 + level / 2;
-  var html1 =
-  '<div class=" progress-info flex-wrap">' +
-  '<div class="progress-label flex-wrap">' +
-  '<span class="criterionTitle" id="criterionName' +
-  videoNo +
-  "_" +
-  new_numero +
-  '">' +
-  criterionTitle +
-  "</span>" +
-  '<input type="hidden" id="custId' +
-  new_numero +
-  '">' +
-  "</div>" +
- 
-  '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;float: right;" >' +
-  '<span style="color: rgba(94, 114, 228)" id="criterionNote' +
-  new_numero +
-  "_" +
-  videoNo +
-  '">0.00</span>' +
-  "</div>" +
-  "</div>";
+  var new_numero = add_criterion_core(truc.length, level, videoNo, criterionTitle, numberOfVotes, max_div, newOrFound);
 
-  var html2 =
-    '<div id="input-slider' +
+
+  return new_numero;
+
+}
+
+function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVotes, max_div, newOrFound) {
+  var new_numero = length;
+  var levelGlobal = 50 + level / 2;
+  var html1 = '<div class=" progress-info flex-wrap">' +
+    '<div class="progress-label flex-wrap">' +
+    '<span class="criterionTitle" id="criterionName' +
+    videoNo +
+    "_" +
+    new_numero +
+    '">' +
+    criterionTitle +
+    "</span>" +
+    '<input type="hidden" id="custId' +
+    new_numero +
+    '">' +
+    "</div>" +
+    '<div class="progress-percentage flex-wrap" style="padding-right: 4px; padding-left: 4px;float: right;" >' +
+    '<span style="color: rgba(94, 114, 228)" id="criterionNote' +
+    new_numero +
+    "_" +
+    videoNo +
+    '">0.00</span>' +
+    "</div>" +
+    "</div>";
+  var html2 = '<div id="input-slider' +
     new_numero +
     '" class="input-slider flex-wrap"  data-range-value-min="-100" data-range-value-max="100"></div>' +
     "<!-- Input slider values -->" +
@@ -102,9 +102,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     '" class="range-slider-value flex-wrap" data-range-value-low="0"></span>' +
     "</div>" +
     "</div>";
-
-  var html3 =
-    '<div class=" progress-info flex-wrap">' +
+  var html3 = '<div class=" progress-info flex-wrap">' +
     '<div class="progress-label3 flex-wrap">' +
     '<span class="criterionTitle" id="criterionName' +
     videoNo +
@@ -123,7 +121,7 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     new_numero +
     "_" +
     videoNo +
-    '" data-toggle="tooltip" data-placement="top" title="Average note on '+numberOfVotes+' votes in total">' +
+    '" data-toggle="tooltip" data-placement="top" title="Average note on ' + numberOfVotes + ' votes in total">' +
     level +
     "</span>" +
     "</div>" +
@@ -138,85 +136,90 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
     '">0.00</span>' +
     "</div>" +
     // flex-wrap 
-    '<div class="validateCriterionContainer" '+
-    '>'+
-    '<button type="submit" class="validateCriterion"'+ 
-    'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"'+
-    'id="validateCriterionButton'+videoNo +"_"+new_numero +'" onclick="validateSearchButton('+
-    ''+videoNo +"," +new_numero +')'+
-    '"></button>'+
+    '<div class="validateCriterionContainer" ' +
+    '>' +
+    '<button type="submit" class="validateCriterion"' +
+    'data-toggle="tooltip" data-placement="top" title="clic here to validate and save your note and criterion"' +
+    'id="validateCriterionButton' + videoNo + "_" + new_numero + '" onclick="validateSearchButton(' +
+    '' + videoNo + "," + new_numero + ')' +
+    '"></button>' +
     "</div>" +
     "</div>" +
     '<div class="progress flex-wrap"  >' +
     '<div class="progress-bar flex-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: ' +
     levelGlobal +
-    '%;background-image: linear-gradient(to top,rgb(255, 224, 237),rgb(252, 151, 218));"></div>' +   
-    "</div>"    ;
-
+    '%;background-image: linear-gradient(to top,rgb(255, 224, 237),rgb(252, 151, 218));"></div>' +
+    "</div>";
   var new_element1 = document.createElement("div");
   new_element1.setAttribute("class", "progress-wrapper flex-wrap");
   new_element1.setAttribute("id", "wrapper" + videoNo + "_" + new_numero + "");
   // new_element.setAttribute('style', 'position: relative;');
-
   if (videoNo === 0) {
     new_element1.innerHTML = html1;
-    max_div.appendChild(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
-  } else {
+    max_div.appendChild(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
+    console.log("1 " +  document.getElementById("wrapper" + videoNo + "_0"))
+  }
+  else {
     new_element1.innerHTML = html3;
-    if(newOrFound){
-      max_div.insertBefore(new_element1, document.getElementById("wrapper"+ videoNo + "_0"));
-    } else {
+    if (newOrFound) {
+      max_div.insertBefore(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
+      console.log("2 " +  document.getElementById("wrapper" + videoNo + "_0"))
+    }
+    else {
       max_div.appendChild(new_element1);
+      console.log("3 ");
     }
   }
-
   var new_element2 = document.createElement("div");
   new_element2.setAttribute("class", "input-slider-container flex-wrap");
   new_element2.setAttribute("id", "slider-container" + new_numero);
-
-
   new_element2.innerHTML = html2;
-
   if (videoNo === 0) {
     max_div.appendChild(new_element2);
-  } else {
-    if(newOrFound){
-      max_div.insertBefore(new_element2, document.getElementById("wrapper"+ videoNo + "_0"));
-    } else {
+  }
+  else {
+    if (newOrFound) {
+      max_div.insertBefore(new_element2, document.getElementById("wrapper" + videoNo + "_0"));
+    }
+    else {
       max_div.appendChild(new_element2);
     }
   }
- 
+  console.log(new_numero);
+  console.log(videoNo);
+  var newSliderContainer = new_element1.querySelector("#slider-container" + new_numero);
+  var newSliderContainer2 = new_element2.querySelector("#slider-container" + new_numero);
+  $('[data-toggle="tooltip"]').tooltip();
 
-  var newSliderContainer = new_element1.querySelector(
-    "#slider-container" + new_numero
-  );
- 
-
-    $('[data-toggle="tooltip"]').tooltip();
-   initializeSlider(new_element2, new_element1, new_numero, videoNo);
-
-  // if (newOrFound === true) {
-  //   document.getElementById(
-  //     "save_button" + new_numero + "_" + videoNo
-  //   ).style.display = "none";
-  // }
-
+  var sliderLocal = {}
+  sliderLocal["new_element2"] =new_element2;
+  sliderLocal["new_element1"] =new_element1;
+  sliderLocal["new_numero"] =new_numero;
+  sliderLocal["videoNo"] = videoNo;
+  sliders[videoNo] = sliderLocal;
+  // initializeSlider(new_element2, new_element1, new_numero, videoNo);
   return new_numero;
-
 }
 
 function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
+  console.log(sliderContainer);
+  console.log(new_element);
+  console.log(new_numero);
+  console.log(videoNo);
   var slider = sliderContainer.querySelector("#input-slider" + new_numero);
+  console.log(slider);
   var sliderPercent = new_element.querySelector(
     "#criterionNote" + new_numero + "_" + videoNo
   );
+  console.log(sliderPercent);
   var maxValue = slider.getAttribute("data-range-value-max");
   var minValue = slider.getAttribute("data-range-value-min");
   var sliderValue = sliderContainer.querySelector(
     "#input-slider-value" + new_numero
   );
+  console.log(sliderValue);
   var startValue = sliderValue.getAttribute("data-range-value-low");
+  console.log(startValue);
   noUiSlider.create(slider, {
     start: [parseInt(startValue)],
     connect: [true, false],
@@ -231,7 +234,9 @@ function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
     sliderValue.textContent = a[b];
     sliderPercent.innerHTML = sliderValue.innerHTML;
   });
+  
 }
+
 
 function filterCriterion(event, videoNo) {
   var x = event.keyCode;
