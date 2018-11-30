@@ -113,7 +113,6 @@ function   buildIframe(video) {
             demo.appendChild(pbCont);
             vidCont.appendChild(demo);
 
-            console.log(pbCont);
                 
             video2["iframe"] = vidCont;
             video2["video"] = video;

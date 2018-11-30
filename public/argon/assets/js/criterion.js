@@ -1,10 +1,3 @@
-//talkerscode.com/webtricks/add-edit-and-delete-rows-from-table-dynamically-using-javascript.php
-http: // console.log("tructruc");
-
-// document.getElementById("myAnchor").addEventListener("click", function(event){
-//     event.preventDefault()
-// });
-var sliders = {};
 function initializeButoons() {
   var array = document.querySelectorAll('*[id^="cell"]');
   array.forEach(function(element) {
@@ -157,17 +150,17 @@ function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVote
   if (videoNo === 0) {
     new_element1.innerHTML = html1;
     max_div.appendChild(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
-    console.log("1 " +  document.getElementById("wrapper" + videoNo + "_0"))
+
   }
   else {
     new_element1.innerHTML = html3;
     if (newOrFound) {
       max_div.insertBefore(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
-      console.log("2 " +  document.getElementById("wrapper" + videoNo + "_0"))
+
     }
     else {
       max_div.appendChild(new_element1);
-      console.log("3 ");
+
     }
   }
   var new_element2 = document.createElement("div");
@@ -185,41 +178,27 @@ function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVote
       max_div.appendChild(new_element2);
     }
   }
-  console.log(new_numero);
-  console.log(videoNo);
-  var newSliderContainer = new_element1.querySelector("#slider-container" + new_numero);
-  var newSliderContainer2 = new_element2.querySelector("#slider-container" + new_numero);
+
   $('[data-toggle="tooltip"]').tooltip();
 
-  var sliderLocal = {}
-  sliderLocal["new_element2"] =new_element2;
-  sliderLocal["new_element1"] =new_element1;
-  sliderLocal["new_numero"] =new_numero;
-  sliderLocal["videoNo"] = videoNo;
-  sliders[videoNo] = sliderLocal;
-  // initializeSlider(new_element2, new_element1, new_numero, videoNo);
   return new_numero;
 }
 
 function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
-  console.log(sliderContainer);
-  console.log(new_element);
-  console.log(new_numero);
-  console.log(videoNo);
   var slider = sliderContainer.querySelector("#input-slider" + new_numero);
-  console.log(slider);
+
   var sliderPercent = new_element.querySelector(
     "#criterionNote" + new_numero + "_" + videoNo
   );
-  console.log(sliderPercent);
+
   var maxValue = slider.getAttribute("data-range-value-max");
   var minValue = slider.getAttribute("data-range-value-min");
   var sliderValue = sliderContainer.querySelector(
     "#input-slider-value" + new_numero
   );
-  console.log(sliderValue);
+ 
   var startValue = sliderValue.getAttribute("data-range-value-low");
-  console.log(startValue);
+  if ( !slider.noUiSlider ) {
   noUiSlider.create(slider, {
     start: [parseInt(startValue)],
     connect: [true, false],
@@ -229,7 +208,7 @@ function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
       max: [parseInt(maxValue)]
     }
   });
-
+  }
   slider.noUiSlider.on("update", function(a, b) {
     sliderValue.textContent = a[b];
     sliderPercent.innerHTML = sliderValue.innerHTML;
@@ -240,8 +219,9 @@ function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
 
 function filterCriterion(event, videoNo) {
   var x = event.keyCode;
-
+console.log(videoNo);
   var collapsable = document.getElementById("demo" + videoNo);
+  console.log(collapsable);
   collapsable.setAttribute("class", "col-12 collapse show");
 
   var container = document.getElementById("progressBarContainer" + videoNo);

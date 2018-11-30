@@ -1,4 +1,6 @@
 ALL_VID = [];
+var currentSearch = {};
+var order = [];
 
 function initializeAllvids() {
   var cells = document.querySelectorAll('*[id^="cell"]');
@@ -27,10 +29,9 @@ function fillOrderList() {
     '*[id^="criterionName"]'
   );
 
-  // console.log(searchCriterions);
 
   if (searchCriterions.length > 0) {
-    // console.log("lenthg >0");
+
     for (var props in searchCriterions) {
       if (searchCriterions.hasOwnProperty(props)) {
         var text = searchCriterions[props].innerHTML;
@@ -41,10 +42,10 @@ function fillOrderList() {
         selectList.appendChild(new_element);
       }
     }
-    // console.log(selectList);
+
 
   } else {
-    // console.log(FRUITS_AND_VEGGIES2);
+
     selectList.innerHTML = "<option selected>----</option><option>date</option><option>Number of votes</option>";
     var i = 0;
     FRUITS_AND_VEGGIES2.forEach(function(element) {
@@ -64,21 +65,15 @@ $("#monselect").change(function() {
   var cells = document.querySelectorAll('*[id^="cell"]');
   var hidden = document.querySelectorAll("[style='display:none']");
   var cellNotFound = [];
-  // console.log(cells);
-  // console.log(hidden);
-  // console.log("hello there");
-  var foundtaginCell = [];
-  // console.log(ALL_VID);
-  // console.log(ordercriterion);
 
+  var foundtaginCell = [];
 
   if (ordercriterion == "----" || ordercriterion == "") {
-    // console.log("NONONONE");
+
     mainFrame.innerHTML = "";
-    // console.log(ALL_VID);
-    for (i = 0; i < 36; i++) {
-        mainFrame.appendChild(ALL_VID[i]);
-      }
+
+    build36Frames(mainFrame, globalCells);
+
       var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
       var collapseButtons = mainFrame.querySelectorAll('*[id^="collapseVideoButton"]');
       for (i = 0; i < inputBars.length; i++) {
@@ -88,9 +83,8 @@ $("#monselect").change(function() {
       }
       $('.collapse').collapse("hide");
       
-
   } else {
-    
+    currentSearch = {};
     for(var props in globalObj){
       if(globalObj.hasOwnProperty(props)){
         var vidNo = globalObj[props].video._id;
@@ -104,25 +98,11 @@ $("#monselect").change(function() {
          
             var map = {};
 
-
-            var newDiv = document.createElement("div");
-            newDiv.setAttribute("class", "col-4 flex-wrap");
-            newDiv.setAttribute(
-          "id",
-          "cell" + vidNo
-          );
-          
-          var videoWithIframe = buildIframe(globalObj[props]);
-        // console.log("inside loading 2 :  "+videoWithIframe);
-        newDiv.innerHTML = videoWithIframe["iframe"];
-
-console.log(videoWithIframe);
-            map["cell"] = newDiv;
-
-            var tagNote = cellTags[j].r.properties.level
-
+            map["cell"] = globalCells[globalObj[props].video._id];
+            console.log(globalCells[globalObj[props].video._id]);
+            currentSearch[globalObj[props].video._id] = globalCells[globalObj[props].video._id];
+            var tagNote = cellTags[j].r.properties.level;
             map["tagValue"] = tagNote;
-
             console.log(map);
             foundtaginCell.push(map);
 
@@ -132,35 +112,6 @@ console.log(videoWithIframe);
       }
     }
 
-
-    // for (i = 0; i < cells.length; i++) {
-    //   var vidNo = cells[i].id.substring(4, cells[i].id.length);
-    //   var cellTags = cells[i].querySelectorAll('*[id^="criterionName"]');
-    //   // console.log(vidNo);
-    //   var boolFound = false;
-
-    //   for (j = 0; j < cellTags.length; j++) {
-    //     if (cellTags[j].innerHTML === ordercriterion) {
-    //       var map = {};
-    //       map["cell"] = cells[i];
-    //       // console.log("cellNo:" + j + " vidNo:" + vidNo);
-    //       var tagNote = cells[i].querySelector("#globalNote" + j + "_" + vidNo)
-    //         .innerHTML;
-    //       // console.log(tagNote);
-    //       map["tagValue"] = tagNote;
-          
-    //       // console.log("hello there i found a tag");
-    //       foundtaginCell.push(map);
-    //       // cells[i].style.display = "show";
-    //       cells[i].setAttribute("style", 'style="display:show;"');
-    //       boolFound = true;
-    //     }
-    //     if (!boolFound) {
-    //       // cells[i].style.display = "none";
-    //       cells[i].setAttribute("style", 'style="display:none;"');
-    //     }
-    //   }
-    // }
 console.log(foundtaginCell);
 
     foundtaginCell.sort(function(a, b) {
@@ -168,34 +119,34 @@ console.log(foundtaginCell);
       b = parseFloat(b.tagValue);
       return a > b ? -1 : a < b ? 1 : 0;
     });
+
+    console.log(currentSearch);
+    order = [];
+    for(i=0; i<foundtaginCell.length; i++){
+      var vidNo2 = foundtaginCell[i].cell.id.substring(4, foundtaginCell[i].cell.id.length);
+      order.push(vidNo2);
+    }
   
     var mainFrame = document.getElementById("mainFrame1");
     mainFrame.innerHTML = "";
-    for (i = 0; i < foundtaginCell.length; ++i) {
-      var vidNo2 = foundtaginCell[i].cell.id.substring(4, foundtaginCell[i].cell.id.length);
-      mainFrame.appendChild(foundtaginCell[i].cell);
-      var inputBar = foundtaginCell[i].cell.querySelector("#searchVideoBar"+vidNo2);
+    console.log(foundtaginCell);
+    console.log(currentSearch);
+    build36Frames(mainFrame, currentSearch, order);
+
+    var demo = document.querySelectorAll('*[id^="cell"]');
+
+    for (i = 0; i < demo.length; ++i) {
+
+      var vidNo2 = demo[i].getAttribute("id").substring(4, demo[i].getAttribute("id").length);
+
+      var inputBar = demo[i].querySelector("#searchVideoBar"+vidNo2);
+
       inputBar.value = ordercriterion;
       var event = new Event('keyup');
       inputBar.dispatchEvent(event);
-    }
 
-    // var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
-    // var tagName = [];
-    
-    // var tag = {};
-    
-    // tag["name"] = ordercriterion;
-    // tag["lowerValue"] = -100;
-    // tag["higherValue"] = 100;
-    // tagName.push(tag);
-    // console.log(tagName);
-    
-    // socket.emit("searchValidatedFromClient", tagName);
+    }
 
   }
 
- 
-
-  // console.log(foundtaginCell);
 });

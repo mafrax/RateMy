@@ -4,128 +4,78 @@ var globalVar = [];
 
 var globalObj = {};
 
+var globalCells = {};
+var localTable = [];
+var tagMachin = {};
 
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
-
   // console.log(message.videoWithTags);
 
   fillLists(message);
-
 
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
 
   // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
-console.log(message);
-i=0;
-    for (var prop in message.videos) {
+  console.log(message);
 
-      if (message.videos.hasOwnProperty(prop)) {
+  for (var prop in message.videos) {
+    if (message.videos.hasOwnProperty(prop)) {
+      // console.log("inside loading 1 :  "+message.videos[prop].video._id);
 
-        
-        // console.log("inside loading 1 :  "+message.videos[prop].video._id);
-        var totalVotes = 0;
-        var newDiv = document.createElement("div");
-        newDiv.setAttribute("class", "col-4 flex-wrap");
-        newDiv.setAttribute(
-          "id",
-          "cell" + message.videos[prop].video._id
-          );
-          
-          var videoWithIframe = buildIframe(message.videos[prop]);
-        // console.log("inside loading 2 :  "+videoWithIframe);
+      console.log(prop);
+      var totalVotes = 0;
+      var newDiv = document.createElement("div");
+      newDiv.setAttribute("class", "col-4 flex-wrap");
+      newDiv.setAttribute("id", "cell" + message.videos[prop].video._id);
 
-        newDiv.innerHTML = videoWithIframe["iframe"].outerHTML ;
-        globalVar.push(videoWithIframe);
-        
-        
-        if(i<36){
+      var videoWithIframe = buildIframe(message.videos[prop]);
+      // console.log("inside loading 2 :  "+videoWithIframe);
 
-        mainframe.appendChild(newDiv);
-
-var demo = document.getElementById("demo"+message.videos[prop].video._id);
-console.log(demo);
-var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
-console.log(slidercontainers);
-for (k=0; k<=slidercontainers.length; k++ ){
-  l= k+1
-  var container = demo.querySelector("#slider-container"+k);
-  var wrapper = demo.querySelector("#wrapper"+message.videos[prop].video._id+"_"+k);
-  console.log(container);
-  console.log(wrapper);
-  initializeSlider(container, wrapper, k, message.videos[prop].video._id);
-}
-
-
-        for (var prop2 in message.videos[prop].tags) {
-          if (message.videos[prop].tags.hasOwnProperty(prop2)) {
-
-            if (
-              message.videos[prop].tags[prop2].r.properties.votes !=
-                null ||
-                message.videos[prop].tags[prop2].r.properties.votes !=
-                undefined
-            ) {
-              totalVotes =
-                totalVotes +
-                message.videos[prop].tags[prop2].r.properties.votes;
-            }
-
-
-          }
-        }
-
-
-        var totalVotesSquare = document.getElementById(
-          "totalVotes" + message.videos[prop].video._id
-        );
-        if (totalVotesSquare != null || totalVotesSquare != undefined) {
-          totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
-        }
-        i++;
-
+      var tagMachin2 = {};
+      for (j = 0; j < message.videos[prop].tags.length; j++) {
+        tagMachin2[message.videos[prop].tags[j].t.properties.tagName] = message.videos[prop].tags[j].r.properties.level;
+        tagMachin[message.videos[prop].video._id] = tagMachin2;
       }
-      }
-    }
 
-    initializeButoons();
-    // console.log(FRUITS_AND_VEGGIES2);
-    fillOrderList();
-    // console.log(globalVar);
-    // console.log("globalVar");
-    if (ALL_VID.length === 0) {
-      initializeAllvids();
-    }
 
+      newDiv.innerHTML = videoWithIframe["iframe"].outerHTML;
+      globalVar.push(videoWithIframe);
+      globalCells[message.videos[prop].video._id] = newDiv;
+      localTable.push(globalCells[message.videos[prop].video._id]);
+    }
+  }
+
+build36Frames(mainframe, globalCells);
+
+  initializeButoons();
+  fillOrderList();
+
+  if (ALL_VID.length === 0) {
+    initializeAllvids();
+  }
 });
 
 socket.on("loadHomePageFromServer2", function(listofFoundIds) {
-
-
-  // console.log(listofFoundIds);
+  console.log("loadHomePageFromServer2");
 
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
   // console.log(globalVar);
-  i=0;
-  for(var prop in globalVar){
-    if(globalVar.hasOwnProperty(prop)){
-        if(listofFoundIds.includes(globalVar[prop].video["video"]._id)){
-          var newDiv = document.createElement("div");
-          newDiv.setAttribute("class", "col-4 flex-wrap");
-          newDiv.setAttribute(
-            "id",
-            "cell" + globalVar[prop].video["video"]._id
-          );
-          newDiv.innerHTML = globalVar[prop].iframe;
-          if(i<36){
+  i = 0;
+  for (var prop in globalVar) {
+    if (globalVar.hasOwnProperty(prop)) {
+      if (listofFoundIds.includes(globalVar[prop].video["video"]._id)) {
+        var newDiv = document.createElement("div");
+        newDiv.setAttribute("class", "col-4 flex-wrap");
+        newDiv.setAttribute("id", "cell" + globalVar[prop].video["video"]._id);
+        newDiv.innerHTML = globalVar[prop].iframe;
+        if (i < 36) {
           mainframe.appendChild(newDiv);
 
-
-
-          for (var prop2 in globalVar[prop].video.tags){
-            if(globalVar[prop].video.tags.hasOwnProperty(prop2)){
+          for (var prop2 in globalVar[prop].video.tags) {
+            if (globalVar[prop].video.tags.hasOwnProperty(prop2)) {
               add_criterion(
                 globalVar[prop].video["video"]._id,
                 false,
@@ -135,7 +85,6 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
               );
             }
           }
-
         }
         i++;
       }
@@ -144,7 +93,6 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
 
   initializeButoons();
   fillOrderList();
-
 });
 
 socket.on("messageUploadfromServer", function(message) {
@@ -173,8 +121,6 @@ socket.on("validatedNoteFromServer", function(message) {
   displayOtherCriterions(message.vId, message.tagId);
 });
 
-
-
 socket.on("videoSavedfromServer", function() {
   // console.log("reload page");
   $("#closeModalButton").trigger("click");
@@ -190,32 +136,150 @@ $("#validateSearchButton").click(function() {
     // console.log(searchcriterions);
     var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
     // console.log(criterions);
-    var tagName = [];
+    var tagName = {};  
+    var tag = {};
     criterions.forEach(function(element) {
-      var tag = {};
-
-      tag["name"] = element.querySelectorAll("span")[0].innerHTML.trim();
-      tag["lowerValue"] = parseInt(
-        element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML
-      );
-      tag["higherValue"] = parseInt(
-        element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML
-      );
-      tagName.push(tag);
+      var taglevels = [];
+      taglevels.push(parseInt(element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML));
+      taglevels.push(parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML));
+      tag[element.querySelectorAll("span")[0].innerHTML.trim()] = taglevels;
     });
     // console.log(tagName);
     fillOrderList();
+
+
+
+    var foundtaginCell = [];
+    currentSearch = {};
+console.log(tag);
+console.log(Object.getOwnPropertyNames(tag))
+
+        var firstFilter = [];
+        var match = [];
+        for (props2 in tagMachin){
+          if(tagMachin.hasOwnProperty(props2)){
+            var tags = Object.getOwnPropertyNames(tag);
+            var tagsMachin = Object.getOwnPropertyNames(tagMachin[props2]);
+            console.log(tags);
+            console.log(tagsMachin);
+            console.log(props2);
+
+            var tagsfound = [];
+            for (i=0; i<tags.length; i++){
+              if(Object.getOwnPropertyNames(tagMachin[props2]).includes(tags[i]) ){
+                console.log(tag[tags[i]][0]);
+                console.log(tagMachin[props2][tags[i]]);
+                if(tagMachin[props2][tags[i]]<= tag[tags[i]][1] && tagMachin[props2][tags[i]]>= tag[tags[i]][0]){
+                  console.log("lol");
+                  tagsfound.push(tags[i]);
+                }
+              }
+            }
+            if(tagsfound.length === tags.length){
+              console.log("lolilol");
+              match.push(props2);
+              currentSearch[props2] = globalCells[props2];
+            }
+
+          }
+        }
+
+
     
-    socket.emit("searchValidatedFromClient", tagName);
+
+    var mainFrame = document.getElementById("mainFrame1");
+    mainFrame.innerHTML = "";
+    console.log(foundtaginCell);
+    console.log(currentSearch);
+    build36Frames(mainFrame, currentSearch);
+
+    // socket.emit("searchValidatedFromClient", tagName);
   }
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
+
+function build36Frames(mainframe, cells, order) {
+  h = 0;
+  if(order){
+
+    for (i=0; i<6; i++){
+      console.log(order[i]);
+      var totalVotes;
+      mainframe.appendChild(cells[order[i]]);
+      console.log(cells[order[i]]);
+      var demo = document.getElementById("demo" + order[i]);
+      var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
+      for (k = 0; k < slidercontainers.length; k++) {
+        var container = demo.querySelector("#slider-container" + k);
+        var wrapper = demo.querySelector("#wrapper" + order[i] + "_" + k);
+        initializeSlider(container, wrapper, k, order[i]);
+      }
+      for (var prop2 in globalObj["video_" + order[i]].tags) {
+        if (globalObj["video_" + order[i]].tags.hasOwnProperty(prop2)) {
+          if (globalObj["video_" + order[i]].tags[prop2].r.properties.votes != null ||
+            globalObj["video_" + order[i]].tags[prop2].r.properties.votes !=
+            undefined) {
+            totalVotes =
+              totalVotes +
+              globalObj["video_" + order[i]].tags[prop2].r.properties.votes;
+          }
+        }
+      }
+      var totalVotesSquare = document.getElementById("totalVotes" + globalObj["video_" + order[i]].video._id);
+      if (totalVotesSquare != null || totalVotesSquare != undefined) {
+        totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
+      }
+      h++;
+
+
+
+    }
+
+
+  } else {
+
+    for (var prop in cells) {
+      if (cells.hasOwnProperty(prop) && h < 6) {
+        console.log(prop);
+        var totalVotes;
+        mainframe.appendChild(cells[prop]);
+        console.log(cells[prop]);
+        var demo = document.getElementById("demo" + prop);
+        var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
+        for (k = 0; k < slidercontainers.length; k++) {
+          var container = demo.querySelector("#slider-container" + k);
+          var wrapper = demo.querySelector("#wrapper" + prop + "_" + k);
+          initializeSlider(container, wrapper, k, prop);
+        }
+        for (var prop2 in globalObj["video_" + prop].tags) {
+          if (globalObj["video_" + prop].tags.hasOwnProperty(prop2)) {
+            if (globalObj["video_" + prop].tags[prop2].r.properties.votes != null ||
+              globalObj["video_" + prop].tags[prop2].r.properties.votes !=
+              undefined) {
+              totalVotes =
+                totalVotes +
+                globalObj["video_" + prop].tags[prop2].r.properties.votes;
+            }
+          }
+        }
+        var totalVotesSquare = document.getElementById("totalVotes" + globalObj["video_" + prop].video._id);
+        if (totalVotesSquare != null || totalVotesSquare != undefined) {
+          totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
+        }
+        h++;
+      }
+    }
+  }
+}
 
 function fillLists(message) {
   tagNames = [];
   // console.log(message.tags);
   for (var prop in message.tags) {
-    if (message.tags.hasOwnProperty(prop) && !tagNames.includes(message.tags[prop].tag.properties.tagName)) {
+    if (
+      message.tags.hasOwnProperty(prop) &&
+      !tagNames.includes(message.tags[prop].tag.properties.tagName)
+    ) {
       tagNames.push(message.tags[prop].tag.properties.tagName);
     }
   }
@@ -224,11 +288,15 @@ function fillLists(message) {
 
   console.log(globalObj);
 
-  tagNames.sort(function(a, b){
-    if(a < b) { return -1; }
-    if(a > b) { return 1; }
+  tagNames.sort(function(a, b) {
+    if (a < b) {
+      return -1;
+    }
+    if (a > b) {
+      return 1;
+    }
     return 0;
-})
+  });
 
   // console.log(tagNames);
   updateVeggies(tagNames);
@@ -238,7 +306,6 @@ function fillLists(message) {
   // initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-"]');
   // console.log(lists);
-
 }
 
 function launchCrawl() {
@@ -301,8 +368,7 @@ $("#field2").on("input", function() {
 //   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 // });
 
-
-function modalSaveButtonClick(){
+function modalSaveButtonClick() {
   var title = $("#modal-defaultLabel").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
@@ -334,7 +400,7 @@ function modalSaveButtonClick(){
   });
 
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
-};
+}
 
 function validateSearchButton(videoNo, criterionno) {
   // console.log(videoNo);
