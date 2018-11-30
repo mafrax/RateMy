@@ -72,8 +72,11 @@ $("#monselect").change(function() {
   if (ordercriterion == "----" || ordercriterion == "") {
 
     mainFrame.innerHTML = "";
-
-    build36Frames(mainFrame, globalCells);
+if(Object.getOwnPropertyNames(currentSearch).length>0){
+  build36Frames(mainFrame, currentSearch);
+}else{
+  build36Frames(mainFrame, globalCells);
+}
 
       var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
       var collapseButtons = mainFrame.querySelectorAll('*[id^="collapseVideoButton"]');
