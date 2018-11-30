@@ -1,6 +1,7 @@
 ALL_VID = [];
 var currentSearch = {};
 var order = [];
+var ordercriterion;
 
 function initializeAllvids() {
   var cells = document.querySelectorAll('*[id^="cell"]');
@@ -60,7 +61,7 @@ function fillOrderList() {
 
 $("#monselect").change(function() {
   console.log(globalObj);
-    var ordercriterion = $(this).val();
+  ordercriterion = $(this).val();
   var mainFrame = document.getElementById("mainFrame1");
   var cells = document.querySelectorAll('*[id^="cell"]');
   var hidden = document.querySelectorAll("[style='display:none']");

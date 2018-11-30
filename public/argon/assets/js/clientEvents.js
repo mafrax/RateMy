@@ -239,7 +239,10 @@ function build36Frames(mainframe, cells, order) {
   } else {
 
     for (var prop in cells) {
-      if (cells.hasOwnProperty(prop) && h < 6) {
+      if (cells.hasOwnProperty(prop) && h < 6 ) {
+        if(!document.getElementById("cell"+prop)){
+          console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+        
         console.log(prop);
         var totalVotes;
         mainframe.appendChild(cells[prop]);
@@ -267,6 +270,7 @@ function build36Frames(mainframe, cells, order) {
           totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
         }
         h++;
+      }
       }
     }
   }
@@ -470,4 +474,46 @@ function validateSearchButton(videoNo, criterionno) {
       direction: inOut
     });
   }
+}
+
+
+function loadMore() {
+  var mainframe = document.getElementById("mainFrame1");
+
+  if(Object.getOwnPropertyNames(currentSearch).length>0){
+    console.log(Object.getOwnPropertyNames(currentSearch))
+    if(order.length>0){
+
+      var demo = document.querySelectorAll('*[id^="cell"]');
+      var numberOfCellsDisplayed = demo.length;
+
+      var videostoAdd = order.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+6);
+
+      build36Frames(mainframe, currentSearch, videostoAdd);
+
+      var demo2 = document.querySelectorAll('*[id^="cell"]');
+
+      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+6; ++i) {
+  
+        console.log("JJJJJJJJJJJJJJJJJJJJJ")
+
+        var vidNo2 = demo2[i].getAttribute("id").substring(4, demo2[i].getAttribute("id").length);
+        console.log(vidNo2)
+        var inputBar = demo2[i].querySelector("#searchVideoBar"+vidNo2);
+        console.log(inputBar);
+        inputBar.value = ordercriterion;
+        console.log(inputBar.value);
+        var event = new Event('keyup');
+        inputBar.dispatchEvent(event);
+  
+      }
+
+    } else {
+      build36Frames(mainframe, currentSearch);
+    }
+  } else {
+    build36Frames(mainframe, globalCells);
+  }
+
+
 }

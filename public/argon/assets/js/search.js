@@ -141,9 +141,9 @@ function deleteSearchCriterion(no) {
     var mainFrame = document.getElementById("mainFrame1");
     mainFrame.innerHTML = "";
     // console.log(ALL_VID);
-    for (i = 0; i < ALL_VID.length; i++) {
-        mainFrame.appendChild(ALL_VID[i]);
-      }
+
+    build36Frames(mainFrame, globalCells);
+
       $('#collapseSearchButton').click();
       $('#collapseSearchButton').hide();
       fillOrderList();
