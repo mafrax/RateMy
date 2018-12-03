@@ -1,5 +1,5 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:mafrax@5.39.80.142:7474');
 var bcrypt = require('bcrypt-nodejs');
 var Criterion = require('./Tag');
 
@@ -104,7 +104,10 @@ Video.create = function (data, tags, callback) {
 			// console.log("1");
 
 			db.cypher(qp, function (err, results) {
-				if (err) return callback(err);
+				if (err) {
+					console.log(err);
+					return callback(err);
+				}
 				// console.log("Video CREATED "+results);
 				callback(null, results);
 				// console.log(results);

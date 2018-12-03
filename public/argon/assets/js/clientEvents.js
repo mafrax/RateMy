@@ -1,9 +1,8 @@
-var socket = io.connect("http://localhost:3000");
+var socket = io.connect("http://5.39.80.142:3000");
 
 var globalVar = [];
-
+var globalOrder = [];
 var globalObj = {};
-
 var globalCells = {};
 var localTable = [];
 var tagMachin = {};
@@ -41,7 +40,6 @@ socket.on("loadHomePageFromServer", function(message) {
         tagMachin[message.videos[prop].video._id] = tagMachin2;
       }
 
-
       newDiv.innerHTML = videoWithIframe["iframe"].outerHTML;
       globalVar.push(videoWithIframe);
       globalCells[message.videos[prop].video._id] = newDiv;
@@ -49,7 +47,17 @@ socket.on("loadHomePageFromServer", function(message) {
     }
   }
 
-build36Frames(mainframe, globalCells);
+  globalVar.sort(function(a, b) {
+    a = a.video.video.properties.timeStamp;
+    b = b.video.video.properties.timeStamp;
+    return a>b ? -1 : a<b ? 1 : 0;
+  });
+
+  for (i=0; i < globalVar.length ; i++){
+      globalOrder.push(globalVar[i].video.video._id)
+  }
+
+build36Frames(mainframe, globalCells, globalOrder);
 
   initializeButoons();
   fillOrderList();
@@ -273,6 +281,7 @@ function build36Frames(mainframe, cells, order) {
         
         console.log(prop);
         var totalVotes = 0;
+
         mainframe.appendChild(cells[prop]);
         console.log(cells[prop]);
         var demo = document.getElementById("demo" + prop);
@@ -543,12 +552,17 @@ function loadMore() {
 
     } else {
       console.log("2");
-      build36Frames(mainframe, currentSearch);
+      build36Frames(mainframe, currentSearch, globalOrder);
       
     }
   } else {
     console.log("3");
-    build36Frames(mainframe, globalCells);
+    var demo = document.querySelectorAll('*[id^="cell"]');
+    var numberOfCellsDisplayed = demo.length;
+
+    var videostoAdd = globalOrder.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+6);
+
+    build36Frames(mainframe, globalCells, videostoAdd);
     var event = closeModal(mainframe);
   }
 

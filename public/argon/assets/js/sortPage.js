@@ -70,10 +70,10 @@ function sortPage(ordercriterion) {
     order = [];
     mainFrame.innerHTML = "";
     if (Object.getOwnPropertyNames(currentSearch).length > 0) {
-      build36Frames(mainFrame, currentSearch);
+      build36Frames(mainFrame, currentSearch, globalOrder);
     }
     else {
-      build36Frames(mainFrame, globalCells);
+      build36Frames(mainFrame, globalCells, globalOrder);
     }
     sort = false;
     var event = closeModal(mainFrame);
