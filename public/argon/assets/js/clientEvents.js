@@ -322,9 +322,9 @@ function fillLists(message) {
   for (var prop in message.tags) {
     if (
       message.tags.hasOwnProperty(prop) &&
-      !tagNames.includes(message.tags[prop].tag.properties.tagName)
+      !tagNames.includes(message.tags[prop].tag.properties.tagName.toUpperCase())
     ) {
-      tagNames.push(message.tags[prop].tag.properties.tagName);
+      tagNames.push(message.tags[prop].tag.properties.tagName.toUpperCase());
     }
   }
 
@@ -332,15 +332,9 @@ function fillLists(message) {
 
   console.log(globalObj);
 
-  tagNames.sort(function(a, b) {
-    if (a < b) {
-      return -1;
-    }
-    if (a > b) {
-      return 1;
-    }
-    return 0;
-  });
+  tagNames.sort(function (a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
+});
 
   // console.log(tagNames);
   updateVeggies(tagNames);
