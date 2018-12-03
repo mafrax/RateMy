@@ -54,6 +54,8 @@ build36Frames(mainframe, globalCells);
   initializeButoons();
   fillOrderList();
 
+  $('[data-toggle="tooltip"]').tooltip();
+  
   if (ALL_VID.length === 0) {
     initializeAllvids();
   }
@@ -95,6 +97,7 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
 
   initializeButoons();
   fillOrderList();
+  initializeUI() ;
 });
 
 socket.on("messageUploadfromServer", function(message) {
@@ -269,7 +272,7 @@ function build36Frames(mainframe, cells, order) {
           console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
         
         console.log(prop);
-        var totalVotes;
+        var totalVotes = 0;
         mainframe.appendChild(cells[prop]);
         console.log(cells[prop]);
         var demo = document.getElementById("demo" + prop);
@@ -284,13 +287,16 @@ function build36Frames(mainframe, cells, order) {
             if (globalObj["video_" + prop].tags[prop2].r.properties.votes != null ||
               globalObj["video_" + prop].tags[prop2].r.properties.votes !=
               undefined) {
+                console.log("votes: "+globalObj["video_" + prop].tags[prop2].r.properties.votes);
               totalVotes =
                 totalVotes +
                 globalObj["video_" + prop].tags[prop2].r.properties.votes;
+                console.log("truc: "+ totalVotes);
             }
           }
         }
         var totalVotesSquare = document.getElementById("totalVotes" + globalObj["video_" + prop].video._id);
+        console.log("totalVotes: "+ totalVotes);
         if (totalVotesSquare != null || totalVotesSquare != undefined) {
           totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
         }
