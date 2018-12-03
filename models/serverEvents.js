@@ -16,51 +16,7 @@ var serverEvents = module.exports = function(io){
     console.log('Un client est connecté !');
     console.log('Un client est connecté ! again');
 
-    var contents = fs.readFileSync("truc4.json");
-
-    // Define to JSON type
-     var jsonContent = JSON.parse(contents);
-    // Get Value from JSON
-     // console.log("User Name:", jsonContent);
-     
-     for (var props in jsonContent){
-       if(jsonContent.hasOwnProperty(props)){
-    
-        var newVideo = {};
-        newVideo.embedUrl = jsonContent[props].video;
-        newVideo.title = jsonContent[props].title;
-        newVideo.timestamp = new Date();
-    
-        var tags = {};
-    
-        for (var props2 in jsonContent[props].tags){
-          if(jsonContent[props].tags.hasOwnProperty(props2)){
-      
-          var tag2 = {};
-          tag2["tagName"] = jsonContent[props].tags[props2];
-          tag2["tagValue"] = "0";
-          tags["tag" + props2] = tag2;
-        // console.log(tag);
-        }}
-    
-        video.create(newVideo, tags, function (err, video) {
-                
-          // console.log(err);
-          // console.log(video);
-          // console.log("AFTER CREATE: "+video);
-          console.log(video);
-          if (err)
-          return next(err);
-                                  
-          
-    
-        });
-    
-    
-    
-      }}
-    
-      console.log("fini");
+  
 
 
     pageLoader.loadHomePage(function(videoWithTags){    
