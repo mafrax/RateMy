@@ -1,4 +1,4 @@
-var socket = io.connect("http://5.39.80.142:3000");
+var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 
@@ -7,6 +7,8 @@ var globalObj = {};
 var globalCells = {};
 var localTable = [];
 var tagMachin = {};
+var search = false;
+var sort = false;
 
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
@@ -131,8 +133,10 @@ $("#validateSearchButton").click(function() {
   // console.log(ALL_VID);
   var searchcriterions = $("div[id*='searchCriterion']");
   if (searchcriterions.length === 0) {
+    search = false;
     window.location.replace("/");
   } else {
+    search = true;
     // console.log(searchcriterions);
     var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
     // console.log(criterions);
@@ -150,7 +154,9 @@ $("#validateSearchButton").click(function() {
 
 
     var foundtaginCell = [];
-    currentSearch = {};
+    if(!sort){
+      currentSearch = {};
+    }
 console.log(tag);
 console.log(Object.getOwnPropertyNames(tag))
 
@@ -179,6 +185,7 @@ console.log(Object.getOwnPropertyNames(tag))
               console.log("lolilol");
               match.push(props2);
               currentSearch[props2] = globalCells[props2];
+
             }
 
           }
@@ -186,12 +193,30 @@ console.log(Object.getOwnPropertyNames(tag))
 
 
     
-
-    var mainFrame = document.getElementById("mainFrame1");
-    mainFrame.innerHTML = "";
+if(!sort){
+  var mainFrame = document.getElementById("mainFrame1");
+  mainFrame.innerHTML = "";
+  if(foundtaginCell.length>0){
     console.log(foundtaginCell);
     console.log(currentSearch);
     build36Frames(mainFrame, currentSearch);
+
+  } else {
+    var container = document.getElementById("searchCellContainer");
+    var height = container.clientHeight +100;
+    console.log(height);
+    var new_element = document.createElement("h1");
+    new_element.innerHTML = "We are very sorry but we couldn't find any video that match your search" ;
+    var new_element2 = document.createElement("div");
+    new_element2.appendChild(new_element);
+    new_element2.setAttribute("style", "height:"+height+"px;");
+    console.log(new_element2.clientHeight);
+    console.log(new_element2);
+    mainFrame.appendChild(new_element2);
+  }
+} else {
+  sortPage(ordercriterion);
+}
 
     // socket.emit("searchValidatedFromClient", tagName);
   }
@@ -484,6 +509,8 @@ function loadMore() {
     console.log(Object.getOwnPropertyNames(currentSearch))
     if(order.length>0){
 
+      console.log("1");
+
       var demo = document.querySelectorAll('*[id^="cell"]');
       var numberOfCellsDisplayed = demo.length;
 
@@ -509,10 +536,14 @@ function loadMore() {
       }
 
     } else {
+      console.log("2");
       build36Frames(mainframe, currentSearch);
+      
     }
   } else {
+    console.log("3");
     build36Frames(mainframe, globalCells);
+    var event = closeModal(mainframe);
   }
 
 

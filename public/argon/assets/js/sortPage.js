@@ -4,11 +4,7 @@ var order = [];
 var ordercriterion;
 
 function initializeAllvids() {
-  var cells = document.querySelectorAll('*[id^="cell"]');
 
-  // for (i = 0; i < cells.length; i++) {
-  //   ALL_VID.push(cells[i]);
-  // }
   for(var props in globalVar){
     if(globalVar.hasOwnProperty(props)){
 console.log(globalVar[props].video.video)
@@ -62,95 +58,96 @@ function fillOrderList() {
 $("#monselect").change(function() {
   console.log(globalObj);
   ordercriterion = $(this).val();
+  sortPage(ordercriterion);
+
+});
+
+function sortPage(ordercriterion) {
   var mainFrame = document.getElementById("mainFrame1");
-  var cells = document.querySelectorAll('*[id^="cell"]');
-  var hidden = document.querySelectorAll("[style='display:none']");
-  var cellNotFound = [];
-
   var foundtaginCell = [];
-
   if (ordercriterion == "----" || ordercriterion == "") {
-
-    mainFrame.innerHTML = "";
-if(Object.getOwnPropertyNames(currentSearch).length>0){
-  build36Frames(mainFrame, currentSearch);
-}else{
-  build36Frames(mainFrame, globalCells);
-}
-
-      var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
-      var collapseButtons = mainFrame.querySelectorAll('*[id^="collapseVideoButton"]');
-      for (i = 0; i < inputBars.length; i++) {
-        inputBars[i].value = ordercriterion;
-        var event = new Event('keyup');
-        inputBars[i].dispatchEvent(event);
-      }
-      $('.collapse').collapse("hide");
-      
-  } else {
     currentSearch = {};
-    for(var props in globalObj){
-      if(globalObj.hasOwnProperty(props)){
-        var vidNo = globalObj[props].video._id;
-        var cellTags =  globalObj[props].tags;
+    order = [];
+    mainFrame.innerHTML = "";
+    if (Object.getOwnPropertyNames(currentSearch).length > 0) {
+      build36Frames(mainFrame, currentSearch);
+    }
+    else {
+      build36Frames(mainFrame, globalCells);
+    }
+    sort = false;
+    var event = closeModal(mainFrame);
+  }
+  else {
+    sort = true;
+    var locaVar = {};
+    if (!search) {
+      currentSearch = {};
+      locaVar = globalObj;
+    } else {
+      for(var props in currentSearch){
+        if(currentSearch.hasOwnProperty(props)){
+          locaVar["video_"+props] = globalObj["video_"+props];
+        }
+      }
 
-        var boolFound = false;
-
+    }
+    for (var props in locaVar) {
+      if (locaVar.hasOwnProperty(props)) {
+        var cellTags = locaVar[props].tags;
         for (j = 0; j < cellTags.length; j++) {
           console.log(cellTags[j].t.labels[0]);
           if (cellTags[j].t.properties.tagName === ordercriterion) {
-         
             var map = {};
-
-            map["cell"] = globalCells[globalObj[props].video._id];
-            console.log(globalCells[globalObj[props].video._id]);
-            currentSearch[globalObj[props].video._id] = globalCells[globalObj[props].video._id];
+            map["cell"] = globalCells[locaVar[props].video._id];
+            console.log(globalCells[locaVar[props].video._id]);
+            currentSearch[locaVar[props].video._id] = globalCells[locaVar[props].video._id];
             var tagNote = cellTags[j].r.properties.level;
             map["tagValue"] = tagNote;
             console.log(map);
             foundtaginCell.push(map);
-
           }
         }
-
       }
     }
-
-console.log(foundtaginCell);
-
-    foundtaginCell.sort(function(a, b) {
+    console.log(foundtaginCell);
+    foundtaginCell.sort(function (a, b) {
       a = parseFloat(a.tagValue);
       b = parseFloat(b.tagValue);
       return a > b ? -1 : a < b ? 1 : 0;
     });
-
     console.log(currentSearch);
     order = [];
-    for(i=0; i<foundtaginCell.length; i++){
+    for (i = 0; i < foundtaginCell.length; i++) {
       var vidNo2 = foundtaginCell[i].cell.id.substring(4, foundtaginCell[i].cell.id.length);
       order.push(vidNo2);
     }
-  
     var mainFrame = document.getElementById("mainFrame1");
     mainFrame.innerHTML = "";
     console.log(foundtaginCell);
     console.log(currentSearch);
     build36Frames(mainFrame, currentSearch, order);
-
     var demo = document.querySelectorAll('*[id^="cell"]');
-
     for (i = 0; i < demo.length; ++i) {
-
       var vidNo2 = demo[i].getAttribute("id").substring(4, demo[i].getAttribute("id").length);
-
-      var inputBar = demo[i].querySelector("#searchVideoBar"+vidNo2);
-
+      var inputBar = demo[i].querySelector("#searchVideoBar" + vidNo2);
       inputBar.value = ordercriterion;
       var event = new Event('keyup');
       inputBar.dispatchEvent(event);
-
     }
-
   }
+}
 
-});
+function closeModal(mainFrame) {
+  console.log("closeModal -------------------")
+  var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
+  for (i = 0; i < inputBars.length; i++) {
+    if(inputBars[i].value != ""){
+      inputBars[i].value = ordercriterion;
+      var event = new Event('keyup');
+      inputBars[i].dispatchEvent(event);
+    }
+  }
+  $('.collapse').collapse("hide");
+  return event;
+}
