@@ -85,6 +85,7 @@ function sortPage(ordercriterion) {
     console.log("searchBOOL 1"+  searchBool);
     var locaVar = {};
     if (!searchBool) {
+      console.log("FAAAAAAAAAALSE")
       currentSearch = {};
       locaVar = globalObj;
     } else {
@@ -135,10 +136,13 @@ function sortPage(ordercriterion) {
     var demo = document.querySelectorAll('*[id^="cell"]');
     for (i = 0; i < demo.length; ++i) {
       var vidNo2 = demo[i].getAttribute("id").substring(4, demo[i].getAttribute("id").length);
+      console.log(vidNo2);
       var inputBar = demo[i].querySelector("#searchVideoBar" + vidNo2);
+      console.log(inputBar);
       inputBar.value = ordercriterion;
-      var event = new Event('keyup');
-      inputBar.dispatchEvent(event);
+      console.log(inputBar.value);
+      var event2 = new Event('keyup');
+      inputBar.dispatchEvent(event2);
     }
   }
 }

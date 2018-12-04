@@ -234,8 +234,14 @@ if(!sortBool){
 function build36Frames(mainframe, cells, order) {
   h = 0;
   if(order){
-
-    for (i=0; i<6; i++){
+    console.log(order);
+    var lengthOfOrder;
+    if(order.length>6){
+      lengthOfOrder = 6
+    } else {
+      lengthOfOrder = order.length;
+    }
+    for (i=0; i<lengthOfOrder; i++){
       console.log(order[i]);
       var totalVotes;
       mainframe.appendChild(cells[order[i]]);
