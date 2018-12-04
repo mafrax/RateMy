@@ -1,4 +1,4 @@
-var socket = io.connect("http://5.39.80.142:3000");
+var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 var globalOrder = [];
@@ -6,8 +6,8 @@ var globalObj = {};
 var globalCells = {};
 var localTable = [];
 var tagMachin = {};
-var search = false;
-var sort = false;
+var searchBool = false;
+var sortBool = false;
 
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
@@ -36,7 +36,7 @@ socket.on("loadHomePageFromServer", function(message) {
 
       var tagMachin2 = {};
       for (j = 0; j < message.videos[prop].tags.length; j++) {
-        tagMachin2[message.videos[prop].tags[j].t.properties.tagName] = message.videos[prop].tags[j].r.properties.level;
+        tagMachin2[message.videos[prop].tags[j].t.properties.tagName.toUpperCase()] = message.videos[prop].tags[j].r.properties.level;
         tagMachin[message.videos[prop].video._id] = tagMachin2;
       }
 
@@ -144,10 +144,10 @@ $("#validateSearchButton").click(function() {
   // console.log(ALL_VID);
   var searchcriterions = $("div[id*='searchCriterion']");
   if (searchcriterions.length === 0) {
-    search = false;
+    searchBool = false;
     window.location.replace("/");
   } else {
-    search = true;
+    searchBool = true;
     // console.log(searchcriterions);
     var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
     // console.log(criterions);
@@ -157,7 +157,7 @@ $("#validateSearchButton").click(function() {
       var taglevels = [];
       taglevels.push(parseInt(element.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML));
       taglevels.push(parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML));
-      tag[element.querySelectorAll("span")[0].innerHTML.trim()] = taglevels;
+      tag[element.querySelectorAll("span")[0].innerHTML.trim().toUpperCase()] = taglevels;
     });
     // console.log(tagName);
     fillOrderList();
@@ -165,7 +165,7 @@ $("#validateSearchButton").click(function() {
 
 
     var foundtaginCell = [];
-    if(!sort){
+    if(!sortBool){
       currentSearch = {};
     }
 console.log(tag);
@@ -177,9 +177,6 @@ console.log(Object.getOwnPropertyNames(tag))
           if(tagMachin.hasOwnProperty(props2)){
             var tags = Object.getOwnPropertyNames(tag);
             var tagsMachin = Object.getOwnPropertyNames(tagMachin[props2]);
-            console.log(tags);
-            console.log(tagsMachin);
-            console.log(props2);
 
             var tagsfound = [];
             for (i=0; i<tags.length; i++){
@@ -204,10 +201,10 @@ console.log(Object.getOwnPropertyNames(tag))
 
 
     
-if(!sort){
+if(!sortBool){
   var mainFrame = document.getElementById("mainFrame1");
   mainFrame.innerHTML = "";
-  if(foundtaginCell.length>0){
+  if(match.length>0){
     console.log(foundtaginCell);
     console.log(currentSearch);
     build36Frames(mainFrame, currentSearch);

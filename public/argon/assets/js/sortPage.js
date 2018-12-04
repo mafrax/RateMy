@@ -28,7 +28,6 @@ function fillOrderList() {
 
 
   if (searchCriterions.length > 0) {
-
     for (var props in searchCriterions) {
       if (searchCriterions.hasOwnProperty(props)) {
         var text = searchCriterions[props].innerHTML;
@@ -44,14 +43,16 @@ function fillOrderList() {
   } else {
 
     selectList.innerHTML = "<option selected>----</option><option>date</option><option>Number of votes</option>";
-    var i = 0;
-    FRUITS_AND_VEGGIES2.forEach(function(element) {
+    
+    for (i=0; i<tagNames.length; i++){
+      var text = tagNames[i];
       var new_element = document.createElement("option");
       new_element.setAttribute("id", "orderListCriterion" + i);
-      new_element.innerHTML = element;
+      new_element.innerHTML = text;
       selectList.appendChild(new_element);
-      i++;
-    });
+ 
+    }
+
   }
 }
 
@@ -75,13 +76,15 @@ function sortPage(ordercriterion) {
     else {
       build36Frames(mainFrame, globalCells, globalOrder);
     }
-    sort = false;
+    sortBool = false;
     var event = closeModal(mainFrame);
   }
   else {
-    sort = true;
+    sortBool = true;
+    console.log("SORTBOOL 1"+  sortBool);
+    console.log("searchBOOL 1"+  searchBool);
     var locaVar = {};
-    if (!search) {
+    if (!searchBool) {
       currentSearch = {};
       locaVar = globalObj;
     } else {
@@ -92,25 +95,27 @@ function sortPage(ordercriterion) {
       }
 
     }
+    console.log(locaVar);
     for (var props in locaVar) {
       if (locaVar.hasOwnProperty(props)) {
         var cellTags = locaVar[props].tags;
+
         for (j = 0; j < cellTags.length; j++) {
-          console.log(cellTags[j].t.labels[0]);
-          if (cellTags[j].t.properties.tagName === ordercriterion) {
+
+          if (cellTags[j].t.properties.tagName.toUpperCase() === ordercriterion.toUpperCase()) {
             var map = {};
             map["cell"] = globalCells[locaVar[props].video._id];
-            console.log(globalCells[locaVar[props].video._id]);
+
             currentSearch[locaVar[props].video._id] = globalCells[locaVar[props].video._id];
             var tagNote = cellTags[j].r.properties.level;
             map["tagValue"] = tagNote;
-            console.log(map);
+
             foundtaginCell.push(map);
           }
         }
       }
     }
-    console.log(foundtaginCell);
+
     foundtaginCell.sort(function (a, b) {
       a = parseFloat(a.tagValue);
       b = parseFloat(b.tagValue);
