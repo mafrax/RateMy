@@ -20,7 +20,8 @@ socket.on("loadHomePageFromServer", function(message) {
 
   // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
   console.log(message);
-
+  
+  console.time("dbsave");
   for (var prop in message.videos) {
     if (message.videos.hasOwnProperty(prop)) {
       // console.log("inside loading 1 :  "+message.videos[prop].video._id);
@@ -46,6 +47,7 @@ socket.on("loadHomePageFromServer", function(message) {
       localTable.push(globalCells[message.videos[prop].video._id]);
     }
   }
+  console.timeEnd("dbsave");
 
   globalVar.sort(function(a, b) {
     a = a.video.video.properties.timeStamp;
