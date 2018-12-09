@@ -17,18 +17,18 @@ var serverEvents = module.exports = function(io){
     console.log('Un client est connecté ! again');
 
   
-
-
-    pageLoader.loadHomePage(function(videoWithTags){    
-     
-      if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
-
-        tag.getAll(function(_err, result2){          
-          socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
-        });
-        
-      }
+    console.time("dbsave2");
+pageLoader.loadHomePage(function(videoWithTags){    
+  
+  if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
+    
+    tag.getAll(function(_err, result2){          
+      socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
     });
+    
+  }
+});
+console.timeEnd("dbsave2");
 
     socket.on('reloadAfterSave', function () {
      

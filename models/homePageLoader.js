@@ -11,16 +11,17 @@ var HomePageL = (module.exports = function HomePageL(_node) {
 HomePageL.loadHomePage = function(callback) {
   // quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
   quer = "MATCH p=(v:Video)-[r:RATED]->(t:Tag)  Return r,t,v ORDER BY v.timeStamp DESC";
-
+  
   // console.log(quer);
   
   // console.log("quer");
   db.cypher(quer, function(err, results) {
     // console.log(results);
     // console.log(err);
+    console.time("dbsave1");
     if (err) return callback(err, results);
-
     var localArray = createArray(results);
+    console.timeEnd("dbsave1");
     // console.log(localArray);
     callback(localArray);
 
