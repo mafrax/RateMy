@@ -7,7 +7,7 @@ var tag = require('../models/Tag');
 // var pass = require('../config/passport');
 var neo4j = require("neo4j");
 var index = require("../routes/index");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
 var fs = require("fs");
 
 var serverEvents = module.exports = function(io){
@@ -109,7 +109,7 @@ console.timeEnd("dbsave2");
 
 
       socket.on('messageSavefromClient', function (message) {
-        // console.log('Un client me parle ! Il me dit messageSavefromClient: ' + message);
+       console.log('Un client me parle ! Il me dit messageSavefromClient: ' + message);
 
         var newVideo = {};
         newVideo.originalUrl = message.originalUrlField;
@@ -118,15 +118,20 @@ console.timeEnd("dbsave2");
         newVideo.timestamp = new Date();
 
 
-        video.create(newVideo, message.tags, function (err, video) {
+        video.create(newVideo, message.tags, function (err, video1) {
 						
-          // console.log(err);
-          // console.log(video);
-          // console.log("AFTER CREATE: "+video);
+          console.log(err);
+          console.log(video1);
+          console.log("AFTER CREATE: "+video1);
           if (err)
           return next(err);
 
-          socket.emit('videoSavedfromServer', {video, tagField: message.tags });                           
+          video.getLatestEntry(function(err, video2){
+            if (err)
+          return next(err);
+            socket.emit('videoSavedfromServer', {video2, tagField: message.tags }); 
+          })
+
           
 
         });

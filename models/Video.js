@@ -1,5 +1,5 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:mafrax@5.39.80.142:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
 var bcrypt = require('bcrypt-nodejs');
 var Criterion = require('./Tag');
 
@@ -26,6 +26,30 @@ Video.getBy = function (field, value, callback) {
 		}
 	}
 	// console.log(qp);
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		if (!result[0]) {
+			// console.log('1');
+			// console.log(result[0]);
+			callback(null, null);
+		} else {
+			// console.log('2');
+			// console.log(result[0]);
+			callback(null, result[0]['video']);
+		}
+	});
+}
+
+Video.getLatestEntry = function (callback) {
+	// console.log('entered getby');
+	// console.log(value);
+	// console.log(field);
+	var qp = {
+		query: [
+			'MATCH (video:Video)', 'RETURN video', 'ORDER BY video.timeStamp DESC LIMIT 1'
+		]
+			.join('\n')
+	}
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {

@@ -1,4 +1,4 @@
-var socket = io.connect("http://5.39.80.142:3000");
+var socket = io.connect("http://localhost:3000");
 
 var globalVar = [];
 var globalOrder = [];
@@ -59,7 +59,7 @@ socket.on("loadHomePageFromServer", function(message) {
       globalOrder.push(globalVar[i].video.video._id)
   }
 
-build36Frames(mainframe, globalCells, globalOrder);
+  build36Frames(mainframe, globalCells, globalOrder);
 
   initializeButoons();
   fillOrderList();
@@ -115,12 +115,16 @@ socket.on("messageUploadfromServer", function(message) {
   $("#modal-body").html(message.htmlfield);
   $("#modal-defaultLabel").html(message.titlefield);
   initializeButoons();
+  var demo = document.getElementById("demo" + 0);
   // console.log(message);
   // console.log(message.tags);
   for (var key in message.tags) {
     // console.log(key);
     if (message.tags.hasOwnProperty(key)) {
       add_criterion(0, false, message.tags[key], 0);
+      var container = demo.querySelector("#slider-container" + key);
+      var wrapper = demo.querySelector("#wrapper" + 0 + "_" + key);
+      initializeSlider(container, wrapper, key, 0);
     }
   }
 });
@@ -136,10 +140,27 @@ socket.on("validatedNoteFromServer", function(message) {
   displayOtherCriterions(message.vId, message.tagId);
 });
 
-socket.on("videoSavedfromServer", function() {
-  // console.log("reload page");
-  $("#closeModalButton").trigger("click");
-  window.location.replace("/");
+socket.on("videoSavedfromServer", function(message) {
+  console.log(" video saved " + message);
+      var totalVotes = 0;
+      var newDiv = document.createElement("div");
+      newDiv.setAttribute("class", "col-4 flex-wrap");
+      newDiv.setAttribute("id", "cell" + message.videos[prop].video._id);
+
+      var videoWithIframe = buildIframe(message.videos[prop]);
+      // console.log("inside loading 2 :  "+videoWithIframe);
+
+      var tagMachin2 = {};
+      for (j = 0; j < message.videos[prop].tags.length; j++) {
+        tagMachin2[message.videos[prop].tags[j].t.properties.tagName.toUpperCase()] = message.videos[prop].tags[j].r.properties.level;
+        tagMachin[message.videos[prop].video._id] = tagMachin2;
+      }
+
+      newDiv.innerHTML = videoWithIframe["iframe"].outerHTML;
+      globalVar.push(videoWithIframe);
+      globalCells[message.videos[prop].video._id] = newDiv;
+      localTable.push(globalCells[message.videos[prop].video._id]);
+
 });
 
 $("#validateSearchButton").click(function() {
@@ -434,7 +455,7 @@ function modalSaveButtonClick() {
     tags["tag" + i] = tag;
   }
   // console.log(tags);
-
+  $("#closeModalButton").trigger("click");
   socket.emit("messageSavefromClient", {
     titlefield: title,
     originalUrlField: originalUrl,
