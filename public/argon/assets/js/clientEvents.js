@@ -586,13 +586,13 @@ function loadMore() {
       var demo = document.querySelectorAll('*[id^="cell"]');
       var numberOfCellsDisplayed = demo.length;
 
-      var videostoAdd = order.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+6);
+      var videostoAdd = order.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+24);
 
       build36Frames(mainframe, currentSearch, videostoAdd);
 
       var demo2 = document.querySelectorAll('*[id^="cell"]');
 
-      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+24; ++i) {
+      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+24; i++) {
   
         console.log("JJJJJJJJJJJJJJJJJJJJJ")
 
