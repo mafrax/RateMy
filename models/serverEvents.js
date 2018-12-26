@@ -25,7 +25,7 @@ pageLoader.loadHomePage(function(videoWithTags){
     tag.getAll(function(_err, result2){          
       socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
     });
-    
+
   }
 });
 console.timeEnd("dbsave2");

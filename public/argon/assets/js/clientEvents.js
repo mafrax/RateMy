@@ -191,6 +191,13 @@ socket.on("videoSavedfromServer", function(message) {
       localTable.push(globalCells[newVid]);
       var mainframe = document.getElementById("mainFrame1");
       mainframe.insertBefore(newDiv, mainframe.firstChild);
+
+      var demo = document.getElementById("demo"+ message.video._id);
+      for(i=0; i < vidTags.length; i++) {
+        var container = demo.querySelector("#slider-container" + i);
+        var wrapper = demo.querySelector("#wrapper" + message.video._id + "_" + i);
+        initializeSlider(container, wrapper, i, message.video._id);
+      }
 });
 
 $("#validateSearchButton").click(function() {
@@ -585,7 +592,7 @@ function loadMore() {
 
       var demo2 = document.querySelectorAll('*[id^="cell"]');
 
-      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+6; ++i) {
+      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+24; ++i) {
   
         console.log("JJJJJJJJJJJJJJJJJJJJJ")
 

@@ -114,12 +114,6 @@ function   buildIframe(video) {
             demo.appendChild(pbCont);
             vidCont.appendChild(demo);
 
-            for(i=0; i < video["tags"].length; i++) {
-              var container = demo.querySelector("#slider-container" + i);
-              var wrapper = demo.querySelector("#wrapper" + video["video"]._id + "_" + i);
-              initializeSlider(container, wrapper, i, video["video"]._id);
-            }
-                
             video2["iframe"] = vidCont;
             video2["video"] = video;
 
