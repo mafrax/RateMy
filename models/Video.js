@@ -124,9 +124,6 @@ Video.create = function (data, tags, callback) {
 		Video.computeQuery(data, tags, function (quer) {
 			// console.log("compute Query" +quer);
 			var qp = quer;
-
-			// console.log("1");
-
 			db.cypher(qp, function (err, results) {
 				if (err) {
 					console.log(err);
@@ -175,54 +172,19 @@ Video.getAll = function (callback) {
 
 Video.computeQuery = function (data, tags, callback) {
 
-    Criterion.getAll( function(err, result){
         var quer ="";
         // console.log("inside compute query, criterion getAll: "+ result);
-        for (var prop in tags) {
+		quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" }) \n';
+		quer += 'WITH video \n';
+		for (var prop in tags) {
             if (tags.hasOwnProperty(prop)) {
-                // console.log(prop);
-                var no = prop.slice(3, prop.length);
-                // console.log(no);
-       
-            // console.log(result);
-            
-            // var found = result.find(function(element) {
-            //     return element.tag.properties.tagName === tags[prop].tagName;
-            //   });
-            // // console.log("FOOOOUUUUUND :" +found);
-            // if(found){
-			// 	// // console.log(tags);
-			// 	// // console.log(prop);
-			// 	// // console.log(prop.length);
-			// 	// // console.log(prop.slice(3, prop.length));
-				
-			// 		quer += 'MERGE (tag' + no + ':Tag {tagName:"' + tags["tag" + no].tagName + '"})\n'; 
-					                
-            //     } else {
-                    // console.log("not found");
-                    quer += 'MERGE (tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"})\n';
-                // }
-         
+				var no = prop.slice(3, prop.length);
+				quer += 'MERGE (video)-[:RATED {level:' + tags["tag" + no].tagValue + '}]->(tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"}) \n';
         }            
     }
-            quer += 'MERGE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })\n';
-                
-            var i = 0;
-            for (var prop in tags) {
-                if (tags.hasOwnProperty(prop)) {
-                    // console.log(prop);
-                    quer += 'MERGE (video)-[:RATED {level:' + tags["tag" + i].tagValue + '}]->(tag' + i + ')\n';
-                    i++;
-                }
-            }
-        
-        quer += "return video;"
-        
-        
-        callback(quer);
-            
-    })
-
+                  
+        quer += "return video;";
+        callback(quer);           
 
 }
 

@@ -129,7 +129,7 @@ console.timeEnd("dbsave2");
           video.getLatestEntry(function(err, video2){
             if (err)
           return next(err);
-            socket.emit('videoSavedfromServer', {video2, tagField: message.tags }); 
+            socket.emit('videoSavedfromServer', {video: video2, tagField: message.tags }); 
           })
 
           

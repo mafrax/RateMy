@@ -141,26 +141,56 @@ socket.on("validatedNoteFromServer", function(message) {
 });
 
 socket.on("videoSavedfromServer", function(message) {
-  console.log(" video saved " + message);
+  console.log(message);
+  console.log(message.video);
+  console.log(message.tagField);
       var totalVotes = 0;
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-4 flex-wrap");
-      newDiv.setAttribute("id", "cell" + message.videos[prop].video._id);
+      newDiv.setAttribute("id", "cell" + message.video._id);
 
-      var videoWithIframe = buildIframe(message.videos[prop]);
+
+      var newVid = {};
+      var vidTags = [];
+      newVid["video"] = message.video;
+      
+
+   
       // console.log("inside loading 2 :  "+videoWithIframe);
 
       var tagMachin2 = {};
-      for (j = 0; j < message.videos[prop].tags.length; j++) {
-        tagMachin2[message.videos[prop].tags[j].t.properties.tagName.toUpperCase()] = message.videos[prop].tags[j].r.properties.level;
-        tagMachin[message.videos[prop].video._id] = tagMachin2;
-      }
 
+      for (var prop in message.tagField){
+        if(message.tagField.hasOwnProperty(prop)){
+          var tag = {};
+          var t = {};
+          var propt = {};
+          propt["tagName"] =message.tagField[prop].tagName.toUpperCase();
+          t["properties"] = propt;
+          tag["t"] = t;
+          
+          var r = {};
+          var propR = {};
+          propR["level"] = message.tagField[prop].tagValue;
+          propR["votes"] = 1;
+          r["properties"] = propR;
+          tag["r"] = r;
+
+          tagMachin2[message.tagField[prop].tagName.toUpperCase()] = message.tagField[prop].tagValue;
+          tagMachin[message.video._id] = tagMachin2;
+
+          vidTags.push(tag);
+        }
+      }
+      console.log(vidTags);
+      newVid["tags"] = vidTags ;
+      var videoWithIframe = buildIframe(newVid);
       newDiv.innerHTML = videoWithIframe["iframe"].outerHTML;
       globalVar.push(videoWithIframe);
-      globalCells[message.videos[prop].video._id] = newDiv;
-      localTable.push(globalCells[message.videos[prop].video._id]);
-
+      globalCells[newVid] = newDiv;
+      localTable.push(globalCells[newVid]);
+      var mainframe = document.getElementById("mainFrame1");
+      mainframe.insertBefore(newDiv, mainframe.firstChild);
 });
 
 $("#validateSearchButton").click(function() {

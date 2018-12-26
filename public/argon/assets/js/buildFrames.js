@@ -100,12 +100,12 @@ function   buildIframe(video) {
               pbCont.setAttribute("style", "float: left;");
 
               
-
-
+              console.log(video["tags"]);
+              console.log(video["tags"].length);
             if(video["tags"].length > 0 ){
 
               for(i=0; i < video["tags"].length; i++) {
-              
+                console.log(video["tags"][i].r.properties.level);
                 add_criterion_core(i,video["tags"][i].r.properties.level, video["video"]._id, video["tags"][i].t.properties.tagName, video["tags"][i].r.properties.votes, pbCont, false)
               }
 
