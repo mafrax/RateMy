@@ -289,8 +289,8 @@ function build36Frames(mainframe, cells, order) {
   if(order){
     console.log(order);
     var lengthOfOrder;
-    if(order.length>6){
-      lengthOfOrder = 6
+    if(order.length>24){
+      lengthOfOrder = 24
     } else {
       lengthOfOrder = order.length;
     }
@@ -331,7 +331,7 @@ function build36Frames(mainframe, cells, order) {
   } else {
 
     for (var prop in cells) {
-      if (cells.hasOwnProperty(prop) && h < 6 ) {
+      if (cells.hasOwnProperty(prop) && h < 24 ) {
         if(!document.getElementById("cell"+prop)){
           console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
         
