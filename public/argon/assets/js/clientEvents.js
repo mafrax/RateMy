@@ -617,7 +617,7 @@ function loadMore() {
     var demo = document.querySelectorAll('*[id^="cell"]');
     var numberOfCellsDisplayed = demo.length;
 
-    var videostoAdd = globalOrder.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+6);
+    var videostoAdd = globalOrder.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+24);
 
     build36Frames(mainframe, globalCells, videostoAdd);
     var event = closeModal(mainframe);
