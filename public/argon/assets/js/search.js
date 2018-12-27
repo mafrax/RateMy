@@ -143,7 +143,7 @@ function deleteSearchCriterion(no) {
     // console.log(ALL_VID);
     currentSearch = {};
 
-    build36Frames(mainFrame, globalCells);
+    build36Frames(mainFrame, globalCells, globalOrder);
       $('#collapseSearchButton').click();
       $('#collapseSearchButton').hide();
       fillOrderList();

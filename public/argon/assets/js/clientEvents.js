@@ -291,93 +291,6 @@ if(!sortBool){
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 });
 
-function build36Frames(mainframe, cells, order) {
-  h = 0;
-  if(order){
-    console.log(order);
-    var lengthOfOrder;
-    if(order.length>24){
-      lengthOfOrder = 24
-    } else {
-      lengthOfOrder = order.length;
-    }
-    for (i=0; i<lengthOfOrder; i++){
-      console.log(order[i]);
-      var totalVotes;
-      mainframe.appendChild(cells[order[i]]);
-      console.log(cells[order[i]]);
-      var demo = document.getElementById("demo" + order[i]);
-      var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
-      for (k = 0; k < slidercontainers.length; k++) {
-        var container = demo.querySelector("#slider-container" + k);
-        var wrapper = demo.querySelector("#wrapper" + order[i] + "_" + k);
-        initializeSlider(container, wrapper, k, order[i]);
-      }
-      for (var prop2 in globalObj["video_" + order[i]].tags) {
-        if (globalObj["video_" + order[i]].tags.hasOwnProperty(prop2)) {
-          if (globalObj["video_" + order[i]].tags[prop2].r.properties.votes != null ||
-            globalObj["video_" + order[i]].tags[prop2].r.properties.votes !=
-            undefined) {
-            totalVotes =
-              totalVotes +
-              globalObj["video_" + order[i]].tags[prop2].r.properties.votes;
-          }
-        }
-      }
-      var totalVotesSquare = document.getElementById("totalVotes" + globalObj["video_" + order[i]].video._id);
-      if (totalVotesSquare != null || totalVotesSquare != undefined) {
-        totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
-      }
-      h++;
-
-
-
-    }
-
-
-  } else {
-
-    for (var prop in cells) {
-      if (cells.hasOwnProperty(prop) && h < 24 ) {
-        if(!document.getElementById("cell"+prop)){
-          console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-        
-        console.log(prop);
-        var totalVotes = 0;
-
-        mainframe.appendChild(cells[prop]);
-        console.log(cells[prop]);
-        var demo = document.getElementById("demo" + prop);
-        var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
-        for (k = 0; k < slidercontainers.length; k++) {
-          var container = demo.querySelector("#slider-container" + k);
-          var wrapper = demo.querySelector("#wrapper" + prop + "_" + k);
-          initializeSlider(container, wrapper, k, prop);
-        }
-        for (var prop2 in globalObj["video_" + prop].tags) {
-          if (globalObj["video_" + prop].tags.hasOwnProperty(prop2)) {
-            if (globalObj["video_" + prop].tags[prop2].r.properties.votes != null ||
-              globalObj["video_" + prop].tags[prop2].r.properties.votes !=
-              undefined) {
-                console.log("votes: "+globalObj["video_" + prop].tags[prop2].r.properties.votes);
-              totalVotes =
-                totalVotes +
-                globalObj["video_" + prop].tags[prop2].r.properties.votes;
-                console.log("truc: "+ totalVotes);
-            }
-          }
-        }
-        var totalVotesSquare = document.getElementById("totalVotes" + globalObj["video_" + prop].video._id);
-        console.log("totalVotes: "+ totalVotes);
-        if (totalVotesSquare != null || totalVotesSquare != undefined) {
-          totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
-        }
-        h++;
-      }
-      }
-    }
-  }
-}
 
 function fillLists(message) {
   tagNames = [];
@@ -385,9 +298,9 @@ function fillLists(message) {
   for (var prop in message.tags) {
     if (
       message.tags.hasOwnProperty(prop) &&
-      !tagNames.includes(message.tags[prop].tag.properties.tagName.toUpperCase())
+      !tagNames.includes(message.tags[prop].tag.properties.tagName.toUpperCase().trim())
     ) {
-      tagNames.push(message.tags[prop].tag.properties.tagName.toUpperCase());
+      tagNames.push(message.tags[prop].tag.properties.tagName.toUpperCase().trim());
     }
   }
 
