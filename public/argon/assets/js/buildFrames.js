@@ -107,13 +107,13 @@ function   buildIframe(video) {
               for(i=0; i < video["tags"].length; i++) {
                 console.log(video["tags"][i].r.properties.level);
                 add_criterion_core(i,video["tags"][i].r.properties.level, video["video"]._id, video["tags"][i].t.properties.tagName, video["tags"][i].r.properties.votes, pbCont, false)
+
               }
 
             }
             demo.appendChild(pbCont);
             vidCont.appendChild(demo);
 
-                
             video2["iframe"] = vidCont;
             video2["video"] = video;
 

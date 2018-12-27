@@ -7,7 +7,7 @@ var tag = require('../models/Tag');
 // var pass = require('../config/passport');
 var neo4j = require("neo4j");
 var index = require("../routes/index");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
 var fs = require("fs");
 
 var serverEvents = module.exports = function(io){
@@ -25,7 +25,7 @@ pageLoader.loadHomePage(function(videoWithTags){
     tag.getAll(function(_err, result2){          
       socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
     });
-    
+
   }
 });
 console.timeEnd("dbsave2");

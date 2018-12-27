@@ -1,4 +1,4 @@
-var socket = io.connect("http://localhost:3000");
+var socket = io.connect("http://5.39.80.142:3000");
 
 var globalVar = [];
 var globalOrder = [];
@@ -191,6 +191,13 @@ socket.on("videoSavedfromServer", function(message) {
       localTable.push(globalCells[newVid]);
       var mainframe = document.getElementById("mainFrame1");
       mainframe.insertBefore(newDiv, mainframe.firstChild);
+
+      var demo = document.getElementById("demo"+ message.video._id);
+      for(i=0; i < vidTags.length; i++) {
+        var container = demo.querySelector("#slider-container" + i);
+        var wrapper = demo.querySelector("#wrapper" + message.video._id + "_" + i);
+        initializeSlider(container, wrapper, i, message.video._id);
+      }
 });
 
 $("#validateSearchButton").click(function() {
@@ -289,8 +296,8 @@ function build36Frames(mainframe, cells, order) {
   if(order){
     console.log(order);
     var lengthOfOrder;
-    if(order.length>6){
-      lengthOfOrder = 6
+    if(order.length>24){
+      lengthOfOrder = 24
     } else {
       lengthOfOrder = order.length;
     }
@@ -331,7 +338,7 @@ function build36Frames(mainframe, cells, order) {
   } else {
 
     for (var prop in cells) {
-      if (cells.hasOwnProperty(prop) && h < 6 ) {
+      if (cells.hasOwnProperty(prop) && h < 24 ) {
         if(!document.getElementById("cell"+prop)){
           console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
         
@@ -579,13 +586,13 @@ function loadMore() {
       var demo = document.querySelectorAll('*[id^="cell"]');
       var numberOfCellsDisplayed = demo.length;
 
-      var videostoAdd = order.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+6);
+      var videostoAdd = order.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+24);
 
       build36Frames(mainframe, currentSearch, videostoAdd);
 
       var demo2 = document.querySelectorAll('*[id^="cell"]');
 
-      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+6; ++i) {
+      for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+24; i++) {
   
         console.log("JJJJJJJJJJJJJJJJJJJJJ")
 
@@ -610,7 +617,7 @@ function loadMore() {
     var demo = document.querySelectorAll('*[id^="cell"]');
     var numberOfCellsDisplayed = demo.length;
 
-    var videostoAdd = globalOrder.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+6);
+    var videostoAdd = globalOrder.slice(numberOfCellsDisplayed, numberOfCellsDisplayed+24);
 
     build36Frames(mainframe, globalCells, videostoAdd);
     var event = closeModal(mainframe);
