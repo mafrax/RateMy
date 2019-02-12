@@ -5,10 +5,10 @@ var cell2;
 
 $("#expandButton"+id).tooltip('hide');
 
-if(cell.getAttribute("class") === "col-4 flex-wrap" ){
-    cell.setAttribute("class", "col-8 flex-wrap" );
-} else if (cell.getAttribute("class") === "col-8 flex-wrap"){
-    cell.setAttribute("class", "col-4 flex-wrap" );
+if(cell.getAttribute("class") === "col-12 col-md-4 flex-wrap" ){
+    cell.setAttribute("class", "col-12 col-md-8 flex-wrap" );
+} else if (cell.getAttribute("class") === "col-12 col-md-8 flex-wrap"){
+    cell.setAttribute("class", "col-12 col-md-4 flex-wrap" );
 } else {
     // console.log("cell not found");
 }
