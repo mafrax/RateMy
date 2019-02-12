@@ -29,7 +29,7 @@ socket.on("loadHomePageFromServer", function(message) {
       console.log(prop);
       var totalVotes = 0;
       var newDiv = document.createElement("div");
-      newDiv.setAttribute("class", "col-4 flex-wrap");
+      newDiv.setAttribute("class", "col-12 col-md-4 flex-wrap");
       newDiv.setAttribute("id", "cell" + message.videos[prop].video._id);
 
       var videoWithIframe = buildIframe(message.videos[prop]);
