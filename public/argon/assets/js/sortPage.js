@@ -9,7 +9,7 @@ function initializeAllvids() {
     if(globalVar.hasOwnProperty(props)){
 console.log(globalVar[props].video.video)
       var new_element = document.createElement("div");
-        new_element.setAttribute("class", "col-4 flex-wrap");
+        new_element.setAttribute("class", "col-12 col-md-4 flex-wrap");
         new_element.setAttribute("id", "cell" + globalVar[props].video.video._id);
         new_element.innerHTML = globalVar[props].iframe;
 

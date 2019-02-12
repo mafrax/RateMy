@@ -82,7 +82,7 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
     if (globalVar.hasOwnProperty(prop)) {
       if (listofFoundIds.includes(globalVar[prop].video["video"]._id)) {
         var newDiv = document.createElement("div");
-        newDiv.setAttribute("class", "col-4 flex-wrap");
+        newDiv.setAttribute("class", "col-12 col-md-4 flex-wrap");
         newDiv.setAttribute("id", "cell" + globalVar[prop].video["video"]._id);
         newDiv.innerHTML = globalVar[prop].iframe;
         if (i < 36) {
@@ -146,7 +146,7 @@ socket.on("videoSavedfromServer", function(message) {
   console.log(message.tagField);
       var totalVotes = 0;
       var newDiv = document.createElement("div");
-      newDiv.setAttribute("class", "col-4 flex-wrap");
+      newDiv.setAttribute("class", "col-12 col-md-4 flex-wrap");
       newDiv.setAttribute("id", "cell" + message.video._id);
 
 
