@@ -108,7 +108,7 @@ console.log(image);
             '</div>' +
             '<div class="titleText2" id="totalVotes'+video["video"]._id+'">'+
             '</div>' +
-            '<button class="btn btn-block btn-primary onclick="showVideo('+video["video"]._id+')">'+ 
+            '<button class="btn btn-block btn-primary" onclick="showVideo('+video["video"]._id+')">'+ 
             'thumbnail to video'+          
             '</button>'+
             image
