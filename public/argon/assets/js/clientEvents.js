@@ -392,6 +392,20 @@ function modalSaveButtonClick() {
 
   var criterionTitlesNumber = $("#modal-default span.criterionTitle").length;
 
+  var modalContent = $(".modal-content");
+  console.log(modalContent);
+
+  var images2 = $(modalContent).find(".vidThumb");
+  console.log(images2);
+
+  var thumbNails = [];
+  var j;
+  for(j=0; j<images2.length ; j++){
+    thumbNails[j]= images2[j].src;
+  }
+
+  console.log(thumbNails);
+
   var tags = {};
 
   for (i = 0; i < criterionTitlesNumber; i++) {
@@ -410,7 +424,8 @@ function modalSaveButtonClick() {
     titlefield: title,
     originalUrlField: originalUrl,
     embedUrlField: embedUrl,
-    tags
+    tags,
+    thumbNails
   });
 
   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
@@ -537,4 +552,66 @@ function loadMore() {
   }
 
 
+}
+
+
+var running;
+
+function imageCarrousel(thumbNailsWrapper){
+
+
+  console.log(thumbNailsWrapper);
+  var thumbs = $(thumbNailsWrapper).children(".vidThumb");
+  console.log(thumbs);
+  var i = thumbs.length-1;
+
+   
+  var truc = thumbs[0];
+  console.log(truc)
+  var original = truc.getAttribute('src');
+  console.log(original);
+  var index = original.indexOf(".jpg");
+  var index2 = original.lastIndexOf(")");
+  var startThumbnailsUrl = original.slice(0, index2+1);
+  var originalNumThumbnailsUrl = parseInt(original.slice(index2+1, index));
+  var i = originalNumThumbnailsUrl;
+  running = setInterval(function () {
+
+
+    var newSrc = startThumbnailsUrl + i + ".jpg";
+    truc.setAttribute('src', newSrc);
+    truc.setAttribute('data-thumb_url', newSrc);
+
+    if(i==1){
+      i= originalNumThumbnailsUrl;
+    } else {
+      i--;
+    }
+
+  }, 500);
+
+
+}
+
+function stopCarrousel(thumbNailsWrapper){
+  clearInterval(running);
+}
+
+
+function showVideo(videoId){
+    console.log("FDDFDFDFDFDFDFDF")
+       var wrapper = $("#thumbnailsWrapper"+videoId);
+       console.log(wrapper[0])
+       var iframe = $("#responsiveDiv"+videoId);
+       console.log(iframe[0])
+       if(wrapper[0]!=null){
+         if(wrapper[0].getAttribute("style") == "display:none"){
+          iframe[0].setAttribute("style", "display:none");
+          wrapper[0].setAttribute("style", "display:block");
+         } else {
+          iframe[0].setAttribute("style", "display:block");
+           wrapper[0].setAttribute("style", "display:none");
+  
+         }
+       }
 }

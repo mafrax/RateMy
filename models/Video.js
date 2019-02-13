@@ -173,8 +173,12 @@ Video.getAll = function (callback) {
 Video.computeQuery = function (data, tags, callback) {
 
         var quer ="";
-        // console.log("inside compute query, criterion getAll: "+ result);
+		// console.log("inside compute query, criterion getAll: "+ result);
+		if(data.thumbNails == null || data.thumbNails.length==0){
 		quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" }) \n';
+		} else {
+			quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'", thumbnails: "'+data.thumbNails+'" }) \n';
+		}
 		quer += 'WITH video \n';
 		for (var prop in tags) {
             if (tags.hasOwnProperty(prop)) {

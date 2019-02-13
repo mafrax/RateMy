@@ -39,13 +39,13 @@ console.timeEnd("dbsave2");
       socket.on('messageUploadfromClient', function (message) {
           // console.log('Un client me parle ! Il me dit : ' + message);
 
-          crawler.crawl(message, function(url, title, tags){
+          crawler.crawl(message, function(url, title, tags, thumbNails){
               // crawler.crawl(url2, function(url){
               if(url===null){
-                var html = crawler.addModalDiv(url, message);
+                var html = crawler.addModalDiv(url, message, thumbNails);
                 socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags }); 
               } else {
-                var html = crawler.addModalDiv(url, message);
+                var html = crawler.addModalDiv(url, message, thumbNails);
                 socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
               }
               });
@@ -116,6 +116,7 @@ console.timeEnd("dbsave2");
         newVideo.embedUrl = message.embedUrlField;
         newVideo.title = message.titlefield;
         newVideo.timestamp = new Date();
+        newVideo.thumbNails = message.thumbNails;
 
 
         video.create(newVideo, message.tags, function (err, video1) {

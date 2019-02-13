@@ -22,9 +22,81 @@ function   buildIframe(video) {
             var video2 = {};
 
 
+            var thumbnail = "";
+            var iframe = "";
+            var responsiveDiv = "" ;
+
+
+if (video["video"].properties.thumbnails == null ){
+
+              responsiveDiv =   '<div class="embed-responsive embed-responsive-16by9">' +
+              '<iframe class="embed-responsive-item" src="' +
+              video["video"].properties.embedUrl +
+              '" frameborder="0" allow="autoplay; encrypted-media"' +
+              'allowfullscreen id="modalEmbedVideoId">' +
+              '</iframe>'
+              +
+              '<input type="hidden" id="hiddenURl" value="' +
+              video["video"].properties.originalUrl +
+              '">' +
+              '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-80%;" onclick="expandIframe(' +
+              video["video"]._id +')" '+
+              'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" '+
+              ' id="expandButton'+video["video"]._id+'"><span class="btn-inner--icon">' +
+              '<i class="ni ni-tv-2"></i></button>' +
+              "</span></button>" +
+              "</div>" ;
+
+} else {
+  var nailsArray = video["video"].properties.thumbnails.split(',');
+
+  var lastnum = nailsArray.length-1;
+  thumbnail += '<div class="thumbnailsWrapper" onmouseover="imageCarrousel(this)" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper'+video["video"]._id+'">';
+  console.log(thumbnail);
+  thumbnail += '<img class="vidThumb col-12 flex-wrap" src="'+nailsArray[nailsArray.length-1]+'" data-thumb_url="'+nailsArray[nailsArray.length-1]+'" id="thumbnail'+video["video"]._id+'_'+lastnum+'">';
+  console.log(thumbnail);
+  console.log(lastnum);
+  console.log(video["video"]._id);
+  for(i=0; i<nailsArray[nailsArray.length-2]; i++){
+    thumbnail += '<img class="vidThumb col-12 flex-wrap" src="'+nailsArray[i]+'" data-thumb_url="'+nailsArray[i]+'" style="display:none" id="thumbnail'+video["video"]._id+'_'+i+'">';
+  }
+  console.log(thumbnail);
+  thumbnail += '</div>';
+
+  console.log(thumbnail);
+
+
+
+  responsiveDiv =  '<div class="embed-responsive embed-responsive-16by9" style="display:none" id="responsiveDiv'+video["video"]._id+'">' +
+  '<iframe class="embed-responsive-item" src="' +
+  video["video"].properties.embedUrl +
+  '" frameborder="0" allow="autoplay; encrypted-media"' +
+  'allowfullscreen id="modalEmbedVideoId">' +
+  '</iframe>'
+  +
+  '<input type="hidden" id="hiddenURl" value="' +
+  video["video"].properties.originalUrl +
+  '">' +
+  '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-80%;" onclick="expandIframe(' +
+  video["video"]._id +')" '+
+  'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" '+
+  ' id="expandButton'+video["video"]._id+'"><span class="btn-inner--icon">' +
+  '<i class="ni ni-tv-2"></i></button>' +
+  "</span></button>" +
+  "</div>" ;
+
+
+}
+
+var image = thumbnail ; 
+console.log(thumbnail);
+console.log(responsiveDiv);
+console.log(image);
+
             var vidCont = document.createElement("div");
             vidCont.setAttribute("class", "flex-wrap videoContainer");
             vidCont.setAttribute("style", "border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh;  margin-bottom:5px;");
+
             vidCont.innerHTML = '<div class="titleText">'+
 
             '<a href="#" class="hrefTitle">'+
@@ -36,25 +108,13 @@ function   buildIframe(video) {
             '</div>' +
             '<div class="titleText2" id="totalVotes'+video["video"]._id+'">'+
             '</div>' +
-            // '</div>'+
-            '<div class="embed-responsive embed-responsive-16by9">' +
-              '<iframe class="embed-responsive-item" src="' +
-              video["video"].properties.embedUrl +
-              '" frameborder="0" allow="autoplay; encrypted-media"' +
-              'allowfullscreen id="modalEmbedVideoId">' +
-              "</iframe>" +
-              '<input type="hidden" id="hiddenURl" value="' +
-              video["video"].properties.originalUrl +
-              '">' +
-              '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-80%;" onclick="expandIframe(' +
-              video["video"]._id +')" '+
-              'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" '+
-              ' id="expandButton'+video["video"]._id+'"><span class="btn-inner--icon">' +
-              '<i class="ni ni-tv-2"></i></button>' +
-              "</span></button>" +
-              "</div>" +
-  
-              
+            '<button class="btn btn-block btn-primary onclick="showVideo('+video["video"]._id+')">'+ 
+            'Click on me to switch from thumbnail to video'+          
+            '</button>'+
+            image
+            +
+            responsiveDiv
+            +
               '<div class="flex-wrap">' +
   
               '<div class="input-group">'+
@@ -87,6 +147,8 @@ function   buildIframe(video) {
               "</button>" +
               "</span>" +
               "</div>" ;
+
+console.log(vidCont);
 
               var demo = document.createElement("div");
               demo.setAttribute("class", "collapse col-12");
@@ -185,23 +247,23 @@ function   buildIframe(video) {
             var wrapper = demo.querySelector("#wrapper" + prop + "_" + k);
             initializeSlider(container, wrapper, k, prop);
           }
-          for (var prop2 in globalObj["video_" + prop].tags) {
-            if (globalObj["video_" + prop].tags.hasOwnProperty(prop2)) {
-              if (globalObj["video_" + prop].tags[prop2].r.properties.votes != null ||
-                globalObj["video_" + prop].tags[prop2].r.properties.votes !=
+          for (var prop3 in globalObj["video_" + prop].tags) {
+            if (globalObj["video_" + prop].tags.hasOwnProperty(prop3)) {
+              if (globalObj["video_" + prop].tags[prop3].r.properties.votes != null ||
+                globalObj["video_" + prop].tags[prop3].r.properties.votes !=
                 undefined) {
-                  console.log("votes: "+globalObj["video_" + prop].tags[prop2].r.properties.votes);
+                  console.log("votes: "+globalObj["video_" + prop].tags[prop3].r.properties.votes);
                 totalVotes =
                   totalVotes +
-                  globalObj["video_" + prop].tags[prop2].r.properties.votes;
+                  globalObj["video_" + prop].tags[prop3].r.properties.votes;
                   console.log("truc: "+ totalVotes);
               }
             }
           }
-          var totalVotesSquare = document.getElementById("totalVotes" + globalObj["video_" + prop].video._id);
+          var totalVotesSquare2 = document.getElementById("totalVotes" + globalObj["video_" + prop].video._id);
           console.log("totalVotes: "+ totalVotes);
-          if (totalVotesSquare != null || totalVotesSquare != undefined) {
-            totalVotesSquare.innerHTML = "Total: " + totalVotes + " vote(s)";
+          if (totalVotesSquare2 != null || totalVotesSquare2 != undefined) {
+            totalVotesSquare2.innerHTML = "Total: " + totalVotes + " vote(s)";
           }
           h++;
         }

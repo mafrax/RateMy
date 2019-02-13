@@ -54,6 +54,22 @@ Crawler.crawl = function(url, cb) {
       try {
         var p = $("meta[content*='embed'][content*='https']");
         var q = $("textarea:contains('iframe'):contains('embed')");
+        var thumbnail = $("meta[content*='phncdn.com/videos/']");
+        var truc = thumbnail[0];
+        var truc2 = truc.attribs.content ;
+        var index = truc2.indexOf(".jpg");
+        var index2 = truc2.lastIndexOf(")");
+        var startThumbnailsUrl = truc2.slice(0, index2+1);
+        var originalNumThumbnailsUrl = parseInt(truc2.slice(index2+1, index));
+
+        var thumbNails = [];
+        var i;
+for (i = 1; i <= originalNumThumbnailsUrl; i++) { 
+  thumbNails[i] = startThumbnailsUrl + i + ".jpg";
+}
+
+        console.log(thumbNails);
+
         var newHtml = [];
 
         if (p.length > 0) {
@@ -159,7 +175,9 @@ Crawler.crawl = function(url, cb) {
             }
           });
 
-          cb(sourceEmbed, title, uniqueTags);
+
+
+          cb(sourceEmbed, title, uniqueTags, thumbNails);
 
           uniqueTags.forEach(function(element) {
             tagsBase.getBy("tag.tagName", element, function(err, tag) {
@@ -193,13 +211,22 @@ Crawler.crawl = function(url, cb) {
     });
 };
 
-Crawler.addModalDiv = function(url, originalUrl) {
+Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
   // console.log(originalUrl);
 
   if(url==null){
       return "We are very sorry, but we couldn't find any embed video on this page. Please make sure you used the correct link or send us an email with the link and we will try our best to troubleshoot your problem";
   }
 
+  var htmlThumbs = "<div class='col-12'>";
+  if(thumbNails != null){
+    var i;
+    var length = thumbNails.length;
+    for (i = 1; i<length ; i++){
+      htmlThumbs += '<img class="vidThumb" src="'+thumbNails[i]+'" data-thumb_url="'+thumbNails[i]+'" width="80" >';
+    }
+  }
+  htmlThumbs += '</div>';
   var html2 =
     '<div class="col-12 flex-wrap" id="cell0x0" >' +
     '<div class="embed-responsive embed-responsive-16by9">' +
@@ -212,6 +239,7 @@ Crawler.addModalDiv = function(url, originalUrl) {
     originalUrl +
     '">' +
     "</div>" +
+    htmlThumbs +
     '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
     '<div class="input-group">' +
     '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar0' +
