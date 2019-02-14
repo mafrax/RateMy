@@ -18831,5 +18831,8 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
 .thumbnailsWrapper .col-12{
    padding: 0px;
    margin-bottom: 5px;
+   
+   /* border : solid; */
+   border-radius:3px;
 }
 

@@ -567,7 +567,7 @@ function imageCarrousel(thumbNailsWrapper, maxNum){
 
    
   var truc = thumbs[0];
-  truc.setAttribute('style', ' box-shadow: 5px 5px 11px rgba(33,33,33,.2);');
+  truc.setAttribute('style', ' box-shadow: 0px 0px 10px rgba(241, 34, 34, 0.397);');
   console.log(truc)
   var original = truc.getAttribute('src');
   console.log(original);
