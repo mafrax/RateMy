@@ -3004,7 +3004,7 @@ textarea.form-control
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.5;
-
+    
     display: inline-block;
 
     padding: .625rem 1.25rem;
@@ -3068,6 +3068,7 @@ fieldset:disabled a.btn
 
 .btn-primary
 {
+    
     color: #fff;
     border-color: rgb(94, 114, 228);
     background-color: #5e72e4;
@@ -4138,6 +4139,7 @@ fieldset:disabled a.btn
 
 .btn-block
 {
+    
     display: block;
     height: calc(2.75rem + 2px);
     width: 100%;
@@ -13220,6 +13222,7 @@ button.bg-lighter:focus
 
 .bg-gradient-danger
 {
+    
     background: linear-gradient(87deg, #f5365c 0, #f56036 100%) !important;
 }
 
@@ -14231,7 +14234,9 @@ button.section-darker:focus
 .btn
 {
     font-size: .875rem; 
-
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     position: relative;
 
     transition: all .15s ease;
@@ -18823,7 +18828,8 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
     box-shadow: 0 0 11px rgba(33,33,33,.2);
 }
 
-.thumbnailsWrapper:hover{
-    box-shadow: 0 0 11px rgba(33,33,33,.2);
+.thumbnailsWrapper .col-12{
+   padding: 0px;
+   margin-bottom: 5px;
 }
 

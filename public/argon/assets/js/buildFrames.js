@@ -51,14 +51,14 @@ if (video["video"].properties.thumbnails == null ){
   var nailsArray = video["video"].properties.thumbnails.split(',');
 
   var lastnum = nailsArray.length-1;
-  thumbnail += '<div class="thumbnailsWrapper" onmouseover="imageCarrousel(this)" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper'+video["video"]._id+'">';
+  thumbnail += '<div class="thumbnailsWrapper col-12" onmouseover="imageCarrousel(this,'+nailsArray.length+')" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper'+video["video"]._id+'">';
   console.log(thumbnail);
   thumbnail += '<img class="vidThumb col-12 flex-wrap" src="'+nailsArray[nailsArray.length-1]+'" data-thumb_url="'+nailsArray[nailsArray.length-1]+'" id="thumbnail'+video["video"]._id+'_'+lastnum+'">';
   console.log(thumbnail);
   console.log(lastnum);
   console.log(video["video"]._id);
   for(i=0; i<nailsArray[nailsArray.length-2]; i++){
-    thumbnail += '<img class="vidThumb col-12 flex-wrap" src="'+nailsArray[i]+'" data-thumb_url="'+nailsArray[i]+'" style="display:none" id="thumbnail'+video["video"]._id+'_'+i+'">';
+    thumbnail += '<img class="vidThumb col-12" src="'+nailsArray[i]+'" data-thumb_url="'+nailsArray[i]+'" style="display:none" id="thumbnail'+video["video"]._id+'_'+i+'">';
   }
   console.log(thumbnail);
   thumbnail += '</div>';
@@ -108,8 +108,8 @@ console.log(image);
             '</div>' +
             '<div class="titleText2" id="totalVotes'+video["video"]._id+'">'+
             '</div>' +
-            '<button class="btn btn-block btn-primary" onclick="showVideo('+video["video"]._id+')">'+ 
-            'thumbnail to video'+          
+            '<button class="btn btn-block bg-gradient-danger btn-primary col-10" onclick="showVideo('+video["video"]._id+')" style="margin-bottom: 5px";>'+ 
+            'clic: thumbnail to video'+          
             '</button>'+
             image
             +

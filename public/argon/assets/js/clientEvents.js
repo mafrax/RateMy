@@ -557,7 +557,7 @@ function loadMore() {
 
 var running;
 
-function imageCarrousel(thumbNailsWrapper){
+function imageCarrousel(thumbNailsWrapper, maxNum){
 
 
   console.log(thumbNailsWrapper);
@@ -567,14 +567,15 @@ function imageCarrousel(thumbNailsWrapper){
 
    
   var truc = thumbs[0];
+  truc.setAttribute('style', ' box-shadow: 5px 5px 11px rgba(33,33,33,.2);');
   console.log(truc)
   var original = truc.getAttribute('src');
   console.log(original);
   var index = original.indexOf(".jpg");
   var index2 = original.lastIndexOf(")");
   var startThumbnailsUrl = original.slice(0, index2+1);
-  var originalNumThumbnailsUrl = parseInt(original.slice(index2+1, index));
-  var i = originalNumThumbnailsUrl;
+
+  var i = maxNum;
   running = setInterval(function () {
 
 
@@ -583,7 +584,7 @@ function imageCarrousel(thumbNailsWrapper){
     truc.setAttribute('data-thumb_url', newSrc);
 
     if(i==1){
-      i= originalNumThumbnailsUrl;
+      i= maxNum;
     } else {
       i--;
     }
@@ -594,6 +595,10 @@ function imageCarrousel(thumbNailsWrapper){
 }
 
 function stopCarrousel(thumbNailsWrapper){
+  var thumbs = $(thumbNailsWrapper).children(".vidThumb");
+  
+  var truc = thumbs[0];
+  truc.setAttribute('style', ' box-shadow: 0 0 0px ');
   clearInterval(running);
 }
 
