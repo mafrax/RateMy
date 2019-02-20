@@ -108,9 +108,11 @@ console.log(image);
             '</div>' +
             '<div class="titleText2" id="totalVotes'+video["video"]._id+'">'+
             '</div>' +
-            '<button class="btn btn-block bg-gradient-danger btn-primary col-10" onclick="showVideo('+video["video"]._id+')" style="margin-bottom: 5px";>'+ 
+
+            '<button class="btn btn-block bg-gradient-danger btn-primary col-12" onclick="showVideo('+video["video"]._id+')" style="margin-bottom: 5px;";>'+ 
             'clic: thumbnail to video'+          
             '</button>'+
+
             image
             +
             responsiveDiv

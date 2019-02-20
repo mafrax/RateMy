@@ -37,7 +37,7 @@ console.timeEnd("dbsave2");
       
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
-          // console.log('Un client me parle ! Il me dit : ' + message);
+          console.log('Un client me parle ! Il me dit : messageUploadfromClient ' + message);
 
           crawler.crawl(message, function(url, title, tags, thumbNails){
               // crawler.crawl(url2, function(url){

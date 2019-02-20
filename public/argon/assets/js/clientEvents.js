@@ -111,15 +111,17 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
 });
 
 socket.on("messageUploadfromServer", function(message) {
-  // console.log(message.originalUrlField);
+  console.log(message.originalUrlField);
+  console.log(message.htmlfield);
+  console.log(message.titlefield);
   $("#modal-body").html(message.htmlfield);
   $("#modal-defaultLabel").html(message.titlefield);
   initializeButoons();
   var demo = document.getElementById("demo" + 0);
-  // console.log(message);
-  // console.log(message.tags);
+  console.log(message);
+  console.log(message.tags);
   for (var key in message.tags) {
-    // console.log(key);
+    console.log(key);
     if (message.tags.hasOwnProperty(key)) {
       add_criterion(0, false, message.tags[key], 0);
       var container = demo.querySelector("#slider-container" + key);

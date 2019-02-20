@@ -358,6 +358,13 @@ function addVideoSearchCriterion(videoNo){
     } else {
         alert ("This criterion is already present or is not Valid");
     }
+    console.log(criterionno);
+      var demo = document.getElementById("demo" + videoNo);
+      var container = demo.querySelector("#slider-container" + criterionno);
+      var wrapper = demo.querySelector("#wrapper" + videoNo + "_" + criterionno);
+      console.log(container);
+      console.log(wrapper);
+      initializeSlider(container, wrapper, criterionno, videoNo);
 
 
 }

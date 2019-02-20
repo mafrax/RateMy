@@ -54,19 +54,22 @@ Crawler.crawl = function(url, cb) {
       try {
         var p = $("meta[content*='embed'][content*='https']");
         var q = $("textarea:contains('iframe'):contains('embed')");
-        var thumbnail = $("meta[content*='phncdn.com/videos/']");
-        var truc = thumbnail[0];
-        var truc2 = truc.attribs.content ;
-        var index = truc2.indexOf(".jpg");
-        var index2 = truc2.lastIndexOf(")");
-        var startThumbnailsUrl = truc2.slice(0, index2+1);
-        var originalNumThumbnailsUrl = parseInt(truc2.slice(index2+1, index));
-
         var thumbNails = [];
-        var i;
-for (i = 1; i <= originalNumThumbnailsUrl; i++) { 
-  thumbNails[i] = startThumbnailsUrl + i + ".jpg";
-}
+        if(url.includes("pornhub")){
+
+          var thumbnail = $("meta[content*='phncdn.com/videos/']");
+          var truc = thumbnail[0];
+          var truc2 = truc.attribs.content ;
+          var index = truc2.indexOf(".jpg");
+          var index2 = truc2.lastIndexOf(")");
+          var startThumbnailsUrl = truc2.slice(0, index2+1);
+          var originalNumThumbnailsUrl = parseInt(truc2.slice(index2+1, index));
+  
+          var i;
+  for (i = 1; i <= originalNumThumbnailsUrl; i++) { 
+    thumbNails[i] = startThumbnailsUrl + i + ".jpg";
+  }
+        }
 
         console.log(thumbNails);
 
@@ -206,7 +209,7 @@ for (i = 1; i <= originalNumThumbnailsUrl; i++) {
       }
     })
     .catch(function(err) {
-      // console.log(err);
+      console.log(err);
       // rejected
     });
 };
