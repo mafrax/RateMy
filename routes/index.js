@@ -2,8 +2,9 @@
 
 
 var homePageLoader = require('../models/homePageLoader');
+var serverEvents = require('../models/serverEvents');
 
-
+var cookie1;
 
 
 module.exports = function (app, passport) {
@@ -11,8 +12,26 @@ module.exports = function (app, passport) {
 	// normal routes ===============================================================
 
 	// show the home page (will also have our login links)
-	app.get('/', function (req, res) {
-		// console.log('hi');
+	app.get('/', function (req, res, next) {
+
+		res.cookie('mycookies', 'express');
+		cookie1= req.cookies;
+
+
+		if (req.session.views) {
+			req.session.views++;
+			console.log(req.session.views);
+		  } else {
+			req.session.views = 1
+			console.log(req.session.views);
+		  }
+
+		  if(req.session.age){
+			  console.log("OOOOOOOOOOOOOOOOOO");
+		  } else {
+			console.log("XXXXXXXXXXXXXXXXXXXXXX");
+		  }
+
 		res.render('argon');		
 	});
 

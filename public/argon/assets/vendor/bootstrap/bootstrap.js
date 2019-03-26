@@ -253,7 +253,7 @@ var Alert = function ($$$1) {
       if (customEvent.isDefaultPrevented()) {
         return;
       }
-
+      console.log(rootElement)
       this._removeElement(rootElement);
     };
 

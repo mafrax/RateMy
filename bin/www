@@ -28,6 +28,9 @@ var io = require('socket.io').listen(server);
 
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
+io.use(function(socket, next){
+  app.get("sessionMW")(socket.request, socket.request.res, next);
+})
 
 /**
  * Listen on provided port, on all network interfaces.

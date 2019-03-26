@@ -4,26 +4,40 @@ var pageLoader = require('../models/homePageLoader');
 var csvDownloader = require('../models/csvDownloader');
 var video = require('../models/Video');
 var tag = require('../models/Tag');
+var cookieParser = require('cookie');
 // var pass = require('../config/passport');
 var neo4j = require("neo4j");
 var index = require("../routes/index");
 var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
 var fs = require("fs");
+var app = require("../app.js")
 
 var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
 
     console.log('Un client est connecté !');
     console.log('Un client est connecté ! again');
-
-  
+    console.log(app);
     console.time("dbsave2");
-pageLoader.loadHomePage(function(videoWithTags){    
+
+
+    console.log(socket.request.session);
+    
+    var userSession = socket.request.session;
+
+    var a = socket.request.headers.cookie;
+        var b = cookieParser.parse(a); //does not translate
+        console.log(b);
+
+        console.log('A socket with sessionID ' + socket.handshake.sessionID 
+        + ' connected!');
+
+pageLoader.loadHomePage(function( videoWithTags){    
   
   if(videoWithTags!=null || videoWithTags != undefined || videoWithTags.length !=0 ){
     
     tag.getAll(function(_err, result2){          
-      socket.emit('loadHomePageFromServer', {videos:videoWithTags, tags:result2});   
+      socket.emit('loadHomePageFromServer', {session: userSession, videos:videoWithTags, tags:result2});   
     });
 
   }
@@ -51,6 +65,14 @@ console.timeEnd("dbsave2");
               });
       });
 
+      socket.on('updateAgeSession', function (message) {
+        console.log(message);
+        socket.request.session.age = "18";
+        socket.request.session.save(function(err){
+          console.log("session saved");
+        })
+        console.log(socket);
+      })
 
       socket.on('validateNoteFromClient', function (message) {
         // console.log('Un client me parle ! Il me dit : ' + message);
@@ -195,6 +217,10 @@ function setTagLevel(message, result, socket) {
       });
     }
   }
+}
+
+function getCookie(cookie){
+  console.log(cookie);
 }
 
 }

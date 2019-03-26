@@ -9,9 +9,25 @@ var tagMachin = {};
 var searchBool = false;
 var sortBool = false;
 
+var session;
+
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
   // console.log(message.videoWithTags);
+
+
+  console.log(message.session);
+  if(message.session.age == "" || message.session.age == null){
+
+    session = message.session;
+
+    $('#age-restriction-modal').modal({
+      backdrop: 'static',
+      keyboard: false  // to prevent closing with Esc button (if you want this too)
+  })
+    $('#age-restriction-modal').modal('show');
+
+  }
 
   fillLists(message);
 
@@ -305,6 +321,10 @@ function fillLists(message) {
       tagNames.push(message.tags[prop].tag.properties.tagName.toUpperCase().trim());
     }
   }
+
+$("#over18Button").click(function(){
+  socket.emit("updateAgeSession");
+})
 
   globalObj = message.videos;
 

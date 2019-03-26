@@ -23,12 +23,15 @@ app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(helmet());
 
-app.use(session({
+var sessionMiddleware = session({
   secret: 'keyboard cat',
   resave: false,
+  name: 'sessionId',
   saveUninitialized: true,
-  cookie: { secure: false }
-}))
+  cookie: { maxAge: 60000 }
+});
+app.use(sessionMiddleware);
+app.set("sessionMW", sessionMiddleware);
 // app.use(passport.initialize());
 // app.use(passport.session());
 app.use(flash());
