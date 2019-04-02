@@ -242,7 +242,7 @@ console.log(vidCont);
             var topCriterionContainer = document.createElement("div");
             topCriterionContainer.setAttribute("class", "col-9");
 
-            topCriterionContainer.appendChild(newCriterionnote,inputGroup.firstChild);
+            topCriterionContainer.insertBefore(newCriterionnote,inputGroup.firstChild);
             topCriterionContainer.insertBefore(newCriterionTitle,inputGroup.firstChild);
             topCriterionContainer.insertBefore(text,inputGroup.firstChild);
                        
