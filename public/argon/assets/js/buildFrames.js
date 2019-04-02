@@ -227,7 +227,7 @@ console.log(vidCont);
             video["video"]._id +
             '" aria-controls="nav-inner-primary"' +
             'aria-expanded="false" aria-label="Toggle navigation" >' +
-            '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
+            '<span class=""><span class="btn-inner--icon"'+
             'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
             '>' +
             '<i class="ni ni-bold-down"></i></button>' +
