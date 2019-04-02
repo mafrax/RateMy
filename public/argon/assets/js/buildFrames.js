@@ -208,18 +208,32 @@ console.log(vidCont);
             var newCriterionTitle = document.createElement("div");
             newCriterionTitle.setAttribute("class", "btn btn-1 btn-outline-warning");
             // newCriterionTitle.setAttribute("style", "width:50%;border:transparent;");
+            newCriterionTitle.setAttribute("data-toggle", "collapse");
+            newCriterionTitle.setAttribute("data-target", "#demo"+video["video"]._id+"");
+            newCriterionTitle.setAttribute("aria-controls", "nav-inner-primary");
+            newCriterionTitle.setAttribute("aria-expanded", "false");
+            newCriterionTitle.setAttribute("aria-label", "Toggle navigation");
             newCriterionTitle.innerHTML = criteriontitle.innerHTML;
 
             var newCriterionnote = document.createElement("div");
             newCriterionnote.setAttribute("class", "btn btn-1 btn-outline-warning");
             // newCriterionnote.setAttribute("style", "width:50%;border:transparent;");
+            newCriterionnote.setAttribute("data-toggle", "collapse");
+            newCriterionnote.setAttribute("data-target", "#demo"+video["video"]._id+"");
+            newCriterionnote.setAttribute("aria-controls", "nav-inner-primary");
+            newCriterionnote.setAttribute("aria-expanded", "false");
+            newCriterionnote.setAttribute("aria-label", "Toggle navigation");
             newCriterionnote.innerHTML = criterionnote.firstChild.innerHTML;
 
             var text = document.createElement("div");
             text.setAttribute("class", "btn btn-1 btn-outline-warning");
-            // newCriterionnote.setAttribute("style", "width:50%;border:transparent;");
+            text.setAttribute("style", "border:transparent;");
+            text.setAttribute("data-toggle", "collapse");
+            text.setAttribute("data-target", "#demo"+video["video"]._id+"");
+            text.setAttribute("aria-controls", "nav-inner-primary");
+            text.setAttribute("aria-expanded", "false");
+            text.setAttribute("aria-label", "Toggle navigation");
             text.innerHTML = "Top criterion :";
-
 
             
             inputGroup.insertBefore(newCriterionnote,inputGroup.firstChild);
