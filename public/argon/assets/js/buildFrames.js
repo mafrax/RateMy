@@ -235,16 +235,16 @@ console.log(vidCont);
             "</button>" ;
 
             var expandButton = document.createElement("span");
-            expandButton.setAttribute("class", "input-group-btn col-3");
+            expandButton.setAttribute("class", "input-group-btn");
             expandButton.setAttribute("style", "margin:auto; text-align: right; margin-right:0;");
             expandButton.innerHTML = expandButtonHtml;
 
             var topCriterionContainer = document.createElement("div");
             topCriterionContainer.setAttribute("class", "col-9");
 
-            topCriterionContainer.insertBefore(newCriterionnote,inputGroup.firstChild);
-            topCriterionContainer.insertBefore(newCriterionTitle,inputGroup.firstChild);
-            topCriterionContainer.insertBefore(text,inputGroup.firstChild);
+            topCriterionContainer.appendChild(text);
+            topCriterionContainer.appendChild(newCriterionTitle);
+            topCriterionContainer.appendChild(newCriterionnote);
                        
             inputGroup.insertBefore(expandButton,inputGroup.firstChild);
             inputGroup.insertBefore(topCriterionContainer,inputGroup.firstChild);
