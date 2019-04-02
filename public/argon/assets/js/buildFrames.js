@@ -235,8 +235,8 @@ console.log(vidCont);
             "</button>" ;
 
             var expandButton = document.createElement("span");
-            expandButton.setAttribute("class", "input-group-btn col-12");
-            expandButton.setAttribute("style", "width:100%; heigth:.9rem;");
+            expandButton.setAttribute("class", "input-group-btn");
+            expandButton.setAttribute("style", "margin:auto; text-align: right; margin-right:0;");
             expandButton.innerHTML = expandButtonHtml;
 
             inputGroup.insertBefore(expandButton,inputGroup.firstChild);
