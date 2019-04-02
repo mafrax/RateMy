@@ -120,19 +120,6 @@ console.log(image);
               '<div class="flex-wrap">' +
   
               '<div class="input-group col-12">'+
-
-              '<span class="input-group-btn" style="margin:auto; text-align: right; margin-right:0;">' +
-              '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
-              video["video"]._id +
-              '" aria-controls="nav-inner-primary"' +
-              'aria-expanded="false" aria-label="Toggle navigation" >' +
-              '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
-              'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
-              '>' +
-              '<i class="ni ni-bold-down"></i></button>' +
-              "</span></span>" +
-              "</button>" +
-              "</span>" +
               "</div>" ;
 
 console.log(vidCont);
@@ -235,11 +222,27 @@ console.log(vidCont);
             text.setAttribute("aria-label", "Toggle navigation");
             text.innerHTML = "Top criterion :";
 
-            
+            var expandButtonHtml =
+            '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
+            video["video"]._id +
+            '" aria-controls="nav-inner-primary"' +
+            'aria-expanded="false" aria-label="Toggle navigation" >' +
+            '<span class="navbar-toggler-icon"><span class="btn-inner--icon"'+
+            'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
+            '>' +
+            '<i class="ni ni-bold-down"></i></button>' +
+            "</span></span>" +
+            "</button>" ;
+
+            var expandButton = document.createElement("span");
+            expandButton.setAttribute("class", "input-group-btn");
+            expandButton.setAttribute("style", "margin:auto; text-align: right; margin-right:0;");
+            expandButton.innerHTML = expandButtonHtml;
+
+            inputGroup.insertBefore(expandButton,inputGroup.firstChild);
             inputGroup.insertBefore(newCriterionnote,inputGroup.firstChild);
             inputGroup.insertBefore(newCriterionTitle,inputGroup.firstChild);
             inputGroup.insertBefore(text,inputGroup.firstChild);
-
 
             return video2;
 
