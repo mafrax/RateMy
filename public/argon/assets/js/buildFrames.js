@@ -214,7 +214,7 @@ console.log(vidCont);
 
             var text = document.createElement("div");
             text.setAttribute("class", "btn btn-1 btn-outline-warning");
-            text.setAttribute("style", "border:transparent;");
+            text.setAttribute("style", "border:transparent; padding: .3rem .6rem;");
             text.setAttribute("data-toggle", "collapse");
             text.setAttribute("data-target", "#demo"+video["video"]._id+"");
             text.setAttribute("aria-controls", "nav-inner-primary");
