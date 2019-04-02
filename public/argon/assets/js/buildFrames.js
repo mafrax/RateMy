@@ -236,11 +236,11 @@ console.log(vidCont);
 
             var expandButton = document.createElement("span");
             expandButton.setAttribute("class", "input-group-btn");
-            expandButton.setAttribute("style", "width:30%;margin:auto; text-align: right; margin-right:0;");
+            expandButton.setAttribute("style", "width: 100%; height: 20px; margin-top: 0px; margin-bottom: 2px;");
             expandButton.innerHTML = expandButtonHtml;
 
             var topCriterionContainer = document.createElement("div");
-            topCriterionContainer.setAttribute("style", "width:70%;");
+            topCriterionContainer.setAttribute("class", "col-12");
 
             topCriterionContainer.appendChild(text);
             topCriterionContainer.appendChild(newCriterionTitle);
