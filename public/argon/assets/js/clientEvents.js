@@ -130,8 +130,8 @@ socket.on("messageUploadfromServer", function(message) {
   console.log(message.originalUrlField);
   console.log(message.htmlfield);
   console.log(message.titlefield);
-  $("#modal-body").html(message.htmlfield);
-  $("#modal-defaultLabel").html(message.titlefield);
+  $("#modal-body2").html(message.htmlfield);
+  $("#modal-defaultLabel2").html(message.titlefield);
   initializeButoons();
   var demo = document.getElementById("demo" + 0);
   console.log(message);
