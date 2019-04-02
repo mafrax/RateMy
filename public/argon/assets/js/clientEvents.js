@@ -405,7 +405,7 @@ $("#field2").on("input", function() {
 // });
 
 function modalSaveButtonClick() {
-  var title = $("#modal-defaultLabel").html();
+  var title = $("#modal-defaultLabel2").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
   // console.log(title);
@@ -441,7 +441,7 @@ function modalSaveButtonClick() {
     tags["tag" + i] = tag;
   }
   // console.log(tags);
-  $("#closeModalButton").trigger("click");
+  $("#closeModalButton2").trigger("click");
   socket.emit("messageSavefromClient", {
     titlefield: title,
     originalUrlField: originalUrl,
