@@ -220,14 +220,14 @@ console.log(vidCont);
             text.setAttribute("aria-controls", "nav-inner-primary");
             text.setAttribute("aria-expanded", "false");
             text.setAttribute("aria-label", "Toggle navigation");
-            text.innerHTML = "Top criterion :";
+            text.innerHTML = "Top Tag:";
 
             var expandButtonHtml =
             '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
             video["video"]._id +
             '" aria-controls="nav-inner-primary"' +
             'aria-expanded="false" aria-label="Toggle navigation" >' +
-            '<span class=""><span class="btn-inner--icon"'+
+            '<span class="navbar-toggler-icon" ><span class=""'+
             'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
             '>' +
             '<i class="ni ni-bold-down"></i></button>' +
