@@ -236,19 +236,13 @@ console.log(vidCont);
 
             var expandButton = document.createElement("span");
             expandButton.setAttribute("class", "input-group-btn");
-            expandButton.setAttribute("style", "width: 100%; height: 20px; margin-top: 0px; margin-bottom: 2px;");
+            // expandButton.setAttribute("style", "margin:auto; text-align: right; margin-right:0;");
             expandButton.innerHTML = expandButtonHtml;
 
-            var topCriterionContainer = document.createElement("div");
-            topCriterionContainer.setAttribute("class", "col-12");
-
-            topCriterionContainer.appendChild(text);
-            topCriterionContainer.appendChild(newCriterionTitle);
-            topCriterionContainer.appendChild(newCriterionnote);
-                       
             inputGroup.insertBefore(expandButton,inputGroup.firstChild);
-            inputGroup.insertBefore(topCriterionContainer,inputGroup.firstChild);
-
+            inputGroup.insertBefore(newCriterionnote,inputGroup.firstChild);
+            inputGroup.insertBefore(newCriterionTitle,inputGroup.firstChild);
+            inputGroup.insertBefore(text,inputGroup.firstChild);
 
             return video2;
 
