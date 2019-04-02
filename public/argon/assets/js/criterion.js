@@ -277,9 +277,7 @@ function filterCriterion(event, videoNo) {
   var x = event.keyCode;
 console.log(videoNo);
   var collapsable = document.getElementById("demo" + videoNo);
-  console.log(collapsable);
-  collapsable.setAttribute("class", "col-12 collapse show");
-
+  
   var container = document.getElementById("progressBarContainer" + videoNo);
   var videoCriterions = container.querySelectorAll(
     "*[id^=criterionName" + videoNo + "_]"
@@ -297,13 +295,9 @@ console.log(videoNo);
   var criterionContainersToKeep = [];
 
   if (value === "") {
-    var wrappers = container.querySelectorAll("*[id^=wrapper" + videoNo + "]");
+    var wrappers = container.querySelectorAll("*[id^=criterionContainer" + videoNo + "]");
     wrappers.forEach(function(element) {
       element.style.display = "";
-    });
-    var sliders = container.querySelectorAll("*[id^=slider-container]");
-    sliders.forEach(function(element2) {
-      element2.style.display = "";
     });
 
     document.getElementById(
@@ -325,22 +319,32 @@ console.log(videoNo);
       for (prop in videoCriterions) {
         if (videoCriterions.hasOwnProperty(prop)) {
           var name = videoCriterions[prop].innerHTML.toUpperCase();
+
+          var critID = videoCriterions[prop].id.substring(videoCriterions[prop].id.indexOf("_")+1,videoCriterions[prop].id.length);
   
           if (name.startsWith(value)) {
+            console.log("SHOW");
+            console.log(videoCriterions[prop]);
+            console.log(name);
+            console.log(value);
+            console.log(prop);
             document.getElementById(
-              "wrapper" + videoNo + "_" + prop
+              "criterionContainer" + videoNo + "_" + critID
             ).style.display = "show";
-            container.querySelector("#slider-container" + prop).style.display =
-              "show";
+            
             if(name === value){
               exist.push(value);
             }
           } else {
+            console.log("HIDE");
+            console.log(videoCriterions[prop]);
+            console.log(name);
+            console.log(value);
+            console.log(prop);
             document.getElementById(
-              "wrapper" + videoNo + "_" + prop
+              "criterionContainer" + videoNo + "_" + critID
             ).style.display = "none";
-            container.querySelector("#slider-container" + prop).style.display =
-              "none";
+            
           }
           if (exist.length > 0 || value.length>50 || value.includes("http") || value.includes("\/") || value.includes(":") || value.includes(".") || value.includes("#")) {
             document.getElementById(
