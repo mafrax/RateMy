@@ -194,7 +194,7 @@ console.log(vidCont);
 
             var newCriterionTitle = document.createElement("div");
             newCriterionTitle.setAttribute("class", "btn btn-1 btn-outline-warning");
-            // newCriterionTitle.setAttribute("style", "width:50%;border:transparent;");
+            newCriterionTitle.setAttribute("style", "padding: .625rem .9rem;");
             newCriterionTitle.setAttribute("data-toggle", "collapse");
             newCriterionTitle.setAttribute("data-target", "#demo"+video["video"]._id+"");
             newCriterionTitle.setAttribute("aria-controls", "nav-inner-primary");
@@ -204,7 +204,7 @@ console.log(vidCont);
 
             var newCriterionnote = document.createElement("div");
             newCriterionnote.setAttribute("class", "btn btn-1 btn-outline-warning");
-            // newCriterionnote.setAttribute("style", "width:50%;border:transparent;");
+            newCriterionnote.setAttribute("style", "padding: .625rem .9rem;");
             newCriterionnote.setAttribute("data-toggle", "collapse");
             newCriterionnote.setAttribute("data-target", "#demo"+video["video"]._id+"");
             newCriterionnote.setAttribute("aria-controls", "nav-inner-primary");
@@ -214,7 +214,7 @@ console.log(vidCont);
 
             var text = document.createElement("div");
             text.setAttribute("class", "btn btn-1 btn-outline-warning");
-            text.setAttribute("style", "border:transparent; padding: .3rem .6rem;");
+            text.setAttribute("style", "border:transparent; padding: .625rem .6rem;");
             text.setAttribute("data-toggle", "collapse");
             text.setAttribute("data-target", "#demo"+video["video"]._id+"");
             text.setAttribute("aria-controls", "nav-inner-primary");
