@@ -244,7 +244,7 @@ Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
     "</div>" +
     htmlThumbs +
     '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
-    '<div class="input-group">' +
+     '<div class="input-group">' +
     '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar0' +
     '"' +
     'onkeyUp="filterCriterion(event,' +

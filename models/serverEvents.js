@@ -65,14 +65,14 @@ console.timeEnd("dbsave2");
               });
       });
 
-      socket.on('updateAgeSession', function (message) {
-        console.log(message);
-        socket.request.session.age = "18";
-        socket.request.session.save(function(err){
-          console.log("session saved");
-        })
-        console.log(socket);
-      })
+      // socket.on('updateAgeSession', function (message) {
+      //   console.log(message);
+      //   socket.request.session.age = "18";
+      //   socket.request.session.save(function(err){
+      //     console.log("session saved");
+      //   })
+      //   console.log(socket);
+      // })
 
       socket.on('validateNoteFromClient', function (message) {
         // console.log('Un client me parle ! Il me dit : ' + message);

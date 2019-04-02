@@ -12,7 +12,7 @@ function timeConverter(UNIX_timestamp){
     return time;
   }
   
-function   buildIframe(video) {
+function  buildIframe(video) {
 
 
   
@@ -119,24 +119,9 @@ console.log(image);
             +
               '<div class="flex-wrap">' +
   
-              '<div class="input-group">'+
-              '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar' +
-              video["video"]._id +'"'+
-              'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
-              'If not then you can add it to the list"'+
-              'onkeyUp="filterCriterion(event,' +
-              video["video"]._id +
-              ' )"'+
-              '>' +
-              '<span class="input-group-btn">' +
-              '<button type="submit" class="btn btn-block btn-primary "' +            
-              'id="filterAddCriterion_' +
-              video["video"]._id +
-              '" onclick=addVideoSearchCriterion('+video["video"]._id+')>' +
-              "ADD" +
-              "</button>" +
-              "</span>" +
-              '<span class="input-group-btn">' +
+              '<div class="input-group col-12">'+
+
+              '<span class="input-group-btn" style="margin:auto; text-align: right; margin-right:0;">' +
               '<button class="btn btn-neutral" type="button" data-toggle="collapse" data-target="#demo' +
               video["video"]._id +
               '" aria-controls="nav-inner-primary"' +
@@ -175,11 +160,71 @@ console.log(vidCont);
               }
 
             }
+
+         
+
             demo.appendChild(pbCont);
             vidCont.appendChild(demo);
 
             video2["iframe"] = vidCont;
             video2["video"] = video;
+
+
+
+            var newCriterionHtml =  '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar' +
+            video["video"]._id +'"'+
+            'data-toggle="tooltip" data-placement="top" title="Here you can check whether this video is already rated with the given criterion. '+
+            'If not then you can add it to the list"'+
+            'onkeyUp="filterCriterion(event,' +
+            video["video"]._id +
+            ' )"'+
+            '>' +
+            '<span class="input-group-btn">' +
+            '<button type="submit" class="btn btn-block btn-primary "' +            
+            'id="filterAddCriterion_' +
+            video["video"]._id +
+            '" onclick=addVideoSearchCriterion('+video["video"]._id+')>' +
+            "ADD" +
+            "</button>" +
+            "</span>" ;
+
+
+            var newCriterionInput = document.createElement("div");
+            newCriterionInput.setAttribute("class", "input-group");
+            newCriterionInput.setAttribute("style", "position: sticky; bottom: 0; width: 100%;z-index:1000;");
+
+            newCriterionInput.innerHTML = newCriterionHtml;
+
+            demo.appendChild(newCriterionInput);
+
+
+            var inputGroup = vidCont.querySelector(".input-group");
+            
+            var criteriontitle = vidCont.querySelector(".criterionTitle");
+
+            var criterionnote = vidCont.querySelector(".progress-percentage");
+            
+
+            var newCriterionTitle = document.createElement("div");
+            newCriterionTitle.setAttribute("class", "btn btn-1 btn-outline-warning");
+            // newCriterionTitle.setAttribute("style", "width:50%;border:transparent;");
+            newCriterionTitle.innerHTML = criteriontitle.innerHTML;
+
+            var newCriterionnote = document.createElement("div");
+            newCriterionnote.setAttribute("class", "btn btn-1 btn-outline-warning");
+            // newCriterionnote.setAttribute("style", "width:50%;border:transparent;");
+            newCriterionnote.innerHTML = criterionnote.firstChild.innerHTML;
+
+            var text = document.createElement("div");
+            text.setAttribute("class", "btn btn-1 btn-outline-warning");
+            // newCriterionnote.setAttribute("style", "width:50%;border:transparent;");
+            text.innerHTML = "Top criterion :";
+
+
+            
+            inputGroup.insertBefore(newCriterionnote,inputGroup.firstChild);
+            inputGroup.insertBefore(newCriterionTitle,inputGroup.firstChild);
+            inputGroup.insertBefore(text,inputGroup.firstChild);
 
 
             return video2;

@@ -17172,7 +17172,7 @@ textarea[resize='horizontal']
     font-weight: 600; */
     font-size: .700rem;
     font-weight: 800; 
-    /* display: inline-block; */
+    display: inline-block;
 
     padding: .25rem 1rem;
 

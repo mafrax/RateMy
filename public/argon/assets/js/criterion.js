@@ -61,7 +61,12 @@ function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
 }
 
 function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVotes, max_div, newOrFound) {
+
   var new_numero = length;
+  
+  var criterionContainer = document.createElement("div");
+  criterionContainer.setAttribute("id", "criterionContainer" + videoNo + "_" + new_numero + "");
+
   var levelGlobal = 50 + level / 2;
   var html1 = '<div class=" progress-info flex-wrap">' +
     '<div class="progress-label flex-wrap">' +
@@ -149,17 +154,17 @@ function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVote
   // new_element.setAttribute('style', 'position: relative;');
   if (videoNo === 0) {
     new_element1.innerHTML = html1;
-    max_div.appendChild(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
+    criterionContainer.appendChild(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
 
   }
   else {
     new_element1.innerHTML = html3;
     if (newOrFound) {
-      max_div.insertBefore(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
+      criterionContainer.insertBefore(new_element1, document.getElementById("wrapper" + videoNo + "_0"));
 
     }
     else {
-      max_div.appendChild(new_element1);
+      criterionContainer.appendChild(new_element1);
 
     }
   }
@@ -168,17 +173,68 @@ function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVote
   new_element2.setAttribute("id", "slider-container" + new_numero);
   new_element2.innerHTML = html2;
   if (videoNo === 0) {
-    max_div.appendChild(new_element2);
+    criterionContainer.appendChild(new_element2);
   }
   else {
     if (newOrFound) {
-      max_div.insertBefore(new_element2, document.getElementById("wrapper" + videoNo + "_0"));
+      criterionContainer.insertBefore(new_element2, document.getElementById("wrapper" + videoNo + "_0"));
     }
     else {
-      max_div.appendChild(new_element2);
+      criterionContainer.appendChild(new_element2);
     }
   }
 
+
+  var globalNotes = max_div.querySelectorAll('span[id^="globalNote"]'); 
+  var prev ={} ;
+  var inserted = 0;
+  prev["id"] = 0;
+var pos= 0 ;
+console.log(globalNotes);
+
+if(globalNotes.length === 0){
+  console.log("First " + level)
+  max_div.appendChild(criterionContainer);
+
+} else {
+  
+  for (var prop in globalNotes) {
+    if (globalNotes.hasOwnProperty(prop)) {
+
+      console.log(globalNotes[prop]);
+
+      var note = parseInt(globalNotes[prop].innerHTML);
+
+      if(globalNotes[prop]){
+
+
+        var curId = globalNotes[prop].id.substring(globalNotes[prop].id.indexOf("Note")+4, globalNotes[prop].id.indexOf("_"));
+        var prevCont = max_div.querySelector("#criterionContainer"+videoNo+"_"+prev["id"]+"");
+
+        if(note>level){
+          prev["note"] = note;
+          prev["id"] = curId;          
+            console.log(prev["id"])
+            console.log("HIGHER" +note +" than" +level );
+
+            var beforeElement = max_div.querySelector("#criterionContainer"+videoNo+"_"+prev["id"]+"");
+            console.log(beforeElement)
+            console.log(criterionContainer)
+            console.log(new_numero + "inserted after " +prev["id"])
+            max_div.insertBefore(criterionContainer, beforeElement.nextSibling);
+            inserted = 1;
+        } else {
+          pos++;
+        }
+        if(pos === globalNotes.length && inserted!=1){
+          max_div.insertBefore(criterionContainer,max_div.firstChild);
+        }
+
+      } 
+    }
+  }
+
+}
   $('[data-toggle="tooltip"]').tooltip();
 
   return new_numero;

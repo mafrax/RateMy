@@ -322,9 +322,9 @@ function fillLists(message) {
     }
   }
 
-$("#over18Button").click(function(){
-  socket.emit("updateAgeSession");
-})
+// $("#over18Button").click(function(){
+//   socket.emit("updateAgeSession");
+// })
 
   globalObj = message.videos;
 
