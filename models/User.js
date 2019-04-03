@@ -128,8 +128,8 @@ User.getUserRelationships = function(id, callback) {
 };
 
 User.getUserRelationshipsbyType = function(id,type, callback) {
-	// console.log("type");
-	// console.log(type);
+	// // console.log("type");
+	// // console.log(type);
 	var qp = {
 		query: [
 			'START n=node({userId})',
@@ -142,7 +142,7 @@ User.getUserRelationshipsbyType = function(id,type, callback) {
 			relation: type,
 		}
 	};
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		callback(null, result);
@@ -194,10 +194,10 @@ if(data.props.city){
 				newCity.cityName = data.props.city;
 						
 					City.create(newCity, function (err, city) {
-						// console.log("truc");
+						// // console.log("truc");
 						User.getUserRelationshipsbyType(data.id,'livesIn', function(err, result){
-							// console.log("result");
-							// console.log(result);
+							// // console.log("result");
+							// // console.log(result);
 								if(result != null && result.length != null	&& result.length > 0){
 									NodeJS.updateUserRelationship(data.id, city._id, function(err){
 										if (err) return next(err);
@@ -221,7 +221,7 @@ if(data.props.city){
 		}
 
 
-// console.log(qp);
+// // console.log(qp);
 	db.cypher(qp, function (err, results) {
 		if (err) return callback(err);
 		callback(null, results[0]['user']);

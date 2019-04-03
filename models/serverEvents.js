@@ -15,16 +15,16 @@ var app = require("../app.js")
 var serverEvents = module.exports = function(io){
   io.sockets.on('connection', function (socket) {
 
-    console.log('Un client est connecté !');
-    console.log('Un client est connecté ! again');
-    console.log(app);
+    // console.log('Un client est connecté !');
+    // console.log('Un client est connecté ! again');
+    // console.log(app);
     console.time("dbsave2");
 
     var userSession = socket.handshake.session;
 
 
 
-        console.log('A socket with sessionID ' + socket.handshake.sessionID 
+        // console.log('A socket with sessionID ' + socket.handshake.sessionID 
         + ' connected!');
 
 pageLoader.loadHomePage(function( videoWithTags){    
@@ -46,7 +46,7 @@ console.timeEnd("dbsave2");
       
       // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
       socket.on('messageUploadfromClient', function (message) {
-          console.log('Un client me parle ! Il me dit : messageUploadfromClient ' + message);
+          // console.log('Un client me parle ! Il me dit : messageUploadfromClient ' + message);
 
           crawler.crawl(message, function(url, title, tags, thumbNails){
               // crawler.crawl(url2, function(url){
@@ -61,13 +61,13 @@ console.timeEnd("dbsave2");
       });
 
       socket.on('updateAgeSession', function (message) {
-        console.log(message);
+        // console.log(message);
         socket.handshake.session.age = "18";    
-        console.log(socket);
+        // console.log(socket);
       })
 
       socket.on('validateNoteFromClient', function (message) {
-        // console.log('Un client me parle ! Il me dit : ' + message);
+        // // console.log('Un client me parle ! Il me dit : ' + message);
 
 
         video.getCriterionWithRelAndTag(message.videoId, message.tagName, function(_err, result){
@@ -104,7 +104,7 @@ console.timeEnd("dbsave2");
                 data["tagName"] = message.tagName;
                 tag.create(data, function(err, result){
                   video.createRelationShipWithTag(message.videoId, message.noteUser,result._id, function(err, result){
-                    // console.log(result);
+                    // // console.log(result);
                     setTagLevel(message, result, socket);
                   })
                 })
@@ -123,7 +123,7 @@ console.timeEnd("dbsave2");
 
 
       socket.on('messageSavefromClient', function (message) {
-       console.log('Un client me parle ! Il me dit messageSavefromClient: ' + message);
+       // console.log('Un client me parle ! Il me dit messageSavefromClient: ' + message);
 
         var newVideo = {};
         newVideo.originalUrl = message.originalUrlField;
@@ -135,9 +135,9 @@ console.timeEnd("dbsave2");
 
         video.create(newVideo, message.tags, function (err, video1) {
 						
-          console.log(err);
-          console.log(video1);
-          console.log("AFTER CREATE: "+video1);
+          // console.log(err);
+          // console.log(video1);
+          // console.log("AFTER CREATE: "+video1);
           if (err)
           return next(err);
 
@@ -155,17 +155,17 @@ console.timeEnd("dbsave2");
 
 
     socket.on('searchValidatedFromClient', function (searchTags) {
-      // console.log('Un client me parle ! Il me dit : ' + searchTags);
+      // // console.log('Un client me parle ! Il me dit : ' + searchTags);
 
       video.searchByCriterionLevel(searchTags, function (err, videos) {
  
 
-        console.log(err);
+        // console.log(err);
         if (err)
         return next(err);
 
 
-        console.log(videos);
+        // console.log(videos);
         var vidIds = [];
         videos.sort(function(a, b) {
           a = a.v.properties.timeStamp;
@@ -191,20 +191,20 @@ console.timeEnd("dbsave2");
 function setTagLevel(message, result, socket) {
   if (message.direction < 0) {
     video.resetRelationLevel(result.rel._id, result.rel.properties.previousLevel, result.rel.properties.votes, function (_err, result2) {
-      // console.log(result2);
+      // // console.log(result2);
       socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2.rel.properties.level });
     });
   }
   else {
     if (result.rel.properties.votes == null) {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
-        // console.log(result2);
+        // // console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
       });
     }
     else {
       video.updateRelationLevel(result.rel._id, result.rel.properties.level, result.rel.properties.votes, message.noteUser, message.previousNote, function (_err, result2) {
-        // console.log(result2);
+        // // console.log(result2);
         socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level });
       });
     }
@@ -212,7 +212,7 @@ function setTagLevel(message, result, socket) {
 }
 
 function getCookie(cookie){
-  console.log(cookie);
+  // console.log(cookie);
 }
 
 }

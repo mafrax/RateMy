@@ -19,7 +19,7 @@ NodeJS.addRelationship = function(relation, nodeId, otherNodeId, callback) {
 
 	switch (relation) {
 		case 'follow':
-		// console.log('follow');
+		// // console.log('follow');
 			var qp = {
 				query: [
 					'MATCH (user:User),(other:User)',
@@ -36,7 +36,7 @@ NodeJS.addRelationship = function(relation, nodeId, otherNodeId, callback) {
 
 		break;
 		case 'unfollow':
-		// console.log('unfollow');
+		// // console.log('unfollow');
 			var qp = {
 				query: [
 					'MATCH (user:User) -[rel:follows]-> (other:User)',
@@ -84,7 +84,7 @@ NodeJS.getUserRelationships = function(id, callback) {
 		}
 	}
 
-	// console.log("query user relations:" + qp);
+	// // console.log("query user relations:" + qp);
 
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
@@ -93,8 +93,8 @@ NodeJS.getUserRelationships = function(id, callback) {
 }
 
 NodeJS.getUserRelationshipsbyType = function(id,type, callback) {
-	// console.log("type");
-	// console.log(type);
+	// // console.log("type");
+	// // console.log(type);
 	var qp = {
 		query: [
 			'START n=node({nodeId})',
@@ -107,7 +107,7 @@ NodeJS.getUserRelationshipsbyType = function(id,type, callback) {
 			relation: type,
 		}
 	};
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		callback(null, result);
@@ -115,18 +115,18 @@ NodeJS.getUserRelationshipsbyType = function(id,type, callback) {
 };
 
 NodeJS.updateUserRelationship = function(id,city, callback) {
-	// console.log("entered update user relationship");
+	// // console.log("entered update user relationship");
 	NodeJS.getUserRelationships(id, function(err, result){
-		// console.log(result[0].n);
-		// console.log(result[0].r);
-		// console.log(result[0].m);
+		// // console.log(result[0].n);
+		// // console.log(result[0].r);
+		// // console.log(result[0].m);
 		
 		result.forEach(element => {
-			// console.log("for e");
-			// console.log(element);
+			// // console.log("for e");
+			// // console.log(element);
 			
 				if (element.r.type === "livesIn"){
-					// console.log("rel found");
+					// // console.log("rel found");
 					var qp = {
 						query: [
 							'MATCH (user:User) -[oldRel:livesIn]-> (other:City)',
@@ -143,19 +143,19 @@ NodeJS.updateUserRelationship = function(id,city, callback) {
 							newOtherID: city
 						}
 					}
-					// console.log("in livesIn");
+					// // console.log("in livesIn");
 					db.cypher(qp, function (err, result) {
 						if (err) return callback(err);
 						callback(null, result);
 					});
 				} else if (element.r.type === "livedIn" ) {
-					// console.log("else if");
+					// // console.log("else if");
 					
 				} else {
-					// console.log("fail");					
+					// // console.log("fail");					
 				}
 			
 		});
 	});
-	// console.log(id);
+	// // console.log(id);
 };

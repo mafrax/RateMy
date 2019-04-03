@@ -25,7 +25,7 @@ var csvDownloader = (module.exports = function csvDownloader(_node) {
     // .pipe(csv({ separator: '\,' }))
     // .on('data', results.push)
     // .on('end', () => {
-    //   // console.log(results);
+    //   // // console.log(results);
     //   // [
     //   //   { NAME: 'Daffy Duck', AGE: 24 },
     //   //   { NAME: 'Bugs Bunny', AGE: 22 }
@@ -45,7 +45,7 @@ var csvDownloader = (module.exports = function csvDownloader(_node) {
     //     })
     //     .fromFile(csvFilePath)
     //     .then((jsonObj)=>{
-    //         // console.log(jsonObj);
+    //         // // console.log(jsonObj);
     //         /**
     //          * [
     //          * 	{a:"1", b:"2", c:"3"},
@@ -61,20 +61,20 @@ var csvDownloader = (module.exports = function csvDownloader(_node) {
     //     converter.fromFile(csvFilePath,function(err,result){
     //         // if an error has occured then handle it
     //         if(err){
-    //             // console.log("An Error Has Occured");
-    //             // console.log(err);  
+    //             // // console.log("An Error Has Occured");
+    //             // // console.log(err);  
     //         } 
     //         // create a variable called json and store
     //         // the result of the conversion
     //         var json = result;
             
     //         // log our json to verify it has worked
-    //         // console.log(json);
+    //         // // console.log(json);
     //     });
 
 
     csv2().fromFile('test.csv').on("json",function(jsonArrayObj){ 
-        // console.log(jsonArrayObj); 
+        // // console.log(jsonArrayObj); 
       })
 
 

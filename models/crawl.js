@@ -12,13 +12,13 @@ var Crawler = (module.exports = function Crawler(_node) {
 Crawler.crawl = function(url, cb) {
   if (url.includes("?")) {
     var parts = url.split("?");
-    // console.log(parts[0]);
+    // // console.log(parts[0]);
     var qsArray = parts[1].split("=");
     var vK = qsArray[0];
     var vkValue = qsArray[1];
     var truc = vK.valueOf();
 
-    // console.log(truc);
+    // // console.log(truc);
 
     var options = {
       uri: parts[0],
@@ -34,7 +34,7 @@ Crawler.crawl = function(url, cb) {
       }
     };
 
-    // console.log(options.qs);
+    // // console.log(options.qs);
     options.qs[vK.valueOf()] = vkValue;
   } else {
     var options = {
@@ -71,13 +71,13 @@ Crawler.crawl = function(url, cb) {
   }
         }
 
-        console.log(thumbNails);
+        // console.log(thumbNails);
 
         var newHtml = [];
 
         if (p.length > 0) {
           $("meta[content*='embed'][content*='https']").each(function() {
-            // console.log($(this).attr().content);
+            // // console.log($(this).attr().content);
             newHtml.push($(this).attr().content);
           });
         } else if (q) {
@@ -91,7 +91,7 @@ Crawler.crawl = function(url, cb) {
                 $(this).text().length - 1
               );
             var subsub = sub.substring(0, sub.indexOf('"'));
-            // console.log(subsub)
+            // // console.log(subsub)
             newHtml.push(subsub);
           });
         }
@@ -109,14 +109,14 @@ Crawler.crawl = function(url, cb) {
 
           if (tpgs) {
             $("a[href*='categor']").each(function() {
-              // console.log($(this).closest("[class*='menu']"));
+              // // console.log($(this).closest("[class*='menu']"));
               if (
                 $(this).closest("div[id*='menu']").length === 0 &&
                 $(this).closest("[class*='menu']").length === 0 &&
                 $(this).closest("[class*='aside']").length === 0 &&
                 $(this).closest("[class*='header']").length === 0
               ) {
-                // console.log($(this).text());
+                // // console.log($(this).text());
                 tags.push($(this).text());
               }
             });
@@ -130,7 +130,7 @@ Crawler.crawl = function(url, cb) {
                 $(this).closest("[class*='aside']").length === 0 &&
                 $(this).closest("[class*='header']").length === 0
               ) {
-                // console.log($(this).text());
+                // // console.log($(this).text());
                 tags.push($(this).text());
               }
             });
@@ -157,7 +157,7 @@ Crawler.crawl = function(url, cb) {
                 $(this).closest("[class*='aside']").length === 0 &&
                 $(this).closest("[class*='header']").length === 0
               ) {
-                // console.log($(this).text());
+                // // console.log($(this).text());
                 tags.push($(this).text());
               }
             });
@@ -184,19 +184,19 @@ Crawler.crawl = function(url, cb) {
 
           uniqueTags.forEach(function(element) {
             tagsBase.getBy("tag.tagName", element, function(err, tag) {
-                // console.log("tag "+tag);
-                // console.log("error "+err);
+                // // console.log("tag "+tag);
+                // // console.log("error "+err);
                 if (err!=null && tag !== "undefined") {
-                  // console.log("tag already in base");
+                  // // console.log("tag already in base");
                 } else {
-                  // console.log(tag);
+                  // // console.log(tag);
                   var newTag = {};
                   newTag.tagName = element;
                   newTag.timestamp = new Date();
   
                   tagsBase.create(newTag, function(err, tag) {
-                    // console.log(tag);
-                    // console.log(err);
+                    // // console.log(tag);
+                    // // console.log(err);
                     if (err) return next(err);
                   });
                 }
@@ -205,17 +205,17 @@ Crawler.crawl = function(url, cb) {
           });
         }
       } catch (e) {
-        // console.log(e);
+        // // console.log(e);
       }
     })
     .catch(function(err) {
-      console.log(err);
+      // console.log(err);
       // rejected
     });
 };
 
 Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
-  // console.log(originalUrl);
+  // // console.log(originalUrl);
 
   if(url==null){
       return "We are very sorry, but we couldn't find any embed video on this page. Please make sure you used the correct link or send us an email with the link and we will try our best to troubleshoot your problem";

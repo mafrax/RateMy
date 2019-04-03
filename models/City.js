@@ -10,9 +10,9 @@ var City = module.exports = function City(_node) {
 }
 
 City.getBy = function (field, value, callback) {
-	// console.log('entered getby');
-	// console.log(value);
-	// console.log(field);
+	// // console.log('entered getby');
+	// // console.log(value);
+	// // console.log(field);
 	var qp = {
 		query: [
 			'MATCH (city:City)','WHERE ' + field + ' = {value}','RETURN city',
@@ -23,16 +23,16 @@ City.getBy = function (field, value, callback) {
 			value: value
 		}
 	}
-// console.log(qp);
+// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result[0]);
+			// // console.log('1');
+			// // console.log(result[0]);
 			callback(null, null);
 		} else {
-			// console.log('2');
-			// console.log(result[0]);
+			// // console.log('2');
+			// // console.log(result[0]);
 			callback(null, result[0]['city']);
 		}
 	});
@@ -40,7 +40,7 @@ City.getBy = function (field, value, callback) {
 
 // creates the user and persists (saves) it to the db, incl. indexing it:
 City.create = function (data, callback) {
-  // console.log(data);
+  // // console.log(data);
   City.getAll(function(err, cities){
 	var c = new Array();
 	c = cities;
@@ -54,12 +54,12 @@ City.create = function (data, callback) {
 			data: data
 		}
 	}
-	// console.log('after query');
-	// console.log(qp);
+	// // console.log('after query');
+	// // console.log(qp);
 	db.cypher(qp, function (err, results) {
 		if (err) return callback(err);
 		callback(null, results[0]['city']);
-		// console.log(results);
+		// // console.log(results);
 	});
 };
 

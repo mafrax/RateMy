@@ -30,10 +30,10 @@ aria.ListboxCombobox = function (
     onShow,
     onHide
   ) {
-    // console.log("hello");
-    // console.log(this);
-    // console.log(comboboxNode);
-    // console.log(listbox);
+    // // console.log("hello");
+    // // console.log(this);
+    // // console.log(comboboxNode);
+    // // console.log(listbox);
     this.combobox = comboboxNode;
     this.input = input;
     this.listbox = listbox;
@@ -51,8 +51,8 @@ aria.ListboxCombobox = function (
   };
   
   aria.ListboxCombobox.prototype.setupEvents = function () {
-    // console.log("darkness");
-    // console.log(this);
+    // // console.log("darkness");
+    // // console.log(this);
     document.body.addEventListener('click', this.checkHide.bind(this));
     this.input.addEventListener('keyup', this.checkKey.bind(this));
     this.input.addEventListener('keydown', this.setActiveItem.bind(this));
@@ -63,7 +63,7 @@ aria.ListboxCombobox = function (
   
   aria.ListboxCombobox.prototype.checkKey = function (evt) {
     var key = evt.which || evt.keyCode;
-    // console.log("old friend");
+    // // console.log("old friend");
     switch (key) {
       case aria.KeyCode.UP:
       case aria.KeyCode.DOWN:
@@ -88,11 +88,11 @@ aria.ListboxCombobox = function (
   aria.ListboxCombobox.prototype.updateResults = function (shouldShowAll) {
     var searchString = this.input.value;
 
-        // console.log(this);
+        // // console.log(this);
         var id = this.input.id;
-        // console.log(id);       
+        // // console.log(id);       
         var no = id.substring(9, id.length);  
-        // console.log(no);
+        // // console.log(no);
 
     var results = this.searchFn(searchString, no);
   
@@ -112,8 +112,8 @@ aria.ListboxCombobox = function (
         if (this.shouldAutoSelect && i === 0) {
           resultItem.setAttribute('aria-selected', 'true');
           // aria.Utils.addClass(resultItem, 'focused');
-          // console.log('hi3');
-          // console.log(resultItem);
+          // // console.log('hi3');
+          // // console.log(resultItem);
           this.activeIndex = 0;
         }
         this.listbox.appendChild(resultItem);
@@ -188,7 +188,7 @@ aria.ListboxCombobox = function (
   
     if (prevActive) {
       aria.Utils.removeClass(prevActive, 'focused');
-      // console.log('hi4');
+      // // console.log('hi4');
       prevActive.setAttribute('aria-selected', 'false');
     }
   
@@ -198,7 +198,7 @@ aria.ListboxCombobox = function (
         'result-item-' + activeIndex
       );
       aria.Utils.addClass(activeItem, 'focused');
-      // console.log('hi5');
+      // // console.log('hi5');
       activeItem.setAttribute('aria-selected', 'true');
       if (this.hasInlineAutocomplete) {
         this.input.value = activeItem.innerText;
@@ -217,7 +217,7 @@ aria.ListboxCombobox = function (
   };
   
   aria.ListboxCombobox.prototype.clickItem = function (evt) {
-    // console.log('hi6');
+    // // console.log('hi6');
     if (evt.target && evt.target.nodeName == 'LI') {
       this.selectItem(evt.target);
     }
@@ -226,11 +226,11 @@ aria.ListboxCombobox = function (
   aria.ListboxCombobox.prototype.selectItem = function (item) {
     if (item) {
       this.input.value = item.innerText;
-      // console.log(this);
+      // // console.log(this);
       if(this.input.id === "ex1-input0"){
         addSearchCriterion();  
         fillOrderList();
-        // console.log($("#ex1-input")) ;           
+        // // console.log($("#ex1-input")) ;           
       } else if(this.input.id === "input"){
         // var combobox3 = document.getElementById('comboboxOrder1');
         // combobox3.setAttribute('class','hidden');
@@ -239,11 +239,11 @@ aria.ListboxCombobox = function (
         var orderCriterionName = document.getElementById('orderCriterionNameValidated');
         orderCriterionName.innerHTML = item.innerText;        
       } else {
-        // console.log(this);
+        // // console.log(this);
         var id = this.input.id;
-        // console.log(id);       
+        // // console.log(id);       
         var no = id.substring(9, id.length);  
-        // console.log(no);
+        // // console.log(no);
         // make criterion go up the list
       }
       this.input.value = "";
@@ -257,14 +257,14 @@ aria.ListboxCombobox = function (
   
   aria.ListboxCombobox.prototype.checkHide = function (evt) {
     if (evt.target === this.input || this.combobox.contains(evt.target)) {
-      // console.log('hi7');
+      // // console.log('hi7');
       return;
     }
     this.hideListbox();
   };
   
   aria.ListboxCombobox.prototype.hideListbox = function () {
-    // console.log("how are you");
+    // // console.log("how are you");
     this.shown = false;
     this.activeIndex = -1;
     this.listbox.innerHTML = '';
@@ -282,15 +282,15 @@ aria.ListboxCombobox = function (
     if (this.activeIndex < 0) {
       return;
     }
-    // console.log('hi1');
-    // console.log(this.activeIndex);
+    // // console.log('hi1');
+    // // console.log(this.activeIndex);
     var activeItem = this.getItemAt(this.activeIndex);
     this.selectItem(activeItem);
   };
   
   aria.ListboxCombobox.prototype.autocompleteItem = function () {
     var autocompletedItem = this.listbox.querySelector('.focused');
-    // console.log('hi2');
+    // // console.log('hi2');
     
     if (!autocompletedItem || !inputText) {
       return;

@@ -12,9 +12,9 @@ var Video = module.exports = function Video(_node) {
 }
 
 Video.getBy = function (field, value, callback) {
-	// console.log('entered getby');
-	// console.log(value);
-	// console.log(field);
+	// // console.log('entered getby');
+	// // console.log(value);
+	// // console.log(field);
 	var qp = {
 		query: [
 			'MATCH (video:video)', 'WHERE ' + field + ' = {value}', 'RETURN video',
@@ -25,25 +25,25 @@ Video.getBy = function (field, value, callback) {
 			value: value
 		}
 	}
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result[0]);
+			// // console.log('1');
+			// // console.log(result[0]);
 			callback(null, null);
 		} else {
-			// console.log('2');
-			// console.log(result[0]);
+			// // console.log('2');
+			// // console.log(result[0]);
 			callback(null, result[0]['video']);
 		}
 	});
 }
 
 Video.getLatestEntry = function (callback) {
-	// console.log('entered getby');
-	// console.log(value);
-	// console.log(field);
+	// // console.log('entered getby');
+	// // console.log(value);
+	// // console.log(field);
 	var qp = {
 		query: [
 			'MATCH (video:Video)', 'RETURN video', 'ORDER BY video.timeStamp DESC LIMIT 1'
@@ -53,12 +53,12 @@ Video.getLatestEntry = function (callback) {
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result[0]);
+			// // console.log('1');
+			// // console.log(result[0]);
 			callback(null, null);
 		} else {
-			// console.log('2');
-			// console.log(result[0]);
+			// // console.log('2');
+			// // console.log(result[0]);
 			callback(null, result[0]['video']);
 		}
 	});
@@ -66,9 +66,9 @@ Video.getLatestEntry = function (callback) {
 
 
 Video.searchByCriterionLevel = function (tag, callback) {
-	// console.log('entered searchByCriterionLevel');
+	// // console.log('entered searchByCriterionLevel');
 
-// console.log(tag);
+// // console.log(tag);
 
 
 var truc = [];
@@ -98,16 +98,16 @@ truc.push('RETURN v');
 		,
 		params: par
 	}
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result);
+			// // console.log('1');
+			// // console.log(result);
 			callback(null, result);
 		} else {
-			// console.log('2');
-			// console.log(result);
+			// // console.log('2');
+			// // console.log(result);
 			callback(null, result);
 		}
 	});
@@ -116,41 +116,41 @@ truc.push('RETURN v');
 
 // creates the user and persists (saves) it to the db, incl. indexing it:
 Video.create = function (data, tags, callback) {
-	// console.log("video create "+data);
+	// // console.log("video create "+data);
 
 	var size = Object.keys(tags).length;
-	// console.log("into video Create: " + size)
+	// // console.log("into video Create: " + size)
 	if (size>0) {
 		Video.computeQuery(data, tags, function (quer) {
-			// console.log("compute Query" +quer);
+			// // console.log("compute Query" +quer);
 			var qp = quer;
 			db.cypher(qp, function (err, results) {
 				if (err) {
-					console.log(err);
+					// console.log(err);
 					return callback(err);
 				}
-				// console.log("Video CREATED "+results);
+				// // console.log("Video CREATED "+results);
 				callback(null, results);
-				// console.log(results);
+				// // console.log(results);
 			});
 
 		})
 
 	} else {
-		// console.log("2");
+		// // console.log("2");
 		var qp = {
 			query: [
 				'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" })',
 				'RETURN video',
 			].join('\n')
 		}
-		// console.log('after query');
-		// console.log(qp);
+		// // console.log('after query');
+		// // console.log(qp);
 		db.cypher(qp, function (err, results) {
 			if (err) return callback(err);
-			// console.log("Video CREATED "+results[0]['video']);
+			// // console.log("Video CREATED "+results[0]['video']);
 			callback(null, results[0]['video']);
-			// console.log(results);
+			// // console.log(results);
 		});
 	}
 
@@ -173,7 +173,7 @@ Video.getAll = function (callback) {
 Video.computeQuery = function (data, tags, callback) {
 
         var quer ="";
-		// console.log("inside compute query, criterion getAll: "+ result);
+		// // console.log("inside compute query, criterion getAll: "+ result);
 		if(data.thumbNails == null || data.thumbNails.length==0){
 		quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" }) \n';
 		} else {
@@ -194,7 +194,7 @@ Video.computeQuery = function (data, tags, callback) {
 
 
 Video.getCriterionWithRelAndTag = function (videoId, tagName, callback) {
-	// console.log('entered searchByCriterionLevel');
+	// // console.log('entered searchByCriterionLevel');
 
 
 
@@ -213,17 +213,17 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(result);
+		// // console.log(result);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result);
+			// // console.log('1');
+			// // console.log(result);
 			callback(null, result);
 		} else {
-			// console.log('2');
-			// console.log(result);
+			// // console.log('2');
+			// // console.log(result);
 			callback(null, result);
 		}
 	});
@@ -231,7 +231,7 @@ var par = {};
 
 
 Video.updateRelationLevel = function (relId,relLevel,numberofVotes,levelUser,previous, callback) {
-	// console.log('entered searchByCriterionLevel');
+	// // console.log('entered searchByCriterionLevel');
 
 	var newVotes = numberofVotes+1;
 	var roundedNumber = Math.round(relLevel * 10) / 10;
@@ -253,24 +253,24 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(result);
+		// // console.log(result);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result);
+			// // console.log('1');
+			// // console.log(result);
 			callback(null, result);
 		} else {
-			// console.log('2');
-			// console.log(result);
+			// // console.log('2');
+			// // console.log(result);
 			callback(null, result);
 		}
 	});
 }
 
 Video.resetRelationLevel = function (relId,relLevel,numberofVotes, callback) {
-	// console.log('entered searchByCriterionLevel');
+	// // console.log('entered searchByCriterionLevel');
 
 	var newVotes = numberofVotes-1;
 
@@ -287,17 +287,17 @@ Video.resetRelationLevel = function (relId,relLevel,numberofVotes, callback) {
 		,
 		params: par
 	}
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(result);
+		// // console.log(result);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result);
+			// // console.log('1');
+			// // console.log(result);
 			callback(null, result);
 		} else {
-			// console.log('2');
-			// console.log(result);
+			// // console.log('2');
+			// // console.log(result);
 			callback(null, result[0]);
 		}
 	});
@@ -319,17 +319,17 @@ var par = {};
 		,
 		params: par
 	}
-	// console.log(qp);
+	// // console.log(qp);
 	db.cypher(qp, function (err, result) {
 		if (err) return callback(err);
-		// console.log(result);
+		// // console.log(result);
 		if (!result[0]) {
-			// console.log('1');
-			// console.log(result);
+			// // console.log('1');
+			// // console.log(result);
 			callback(null, result);
 		} else {
-			// console.log('2');
-			// console.log(result);
+			// // console.log('2');
+			// // console.log(result);
 			callback(null, result[0]);
 		}
 	});

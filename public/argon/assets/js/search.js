@@ -2,13 +2,13 @@
 // $("#ex1-input").on('keyup', function (e) {
 //     if (e.keyCode == 13) {
 //         addSearchCriterion();  
-//         // console.log($("#ex1-input")) ;
+//         // // console.log($("#ex1-input")) ;
 //         $("#ex1-input").val('');   
 //     }
 // });
 
 $('#mainSearchButton').mouseleave(function(){
-    // console.log("focusout");
+    // // console.log("focusout");
     $(this).tooltip('hide')
     .attr('data-original-title', "Here you can add as many search criterii as you want. Each criterion can be searched with a lower and higher value. Use this to find your perfect porn video")
 });
@@ -24,7 +24,7 @@ function addSearchCriterion() {
     var mainSearchButton = document.getElementById("mainSearchButton");
     
     if(mainSearch.value == ""){
-        // console.log(mainSearchButton.title);
+        // // console.log(mainSearchButton.title);
         // $('#mainSearchButton').tooltip('hide');
         // mainSearchButton.setAttribute("title", "Please enter a valid search criterion");
         // $('#mainSearchButton').tooltip('show');
@@ -39,10 +39,10 @@ function addSearchCriterion() {
 
         var truc = document.querySelectorAll("[id^='searchCriterion']");
         var no = truc.length+1;
-        // console.log(no);
-        // console.log(truc);
-        // console.log($('.comon-slider-range'));
-        // console.log($(".input-slider-container"));
+        // // console.log(no);
+        // // console.log(truc);
+        // // console.log($('.comon-slider-range'));
+        // // console.log($(".input-slider-container"));
     
         var html = ' <div class="progress-wrapper">' +
             '<div class="progress-info flex-wrap">' +
@@ -100,10 +100,10 @@ function addSearchCriterion() {
                       g = document.getElementById("criterionLowRange"+no),
                       h = document.getElementById("criterionHighRange"+no);
           
-                  // console.log(c) ; 
-                  // console.log(d) ; 
-                  // console.log(e) ; 
-                  // console.log(f) ; 
+                  // // console.log(c) ; 
+                  // // console.log(d) ; 
+                  // // console.log(e) ; 
+                  // // console.log(f) ; 
     
     
                   noUiSlider.create(c, {
@@ -121,8 +121,8 @@ function addSearchCriterion() {
                       h.innerHTML = e.innerHTML;
                   })
     
-                  // console.log(d.getAttribute('data-range-value-low'));
-                  // console.log($('#collapseSearchButton'));
+                  // // console.log(d.getAttribute('data-range-value-low'));
+                  // // console.log($('#collapseSearchButton'));
                   $('#collapseSearchButton').show();
     }
     fillOrderList();
@@ -135,12 +135,12 @@ function deleteSearchCriterion(no) {
    var searchCellContainer = document.getElementById("searchCellContainer");
    searchCellContainer.removeChild(searchCriterion);
    var remains = searchCellContainer.querySelectorAll("[id^='searchCriterion']");
-   // console.log(remains);
+   // // console.log(remains);
    if(remains.length===0){
 
     var mainFrame = document.getElementById("mainFrame1");
     mainFrame.innerHTML = "";
-    // console.log(ALL_VID);
+    // // console.log(ALL_VID);
     currentSearch = {};
 
     build36Frames(mainFrame, globalCells, globalOrder);

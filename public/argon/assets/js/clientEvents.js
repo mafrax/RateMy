@@ -17,11 +17,11 @@ socket.on("loadHomePageFromServer", function(message) {
   console.log(message.session);
 
   if(message.session.age == 18){
-
+    console.log("over 18 !!!!!");
     console.log(message.session);
 
   } else {
-
+    console.log("under 18 !!!!!");
     console.log(message.session);
     //only this makes the modal pop
     $('#age-restriction-modal').modal({
@@ -37,22 +37,22 @@ socket.on("loadHomePageFromServer", function(message) {
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
 
-  // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
-  console.log(message);
+  // // console.log("NEEEEEEEEEEEEW FUCKING VERSION");
+  // console.log(message);
   
   console.time("dbsave");
   for (var prop in message.videos) {
     if (message.videos.hasOwnProperty(prop)) {
-      // console.log("inside loading 1 :  "+message.videos[prop].video._id);
+      // // console.log("inside loading 1 :  "+message.videos[prop].video._id);
 
-      console.log(prop);
+      // console.log(prop);
       var totalVotes = 0;
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-12 col-md-4 flex-wrap");
       newDiv.setAttribute("id", "cell" + message.videos[prop].video._id);
 
       var videoWithIframe = buildIframe(message.videos[prop]);
-      // console.log("inside loading 2 :  "+videoWithIframe);
+      // // console.log("inside loading 2 :  "+videoWithIframe);
 
       var tagMachin2 = {};
       for (j = 0; j < message.videos[prop].tags.length; j++) {
@@ -91,11 +91,11 @@ socket.on("loadHomePageFromServer", function(message) {
 });
 
 socket.on("loadHomePageFromServer2", function(listofFoundIds) {
-  console.log("loadHomePageFromServer2");
+  // console.log("loadHomePageFromServer2");
 
   var mainframe = document.getElementById("mainFrame1");
   mainframe.innerHTML = "";
-  // console.log(globalVar);
+  // // console.log(globalVar);
   i = 0;
   for (var prop in globalVar) {
     if (globalVar.hasOwnProperty(prop)) {
@@ -130,17 +130,17 @@ socket.on("loadHomePageFromServer2", function(listofFoundIds) {
 });
 
 socket.on("messageUploadfromServer", function(message) {
-  console.log(message.originalUrlField);
-  console.log(message.htmlfield);
-  console.log(message.titlefield);
+  // console.log(message.originalUrlField);
+  // console.log(message.htmlfield);
+  // console.log(message.titlefield);
   $("#modal-body2").html(message.htmlfield);
   $("#modal-defaultLabel2").html(message.titlefield);
   initializeButoons();
   var demo = document.getElementById("demo" + 0);
-  console.log(message);
-  console.log(message.tags);
+  // console.log(message);
+  // console.log(message.tags);
   for (var key in message.tags) {
-    console.log(key);
+    // console.log(key);
     if (message.tags.hasOwnProperty(key)) {
       add_criterion(0, false, message.tags[key], 0);
       var container = demo.querySelector("#slider-container" + key);
@@ -151,21 +151,21 @@ socket.on("messageUploadfromServer", function(message) {
 });
 
 socket.on("validatedNoteFromServer", function(message) {
-  // console.log("wtf");
-  // console.log(message);
+  // // console.log("wtf");
+  // // console.log(message);
   var globalNote = document.getElementById(
     "globalNote" + message.tagId + "_" + message.vId
   );
-  console.log(globalNote);
-  console.log(message.newLevel);
+  // console.log(globalNote);
+  // console.log(message.newLevel);
   globalNote.innerHTML = message.newLevel;
   displayOtherCriterions(message.vId, message.tagId);
 });
 
 socket.on("videoSavedfromServer", function(message) {
-  console.log(message);
-  console.log(message.video);
-  console.log(message.tagField);
+  // console.log(message);
+  // console.log(message.video);
+  // console.log(message.tagField);
       var totalVotes = 0;
       var newDiv = document.createElement("div");
       newDiv.setAttribute("class", "col-12 col-md-4 flex-wrap");
@@ -178,7 +178,7 @@ socket.on("videoSavedfromServer", function(message) {
       
 
    
-      // console.log("inside loading 2 :  "+videoWithIframe);
+      // // console.log("inside loading 2 :  "+videoWithIframe);
 
       var tagMachin2 = {};
 
@@ -204,7 +204,7 @@ socket.on("videoSavedfromServer", function(message) {
           vidTags.push(tag);
         }
       }
-      console.log(vidTags);
+      // console.log(vidTags);
       newVid["tags"] = vidTags ;
       var videoWithIframe = buildIframe(newVid);
       newDiv.innerHTML = videoWithIframe["iframe"].outerHTML;
@@ -223,16 +223,16 @@ socket.on("videoSavedfromServer", function(message) {
 });
 
 $("#validateSearchButton").click(function() {
-  // console.log(ALL_VID);
+  // // console.log(ALL_VID);
   var searchcriterions = $("div[id*='searchCriterion']");
   if (searchcriterions.length === 0) {
     searchBool = false;
     window.location.replace("/");
   } else {
     searchBool = true;
-    // console.log(searchcriterions);
+    // // console.log(searchcriterions);
     var criterions = document.querySelectorAll('*[id^="searchCriterion"]');
-    // console.log(criterions);
+    // // console.log(criterions);
     var tagName = {};  
     var tag = {};
     criterions.forEach(function(element) {
@@ -241,7 +241,7 @@ $("#validateSearchButton").click(function() {
       taglevels.push(parseInt(element.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML));
       tag[element.querySelectorAll("span")[0].innerHTML.trim().toUpperCase()] = taglevels;
     });
-    // console.log(tagName);
+    // // console.log(tagName);
     fillOrderList();
 
 
@@ -250,8 +250,8 @@ $("#validateSearchButton").click(function() {
     if(!sortBool){
       currentSearch = {};
     }
-console.log(tag);
-console.log(Object.getOwnPropertyNames(tag))
+// console.log(tag);
+// console.log(Object.getOwnPropertyNames(tag))
 
         var firstFilter = [];
         var match = [];
@@ -263,16 +263,16 @@ console.log(Object.getOwnPropertyNames(tag))
             var tagsfound = [];
             for (i=0; i<tags.length; i++){
               if(Object.getOwnPropertyNames(tagMachin[props2]).includes(tags[i]) ){
-                console.log(tag[tags[i]][0]);
-                console.log(tagMachin[props2][tags[i]]);
+                // console.log(tag[tags[i]][0]);
+                // console.log(tagMachin[props2][tags[i]]);
                 if(tagMachin[props2][tags[i]]<= tag[tags[i]][1] && tagMachin[props2][tags[i]]>= tag[tags[i]][0]){
-                  console.log("lol");
+                  // console.log("lol");
                   tagsfound.push(tags[i]);
                 }
               }
             }
             if(tagsfound.length === tags.length){
-              console.log("lolilol");
+              // console.log("lolilol");
               match.push(props2);
               currentSearch[props2] = globalCells[props2];
 
@@ -287,21 +287,21 @@ if(!sortBool){
   var mainFrame = document.getElementById("mainFrame1");
   mainFrame.innerHTML = "";
   if(match.length>0){
-    console.log(foundtaginCell);
-    console.log(currentSearch);
+    // console.log(foundtaginCell);
+    // console.log(currentSearch);
     build36Frames(mainFrame, currentSearch);
 
   } else {
     var container = document.getElementById("searchCellContainer");
     var height = container.clientHeight +100;
-    console.log(height);
+    // console.log(height);
     var new_element = document.createElement("h1");
     new_element.innerHTML = "We are very sorry but we couldn't find any video that match your search" ;
     var new_element2 = document.createElement("div");
     new_element2.appendChild(new_element);
     new_element2.setAttribute("style", "height:"+height+"px;");
-    console.log(new_element2.clientHeight);
-    console.log(new_element2);
+    // console.log(new_element2.clientHeight);
+    // console.log(new_element2);
     mainFrame.appendChild(new_element2);
   }
 } else {
@@ -316,7 +316,7 @@ if(!sortBool){
 
 function fillLists(message) {
   tagNames = [];
-  // console.log(message.tags);
+  // // console.log(message.tags);
   for (var prop in message.tags) {
     if (
       message.tags.hasOwnProperty(prop) &&
@@ -332,29 +332,29 @@ $("#over18Button").click(function(){
 
   globalObj = message.videos;
 
-  console.log(globalObj);
+  // console.log(globalObj);
 
   tagNames.sort(function (a, b) {
     return a < b ? -1 : a > b ? 1 : 0;
 });
 
-  // console.log(tagNames);
+  // // console.log(tagNames);
   updateVeggies(tagNames);
-  // console.log(FRUITS_AND_VEGGIES2);
+  // // console.log(FRUITS_AND_VEGGIES2);
   initializeCombobox1(0);
-  // console.log(FRUITS_AND_VEGGIES2);
+  // // console.log(FRUITS_AND_VEGGIES2);
   // initializeCombobox3(0);
   lists = document.querySelectorAll('*[id^="ex1-"]');
-  // console.log(lists);
+  // // console.log(lists);
 }
 
 function launchCrawl() {
   var url1 = $("#field2").val();
 
-  // console.log($("#poke"));
+  // // console.log($("#poke"));
 
   if (url1 === "") {
-    // console.log("fils depute :" + url1);
+    // // console.log("fils depute :" + url1);
   } else {
     // $('#poke').modal('toggle');
     socket.emit("messageUploadfromClient", url1);
@@ -364,7 +364,7 @@ function launchCrawl() {
 }
 
 $("#uploadTooltip").mouseleave(function() {
-  // console.log("focusout");
+  // // console.log("focusout");
   $(this)
     .tooltip("hide")
     .attr(
@@ -374,8 +374,8 @@ $("#uploadTooltip").mouseleave(function() {
 });
 
 $("#field2").on("input", function() {
-  // console.log("YIPYIOP");
-  // console.log(this.value);
+  // // console.log("YIPYIOP");
+  // // console.log(this.value);
 
   if (this.value.includes("https:")) {
     if (this.value.includes("katestube")) {
@@ -403,7 +403,7 @@ $("#field2").on("input", function() {
 });
 
 // $("[id^=searchVideoBar]").on("", function() {
-//   // console.log(this.value);
+//   // // console.log(this.value);
 //   filterCriterion(this.value)
 //   return false; // Permet de bloquer l'envoi "classique" du formulaire . En fait, return false est équivalent à la fonction de jQuery preventDefault()
 // });
@@ -412,17 +412,17 @@ function modalSaveButtonClick() {
   var title = $("#modal-defaultLabel2").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
-  // console.log(title);
-  // console.log(originalUrl);
-  // console.log(embedUrl);
+  // // console.log(title);
+  // // console.log(originalUrl);
+  // // console.log(embedUrl);
 
   var criterionTitlesNumber = $("#modal-default span.criterionTitle").length;
 
   var modalContent = $(".modal-content");
-  console.log(modalContent);
+  // console.log(modalContent);
 
   var images2 = $(modalContent).find(".vidThumb");
-  console.log(images2);
+  // console.log(images2);
 
   var thumbNails = [];
   var j;
@@ -430,21 +430,21 @@ function modalSaveButtonClick() {
     thumbNails[j]= images2[j].src;
   }
 
-  console.log(thumbNails);
+  // console.log(thumbNails);
 
   var tags = {};
 
   for (i = 0; i < criterionTitlesNumber; i++) {
-    // console.log(i);
+    // // console.log(i);
 
-    // console.log($("#criterionName" + i + "_0"));
+    // // console.log($("#criterionName" + i + "_0"));
 
     var tag = {};
     tag["tagName"] = $("#criterionName0_" + i).html();
     tag["tagValue"] = $("#criterionNote" + i + "_0").html();
     tags["tag" + i] = tag;
   }
-  // console.log(tags);
+  // // console.log(tags);
   $("#closeModalButton2").trigger("click");
   socket.emit("messageSavefromClient", {
     titlefield: title,
@@ -458,8 +458,8 @@ function modalSaveButtonClick() {
 }
 
 function validateSearchButton(videoNo, criterionno) {
-  // console.log(videoNo);
-  // console.log(criterionno);
+  // // console.log(videoNo);
+  // // console.log(criterionno);
   var container = document.getElementById("progressBarContainer" + videoNo);
   var slider = container.querySelector("#slider-container" + criterionno);
   var name = container.querySelector(
@@ -484,18 +484,18 @@ function validateSearchButton(videoNo, criterionno) {
     )
     .tooltip("show");
 
-  // console.log(button.style.backgroundColor);
+  // // console.log(button.style.backgroundColor);
 
   var inOut;
 
   if (button.className !== "validateCriterion2") {
-    // console.log(button.className);
+    // // console.log(button.className);
     button.setAttribute("class", "validateCriterion2");
-    // console.log(slider);
-    // console.log(handler);
+    // // console.log(slider);
+    // // console.log(handler);
     slider.style.display = "none";
     inOut = 1;
-    // console.log(name);
+    // // console.log(name);
     socket.emit("validateNoteFromClient", {
       tagName: name.innerHTML,
       noteUser: note.innerHTML,
@@ -505,9 +505,9 @@ function validateSearchButton(videoNo, criterionno) {
       direction: inOut
     });
   } else {
-    // console.log(button.className);
+    // // console.log(button.className);
     button.setAttribute("class", "validateCriterion");
-    // console.log(slider);
+    // // console.log(slider);
     slider.style.display = "initial";
     inOut = -1;
 
@@ -532,10 +532,10 @@ function loadMore() {
   var mainframe = document.getElementById("mainFrame1");
 
   if(Object.getOwnPropertyNames(currentSearch).length>0){
-    console.log(Object.getOwnPropertyNames(currentSearch))
+    // console.log(Object.getOwnPropertyNames(currentSearch))
     if(order.length>0){
 
-      console.log("1");
+      // console.log("1");
 
       var demo = document.querySelectorAll('*[id^="cell"]');
       var numberOfCellsDisplayed = demo.length;
@@ -548,26 +548,26 @@ function loadMore() {
 
       for (i = numberOfCellsDisplayed; i < numberOfCellsDisplayed+24; i++) {
   
-        console.log("JJJJJJJJJJJJJJJJJJJJJ")
+        // console.log("JJJJJJJJJJJJJJJJJJJJJ")
 
         var vidNo2 = demo2[i].getAttribute("id").substring(4, demo2[i].getAttribute("id").length);
-        console.log(vidNo2)
+        // console.log(vidNo2)
         var inputBar = demo2[i].querySelector("#searchVideoBar"+vidNo2);
-        console.log(inputBar);
+        // console.log(inputBar);
         inputBar.value = ordercriterion;
-        console.log(inputBar.value);
+        // console.log(inputBar.value);
         var event = new Event('keyup');
         inputBar.dispatchEvent(event);
   
       }
 
     } else {
-      console.log("2");
+      // console.log("2");
       build36Frames(mainframe, currentSearch, globalOrder);
       
     }
   } else {
-    console.log("3");
+    // console.log("3");
     var demo = document.querySelectorAll('*[id^="cell"]');
     var numberOfCellsDisplayed = demo.length;
 
@@ -586,17 +586,17 @@ var running;
 function imageCarrousel(thumbNailsWrapper, maxNum){
 
 
-  console.log(thumbNailsWrapper);
+  // console.log(thumbNailsWrapper);
   var thumbs = $(thumbNailsWrapper).children(".vidThumb");
-  console.log(thumbs);
+  // console.log(thumbs);
   var i = thumbs.length-1;
 
    
   var truc = thumbs[0];
   truc.setAttribute('style', ' box-shadow: 0px 0px 10px rgba(241, 34, 34, 0.397);');
-  console.log(truc)
+  // console.log(truc)
   var original = truc.getAttribute('src');
-  console.log(original);
+  // console.log(original);
   var index = original.indexOf(".jpg");
   var index2 = original.lastIndexOf(")");
   var startThumbnailsUrl = original.slice(0, index2+1);
@@ -630,11 +630,11 @@ function stopCarrousel(thumbNailsWrapper){
 
 
 function showVideo(videoId){
-    console.log("FDDFDFDFDFDFDFDF")
+    // console.log("FDDFDFDFDFDFDFDF")
        var wrapper = $("#thumbnailsWrapper"+videoId);
-       console.log(wrapper[0])
+       // console.log(wrapper[0])
        var iframe = $("#responsiveDiv"+videoId);
-       console.log(iframe[0])
+       // console.log(iframe[0])
        if(wrapper[0]!=null){
          if(wrapper[0].getAttribute("style") == "display:none"){
           iframe[0].setAttribute("style", "display:none");

@@ -47,7 +47,7 @@ function save_row(no, videoNo) {
 
 function add_criterion(videoNo, newOrFound, criterionTitle, level, votes) {
   var max_div = document.getElementById("progressBarContainer" + videoNo);
-  console.log(max_div);
+  // console.log(max_div);
   var numberOfVotes = 0;
   if(votes !== null){
     numberOfVotes = votes;
@@ -190,10 +190,10 @@ function add_criterion_core(length, level, videoNo, criterionTitle, numberOfVote
   var inserted = 0;
   prev["id"] = 0;
 var pos= 0 ;
-console.log(globalNotes);
+// console.log(globalNotes);
 
 if(globalNotes.length === 0){
-  console.log("First " + level)
+  // console.log("First " + level)
   max_div.appendChild(criterionContainer);
 
 } else {
@@ -201,7 +201,7 @@ if(globalNotes.length === 0){
   for (var prop in globalNotes) {
     if (globalNotes.hasOwnProperty(prop)) {
 
-      console.log(globalNotes[prop]);
+      // console.log(globalNotes[prop]);
 
       var note = parseInt(globalNotes[prop].innerHTML);
 
@@ -272,7 +272,7 @@ function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
 
 function filterCriterion(event, videoNo) {
   var x = event.keyCode;
-console.log(videoNo);
+// console.log(videoNo);
   var collapsable = document.getElementById("demo" + videoNo);
   
   var container = document.getElementById("progressBarContainer" + videoNo);
@@ -405,12 +405,12 @@ function addVideoSearchCriterion(videoNo){
     } else {
         alert ("This criterion is already present or is not Valid");
     }
-    console.log(criterionno);
+    // console.log(criterionno);
       var demo = document.getElementById("demo" + videoNo);
       var container = demo.querySelector("#slider-container" + criterionno);
       var wrapper = demo.querySelector("#wrapper" + videoNo + "_" + criterionno);
-      console.log(container);
-      console.log(wrapper);
+      // console.log(container);
+      // console.log(wrapper);
       initializeSlider(container, wrapper, criterionno, videoNo);
 
 

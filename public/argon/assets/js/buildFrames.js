@@ -253,7 +253,7 @@ if(video["video"].properties.thumbnails != null ){
   function build36Frames(mainframe, cells, order) {
     h = 0;
     if(order){
-      console.log(order);
+      // console.log(order);
       var lengthOfOrder;
       if(order.length>24){
         lengthOfOrder = 24
@@ -261,10 +261,10 @@ if(video["video"].properties.thumbnails != null ){
         lengthOfOrder = order.length;
       }
       for (i=0; i<lengthOfOrder; i++){
-        console.log(order[i]);
+        // console.log(order[i]);
         var totalVotes;
         mainframe.appendChild(cells[order[i]]);
-        console.log(cells[order[i]]);
+        // console.log(cells[order[i]]);
         var demo = document.getElementById("demo" + order[i]);
         var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
         for (k = 0; k < slidercontainers.length; k++) {
@@ -299,13 +299,13 @@ if(video["video"].properties.thumbnails != null ){
       for (var prop in cells) {
         if (cells.hasOwnProperty(prop) && h < 24 ) {
           if(!document.getElementById("cell"+prop)){
-            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+            // console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
           
-          console.log(prop);
+          // console.log(prop);
           var totalVotes = 0;
   
           mainframe.appendChild(cells[prop]);
-          console.log(cells[prop]);
+          // console.log(cells[prop]);
           var demo = document.getElementById("demo" + prop);
           var slidercontainers = demo.querySelectorAll('*[id^="slider-container"]');
           for (k = 0; k < slidercontainers.length; k++) {
@@ -318,16 +318,16 @@ if(video["video"].properties.thumbnails != null ){
               if (globalObj["video_" + prop].tags[prop3].r.properties.votes != null ||
                 globalObj["video_" + prop].tags[prop3].r.properties.votes !=
                 undefined) {
-                  console.log("votes: "+globalObj["video_" + prop].tags[prop3].r.properties.votes);
+                  // console.log("votes: "+globalObj["video_" + prop].tags[prop3].r.properties.votes);
                 totalVotes =
                   totalVotes +
                   globalObj["video_" + prop].tags[prop3].r.properties.votes;
-                  console.log("truc: "+ totalVotes);
+                  // console.log("truc: "+ totalVotes);
               }
             }
           }
           var totalVotesSquare2 = document.getElementById("totalVotes" + globalObj["video_" + prop].video._id);
-          console.log("totalVotes: "+ totalVotes);
+          // console.log("totalVotes: "+ totalVotes);
           if (totalVotesSquare2 != null || totalVotesSquare2 != undefined) {
             totalVotesSquare2.innerHTML = "Total: " + totalVotes + " vote(s)";
           }

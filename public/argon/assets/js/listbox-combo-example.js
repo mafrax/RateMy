@@ -18,12 +18,12 @@ var FRUITS_AND_VEGGIES2 = [];
 
     FRUITS_AND_VEGGIES2 = [];
  
-    // console.log(results);
+    // // console.log(results);
     for (var i = 0; i < results.length; i++) {       
             FRUITS_AND_VEGGIES.push(results[i]);
             FRUITS_AND_VEGGIES2.push(results[i]);      
     }
-    // console.log(FRUITS_AND_VEGGIES);
+    // // console.log(FRUITS_AND_VEGGIES);
 
     FRUITS_AND_VEGGIES2.sort(function (a, b) {
       return a < b ? -1 : a > b ? 1 : 0;
@@ -91,8 +91,8 @@ var FRUITS_AND_VEGGIES2 = [];
   }
   
   function initializeCombobox1(no){
-      // console.log("lalala");
-      // console.log(no);
+      // // console.log("lalala");
+      // // console.log(no);
     var ex1Combobox = new aria.ListboxCombobox(
       document.getElementById('ex1-combobox'+no),
       document.getElementById('ex1-input'+no),
@@ -104,8 +104,8 @@ var FRUITS_AND_VEGGIES2 = [];
 
   function initializeCustomCombobox1(no){
 
-    // console.log("lalala");
-    // console.log(no);
+    // // console.log("lalala");
+    // // console.log(no);
   var ex1Combobox = new aria.ListboxCombobox(
     document.getElementById('ex1-combobox'+no),
     document.getElementById('ex1-input'+no),
@@ -143,7 +143,7 @@ var FRUITS_AND_VEGGIES2 = [];
         }
         else {
           document.getElementById('ex3-input'+no).focus();
-          // console.log('hi8');
+          // // console.log('hi8');
           ex3Combobox.updateResults(true);
         }
       }

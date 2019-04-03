@@ -7,7 +7,7 @@ function initializeAllvids() {
 
   for(var props in globalVar){
     if(globalVar.hasOwnProperty(props)){
-console.log(globalVar[props].video.video)
+// console.log(globalVar[props].video.video)
       var new_element = document.createElement("div");
         new_element.setAttribute("class", "col-12 col-md-4 flex-wrap");
         new_element.setAttribute("id", "cell" + globalVar[props].video.video._id);
@@ -57,7 +57,7 @@ function fillOrderList() {
 }
 
 $("#monselect").change(function() {
-  console.log(globalObj);
+  // console.log(globalObj);
   ordercriterion = $(this).val();
   sortPage(ordercriterion);
 
@@ -121,7 +121,7 @@ function sortPage(ordercriterion) {
       b = parseFloat(b.tagValue);
       return a > b ? -1 : a < b ? 1 : 0;
     });
-    console.log(currentSearch);
+    // console.log(currentSearch);
     order = [];
     for (i = 0; i < foundtaginCell.length; i++) {
       var vidNo2 = foundtaginCell[i].cell.id.substring(4, foundtaginCell[i].cell.id.length);
@@ -146,7 +146,7 @@ function sortPage(ordercriterion) {
 }
 
 function closeModal(mainFrame) {
-  console.log("closeModal -------------------")
+  // console.log("closeModal -------------------")
   var inputBars = mainFrame.querySelectorAll('*[id^="searchVideoBar"]');
   for (i = 0; i < inputBars.length; i++) {
     if(inputBars[i].value != ""){
