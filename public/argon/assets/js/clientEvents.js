@@ -23,12 +23,12 @@ socket.on("loadHomePageFromServer", function(message) {
   } else {
     console.log("under 18 !!!!!!!!!!!");
     console.log(message.session);
+    //only this makes the modal pop
     $('#age-restriction-modal').modal({
       backdrop: 'static',
       keyboard: false  // to prevent closing with Esc button (if you want this too)
   })
  
-  // $("#ageRestrictionButton").click();
 
   }
 
