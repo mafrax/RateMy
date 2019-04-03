@@ -24,8 +24,7 @@ var serverEvents = module.exports = function(io){
 
 
 
-        // console.log('A socket with sessionID ' + socket.handshake.sessionID 
-        + ' connected!');
+        console.log('A socket with sessionID ' + socket.handshake.sessionID +  ' connected!');
 
 pageLoader.loadHomePage(function( videoWithTags){    
   
