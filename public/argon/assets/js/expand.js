@@ -15,3 +15,19 @@ if(cell.getAttribute("class") === "col-12 col-md-4 flex-wrap" ){
 
 
 }
+
+
+function thumbToVideo(id){
+    var button = document.getElementById("thbnB"+id);
+  
+    
+    if(button.firstChild.getAttribute("class") === "ni ni-button-play" ){
+        button.firstChild.setAttribute("class", "ni ni-image" );
+    } else if (button.firstChild.getAttribute("class") === "ni ni-image"){
+        button.firstChild.setAttribute("class", "ni ni-button-play" );
+    } else {
+        // console.log("cell not found");
+    }
+    
+    
+}

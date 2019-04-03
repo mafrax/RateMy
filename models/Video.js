@@ -274,8 +274,8 @@ Video.resetRelationLevel = function (relId,relLevel,numberofVotes, callback) {
 
 	var newVotes = numberofVotes-1;
 
-var truc = [];
-var par = {};
+		var truc = [];
+		var par = {};
 		truc.push('MATCH (v:Video)-[rel:RATED]->(t:Tag)');
 		truc.push('WHERE ID(rel) ='+relId+'');
 		truc.push('SET rel.level = '+relLevel+' , rel.votes = '+newVotes+'');

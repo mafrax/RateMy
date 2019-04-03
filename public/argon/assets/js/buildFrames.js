@@ -87,6 +87,17 @@ if (video["video"].properties.thumbnails == null ){
 
 var image = thumbnail ; 
 
+var thmbnail2Vid;
+if(video["video"].properties.thumbnails != null ){
+  thmbnail2Vid = '<div class="titleText2" style="padding:0;">'+
+  '<button id="thbnB'+video["video"]._id+'" class="btn btn-block bg-gradient-danger btn-primary" onclick="showVideo('+video["video"]._id+')" style="margin: auto; margin-bottom: 5px; text-align:center;";>'+ 
+  '<i class="ni ni-button-play"></i>'+     
+  '</button>'+
+  '</div>' ;
+} else {
+  thmbnail2Vid = "";
+}
+
 
             var vidCont = document.createElement("div");
             vidCont.setAttribute("class", "flex-wrap videoContainer");
@@ -101,12 +112,11 @@ var image = thumbnail ;
             '<div class="titleText2">'+
             time+
             '</div>' +
-            '<div class="titleText2" id="totalVotes'+video["video"]._id+'">'+
-            '</div>' +
+            // '<div class="titleText2" id="totalVotes'+video["video"]._id+'">'+
+            // '</div>' +
 
-            '<button class="btn btn-block bg-gradient-danger btn-primary col-8" onclick="showVideo('+video["video"]._id+')" style="margin: auto; margin-bottom: 5px; text-align:center;";>'+ 
-            'clic: thumbnail to video'+          
-            '</button>'+
+            thmbnail2Vid
+            +         
 
             image
             +
@@ -114,7 +124,7 @@ var image = thumbnail ;
             +
               '<div class="flex-wrap">' +
   
-              '<div class="input-group col-12">'+
+              '<div class="input-group col-12" style="padding:0;">'+
               "</div>" ;
 
 
@@ -219,11 +229,11 @@ var image = thumbnail ;
             video["video"]._id +
             '" aria-controls="nav-inner-primary"' +
             'aria-expanded="false" aria-label="Toggle navigation" >' +
-            '<span class="navbar-toggler-icon" ><span class=""'+
+            '<span class=""'+
             'data-toggle="tooltip" data-placement="top" title="Consult the list of criterii applying to this video" '+
             '>' +
             '<i class="ni ni-bold-down"></i></button>' +
-            "</span></span>" +
+            '</span>' +
             "</button>" ;
 
             var expandButton = document.createElement("span");

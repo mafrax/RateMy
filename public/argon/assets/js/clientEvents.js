@@ -17,11 +17,11 @@ socket.on("loadHomePageFromServer", function(message) {
   console.log(message.session);
 
   if(message.session.age == 18){
-    console.log("over 18 !!!!!!!!!!!");
+
     console.log(message.session);
 
   } else {
-    console.log("under 18 !!!!!!!!!!!");
+
     console.log(message.session);
     //only this makes the modal pop
     $('#age-restriction-modal').modal({
@@ -156,7 +156,8 @@ socket.on("validatedNoteFromServer", function(message) {
   var globalNote = document.getElementById(
     "globalNote" + message.tagId + "_" + message.vId
   );
-  // console.log(globalNote);
+  console.log(globalNote);
+  console.log(message.newLevel);
   globalNote.innerHTML = message.newLevel;
   displayOtherCriterions(message.vId, message.tagId);
 });
@@ -644,4 +645,7 @@ function showVideo(videoId){
   
          }
        }
+
+       thumbToVideo(videoId)
+
 }
