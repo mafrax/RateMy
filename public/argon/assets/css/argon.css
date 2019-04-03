@@ -7209,7 +7209,8 @@ button.close
     left: 0;
 
     display: none;
-    overflow: hidden;
+    overflow: auto;
+    overflow-y: auto;
 
     outline: 0;
 }

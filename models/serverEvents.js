@@ -20,14 +20,9 @@ var serverEvents = module.exports = function(io){
     console.log(app);
     console.time("dbsave2");
 
+    var userSession = socket.handshake.session;
 
-    console.log(socket.request.session);
-    
-    var userSession = socket.request.session;
 
-    var a = socket.request.headers.cookie;
-        var b = cookieParser.parse(a); //does not translate
-        console.log(b);
 
         console.log('A socket with sessionID ' + socket.handshake.sessionID 
         + ' connected!');
@@ -65,14 +60,11 @@ console.timeEnd("dbsave2");
               });
       });
 
-      // socket.on('updateAgeSession', function (message) {
-      //   console.log(message);
-      //   socket.request.session.age = "18";
-      //   socket.request.session.save(function(err){
-      //     console.log("session saved");
-      //   })
-      //   console.log(socket);
-      // })
+      socket.on('updateAgeSession', function (message) {
+        console.log(message);
+        socket.handshake.session.age = "18";    
+        console.log(socket);
+      })
 
       socket.on('validateNoteFromClient', function (message) {
         // console.log('Un client me parle ! Il me dit : ' + message);

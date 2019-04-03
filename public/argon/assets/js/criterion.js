@@ -214,13 +214,10 @@ if(globalNotes.length === 0){
         if(note>level){
           prev["note"] = note;
           prev["id"] = curId;          
-            console.log(prev["id"])
-            console.log("HIGHER" +note +" than" +level );
+
 
             var beforeElement = max_div.querySelector("#criterionContainer"+videoNo+"_"+prev["id"]+"");
-            console.log(beforeElement)
-            console.log(criterionContainer)
-            console.log(new_numero + "inserted after " +prev["id"])
+
             max_div.insertBefore(criterionContainer, beforeElement.nextSibling);
             inserted = 1;
         } else {
@@ -323,11 +320,7 @@ console.log(videoNo);
           var critID = videoCriterions[prop].id.substring(videoCriterions[prop].id.indexOf("_")+1,videoCriterions[prop].id.length);
   
           if (name.startsWith(value)) {
-            console.log("SHOW");
-            console.log(videoCriterions[prop]);
-            console.log(name);
-            console.log(value);
-            console.log(prop);
+
             document.getElementById(
               "criterionContainer" + videoNo + "_" + critID
             ).style.display = "show";
@@ -336,11 +329,7 @@ console.log(videoNo);
               exist.push(value);
             }
           } else {
-            console.log("HIDE");
-            console.log(videoCriterions[prop]);
-            console.log(name);
-            console.log(value);
-            console.log(prop);
+
             document.getElementById(
               "criterionContainer" + videoNo + "_" + critID
             ).style.display = "none";
@@ -365,9 +354,6 @@ console.log(videoNo);
         alert ("This Criterion is too long");
       } else {
         addVideoSearchCriterion(videoNo);
-        document.getElementById(
-          "filterAddCriterion_" + videoNo
-        ).style.backgroundColor = "rgb(94, 114, 228)";
 
       }             
 
@@ -385,10 +371,8 @@ function displayOtherCriterions(videoNo, criterionNo) {
   sliders2.forEach(function (element2) {
     var elementId = element2.id.substring(16, element2.id.length);
     var button2 =   document.getElementById("validateCriterionButton"+videoNo+"_"+elementId);
-    // console.log(elementId);
-    // console.log(element2);
+
     if(button2.className !== "validateCriterion2"){
-      // console.log(button2.className);
       element2.style.display = "";
     }
   });
@@ -415,6 +399,9 @@ function addVideoSearchCriterion(videoNo){
     $(button2).tooltip('hide')
       .attr('data-original-title', "Please validate the new criterion and its note by clicking here")
       .tooltip('show');
+      button.style.backgroundImage = "";
+      button.style.backgroundColor = "rgb(94, 114, 228)";
+
     } else {
         alert ("This criterion is already present or is not Valid");
     }

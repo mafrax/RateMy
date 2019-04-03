@@ -81,11 +81,10 @@ function sortPage(ordercriterion) {
   }
   else {
     sortBool = true;
-    console.log("SORTBOOL 1"+  sortBool);
-    console.log("searchBOOL 1"+  searchBool);
+
     var locaVar = {};
     if (!searchBool) {
-      console.log("FAAAAAAAAAALSE")
+
       currentSearch = {};
       locaVar = globalObj;
     } else {
@@ -96,7 +95,7 @@ function sortPage(ordercriterion) {
       }
 
     }
-    console.log(locaVar);
+
     for (var props in locaVar) {
       if (locaVar.hasOwnProperty(props)) {
         var cellTags = locaVar[props].tags;
@@ -130,17 +129,16 @@ function sortPage(ordercriterion) {
     }
     var mainFrame = document.getElementById("mainFrame1");
     mainFrame.innerHTML = "";
-    console.log(foundtaginCell);
-    console.log(currentSearch);
+
     build36Frames(mainFrame, currentSearch, order);
     var demo = document.querySelectorAll('*[id^="cell"]');
     for (i = 0; i < demo.length; ++i) {
       var vidNo2 = demo[i].getAttribute("id").substring(4, demo[i].getAttribute("id").length);
-      console.log(vidNo2);
+ 
       var inputBar = demo[i].querySelector("#searchVideoBar" + vidNo2);
-      console.log(inputBar);
+
       inputBar.value = ordercriterion;
-      console.log(inputBar.value);
+
       var event2 = new Event('keyup');
       inputBar.dispatchEvent(event2);
     }

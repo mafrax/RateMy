@@ -52,18 +52,15 @@ if (video["video"].properties.thumbnails == null ){
 
   var lastnum = nailsArray.length-1;
   thumbnail += '<div class="thumbnailsWrapper col-12" onmouseover="imageCarrousel(this,'+nailsArray.length+')" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper'+video["video"]._id+'">';
-  console.log(thumbnail);
+
   thumbnail += '<img class="vidThumb col-12 flex-wrap" src="'+nailsArray[nailsArray.length-1]+'" data-thumb_url="'+nailsArray[nailsArray.length-1]+'" id="thumbnail'+video["video"]._id+'_'+lastnum+'">';
-  console.log(thumbnail);
-  console.log(lastnum);
-  console.log(video["video"]._id);
+
   for(i=0; i<nailsArray[nailsArray.length-2]; i++){
     thumbnail += '<img class="vidThumb col-12" src="'+nailsArray[i]+'" data-thumb_url="'+nailsArray[i]+'" style="display:none" id="thumbnail'+video["video"]._id+'_'+i+'">';
   }
-  console.log(thumbnail);
+
   thumbnail += '</div>';
 
-  console.log(thumbnail);
 
 
 
@@ -89,9 +86,7 @@ if (video["video"].properties.thumbnails == null ){
 }
 
 var image = thumbnail ; 
-console.log(thumbnail);
-console.log(responsiveDiv);
-console.log(image);
+
 
             var vidCont = document.createElement("div");
             vidCont.setAttribute("class", "flex-wrap videoContainer");
@@ -122,7 +117,6 @@ console.log(image);
               '<div class="input-group col-12">'+
               "</div>" ;
 
-console.log(vidCont);
 
               var demo = document.createElement("div");
               demo.setAttribute("class", "collapse col-12");
@@ -135,13 +129,11 @@ console.log(vidCont);
               pbCont.setAttribute("id", "progressBarContainer"+video["video"]._id);
               pbCont.setAttribute("style", "float: left;");
 
-              
-              console.log(video["tags"]);
-              console.log(video["tags"].length);
+         
             if(video["tags"].length > 0 ){
 
               for(i=0; i < video["tags"].length; i++) {
-                console.log(video["tags"][i].r.properties.level);
+               
                 add_criterion_core(i,video["tags"][i].r.properties.level, video["video"]._id, video["tags"][i].t.properties.tagName, video["tags"][i].r.properties.votes, pbCont, false)
 
               }

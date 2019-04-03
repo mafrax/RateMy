@@ -13,19 +13,22 @@ var session;
 
 // Sent on connection/searchValidatedFromClient by server
 socket.on("loadHomePageFromServer", function(message) {
-  // console.log(message.videoWithTags);
-
-
+  
   console.log(message.session);
-  if(message.session.age == "" || message.session.age == null){
 
-    session = message.session;
+  if(message.session.age == 18){
+    console.log("over 18 !!!!!!!!!!!");
+    console.log(message.session);
 
+  } else {
+    console.log("under 18 !!!!!!!!!!!");
+    console.log(message.session);
     $('#age-restriction-modal').modal({
       backdrop: 'static',
       keyboard: false  // to prevent closing with Esc button (if you want this too)
   })
-    $('#age-restriction-modal').modal('show');
+ 
+  // $("#ageRestrictionButton").click();
 
   }
 
@@ -322,9 +325,9 @@ function fillLists(message) {
     }
   }
 
-// $("#over18Button").click(function(){
-//   socket.emit("updateAgeSession");
-// })
+$("#over18Button").click(function(){
+  socket.emit("updateAgeSession");
+})
 
   globalObj = message.videos;
 
