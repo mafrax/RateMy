@@ -9,9 +9,9 @@ var flash = require('connect-flash');
 // var helmet = require('helmet');
 // var routes = require('./routes');
 var session = require('express-session');
-const redis = require('redis');
-const redisClient = redis.createClient();
-const redisStore = require('connect-redis')(session);
+var redis = require('redis');
+var redisClient = redis.createClient();
+var redisStore = require('connect-redis')(session);
 
 var app = express();
 
@@ -36,7 +36,7 @@ var sessionMiddleware = session({
   name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 60000 },
-  store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+  store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 app.set("sessionMW", sessionMiddleware);

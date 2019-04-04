@@ -12,6 +12,7 @@
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
     "connect-flash": "^0.1.1",
+    "connect-redis": "^3.4.1",
     "cookie-parser": "~1.4.3",
     "csv-parser": "^2.1.0",
     "csvtojson": "^2.0.8",
@@ -35,6 +36,7 @@
     "passport-twitter": "^1.0.4",
     "pornhub": "0.0.5",
     "pornsearch": "^2.4.2",
+    "redis": "^2.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "socket.io": "^2.1.1"
