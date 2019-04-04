@@ -496,6 +496,15 @@ function validateSearchButton(videoNo, criterionno) {
     slider.style.display = "none";
     inOut = 1;
     // // console.log(name);
+
+  
+    var inputBar = document.querySelector("#searchVideoBar"+videoNo);
+    console.log(inputBar);
+    inputBar.value = "";
+    console.log(inputBar.value);
+    var event = new Event('keyup');
+    inputBar.dispatchEvent(event);
+
     socket.emit("validateNoteFromClient", {
       tagName: name.innerHTML,
       noteUser: note.innerHTML,
@@ -517,6 +526,8 @@ function validateSearchButton(videoNo, criterionno) {
         "data-original-title",
         "clic here to validate and save your note and criterion"
       );
+
+
 
     socket.emit("validateNoteFromClient", {
       tagName: name.innerHTML,
