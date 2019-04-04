@@ -9,9 +9,14 @@ var flash = require('connect-flash');
 // var helmet = require('helmet');
 // var routes = require('./routes');
 var session = require('express-session');
+const redis = require('redis');
+const redisClient = redis.createClient();
+const redisStore = require('connect-redis')(session);
 var app = express();
 
-
+redisClient.on('error', (err) => {
+  console.log('Redis error: ', err);
+});
 
 /*  PASSPORT SETUP  */
 
@@ -29,7 +34,8 @@ var sessionMiddleware = session({
   resave: false,
   name: 'sessionId',
   saveUninitialized: true,
-  cookie: { maxAge: 60000 }
+  cookie: { maxAge: 60000 },
+  store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 app.set("sessionMW", sessionMiddleware);
