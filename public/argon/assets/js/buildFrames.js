@@ -51,7 +51,7 @@ if (video["video"].properties.thumbnails == null ){
   var nailsArray = video["video"].properties.thumbnails.split(',');
 
   var lastnum = nailsArray.length-1;
-  thumbnail += '<div class="thumbnailsWrapper col-12" onmouseover="imageCarrousel(this,'+nailsArray.length+')" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper'+video["video"]._id+'">';
+  thumbnail += '<div class="thumbnailsWrapper col-12" onclick="showVideo('+video["video"]._id+')" onmouseover="imageCarrousel(this,'+nailsArray.length+')" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper'+video["video"]._id+'">';
 
   thumbnail += '<img class="vidThumb col-12 flex-wrap" src="'+nailsArray[nailsArray.length-1]+'" data-thumb_url="'+nailsArray[nailsArray.length-1]+'" id="thumbnail'+video["video"]._id+'_'+lastnum+'">';
 
@@ -90,7 +90,7 @@ var image = thumbnail ;
 var thmbnail2Vid;
 if(video["video"].properties.thumbnails != null ){
   thmbnail2Vid = '<div class="titleText2" style="padding:0;">'+
-  '<button id="thbnB'+video["video"]._id+'" class="btn btn-block bg-gradient-danger btn-primary" onclick="showVideo('+video["video"]._id+')" style="margin: auto; margin-bottom: 5px; text-align:center;";>'+ 
+  '<button id="thbnB'+video["video"]._id+'" class="btn btn-block bg-gradient-danger btn-primary" onclick="showVideo('+video["video"]._id+')" style="margin: auto; margin-bottom: 5px; text-align:center;text-overflow:visible;">'+ 
   '<i class="ni ni-button-play"></i>'+     
   '</button>'+
   '</div>' ;
