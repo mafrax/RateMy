@@ -3,14 +3,10 @@
 /**
  * Module dependencies.
  */
-var Promise    = require('bluebird');
+
 var app = require('../app');
 var debug = require('debug')('testserver:server');
 var http = require('http');
-var session = require('express-session');
-var redis = require('redis');
-
-var redisStore = require('connect-redis')(session);
 var sharedsession = require("express-socket.io-session");
 
 /**
@@ -33,29 +29,8 @@ var io = require('socket.io').listen(server);
 
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
-
-
-
-  var client = redis.createClient();
-
-
-  console.log('in then')
-  // Initialisation de la session
-  var sessionMiddleware = session({
-    secret: 'keyboard cat',
-    resave: true,
-    name: 'sessionId',
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 },
-    store: new redisStore(client),
-  });
-
-  app.use(sessionMiddleware);
-
-  // On passe nos sessions à socket.io
-  io.use(sharedsession(sessionMiddleware));
-
-
+io.use(sharedsession(app.get("sessionMW"), {
+  autoSave:true}));
 
 
 /**
