@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+var Promise    = require('bluebird');
 var app = require('../app');
 var debug = require('debug')('testserver:server');
 var http = require('http');
