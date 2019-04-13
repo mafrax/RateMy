@@ -37,7 +37,7 @@ app.set("io",io);
 
 var redisInit = function() {
   console.log('in redis init')
-  var client = redis.createClient('5.39.80.142');
+  var client = redis.createClient();
   return client.getAsync('ready')
   .then(function() {
     return Promise.resolve(client);
