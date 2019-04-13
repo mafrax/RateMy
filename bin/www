@@ -35,16 +35,10 @@ var handler = require('../models/serverEvents')(io);
 app.set("io",io);
 
 
-var redisInit = function() {
-  console.log('in redis init')
-  var client = redis.createClient();
-  return client.getAsync('ready')
-  .then(function() {
-    return Promise.resolve(client);
-  });
-}
 
-redisInit().then(function(client) {
+  var client = redis.createClient();
+
+
   console.log('in then')
   // Initialisation de la session
   var sessionMiddleware = session({
@@ -60,7 +54,7 @@ redisInit().then(function(client) {
 
   // On passe nos sessions à socket.io
   io.use(sharedsession(sessionMiddleware));
-})
+
 
 
 
