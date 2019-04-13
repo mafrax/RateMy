@@ -8,16 +8,11 @@ var logger = require('morgan');
 var flash = require('connect-flash');
 // var helmet = require('helmet');
 // var routes = require('./routes');
-var session = require('express-session');
-var redis = require('redis');
-var redisClient = redis.createClient();
-var redisStore = require('connect-redis')(session);
+
 
 var app = express();
 
-redisClient.on('error', (err) => {
-  console.log('Redis error: ', err);
-});
+
 
 /*  PASSPORT SETUP  */
 
@@ -30,16 +25,9 @@ app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(helmet());
 
-var sessionMiddleware = session({
-  secret: 'keyboard cat',
-  resave: false,
-  name: 'sessionId',
-  saveUninitialized: true,
-  cookie: { maxAge: 60000 },
-  store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
-});
-app.use(sessionMiddleware);
-app.set("sessionMW", sessionMiddleware);
+
+
+
 // app.use(passport.initialize());
 // app.use(passport.session());
 app.use(flash());

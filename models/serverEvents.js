@@ -20,6 +20,8 @@ var serverEvents = module.exports = function(io){
     // console.log(app);
     console.time("dbsave2");
 
+    console.log(socket.handshake.session);
+
     var userSession = socket.handshake.session;
 
 
