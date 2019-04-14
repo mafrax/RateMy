@@ -16,7 +16,7 @@ module.exports = function (app, passport) {
 
 		res.cookie('mycookies', 'express');
 		cookie1= req.cookies;
-		console.log("OOOOOOOOOOOOOOOOOO");
+		
 		console.log(req.session);
 		if (req.session.views) {
 			req.session.views++;
