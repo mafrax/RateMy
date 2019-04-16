@@ -18,6 +18,7 @@ module.exports = function (app, passport) {
 		cookie1= req.cookies;
 		
 		console.log(req.session);
+		console.log(req.session.age);
 		console.log(req.sessionID);
 		if (req.session.views) {
 			req.session.views++;
