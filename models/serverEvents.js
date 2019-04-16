@@ -22,6 +22,8 @@ var serverEvents = module.exports = function(io){
 
     console.log(socket.handshake.session);
     console.log(socket.request.session);
+    console.log(socket.headers.session);
+    console.log(socket.req.headers.session);
 
 
     var userSession = socket.handshake.session;
