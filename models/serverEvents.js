@@ -21,8 +21,8 @@ var serverEvents = module.exports = function(io){
     console.time("dbsave2");
 
     console.log(socket.handshake.session);
-    console.log(socket.request.session);
-    console.log(socket.req.headers.session);
+    console.log(socket.request);
+   
 
 
     var userSession = socket.handshake.session;
