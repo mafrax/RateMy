@@ -30,8 +30,10 @@ var io = require('socket.io').listen(server);
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
 
+var session= app.get("sessionMW");
+
 var socketmiddleware = function(socket, next) {
-  app.session(socket.handshake, {}, next);
+  session(socket.handshake, {}, next);
 }
 
 io.use(socketmiddleware);
