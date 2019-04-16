@@ -29,8 +29,15 @@ var io = require('socket.io').listen(server);
 
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
-io.use(sharedsession(app.get("sessionMW"), {
-  autoSave:true}));
+
+var socketmiddleware = function(socket, next) {
+  session(socket.handshake, {}, next);
+}
+
+io.use(socketmiddleware);
+
+// io.use(sharedsession(app.get("sessionMW"), {
+//   autoSave:true}));
 
 
 /**
