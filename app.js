@@ -36,7 +36,7 @@ var sessionMiddleware = session({
   name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 60000 },
-  store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
+  store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 app.set("sessionMW", sessionMiddleware);
