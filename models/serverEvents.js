@@ -20,9 +20,7 @@ var serverEvents = module.exports = function(io){
     // console.log(app);
     console.time("dbsave2");
 
-    console.log(socket.handshake.session);
-    console.log(socket.request);
-   
+    console.log(socket.handshake.session);   
 
 
     var userSession = socket.handshake.session;
@@ -66,7 +64,7 @@ console.timeEnd("dbsave2");
 
       socket.on('updateAgeSession', function (message) {
          console.log(message);
-        socket.handshake.session.age = "18";    
+        socket.handshake.session.cookie.age = "18";    
         socket.handshake.session.save();
          console.log(socket.handshake.session);
       })
