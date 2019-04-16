@@ -31,7 +31,7 @@ var handler = require('../models/serverEvents')(io);
 app.set("io",io);
 
 var socketmiddleware = function(socket, next) {
-  session(socket.handshake, {}, next);
+  app.session(socket.handshake, {}, next);
 }
 
 io.use(socketmiddleware);
