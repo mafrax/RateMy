@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var sessionMiddleware = session({
   secret: 'keyboard cat',
-  resave: false,
+  resave: true,
   name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 60000 },

@@ -26,7 +26,7 @@ module.exports = function (app, passport) {
 			console.log(req.session.views);
 		  }
 
-		  if(req.session.cookie.age){
+		  if(req.session.age){
 			  console.log("OOOOOOOOOOOOOOOOOO");
 		  } else {
 			console.log("XXXXXXXXXXXXXXXXXXXXXX");
