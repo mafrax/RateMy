@@ -66,6 +66,7 @@ console.timeEnd("dbsave2");
       socket.on('updateAgeSession', function (message) {
          console.log(message);
         socket.handshake.session.age = "18";    
+        socket.handshake.session.save();
          console.log(socket);
       })
 
