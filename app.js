@@ -6,8 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var flash = require('connect-flash');
-// var helmet = require('helmet');
-// var routes = require('./routes');
+
 var session = require('express-session');
 var redis = require('redis');
 var redisClient = redis.createClient();
@@ -15,9 +14,9 @@ var redisStore = require('connect-redis')(session);
 
 var app = express();
 
-redisClient.on('error', (err) => {
-  console.log('Redis error: ', err);
-});
+// redisClient.on('error', (err) => {
+//   console.log('Redis error: ', err);
+// });
 
 /*  PASSPORT SETUP  */
 
@@ -54,11 +53,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-
-// // console.log(__dirname);
-
 require('./routes/index.js')(app);
-// require('./routes/users.js')(app, passport);
+
 
 app.use(express.static(path.join(__dirname, '/public')));
 
