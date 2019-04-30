@@ -9,6 +9,27 @@ var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
 
+var redis = require('redis');
+var redisClient = redis.createClient();
+var redisStore = require('connect-redis')(session);
+var Promise    = require('bluebird');
+Promise.promisifyAll(redis);
+
+redisClient.on('error', (err) => {
+  console.log('Redis error: ', err);
+});
+
+
+var redisInit = function() {
+  console.log("in redis init")
+  var client = redis.createClient();
+  return client.getAsync('ready')
+  .then(function() {
+    console.log("in promise ")
+    return Promise.resolve(client);
+  });
+}
+
 /**
  * Get port from environment and store in Express.
  */
