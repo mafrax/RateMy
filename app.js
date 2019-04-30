@@ -23,7 +23,7 @@ redisClient.on('error', (err) => {
 
 var redisInit = function() {
   console.log("in redis init")
-  var client = redis.createClient(process.env.REDIS_URL);
+  var client = redis.createClient();
   return client.getAsync('ready')
   .then(function() {
     console.log("in promise ")
@@ -52,7 +52,7 @@ redisInit().then(function(client) {
     name: 'sessionId',
     saveUninitialized: true,
     cookie: { maxAge: 60000 },
-    store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+    store: new RedisStore({ client:client }),
   });
   app.use(sessionMiddleware);
   app.set("sessionMW", sessionMiddleware);
