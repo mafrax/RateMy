@@ -32,6 +32,7 @@ var redisInit = function() {
 }
 
 
+
 /*  PASSPORT SETUP  */
 
 // const passport = require('passport');
@@ -44,19 +45,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(helmet());
 
 
-redisInit().then(function(client) {
-  console.log("in sessions init")
-  var sessionMiddleware = session({
-    secret: 'keyboard cat',
-    resave: true,
-    name: 'sessionId',
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 },
-    store: new RedisStore({ client:client }),
-  });
-  app.use(sessionMiddleware);
-  app.set("sessionMW", sessionMiddleware);
-});
+
 // app.use(passport.initialize());
 // app.use(passport.session());
 app.use(flash());
