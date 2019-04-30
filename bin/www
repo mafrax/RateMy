@@ -61,7 +61,7 @@ redisInit().then(function(client) {
     name: 'sessionId',
     saveUninitialized: true,
     cookie: { maxAge: 60000 },
-    store: new RedisStore({ client:client }),
+    store: new redisStore({ client:client }),
   });
 
   io.use(sessionMiddleware);
