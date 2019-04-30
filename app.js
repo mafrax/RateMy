@@ -9,27 +9,8 @@ var flash = require('connect-flash');
 // var helmet = require('helmet');
 // var routes = require('./routes');
 var session = require('express-session');
-var redis = require('redis');
-var redisClient = redis.createClient();
-var redisStore = require('connect-redis')(session);
-var Promise    = require('bluebird');
-Promise.promisifyAll(redis);
 var app = express();
 
-redisClient.on('error', (err) => {
-  console.log('Redis error: ', err);
-});
-
-
-var redisInit = function() {
-  console.log("in redis init")
-  var client = redis.createClient();
-  return client.getAsync('ready')
-  .then(function() {
-    console.log("in promise ")
-    return Promise.resolve(client);
-  });
-}
 
 
 
