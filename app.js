@@ -6,17 +6,29 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var flash = require('connect-flash');
-
+// var helmet = require('helmet');
+// var routes = require('./routes');
 var session = require('express-session');
 var redis = require('redis');
 var redisClient = redis.createClient();
 var redisStore = require('connect-redis')(session);
-
+var Promise    = require('bluebird');
+Promise.promisifyAll(redis);
 var app = express();
 
-// redisClient.on('error', (err) => {
-//   console.log('Redis error: ', err);
-// });
+redisClient.on('error', (err) => {
+  console.log('Redis error: ', err);
+});
+
+
+var redisInit = function() {
+  var client = redis.createClient(process.env.REDIS_URL);
+  return client.getAsync('ready')
+  .then(function() {
+    return Promise.resolve(client);
+  });
+}
+
 
 /*  PASSPORT SETUP  */
 
@@ -29,16 +41,19 @@ app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(helmet());
 
-var sessionMiddleware = session({
-  secret: 'keyboard cat',
-  resave: true,
-  name: 'sessionId',
-  saveUninitialized: true,
-  cookie: { maxAge: 60000 },
-  store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+
+redisInit().then(function(client) {
+  var sessionMiddleware = session({
+    secret: 'keyboard cat',
+    resave: true,
+    name: 'sessionId',
+    saveUninitialized: true,
+    cookie: { maxAge: 60000 },
+    store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+  });
+  app.use(sessionMiddleware);
+  app.set("sessionMW", sessionMiddleware);
 });
-app.use(sessionMiddleware);
-app.set("sessionMW", sessionMiddleware);
 // app.use(passport.initialize());
 // app.use(passport.session());
 app.use(flash());
@@ -53,8 +68,11 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-require('./routes/index.js')(app);
 
+// // console.log(__dirname);
+
+require('./routes/index.js')(app);
+// require('./routes/users.js')(app, passport);
 
 app.use(express.static(path.join(__dirname, '/public')));
 
