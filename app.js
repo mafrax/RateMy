@@ -22,9 +22,11 @@ redisClient.on('error', (err) => {
 
 
 var redisInit = function() {
+  console.log("in redis init")
   var client = redis.createClient(process.env.REDIS_URL);
   return client.getAsync('ready')
   .then(function() {
+    console.log("in promise ")
     return Promise.resolve(client);
   });
 }
@@ -43,6 +45,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 redisInit().then(function(client) {
+  console.log("in sessions init")
   var sessionMiddleware = session({
     secret: 'keyboard cat',
     resave: true,
