@@ -8,27 +8,6 @@ var app = require('../app');
 var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
-var session = require('express-session');
-var redis = require('redis');
-var redisClient = redis.createClient();
-var redisStore = require('connect-redis')(session);
-var Promise    = require('bluebird');
-Promise.promisifyAll(redis);
-
-redisClient.on('error', (err) => {
-  console.log('Redis error: ', err);
-});
-
-
-var redisInit = function() {
-  console.log("in redis init")
-  var client = redis.createClient();
-  return client.getAsync('ready')
-  .then(function() {
-    console.log("in promise ")
-    return Promise.resolve(client);
-  });
-}
 
 /**
  * Get port from environment and store in Express.
@@ -51,31 +30,15 @@ var io = require('socket.io').listen(server);
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
 
-var session = app.get("sessionMW")
+var session= app.get("sessionMW");
 
-redisInit().then(function(client) {
-  console.log("in sessions init")
-  var sessionMiddleware = session({
-    secret: 'keyboard cat',
-    resave: true,
-    name: 'sessionId',
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 },
-    store: new redisStore({ client:client }),
-  });
+var socketmiddleware = function(socket, next) {
+  session(socket.handshake, socket.request.res, next);
+}
 
-  io.use(sessionMiddleware);
-  
-  
-  app.use(sessionMiddleware);
-  app.set("sessionMW", sessionMiddleware);
-  
-  
-  
-});
+io.use(socketmiddleware);
 
-
-
+app.use(session);
 // io.use(sharedsession(app.get("sessionMW"), {
 //   autoSave:true}));
 
