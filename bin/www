@@ -4,10 +4,59 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+
 var debug = require('debug')('testserver:server');
 var http = require('http');
-var sharedsession = require("express-socket.io-session");
+
+
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var morgan = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var logger = require('morgan');
+var flash = require('connect-flash');
+
+var app = express();
+
+// redisClient.on('error', (err) => {
+//   console.log('Redis error: ', err);
+// });
+
+/*  PASSPORT SETUP  */
+
+// const passport = require('passport');
+
+// require('./config/passport')(passport); // pass passport for configuration
+app.use(morgan('dev'));
+app.use(cookieParser()); // read cookies (needed for auth)
+app.use(bodyParser.json()); // get information from html forms
+app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(helmet());
+
+
+
+// app.use(passport.initialize());
+// app.use(passport.session());
+app.use(flash());
+
+
+
+// view engine setup
+app.set('views', path.join(__dirname, '../views'));
+app.set('view engine', 'ejs');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+require('../routes/index.js')(app);
+
+
+app.use(express.static(path.join(__dirname, '../public')));
+
+
 
 /**
  * Get port from environment and store in Express.
@@ -25,22 +74,10 @@ var server = http.createServer(app);
 
 // Chargement de socket.io
 var io = require('socket.io').listen(server);
-// Quand un client se connecte, on le note dans la console
 
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
 
-var session= app.get("sessionMW");
-
-var socketmiddleware = function(socket, next) {
-  session(socket.handshake, socket.request.res, next);
-}
-
-io.use(socketmiddleware);
-
-app.use(session);
-// io.use(sharedsession(app.get("sessionMW"), {
-//   autoSave:true}));
 
 
 /**
@@ -50,6 +87,29 @@ app.use(session);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
+var session = require('express-session');
+// var redis = require('redis');
+// var redisClient = redis.createClient();
+// var redisStore = require('connect-redis')(session);
+var sharedsession = require("express-socket.io-session");
+
+var sessionMiddleware = session({
+  secret: 'keyboard cat',
+  resave: true,
+  name: 'sessionId',
+  saveUninitialized: true,
+  cookie: { maxAge: 60000 },
+  // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+});
+app.use(sessionMiddleware);
+
+io.use(sharedsession(sessionMiddleware, {autoSave:true}));
+
+// io.of('/').use(sharedsession(session, {
+//   autoSave: true
+// }));
 
 
 /**
