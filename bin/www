@@ -42,6 +42,7 @@ app.use(session);
 // io.use(sharedsession(app.get("sessionMW"), {
 //   autoSave:true}));
 
+require('../routes/index.js')(app);
 
 /**
  * Listen on provided port, on all network interfaces.

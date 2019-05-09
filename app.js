@@ -8,9 +8,9 @@ var logger = require('morgan');
 var flash = require('connect-flash');
 
 var session = require('express-session');
-var redis = require('redis');
-var redisClient = redis.createClient();
-var redisStore = require('connect-redis')(session);
+// var redis = require('redis');
+// var redisClient = redis.createClient();
+// var redisStore = require('connect-redis')(session);
 
 var app = express();
 
@@ -35,7 +35,7 @@ var sessionMiddleware = session({
   name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 60000 },
-  store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+  // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 app.set("sessionMW", sessionMiddleware);
@@ -53,7 +53,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-require('./routes/index.js')(app);
 
 
 app.use(express.static(path.join(__dirname, '/public')));
