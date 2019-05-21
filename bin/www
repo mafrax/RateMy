@@ -8,6 +8,8 @@ var app = require('../app');
 var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
+var cookie = require('cookie');
+var cookieParser = require('cookie-parser');
 
 /**
  * Get port from environment and store in Express.
@@ -34,13 +36,16 @@ var session= app.get("sessionMW");
 
 var socketmiddleware = function(socket, next) {
   session(socket.handshake, socket.request.res, next);
+  // var handshakeData = socket.request;
+  // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+  // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
 }
 
-io.use(socketmiddleware);
+// io.use(socketmiddleware);
 
 app.use(session);
-// io.use(sharedsession(app.get("sessionMW"), {
-//   autoSave:true}));
+io.use(sharedsession(app.get("sessionMW"), {
+  autoSave:true}));
 
 require('../routes/index.js')(app);
 
