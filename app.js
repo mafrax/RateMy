@@ -32,6 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(helmet());
 
 var sessionMiddleware = session({
+  secret: 'keyboard cat',
   key: 'express.sid',
   resave: true,
   // name: 'sessionId',
