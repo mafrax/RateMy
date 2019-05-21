@@ -48,14 +48,13 @@ app.use(session);
 io.use(sharedsession(app.get("sessionMW"), {
   autoSave:true}));
 
-  io.use(function(socket, next) {
-    var handshake = socket.request;
+  io.set('authorization', function (data, accept ) {
     console.log('truc');
-    console.log(socket.headers.cookie);
+    console.log(data.headers.cookie);
     var parsedCookie = cookie.parse(data.headers.cookie);
     console.log('truc');
     console.log(parsedCookie);
-    var truc = handshake.signedCookie['express.sid'];
+    var truc = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
     console.log('truc');
     console.log(truc);
     data.sessionID = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
