@@ -54,7 +54,7 @@ io.use(sharedsession(app.get("sessionMW"), {
     var parsedCookie = cookie.parse(data.headers.cookie);
     console.log('truc');
     console.log(parsedCookie);
-    var truc = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
+    var truc = cookieParser.signedCookie(parsedCookie['express.sid']);
     console.log('truc');
     console.log(truc);
     data.sessionID = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
