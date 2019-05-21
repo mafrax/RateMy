@@ -6,17 +6,19 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var flash = require('connect-flash');
-
 var session = require('express-session');
-var redis = require('redis');
-var redisClient = redis.createClient();
-var redisStore = require('connect-redis')(session);
+var MemoryStore = require('memorystore')(session)
+var store = new MemoryStore();
+
+// var redis = require('redis');
+// var redisClient = redis.createClient();
+// var redisStore = require('connect-redis')(session);
 
 var app = express();
-
-redisClient.on('error', (err) => {
-  console.log('Redis error: ', err);
-});
+app.set('store' , store);
+// redisClient.on('error', (err) => {
+//   console.log('Redis error: ', err);
+// });
 
 /*  PASSPORT SETUP  */
 
@@ -31,11 +33,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var sessionMiddleware = session({
   secret: 'keyboard cat',
+  key: 'express.sid',
   resave: true,
-  name: 'sessionId',
+  // name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 60000 },
-  store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+  store:store
+  // store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 app.set("sessionMW", sessionMiddleware);

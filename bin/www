@@ -10,6 +10,7 @@ var http = require('http');
 var sharedsession = require("express-socket.io-session");
 var cookie = require('cookie');
 var cookieParser = require('cookie-parser');
+var Session = require('connect');
 
 /**
  * Get port from environment and store in Express.
@@ -46,6 +47,21 @@ var socketmiddleware = function(socket, next) {
 app.use(session);
 io.use(sharedsession(app.get("sessionMW"), {
   autoSave:true}));
+
+  io.set('authorization', function (data, accept ) {
+    var parsedCookie = cookie.parse(data.headers.cookie);
+    var truc = cookieParser.signedCookie (parsedCookie['express.sid'], 'keyboard cat');
+    data.sessionID = cookieParser.signedCookie (parsedCookie['express.sid'], 'keyboard cat');
+    app.get('store').get(data.sessionID, function(err, session) {
+      if ( err || !session ) {
+        return accept("Invalid session", false);
+      }
+      data.session = new Session(data, session);
+      accept(null,true);
+    });
+  });
+
+
 
 require('../routes/index.js')(app);
 

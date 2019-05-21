@@ -18,20 +18,21 @@ module.exports = function (app, passport) {
 		cookie1= req.cookies;
 		
 		console.log(" Index req session " + req.session);
-		// console.log(req.sessionID);
-		// if (req.session.views) {
-		// 	req.session.views++;
-		// 	console.log(req.session.views);
-		//   } else {
-		// 	req.session.views = 1
-		// 	console.log(req.session.views);
-		//   }
+		console.log(req.session);
+		console.log(req.sessionID);
+		if (req.session.views) {
+			req.session.views++;
+			console.log(req.session.views);
+		  } else {
+			req.session.views = 1
+			console.log(req.session.views);
+		  }
 
-		//   if(req.session.age){
-		// 	  console.log("OOOOOOOOOOOOOOOOOO");
-		//   } else {
-		// 	console.log("XXXXXXXXXXXXXXXXXXXXXX");
-		//   }
+		  if(req.session.age){
+			  console.log("OOOOOOOOOOOOOOOOOO");
+		  } else {
+			console.log("XXXXXXXXXXXXXXXXXXXXXX");
+		  }
 
 		res.render('argon');		
 	});
