@@ -64,11 +64,11 @@ io.use(sharedsession(app.get("sessionMW"), {
     console.log('session');
     console.log(session);
       if ( err || !session ) {
-        return accept("Invalid session", false);
+        return accept("Invalid session", true);
       }
       data.session = new Session(data, session);
       console.log('data.session');
-    console.log(data.session);
+      console.log(data.session);
       accept(null,true);
     });
   });
