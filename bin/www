@@ -45,8 +45,8 @@ var socketmiddleware = function(socket, next) {
 // io.use(socketmiddleware);
 
 app.use(session);
-io.use(sharedsession(app.get("sessionMW"), {
-  autoSave:true}));
+// io.use(sharedsession(app.get("sessionMW"), {
+//   autoSave:true}));
 
   io.set('authorization', function (data, accept ) {
     console.log('truc');
