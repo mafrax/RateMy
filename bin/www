@@ -45,33 +45,33 @@ var socketmiddleware = function(socket, next) {
 // io.use(socketmiddleware);
 
 app.use(session);
-// io.use(sharedsession(app.get("sessionMW"), {
-//   autoSave:true}));
+io.use(sharedsession(app.get("sessionMW"), {
+  autoSave:true}));
 
-  io.set('authorization', function (data, accept ) {
-    console.log('truc');
-    console.log(data.headers.cookie);
-    var parsedCookie = cookie.parse(data.headers.cookie);
-    console.log('truc');
-    console.log(parsedCookie);
-    var truc = cookieParser.signedCookie(parsedCookie['express.sid']);
-    console.log('truc');
-    console.log(truc);
-    data.sessionID = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
-    app.get('store').get(data.sessionID, function(err, session) {
-      console.log('err');
-    console.log(err);
-    console.log('session');
-    console.log(session);
-      if ( err || !session ) {
-        return accept("Invalid session", true);
-      }
-      data.session = new Session(data, session);
-      console.log('data.session');
-      console.log(data.session);
-      accept(null,true);
-    });
-  });
+  // io.set('authorization', function (data, accept ) {
+  //   console.log('truc');
+  //   console.log(data.headers.cookie);
+  //   var parsedCookie = cookie.parse(data.headers.cookie);
+  //   console.log('truc');
+  //   console.log(parsedCookie);
+  //   var truc = cookieParser.signedCookie(parsedCookie['express.sid']);
+  //   console.log('truc');
+  //   console.log(truc);
+  //   data.sessionID = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
+  //   app.get('store').get(data.sessionID, function(err, session) {
+  //     console.log('err');
+  //   console.log(err);
+  //   console.log('session');
+  //   console.log(session);
+  //     if ( err || !session ) {
+  //       return accept("Invalid session", true);
+  //     }
+  //     data.session = new Session(data, session);
+  //     console.log('data.session');
+  //     console.log(data.session);
+  //     accept(null,true);
+  //   });
+  // });
 
 
 
