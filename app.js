@@ -1,8 +1,9 @@
 var createError = require('http-errors');
 var express = require('express');
+var cookieParser = require('cookie-parser');
+
 var path = require('path');
 var morgan = require('morgan');
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var flash = require('connect-flash');
@@ -15,7 +16,9 @@ var store = new MemoryStore();
 // var redisStore = require('connect-redis')(session);
 
 var app = express();
+app.use(cookieParser());
 app.set('store' , store);
+app.set('cookieParser', cookieParser);
 // redisClient.on('error', (err) => {
 //   console.log('Redis error: ', err);
 // });
@@ -26,16 +29,16 @@ app.set('store' , store);
 
 // require('./config/passport')(passport); // pass passport for configuration
 app.use(morgan('dev'));
-app.use(cookieParser()); // read cookies (needed for auth)
+ // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(helmet());
 
 var sessionMiddleware = session({
   secret: 'keyboard cat',
-  key: 'express.sid',
+  // key: 'express.sid',
   resave: true,
-  // name: 'sessionId',
+  name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 60000 },
   store:store

@@ -14,8 +14,8 @@ module.exports = function (app, passport) {
 	// show the home page (will also have our login links)
 	app.get('/', function (req, res, next) {
 
-		res.cookie('mycookies', 'express');
-		cookie1= req.cookies;
+		// res.cookie('mycookies', 'express');
+		// cookie1= req.cookies;
 		
 		console.log(" Index req session " + req.session);
 		console.log(req.session);

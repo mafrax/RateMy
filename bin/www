@@ -9,7 +9,7 @@ var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
 var cookie = require('cookie');
-var cookieParser = require('cookie-parser');
+
 var Session = require('connect');
 
 /**
@@ -33,7 +33,7 @@ var io = require('socket.io').listen(server);
 var handler = require('../models/serverEvents')(io);
 app.set("io",io);
 
-var session= app.get("sessionMW");
+var sessionMW= app.get("sessionMW");
 
 var socketmiddleware = function(socket, next) {
   session(socket.handshake, socket.request.res, next);
@@ -44,35 +44,26 @@ var socketmiddleware = function(socket, next) {
 
 // io.use(socketmiddleware);
 
-app.use(session);
+
+
+
+  io.use(function (data, accept ) {
+    var handshakeData = data.request;
+    var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+    var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+    handshakeData.sessionID = truc;
+    app.get('store').get(handshakeData.sessionID, function(err, session) {
+      if ( err || !session ) {
+        return accept("Invalid session", false);
+      }
+      handshakeData.session = new Session(handshakeData, session);
+      accept(null,true);
+    });
+  });
+
+app.use(sessionMW);
 io.use(sharedsession(app.get("sessionMW"), {
   autoSave:true}));
-
-  // io.set('authorization', function (data, accept ) {
-  //   console.log('truc');
-  //   console.log(data.headers.cookie);
-  //   var parsedCookie = cookie.parse(data.headers.cookie);
-  //   console.log('truc');
-  //   console.log(parsedCookie);
-  //   var truc = cookieParser.signedCookie(parsedCookie['express.sid']);
-  //   console.log('truc');
-  //   console.log(truc);
-  //   data.sessionID = cookieParser.signedCookie(parsedCookie['express.sid'], 'keyboard cat');
-  //   app.get('store').get(data.sessionID, function(err, session) {
-  //     console.log('err');
-  //   console.log(err);
-  //   console.log('session');
-  //   console.log(session);
-  //     if ( err || !session ) {
-  //       return accept("Invalid session", true);
-  //     }
-  //     data.session = new Session(data, session);
-  //     console.log('data.session');
-  //     console.log(data.session);
-  //     accept(null,true);
-  //   });
-  // });
-
 
 
 require('../routes/index.js')(app);
