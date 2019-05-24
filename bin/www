@@ -9,9 +9,9 @@ var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
 var cookie = require('cookie');
-var cookieParser = require('cookie-parser');
+
 var Session = require('connect');
-app.use(cookieParser);
+
 /**
  * Get port from environment and store in Express.
  */
@@ -35,41 +35,31 @@ app.set("io",io);
 
 var sessionMW= app.get("sessionMW");
 
-// var socketmiddleware = function(socket, next) {
-//   sessionMW(socket.handshake, socket.request.res, next);
-//   var handshakeData = socket.request;
-//   console.log(handshakeData);
-//   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-//   console.log(parsedCookie);
-//   var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], 'keyboard cat');
-//   console.log(sid);
-// }
+var socketmiddleware = function(socket, next) {
+  session(socket.handshake, socket.request.res, next);
+  // var handshakeData = socket.request;
+  // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+  // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
+}
 
 // io.use(socketmiddleware);
 
 
 
 
-  // io.use(function (data, accept ) {
-  //   var handshakeData = data.request;
-  //   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-  //   console.log('truc1');
-  //   console.log(parsedCookie);
-  //   var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
-  //   console.log('truc2');
-  //   console.log(truc);
-  //   handshakeData.sessionID = truc;
-  //   app.get('store').get(handshakeData.sessionID, function(err, session) {
-  //     if ( err || !session ) {
-  //       console.log("Invalid session");
-
-  //       return accept("Invalid session", false);
-  //     }
-  //     console.log("getting store");
-  //     handshakeData.session = new Session(handshakeData, session);
-  //     accept(null,true);
-  //   });
-  // });
+  io.use(function (data, accept ) {
+    var handshakeData = data.request;
+    var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+    var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+    handshakeData.sessionID = truc;
+    app.get('store').get(handshakeData.sessionID, function(err, session) {
+      if ( err || !session ) {
+        return accept("Invalid session", false);
+      }
+      handshakeData.session = new Session(handshakeData, session);
+      accept(null,true);
+    });
+  });
 
 app.use(sessionMW);
 io.use(sharedsession(app.get("sessionMW"), {
