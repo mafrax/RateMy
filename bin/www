@@ -36,7 +36,7 @@ app.set("io",io);
 var sessionMW= app.get("sessionMW");
 
 var socketmiddleware = function(socket, next) {
-  session(socket.handshake, socket.request.res, next);
+  sessionMW(socket.handshake, socket.request.res, next);
   var handshakeData = socket.request;
   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
   var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
