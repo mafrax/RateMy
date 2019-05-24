@@ -9,9 +9,9 @@ var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
 var cookie = require('cookie');
-
+var cookieParser = require('cookie-parser');
 var Session = require('connect');
-
+app.use(cookieParser);
 /**
  * Get port from environment and store in Express.
  */
