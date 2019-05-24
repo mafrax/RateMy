@@ -38,6 +38,8 @@ var sessionMW= app.get("sessionMW");
 var socketmiddleware = function(socket, next) {
   session(socket.handshake, socket.request.res, next);
   // var handshakeData = socket.request;
+  console.log("socket.handshake")
+  console.log(socket.handshake)
   // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
   // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
 }
@@ -50,21 +52,26 @@ var socketmiddleware = function(socket, next) {
   io.use(function (data, accept ) {
     var handshakeData = data.request;
     var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-    var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
-    handshakeData.sessionID = truc;
-    app.get('store').get(handshakeData.sessionID, function(err, session) {
-      if ( err || !session ) {
-        return accept("Invalid session", false);
-      }
-      handshakeData.session = new Session(handshakeData, session);
-      accept(null,true);
-    });
+    console.log("parsedCookie")
+    console.log(parsedCookie)
+    // var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+    // handshakeData.sessionID = truc;
+    // app.get('store').get(handshakeData.sessionID, function(err, session) {
+    //   if ( err || !session ) {
+    //     return accept("Invalid session", false);
+    //   }
+    //   handshakeData.session = new Session(handshakeData, session);
+    //   accept(null,true);
+    // });
   });
 
 app.use(sessionMW);
+console.log("sessionMW")
+console.log(sessionMW)
 io.use(sharedsession(app.get("sessionMW"), {
   autoSave:true}));
-
+  console.log("sharedsession")
+  console.log(sharedsession)
 
 require('../routes/index.js')(app);
 
