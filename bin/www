@@ -45,7 +45,7 @@ var socketmiddleware = function(socket, next) {
   console.log(sid);
 }
 
-// io.use(socketmiddleware);
+io.use(socketmiddleware);
 
 
 
