@@ -35,17 +35,17 @@ app.set("io",io);
 
 var sessionMW= app.get("sessionMW");
 
-var socketmiddleware = function(socket, next) {
-  sessionMW(socket.handshake, socket.request.res, next);
-  var handshakeData = socket.request;
-  console.log(handshakeData);
-  var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-  console.log(parsedCookie);
-  var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], 'keyboard cat');
-  console.log(sid);
-}
+// var socketmiddleware = function(socket, next) {
+//   sessionMW(socket.handshake, socket.request.res, next);
+//   var handshakeData = socket.request;
+//   console.log(handshakeData);
+//   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+//   console.log(parsedCookie);
+//   var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], 'keyboard cat');
+//   console.log(sid);
+// }
 
-io.use(socketmiddleware);
+// io.use(socketmiddleware);
 
 
 
