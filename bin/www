@@ -58,8 +58,11 @@ var socketmiddleware = function(socket, next) {
     handshakeData.sessionID = truc;
     app.get('store').get(handshakeData.sessionID, function(err, session) {
       if ( err || !session ) {
+        console.log("Invalid session");
+
         return accept("Invalid session", false);
       }
+      console.log("getting store");
       handshakeData.session = new Session(handshakeData, session);
       accept(null,true);
     });
