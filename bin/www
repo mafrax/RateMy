@@ -49,21 +49,21 @@ var socketmiddleware = function(socket, next) {
 
 
 
-  io.use(function (data, accept ) {
-    var handshakeData = data.request;
-    var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-    console.log("parsedCookie")
-    console.log(parsedCookie)
-    // var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
-    // handshakeData.sessionID = truc;
-    // app.get('store').get(handshakeData.sessionID, function(err, session) {
-    //   if ( err || !session ) {
-    //     return accept("Invalid session", false);
-    //   }
-    //   handshakeData.session = new Session(handshakeData, session);
-    //   accept(null,true);
-    // });
-  });
+  // io.use(function (data, accept ) {
+  //   var handshakeData = data.request;
+  //   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+  //   console.log("parsedCookie")
+  //   console.log(parsedCookie)
+  //   // var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+  //   // handshakeData.sessionID = truc;
+  //   // app.get('store').get(handshakeData.sessionID, function(err, session) {
+  //   //   if ( err || !session ) {
+  //   //     return accept("Invalid session", false);
+  //   //   }
+  //   //   handshakeData.session = new Session(handshakeData, session);
+  //   //   accept(null,true);
+  //   // });
+  // });
 
 app.use(sessionMW);
 console.log("sessionMW")
