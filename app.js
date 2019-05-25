@@ -9,14 +9,16 @@ var logger = require('morgan');
 var flash = require('connect-flash');
 var session = require('express-session');
 var MemoryStore = require('memorystore')(session)
-var store = new MemoryStore();
+// var store = new MemoryStore();
 
-// var redis = require('redis');
-// var redisClient = redis.createClient();
-// var redisStore = require('connect-redis')(session);
+var redis = require('redis');
+var redisClient = redis.createClient();
+var redisStore = require('connect-redis')(session);
 
 var app = express();
 app.use(cookieParser());
+
+var store = new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 });
 app.set('store' , store);
 app.set('cookieParser', cookieParser);
 // redisClient.on('error', (err) => {
