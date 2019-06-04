@@ -10,7 +10,16 @@ var flash = require('connect-flash');
 var session = require('express-session');
 var MemoryStore = require('memorystore')(session)
 var store = new MemoryStore();
+/**
+ * Module dependencies.
+ */
 
+var debug = require('debug')('testserver:server');
+var http = require('http');
+var sharedsession = require("express-socket.io-session");
+var cookie = require('cookie');
+
+var Session = require('connect');
 // var redis = require('redis');
 // var redisClient = redis.createClient();
 // var redisStore = require('connect-redis')(session);
@@ -65,5 +74,125 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '/public')));
 
 
+/**
+ * Get port from environment and store in Express.
+ */
 
-module.exports = app;
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+var io = require('socket.io').listen(server);
+
+var handler = require('./models/serverEvents')(io);
+app.set("io",io);
+
+var sessionMW= app.get("sessionMW");
+
+var socketmiddleware = function(socket, next) {
+  session(socket.handshake, socket.request.res, next);
+  // var handshakeData = socket.request;
+  // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+  // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
+}
+
+// io.use(socketmiddleware);
+
+
+
+
+  io.use(function (data, accept ) {
+    var handshakeData = data.request;
+    var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+    var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+    handshakeData.sessionID = truc;
+    app.get('store').get(handshakeData.sessionID, function(err, session) {
+      if ( err || !session ) {
+        return accept("Invalid session", false);
+      }
+      handshakeData.session = new Session(handshakeData, session);
+      accept(null,true);
+    });
+  });
+
+app.use(sessionMW);
+io.use(sharedsession(app.get("sessionMW"), {
+  autoSave:true}));
+
+
+require('./routes/index.js')(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
