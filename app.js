@@ -109,7 +109,9 @@ var socketmiddleware = function(socket, next) {
   io.use(function (data, accept ) {
     var handshakeData = data.request;
     var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-    var truc = app.get('cookieParser').signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+    var truc = cookieParser.signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+    console.log('truc');
+    console.log(truc);
     handshakeData.sessionID = truc;
     app.get('store').get(handshakeData.sessionID, function(err, session) {
       if ( err || !session ) {
