@@ -106,24 +106,24 @@ var socketmiddleware = function(socket, next) {
 
 
 
-  io.use(function (data, accept ) {
-    var handshakeData = data.request;
-    var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-    var truc = cookieParser.signedCookie(parsedCookie['sessionId'], 'keyboard cat');
-    console.log('truc');
-    console.log(truc);
-    handshakeData.sessionID = truc;
-    app.get('store').get(handshakeData.sessionID, function(err, session) {
-      if ( err || !session ) {
-        return accept("Invalid session", false);
-      }
-      handshakeData.session = new Session(handshakeData, session);
-      accept(null,true);
-    });
-  });
+  // io.use(function (data, accept ) {
+  //   var handshakeData = data.request;
+  //   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+  //   var truc = cookieParser.signedCookie(parsedCookie['sessionId'], 'keyboard cat');
+  //   console.log('truc');
+  //   console.log(truc);
+  //   handshakeData.sessionID = truc;
+  //   app.get('store').get(handshakeData.sessionID, function(err, session) {
+  //     if ( err || !session ) {
+  //       return accept("Invalid session", false);
+  //     }
+  //     handshakeData.session = new Session(handshakeData, session);
+  //     accept(null,true);
+  //   });
+  // });
 
 app.use(sessionMW);
-io.use(sharedsession(app.get("sessionMW"), {
+io.use(sharedsession(sessionMiddleware, {
   autoSave:true}));
 
 
