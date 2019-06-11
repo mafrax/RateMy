@@ -25,6 +25,9 @@ var Session = require('connect');
 // var redisStore = require('connect-redis')(session);
 
 var app = express();
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+
 app.use(cookieParser());
 app.set('store' , store);
 app.set('cookieParser', cookieParser);
@@ -54,7 +57,9 @@ var sessionMiddleware = session({
   // store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
-app.set("sessionMW", sessionMiddleware);
+io.use(sharedsession(sessionMiddleware, {
+  autoSave:true}));
+// app.set("sessionMW", sessionMiddleware);
 // app.use(passport.initialize());
 // app.use(passport.session());
 app.use(flash());
@@ -85,21 +90,20 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
 
-var io = require('socket.io').listen(server);
+
 
 var handler = require('./models/serverEvents')(io);
-app.set("io",io);
+// app.set("io",io);
 
-var sessionMW= app.get("sessionMW");
+// var sessionMW= app.get("sessionMW");
 
-var socketmiddleware = function(socket, next) {
-  session(socket.handshake, socket.request.res, next);
-  // var handshakeData = socket.request;
-  // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-  // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
-}
+// var socketmiddleware = function(socket, next) {
+//   session(socket.handshake, socket.request.res, next);
+//   // var handshakeData = socket.request;
+//   // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
+//   // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
+// }
 
 // io.use(socketmiddleware);
 
@@ -122,9 +126,8 @@ var socketmiddleware = function(socket, next) {
   //   });
   // });
 
-app.use(sessionMW);
-io.use(sharedsession(sessionMiddleware, {
-  autoSave:true}));
+ // app.use(sessionMW);
+
 
 
 require('./routes/index.js')(app);
