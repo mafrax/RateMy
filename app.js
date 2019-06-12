@@ -52,7 +52,7 @@ var sessionMiddleware = session({
   resave: true,
   name: 'sessionId',
   saveUninitialized: true,
-  // cookie: { maxAge: 60000 },
+  cookie: { maxAge: 6000000 },
   store:store
   // store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
 });
