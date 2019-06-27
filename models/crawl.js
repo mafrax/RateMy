@@ -286,3 +286,52 @@ Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
 
   return html2;
 };
+
+
+
+Crawler.dailyCrawl = function(cb) {
+
+
+
+var url = "https://pornhub.com"
+
+
+    var options = {
+      uri: url,
+      headers: {
+        "User-Agent": "Request-Promise"
+      },
+      json: true, // Automatically parses the JSON string in the response
+      transform: function(body) {
+        return cheerio.load(body);
+      }
+    };
+  
+
+  rp(options)
+    .then(function($) {
+      try {
+
+        var p = $("meta[content*='embed'][content*='https']");
+       
+        var all = $("*");
+        var divs = $('a[href^="/view_video.php?"]')
+        var title0 = divs[0].attribs.title;
+        var webm = $('img[alt*="'+title0+'"]')
+ var url = "https://pornhub.com"+divs[0].attribs.href ; 
+Crawler.crawl(url, function(){
+console.log("yo");
+})
+
+        console.log(JSON.stringify(all));
+        console.log("truc");
+
+      } catch (e) {
+        // // console.log(e);
+      }
+    })
+    .catch(function(err) {
+      // console.log(err);
+      // rejected
+    });
+};

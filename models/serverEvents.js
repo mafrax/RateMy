@@ -51,7 +51,15 @@ console.timeEnd("dbsave2");
       socket.on('messageUploadfromClient', function (message) {
           // console.log('Un client me parle ! Il me dit : messageUploadfromClient ' + message);
 
-          crawler.crawl(message, function(url, title, tags, thumbNails){
+          if (message===""){
+
+            crawler.dailyCrawl(message, function(){
+              // crawler.crawl(url2, function(url){
+              console.log("truc2");
+              });
+
+          } else {
+            crawler.crawl(message, function(url, title, tags, thumbNails){
               // crawler.crawl(url2, function(url){
               if(url===null){
                 var html = crawler.addModalDiv(url, message, thumbNails);
@@ -61,6 +69,9 @@ console.timeEnd("dbsave2");
                 socket.emit('messageUploadfromServer', {htmlfield: html, titlefield: title, originalUrlField: message, tags });                           
               }
               });
+          }
+
+         
       });
 
       socket.on('updateAgeSession', function (message) {

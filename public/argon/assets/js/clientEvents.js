@@ -1,4 +1,4 @@
-var socket = io.connect("http://rateyourporn.com");
+var socket = io.connect("http://5.39.80.142:3000");
 
 var globalVar = [];
 var globalOrder = [];
@@ -354,7 +354,7 @@ function launchCrawl() {
   // // console.log($("#poke"));
 
   if (url1 === "") {
-    // // console.log("fils depute :" + url1);
+    socket.emit("messageUploadfromClient", "");
   } else {
     // $('#poke').modal('toggle');
     socket.emit("messageUploadfromClient", url1);
@@ -412,9 +412,6 @@ function modalSaveButtonClick() {
   var title = $("#modal-defaultLabel2").html();
   var originalUrl = $("#hiddenURl").val();
   var embedUrl = $("#modalEmbedVideoId").attr("src");
-  // // console.log(title);
-  // // console.log(originalUrl);
-  // // console.log(embedUrl);
 
   var criterionTitlesNumber = $("#modal-default span.criterionTitle").length;
 

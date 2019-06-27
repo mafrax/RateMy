@@ -10,6 +10,7 @@ var flash = require('connect-flash');
 var session = require('express-session');
 var MemoryStore = require('memorystore')(session)
 var store = new MemoryStore();
+var cron = require("node-cron");
 /**
  * Module dependencies.
  */
@@ -131,6 +132,11 @@ var handler = require('./models/serverEvents')(io);
 
 
 require('./routes/index.js')(app);
+
+cron.schedule("5 * * * * *", function() {
+  console.log("---------------------");
+});
+
 
 /**
  * Listen on provided port, on all network interfaces.
