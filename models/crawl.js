@@ -10,7 +10,7 @@ var Crawler = (module.exports = function Crawler(_node) {
   this._node = _node;
 });
 
-Crawler.crawl = function(url, cb) {
+Crawler.crawl = function (url, cb) {
   if (url.includes("?")) {
     var parts = url.split("?");
     // // console.log(parts[0]);
@@ -30,7 +30,7 @@ Crawler.crawl = function(url, cb) {
         "User-Agent": "Request-Promise"
       },
       json: true, // Automatically parses the JSON string in the response
-      transform: function(body) {
+      transform: function (body) {
         return cheerio.load(body);
       }
     };
@@ -44,32 +44,32 @@ Crawler.crawl = function(url, cb) {
         "User-Agent": "Request-Promise"
       },
       json: true, // Automatically parses the JSON string in the response
-      transform: function(body) {
+      transform: function (body) {
         return cheerio.load(body);
       }
     };
   }
 
   rp(options)
-    .then(function($) {
+    .then(function ($) {
       try {
         var p = $("meta[content*='embed'][content*='https']");
         var q = $("textarea:contains('iframe'):contains('embed')");
         var thumbNails = [];
-        if(url.includes("pornhub")){
+        if (url.includes("pornhub")) {
 
           var thumbnail = $("meta[content*='phncdn.com/videos/']");
           var truc = thumbnail[0];
-          var truc2 = truc.attribs.content ;
+          var truc2 = truc.attribs.content;
           var index = truc2.indexOf(".jpg");
           var index2 = truc2.lastIndexOf(")");
-          var startThumbnailsUrl = truc2.slice(0, index2+1);
-          var originalNumThumbnailsUrl = parseInt(truc2.slice(index2+1, index));
-  
+          var startThumbnailsUrl = truc2.slice(0, index2 + 1);
+          var originalNumThumbnailsUrl = parseInt(truc2.slice(index2 + 1, index));
+
           var i;
-  for (i = 1; i <= originalNumThumbnailsUrl; i++) { 
-    thumbNails[i] = startThumbnailsUrl + i + ".jpg";
-  }
+          for (i = 1; i <= originalNumThumbnailsUrl; i++) {
+            thumbNails[i] = startThumbnailsUrl + i + ".jpg";
+          }
         }
 
         // console.log(thumbNails);
@@ -77,12 +77,12 @@ Crawler.crawl = function(url, cb) {
         var newHtml = [];
 
         if (p.length > 0) {
-          $("meta[content*='embed'][content*='https']").each(function() {
+          $("meta[content*='embed'][content*='https']").each(function () {
             // // console.log($(this).attr().content);
             newHtml.push($(this).attr().content);
           });
         } else if (q) {
-          $("textarea:contains('iframe'):contains('embed')").each(function() {
+          $("textarea:contains('iframe'):contains('embed')").each(function () {
             var sub = $(this)
               .text()
               .substring(
@@ -98,9 +98,9 @@ Crawler.crawl = function(url, cb) {
         }
 
         if (newHtml.length === 0) {
-            cb(null, "Sorry, video not found", null);          
+          cb(null, "Sorry, video not found", null);
         } else {
-            // var r = $("textarea:contains('iframe')")[0].childNodes[0].data;
+          // var r = $("textarea:contains('iframe')")[0].childNodes[0].data;
           var tqgs = $("a[href*='keyword']");
           var tpgs = $("a[href*='categor']");
           var tOgs = $("a[href*='tags']");
@@ -109,7 +109,7 @@ Crawler.crawl = function(url, cb) {
           var tags = [];
 
           if (tpgs) {
-            $("a[href*='categor']").each(function() {
+            $("a[href*='categor']").each(function () {
               // // console.log($(this).closest("[class*='menu']"));
               if (
                 $(this).closest("div[id*='menu']").length === 0 &&
@@ -124,7 +124,7 @@ Crawler.crawl = function(url, cb) {
           }
 
           if (tqgs) {
-            $("a[href*='keyword']").each(function() {
+            $("a[href*='keyword']").each(function () {
               if (
                 $(this).closest("div[id*='menu']").length === 0 &&
                 $(this).closest("[class*='menu']").length === 0 &&
@@ -138,7 +138,7 @@ Crawler.crawl = function(url, cb) {
           }
 
           if (tOgs) {
-            $("a[href*='tags']").each(function() {
+            $("a[href*='tags']").each(function () {
               if (
                 $(this).closest("div[id*='menu']").length === 0 &&
                 $(this).closest("[class*='menu']").length === 0 &&
@@ -151,7 +151,7 @@ Crawler.crawl = function(url, cb) {
           }
 
           if (tIgs) {
-            $("a[href*='search?search']").each(function() {
+            $("a[href*='search?search']").each(function () {
               if (
                 $(this).closest("div[id*='menu']").length === 0 &&
                 $(this).closest("[class*='menu']").length === 0 &&
@@ -173,7 +173,7 @@ Crawler.crawl = function(url, cb) {
           }
 
           var uniqueTags = [];
-          tags.forEach(function(item) {
+          tags.forEach(function (item) {
             if (uniqueTags.indexOf(item) < 0) {
               uniqueTags.push(item);
             }
@@ -183,25 +183,25 @@ Crawler.crawl = function(url, cb) {
 
           cb(sourceEmbed, title, uniqueTags, thumbNails);
 
-          uniqueTags.forEach(function(element) {
-            tagsBase.getBy("tag.tagName", element, function(err, tag) {
-                // // console.log("tag "+tag);
-                // // console.log("error "+err);
-                if (err!=null && tag !== "undefined") {
-                  // // console.log("tag already in base");
-                } else {
+          uniqueTags.forEach(function (element) {
+            tagsBase.getBy("tag.tagName", element, function (err, tag) {
+              // // console.log("tag "+tag);
+              // // console.log("error "+err);
+              if (err != null && tag !== "undefined") {
+                // // console.log("tag already in base");
+              } else {
+                // // console.log(tag);
+                var newTag = {};
+                newTag.tagName = element;
+                newTag.timestamp = new Date();
+
+                tagsBase.create(newTag, function (err, tag) {
                   // // console.log(tag);
-                  var newTag = {};
-                  newTag.tagName = element;
-                  newTag.timestamp = new Date();
-  
-                  tagsBase.create(newTag, function(err, tag) {
-                    // // console.log(tag);
-                    // // console.log(err);
-                    if (err) return next(err);
-                  });
-                }
-              
+                  // // console.log(err);
+                  if (err) return next(err);
+                });
+              }
+
             });
           });
         }
@@ -209,25 +209,25 @@ Crawler.crawl = function(url, cb) {
         // // console.log(e);
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       // console.log(err);
       // rejected
     });
 };
 
-Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
+Crawler.addModalDiv = function (url, originalUrl, thumbNails) {
   // // console.log(originalUrl);
 
-  if(url==null){
-      return "We are very sorry, but we couldn't find any embed video on this page. Please make sure you used the correct link or send us an email with the link and we will try our best to troubleshoot your problem";
+  if (url == null) {
+    return "We are very sorry, but we couldn't find any embed video on this page. Please make sure you used the correct link or send us an email with the link and we will try our best to troubleshoot your problem";
   }
 
   var htmlThumbs = "<div class='col-12'>";
-  if(thumbNails != null){
+  if (thumbNails != null) {
     var i;
     var length = thumbNails.length;
-    for (i = 1; i<length ; i++){
-      htmlThumbs += '<img class="vidThumb" src="'+thumbNails[i]+'" data-thumb_url="'+thumbNails[i]+'" width="80" >';
+    for (i = 1; i < length; i++) {
+      htmlThumbs += '<img class="vidThumb" src="' + thumbNails[i] + '" data-thumb_url="' + thumbNails[i] + '" width="80" >';
     }
   }
   htmlThumbs += '</div>';
@@ -245,7 +245,7 @@ Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
     "</div>" +
     htmlThumbs +
     '<div class="flex-wrap" style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh; background-color: rgb(175, 213, 238);">' +
-     '<div class="input-group">' +
+    '<div class="input-group">' +
     '<input class="form-control" placeholder="Search" type="text" id="searchVideoBar0' +
     '"' +
     'onkeyUp="filterCriterion(event,' +
@@ -290,71 +290,114 @@ Crawler.addModalDiv = function(url, originalUrl, thumbNails) {
 
 
 
-Crawler.dailyCrawl = function(cb) {
+Crawler.dailyCrawl = function (cb) {
 
 
 
-var url = "https://pornhub.com"
-// var url = "https://cv.phncdn.com/videos/201905/07/222386511/180P_225K_222386511.webm?0UpSNSlbcVKoC0WKq2hoOmRGEymXKZdr14wu9ioMhmmYXoj6zjy1WZkyvBWKSdmBx6gHoI_sBcAWsiF5TrO3MRV4-LpCWQUikdRMHWqfZQJekz5-m-tu9bWxzO9O5awXSb5Qv05R5zW1vjCaK-Dfr5r-x41g8fnNfy5DLIam7X63rHIb-vI0A65DVkEwlbVM64gW6ILanzY"
+  var url = "https://pornhub.com"
+  // var url = "https://cv.phncdn.com/videos/201905/07/222386511/180P_225K_222386511.webm?0UpSNSlbcVKoC0WKq2hoOmRGEymXKZdr14wu9ioMhmmYXoj6zjy1WZkyvBWKSdmBx6gHoI_sBcAWsiF5TrO3MRV4-LpCWQUikdRMHWqfZQJekz5-m-tu9bWxzO9O5awXSb5Qv05R5zW1vjCaK-Dfr5r-x41g8fnNfy5DLIam7X63rHIb-vI0A65DVkEwlbVM64gW6ILanzY"
 
-    var options = {
-      uri: url,
-      headers: {
-        "User-Agent": "Request-Promise"
-      },
-      json: true, // Automatically parses the JSON string in the response
-      transform: function(body) {
-        return cheerio.load(body);
-      }
-    };
-  
+  var options = {
+    uri: url,
+    headers: {
+      "User-Agent": "Request-Promise"
+    },
+    json: true, // Automatically parses the JSON string in the response
+    transform: function (body) {
+      return cheerio.load(body);
+    }
+  };
+
 
   rp(options)
-    .then(function($) {
+    .then(function ($) {
       try {
 
         var p = $("meta[content*='embed'][content*='https']");
-       
+
         var all = $("*");
         var divs = $('a[href^="/view_video.php?"]')
         var title0 = divs[0].attribs.title;
-        var webm = $('img[alt*="'+title0+'"]')
- var url = "https://pornhub.com"+divs[0].attribs.href ; 
-Crawler.crawl(url, function(sourceEmbed, title, uniqueTags, thumbNails){
+        var webm = $('img[alt*="' + title0 + '"]')
+        var url = "https://pornhub.com" + divs[0].attribs.href;
+        Crawler.crawl(url, function (sourceEmbed, title, uniqueTags, thumbNails) {
 
-  var newVideo = {};
-  newVideo.originalUrl = url;
-  newVideo.embedUrl = sourceEmbed;
-  newVideo.title = title;
-  newVideo.timestamp = new Date();
-  newVideo.thumbNails = thumbNails;
-  newVideo.webm = webm;
+          var newVideo = {};
+          newVideo.originalUrl = url;
+          newVideo.embedUrl = sourceEmbed;
+          newVideo.title = title;
+          newVideo.timestamp = new Date();
+          newVideo.thumbNails = thumbNails;
+          var attrib = webm[0].attribs
+          var webmUrl = attrib["data-mediabook"];
+          var options2 = {
+            uri: webmUrl,
+            headers: {
+              "User-Agent": "Request-Promise"
+            },
+            json: true, // Automatically parses the JSON string in the response
+            transform: function (body) {
+              return cheerio.load(body);
+            }
+          };
 
-
-  Video.create(newVideo, uniqueTags, function (err, video1) {
-    
-    console.log(err);
-    // console.log(video1);
-    // console.log("AFTER CREATE: "+video1);
-    if (err)
-    return next(err);
-
-    video.getLatestEntry(function(err, video2){
-      if (err)
-    return next(err);
-      console.log(video2);
-    })
-
-    
-
-  });
-
-
+          rp(options2)
+            .then(function ($) {
+              try {
+                newVideo.webm = webm;
+              } catch (e) {
+                console.log(e);
+              }
 
 
+       Video.create(newVideo, uniqueTags, function (err, video1) {
+
+            console.log(err);
+            // console.log(video1);
+            // console.log("AFTER CREATE: "+video1);
+            if (err)
+              return next(err);
+
+            video.getLatestEntry(function (err, video2) {
+              if (err)
+                return next(err);
+              console.log(video2);
+            })
 
 
-})
+
+          });
+
+            }
+            ).catch(function (err) {
+              console.log(err);
+              // rejected
+            });
+
+          // Video.create(newVideo, uniqueTags, function (err, video1) {
+
+          //   console.log(err);
+          //   // console.log(video1);
+          //   // console.log("AFTER CREATE: "+video1);
+          //   if (err)
+          //     return next(err);
+
+          //   video.getLatestEntry(function (err, video2) {
+          //     if (err)
+          //       return next(err);
+          //     console.log(video2);
+          //   })
+
+
+
+          // });
+
+
+
+
+
+
+        })
 
         console.log(JSON.stringify(all));
         console.log("truc");
@@ -363,7 +406,7 @@ Crawler.crawl(url, function(sourceEmbed, title, uniqueTags, thumbNails){
         // // console.log(e);
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
       // rejected
     });
