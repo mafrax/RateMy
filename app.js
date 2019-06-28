@@ -133,9 +133,9 @@ var handler = require('./models/serverEvents')(io);
 
 require('./routes/index.js')(app);
 
-cron.schedule("5 * * * * *", function() {
-  console.log("---------------------");
-});
+// cron.schedule("5 * * * * *", function() {
+//   console.log("---------------------");
+// });
 
 
 /**

@@ -1,6 +1,7 @@
 var rp = require("request-promise");
 var cheerio = require("cheerio");
 var tagsBase = require("../models/Tag");
+var Video = require("../models/Video")
 
 // private constructor:
 var Crawler = (module.exports = function Crawler(_node) {
@@ -294,7 +295,7 @@ Crawler.dailyCrawl = function(cb) {
 
 
 var url = "https://pornhub.com"
-
+// var url = "https://cv.phncdn.com/videos/201905/07/222386511/180P_225K_222386511.webm?0UpSNSlbcVKoC0WKq2hoOmRGEymXKZdr14wu9ioMhmmYXoj6zjy1WZkyvBWKSdmBx6gHoI_sBcAWsiF5TrO3MRV4-LpCWQUikdRMHWqfZQJekz5-m-tu9bWxzO9O5awXSb5Qv05R5zW1vjCaK-Dfr5r-x41g8fnNfy5DLIam7X63rHIb-vI0A65DVkEwlbVM64gW6ILanzY"
 
     var options = {
       uri: url,
@@ -319,8 +320,40 @@ var url = "https://pornhub.com"
         var title0 = divs[0].attribs.title;
         var webm = $('img[alt*="'+title0+'"]')
  var url = "https://pornhub.com"+divs[0].attribs.href ; 
-Crawler.crawl(url, function(){
-console.log("yo");
+Crawler.crawl(url, function(sourceEmbed, title, uniqueTags, thumbNails){
+
+  var newVideo = {};
+  newVideo.originalUrl = url;
+  newVideo.embedUrl = sourceEmbed;
+  newVideo.title = title;
+  newVideo.timestamp = new Date();
+  newVideo.thumbNails = thumbNails;
+  newVideo.webm = webm;
+
+
+  Video.create(newVideo, uniqueTags, function (err, video1) {
+    
+    console.log(err);
+    // console.log(video1);
+    // console.log("AFTER CREATE: "+video1);
+    if (err)
+    return next(err);
+
+    video.getLatestEntry(function(err, video2){
+      if (err)
+    return next(err);
+      console.log(video2);
+    })
+
+    
+
+  });
+
+
+
+
+
+
 })
 
         console.log(JSON.stringify(all));
@@ -331,7 +364,7 @@ console.log("yo");
       }
     })
     .catch(function(err) {
-      // console.log(err);
+      console.log(err);
       // rejected
     });
 };
