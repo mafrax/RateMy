@@ -133,7 +133,7 @@ var handler = require('./models/serverEvents')(io);
 
 require('./routes/index.js')(app);
 
-cron.schedule("* * 1 * *", function() {
+cron.schedule("* 0 * * *", function() {
   crawler.dailyCrawl(message, function(){
     // crawler.crawl(url2, function(url){
     console.log("truc2");
