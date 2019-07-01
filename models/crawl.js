@@ -344,7 +344,7 @@ Crawler.dailyCrawl = function (cb) {
           rp(options2)
             .then(function ($) {
               try {
-                newVideo.webm = webm;
+                newVideo.webm = webmUrl;
               } catch (e) {
                 console.log(e);
               }
@@ -358,11 +358,11 @@ Crawler.dailyCrawl = function (cb) {
             if (err)
               return next(err);
 
-            video.getLatestEntry(function (err, video2) {
-              if (err)
-                return next(err);
-              console.log(video2);
-            })
+            // Video.getLatestEntry(function (err, video2) {
+            //   if (err)
+            //     return next(err);
+            //   console.log(video2);
+            // })
 
 
 

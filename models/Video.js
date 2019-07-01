@@ -175,15 +175,27 @@ Video.computeQuery = function (data, tags, callback) {
         var quer ="";
 		// // console.log("inside compute query, criterion getAll: "+ result);
 		if(data.thumbNails == null || data.thumbNails.length==0){
+			
+
 		quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'" }) \n';
 		} else {
-			quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'", thumbnails: "'+data.thumbNails+'" }) \n';
+
+			if(data.webm!==null || data.webm.length!==0){
+				quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'", thumbnails: "'+data.thumbNails+'", webM: "'+data.webm+'" }) \n';
+			} else {
+				quer += 'CREATE (video:Video {embedUrl: "'+ data.embedUrl +'", originalUrl: "'+ data.originalUrl +'", timeStamp: timestamp(), title:"'+ data.title +'", thumbnails: "'+data.thumbNails+'" }) \n';
+			}
+
 		}
 		quer += 'WITH video \n';
 		for (var prop in tags) {
             if (tags.hasOwnProperty(prop)) {
 				var no = prop.slice(3, prop.length);
-				quer += 'MERGE (video)-[:RATED {level:' + tags["tag" + no].tagValue + '}]->(tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"}) \n';
+				if(no===""){
+					quer += 'MERGE (video)-[:RATED {level:0}]->(tag' + prop + ':Tag {tagName: "'+ tags[prop]+'"}) \n';
+				} else{
+					quer += 'MERGE (video)-[:RATED {level:' + tags["tag" + no].tagValue + '}]->(tag' + no + ':Tag {tagName: "'+ tags["tag" + no].tagName+'"}) \n';
+				}
         }            
     }
                   
