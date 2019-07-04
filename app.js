@@ -56,7 +56,7 @@ var sessionMiddleware = session({
   saveUninitialized: true,
   cookie: { maxAge: 6000000 },
   store:store
-  // store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
+  // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 io.use(sharedsession(sessionMiddleware, {
@@ -134,9 +134,9 @@ var handler = require('./models/serverEvents')(io);
 
 require('./routes/index.js')(app);
 
-cron.schedule("15 17 * * *", function() {
+cron.schedule("19 17 * * *", function() {
   console.log("truc2");
-  crawler.dailyCrawl(message, function(){
+  crawler.dailyCrawl(function(){
     // crawler.crawl(url2, function(url){
       console.log("truc2" + Date.now());
     });
