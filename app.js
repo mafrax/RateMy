@@ -11,6 +11,7 @@ var session = require('express-session');
 var MemoryStore = require('memorystore')(session)
 var store = new MemoryStore();
 var cron = require("node-cron");
+var crawler = require('./models/crawl')
 /**
  * Module dependencies.
  */
@@ -133,10 +134,11 @@ var handler = require('./models/serverEvents')(io);
 
 require('./routes/index.js')(app);
 
-cron.schedule("* 0 * * *", function() {
+cron.schedule("15 17 * * *", function() {
+  console.log("truc2");
   crawler.dailyCrawl(message, function(){
     // crawler.crawl(url2, function(url){
-    console.log("truc2");
+      console.log("truc2" + Date.now());
     });
 });
 
