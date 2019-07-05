@@ -594,36 +594,55 @@ var running;
 function imageCarrousel(thumbNailsWrapper, maxNum){
 
 
-  // console.log(thumbNailsWrapper);
+  // console.log(thumbNailsWrapper);vidPreview
   var thumbs = $(thumbNailsWrapper).children(".vidThumb");
-  // console.log(thumbs);
   var i = thumbs.length-1;
+  
+  var vidPreview = $(thumbNailsWrapper).children(".vidPreview");
+  console.log("vidPreview");
+  console.log(vidPreview);
+  if(vidPreview.length!==0){
 
-   
-  var truc = thumbs[0];
-  truc.setAttribute('style', ' box-shadow: 0px 0px 10px rgba(241, 34, 34, 0.397);');
-  // console.log(truc)
-  var original = truc.getAttribute('src');
-  // console.log(original);
-  var index = original.indexOf(".jpg");
-  var index2 = original.lastIndexOf(")");
-  var startThumbnailsUrl = original.slice(0, index2+1);
+    if(thumbs > 0){
 
-  var i = maxNum;
-  running = setInterval(function () {
+      thumbs[0].setAttribute('style', 'display:none');
 
-
-    var newSrc = startThumbnailsUrl + i + ".jpg";
-    truc.setAttribute('src', newSrc);
-    truc.setAttribute('data-thumb_url', newSrc);
-
-    if(i==1){
-      i= maxNum;
-    } else {
-      i--;
     }
+    vidPreview.get(0).play();
 
-  }, 500);
+
+  } else {
+    
+    var truc = thumbs[0];
+    truc.setAttribute('style', ' box-shadow: 0px 0px 10px rgba(241, 34, 34, 0.397);');
+    // console.log(truc)
+    var original = truc.getAttribute('src');
+    // console.log(original);
+    var index = original.indexOf(".jpg");
+    var index2 = original.lastIndexOf(")");
+    var startThumbnailsUrl = original.slice(0, index2+1);
+  
+    var i = maxNum;
+    running = setInterval(function () {
+  
+  
+      var newSrc = startThumbnailsUrl + i + ".jpg";
+      truc.setAttribute('src', newSrc);
+      truc.setAttribute('data-thumb_url', newSrc);
+  
+      if(i==1){
+        i= maxNum;
+      } else {
+        i--;
+      }
+  
+    }, 500);
+
+
+
+  }
+  
+
 
 
 }
@@ -631,9 +650,25 @@ function imageCarrousel(thumbNailsWrapper, maxNum){
 function stopCarrousel(thumbNailsWrapper){
   var thumbs = $(thumbNailsWrapper).children(".vidThumb");
   
-  var truc = thumbs[0];
-  truc.setAttribute('style', ' box-shadow: 0 0 0px ');
-  clearInterval(running);
+  var vidPreview = $(thumbNailsWrapper).children(".vidPreview");
+  console.log("vidPreview");
+  console.log(vidPreview);
+  if(vidPreview.length!==0){
+
+    if(thumbs > 0){
+
+      thumbs[0].setAttribute('style', 'display:show');
+
+    }
+    vidPreview.get(0).pause();
+
+
+  } else {
+    var truc = thumbs[0];
+    truc.setAttribute('style', ' box-shadow: 0 0 0px ');
+    clearInterval(running);
+  }
+  
 }
 
 
