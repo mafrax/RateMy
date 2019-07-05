@@ -1,5 +1,8 @@
 var neo4j = require("neo4j");
-var db = new neo4j.GraphDatabase("http://neo4j:mafrax@5.39.80.142:7474");
+var db = new neo4j.GraphDatabase("http://neo4j:mafrax@localhost:7474");
+
+var rp = require("request-promise");
+var cheerio = require("cheerio");
 
 // private constructor:
 var HomePageL = (module.exports = function HomePageL(_node) {
@@ -8,24 +11,27 @@ var HomePageL = (module.exports = function HomePageL(_node) {
   this._node = _node;
 });
 
-HomePageL.loadHomePage = function(callback) {
+HomePageL.loadHomePage = function (callback) {
   // quer = "MATCH (v:Video) Where (v)-[:RATED]->(:Tag) Return v";
   quer = "MATCH p=(v:Video)-[r:RATED]->(t:Tag)  Return r,t,v ORDER BY v.timeStamp DESC";
-  
+
   // // console.log(quer);
-  
+
   // // console.log("quer");
-  db.cypher(quer, function(err, results) {
+  db.cypher(quer, function (err, results) {
     // // console.log(results);
     // // console.log(err);
     console.time("dbsave1");
     if (err) return callback(err, results);
-    var localArray = createArray(results);
-    console.timeEnd("dbsave1");
-    // // console.log(localArray);
-    callback(localArray);
 
-  });
+    // removeBadPreview(results, function (){
+      var localArray = createArray(results);
+      console.timeEnd("dbsave1");
+      // // console.log(localArray);
+      callback(localArray);
+  // });
+
+});
 };
 
 function createArray(results) {
@@ -35,50 +41,104 @@ function createArray(results) {
   for (var prop in results) {
 
     if (results.hasOwnProperty(prop)) {
-      
-      if (prop > 0 && results[prop].v._id !== results[prop - 1].v._id) {
-        // // console.log(results[prop].v._id);
-        // // console.log(results[prop-1].v._id);
-      function filtrerParID(obj) {
-          const newLocal_1 = results[prop].v._id;
-          const newLocal = obj.v._id;
-          // Si c'est un nombre
-          if (newLocal === newLocal_1) {
-            // // console.log("LOCAL ARRAY1: " + "Found");
-            return true;
-          }
-          else {
-            return false;
-          }
-        }
-        var arrByID = results.filter(filtrerParID);
-        // // console.log("LOCAL ARRAY Id: " + results[prop].v);
-        var newObject = { video: results[prop].v, tags: arrByID };
-        // // console.log("LOCAL ARRAY2: " + results[prop].v);
-        localArray["video_" + results[prop].v._id] = newObject;
+
+
+            if (prop > 0 && results[prop].v._id !== results[prop - 1].v._id) {
+              // // console.log(results[prop].v._id);
+              // // console.log(results[prop-1].v._id);
+              function filtrerParID(obj) {
+                const newLocal_1 = results[prop].v._id;
+                const newLocal = obj.v._id;
+                // Si c'est un nombre
+                if (newLocal === newLocal_1) {
+                  // // console.log("LOCAL ARRAY1: " + "Found");
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              }
+              var arrByID = results.filter(filtrerParID);
+              // // console.log("LOCAL ARRAY Id: " + results[prop].v);
+              var newObject = { video: results[prop].v, tags: arrByID };
+              // // console.log("LOCAL ARRAY2: " + results[prop].v);
+              localArray["video_" + results[prop].v._id] = newObject;
+            }
+
+            if (prop == 0) {
+              function filtrerParID(obj) {
+                const newLocal_1 = results[prop].v._id;
+                const newLocal = obj.v._id;
+                // Si c'est un nombre
+                if (newLocal === newLocal_1) {
+                  // // console.log("LOCAL ARRAY1: " + "Found");
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              }
+              var arrByID = results.filter(filtrerParID);
+              // // console.log("LOCAL ARRAY Id: " + results[prop].v);
+              var newObject = { video: results[prop].v, tags: arrByID };
+              // // console.log("LOCAL ARRAY2: " + results[prop].v);
+              localArray["video_" + results[prop].v._id] = newObject;
+            }
+
+            console.log(prop);
+
+
       }
 
-      if(prop == 0 ){
-        function filtrerParID(obj) {
-          const newLocal_1 = results[prop].v._id;
-          const newLocal = obj.v._id;
-          // Si c'est un nombre
-          if (newLocal === newLocal_1) {
-            // // console.log("LOCAL ARRAY1: " + "Found");
-            return true;
-          }
-          else {
-            return false;
-          }
-        }
-        var arrByID = results.filter(filtrerParID);
-        // // console.log("LOCAL ARRAY Id: " + results[prop].v);
-        var newObject = { video: results[prop].v, tags: arrByID };
-        // // console.log("LOCAL ARRAY2: " + results[prop].v);
-        localArray["video_" + results[prop].v._id] = newObject;
-      }
-      // // console.log(prop);
+
     }
-  }
+  
   return localArray;
 }
+
+
+function removeBadPreview(results, callback){
+
+  for (var prop in results) {
+
+    if (results.hasOwnProperty(prop)) {
+    
+      console.log(prop)
+
+      if(results[prop].v.properties.webM){
+
+        var options = {
+          uri: results[prop].v.properties.webM,
+          headers: {
+            "User-Agent": "Request-Promise"
+          },
+          json: true, // Automatically parses the JSON string in the response
+          transform: function (body) {
+            return cheerio.load(body);
+          }
+        };
+      
+    
+      rp(options)
+        .then(function ($) {
+        try{
+          console.log("working webM")
+        } catch(e){
+          results[prop].v.properties.webM = null;
+        }});
+      }
+
+      if(prop===results.length){
+        console.log(results.length);
+        console.log(prop);
+        callback(results);
+      }
+
+    }
+  }
+
+ 
+
+  };
+
+
