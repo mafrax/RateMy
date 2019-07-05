@@ -134,8 +134,8 @@ var handler = require('./models/serverEvents')(io);
 
 require('./routes/index.js')(app);
 
-cron.schedule("00 18 * * *", function() {
-  console.log("truc2");
+cron.schedule("21 11 * * *", function() {
+  console.log("truc2truc2truc2truc2truc2truc2truc2truc2truc2");
   crawler.dailyCrawl(function(){
     // crawler.crawl(url2, function(url){
       console.log("truc2" + Date.now());
