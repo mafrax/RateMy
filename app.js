@@ -135,6 +135,7 @@ var handler = require('./models/serverEvents')(io);
 require('./routes/index.js')(app);
 
 cron.schedule("21 11 * * *", function() {
+  console.log(new Date().toISOString())
   console.log("truc2truc2truc2truc2truc2truc2truc2truc2truc2");
   crawler.dailyCrawl(function(){
     // crawler.crawl(url2, function(url){
@@ -142,7 +143,8 @@ cron.schedule("21 11 * * *", function() {
     });
 });
 
-cron.schedule("*/2 * * * *", function() {
+cron.schedule("* * * * *", function() {
+  console.log(new Date().toISOString());
   console.log("truc2truc2truc2truc2truc2truc2truc2truc2truc2");
 });
 
