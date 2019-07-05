@@ -142,6 +142,10 @@ cron.schedule("21 11 * * *", function() {
     });
 });
 
+cron.schedule("*/2 * * * *", function() {
+  console.log("truc2truc2truc2truc2truc2truc2truc2truc2truc2");
+});
+
 
 /**
  * Listen on provided port, on all network interfaces.
