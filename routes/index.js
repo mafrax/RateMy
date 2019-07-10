@@ -1,241 +1,237 @@
 // var User = require('../models/User');
 
-
-var homePageLoader = require('../models/homePageLoader');
-var serverEvents = require('../models/serverEvents');
-
-var cookie1;
-
+var homePageLoader = require('../models/homePageLoader')
+var serverEvents = require('../models/serverEvents')
+var searchPageloader = require('../models/searchPageLoader')
+var cookie1
 
 module.exports = function (app, passport) {
+  // normal routes ===============================================================
 
-	// normal routes ===============================================================
+  // show the home page (will also have our login links)
+  app.get('/', function (req, res, next) {
+    // res.cookie('mycookies', 'express');
+    // cookie1= req.cookies;
 
-	// show the home page (will also have our login links)
-	app.get('/', function (req, res, next) {
-
-		// res.cookie('mycookies', 'express');
-		// cookie1= req.cookies;
-		
-		console.log(" Index req session " + req.session);
-		console.log(req.session);
-		console.log(req.sessionID);
-		if (req.session.views) {
-			req.session.views++;
-			console.log(req.session.views);
+    console.log(' Index req session ' + req.session)
+    console.log(req.session)
+    console.log(req.sessionID)
+    if (req.session.views) {
+      req.session.views++
+      console.log(req.session.views)
 		  } else {
-			req.session.views = 1
-			console.log(req.session.views);
+      req.session.views = 1
+      console.log(req.session.views)
 		  }
 
-		  if(req.session.age){
-			  console.log("OOOOOOOOOOOOOOOOOO");
+		  if (req.session.age) {
+			  console.log('OOOOOOOOOOOOOOOOOO')
 		  } else {
-			console.log("XXXXXXXXXXXXXXXXXXXXXX");
+      console.log('XXXXXXXXXXXXXXXXXXXXXX')
 		  }
 
-		res.render('argon');		
-	});
+    res.render('argon')
+  })
 
-	app.post('/upload', function (req, res) {
-		// // console.log("ca marche pas !!!!!!!!!!!!!!");
-	});
+  app.post('/upload', function (req, res) {
+    // // console.log("ca marche pas !!!!!!!!!!!!!!");
+  })
 
+  app.get('/aboutus', function (req, res) {
+    res.render('aboutus.ejs')
+  })
 
-	app.get('/aboutus', function (req, res) {
-		res.render('aboutus.ejs');		
-	});
-
-
-// 	// PROFILE SECTION =========================
-// 	app.get('/profile', isLoggedIn, function (req, res) {
-// 		// // console.log(req.user.properties);
-// 		// // console.log(req.body.username);
-// 		// // console.log(req.user.properties.firstName);
-// 		res.render('profile.ejs', {
-// 			user: req.user,
-// 			message: req.flash('connectMessage')
-// 		});
-// 	});
-
-// 	// LOGOUT ==============================
-// 	app.get('/logout', function (req, res) {
-// 		req.logout();
-// 		res.redirect('/');
-// 	});
+  app.get('/search', function (req, res) {
+    searchPageloader.loadSearchPage(function (_err, tags) {
+		res.render('searchPage.ejs', { tags: tags })
+	})
 
 
-// 	// Update User
-// 	app.post('/user/update', isLoggedIn, function (req, res) {
-// 		// // console.log(req);
-// 		var updateUser = {};
-// 		updateUser.id = req.user._id;
-// 		updateUser.props = {};
-// 		if (req.body.username) {
-// 			updateUser.props.username = req.body.username;
-// 		}
-// 		if (req.body.lastName) {
-// 			updateUser.props.lastName = req.body.lastName;
-// 		}
-// 		if (req.body.datetimepicker) {
-// 			updateUser.props.birthDay = req.body.datetimepicker;
-// 		}
-// 		if (req.body.gender) {
-// 			updateUser.props.gender = req.body.gender;
-// 		}
-// 		if (req.body.city) {
-// 			updateUser.props.city = req.body.city;
-// 		}
-// 		// // console.log(updateUser);
+  })
 
-// 		User.update(updateUser, function (err, user) {
-// 			if (err)
-// 				throw err;
-// 			res.redirect('/profile');
-// 		});
-// 	});
+  // 	// PROFILE SECTION =========================
+  // 	app.get('/profile', isLoggedIn, function (req, res) {
+  // 		// // console.log(req.user.properties);
+  // 		// // console.log(req.body.username);
+  // 		// // console.log(req.user.properties.firstName);
+  // 		res.render('profile.ejs', {
+  // 			user: req.user,
+  // 			message: req.flash('connectMessage')
+  // 		});
+  // 	});
 
-// 	// Update User
-// 	app.post('/save', function (req, res) {
-// 		// // console.log("save entered");
-// 		// // console.log(req);
-// 		//https://www.remwebdevelopment.com/blog/sql/some-basic-and-useful-cypher-queries-for-neo4j-201.html
-// 		//https://gist.github.com/DaniSancas/1d5265fc159a95ff457b940fc5046887
+  // 	// LOGOUT ==============================
+  // 	app.get('/logout', function (req, res) {
+  // 		req.logout();
+  // 		res.redirect('/');
+  // 	});
 
-// 		truc.details("https://youtube.com/channel/UC9hUOU4rxr9_kSMaTpiqvDw", function (err, details) {
-// 			// // console.log(err, details);
-// 		});
+  // 	// Update User
+  // 	app.post('/user/update', isLoggedIn, function (req, res) {
+  // 		// // console.log(req);
+  // 		var updateUser = {};
+  // 		updateUser.id = req.user._id;
+  // 		updateUser.props = {};
+  // 		if (req.body.username) {
+  // 			updateUser.props.username = req.body.username;
+  // 		}
+  // 		if (req.body.lastName) {
+  // 			updateUser.props.lastName = req.body.lastName;
+  // 		}
+  // 		if (req.body.datetimepicker) {
+  // 			updateUser.props.birthDay = req.body.datetimepicker;
+  // 		}
+  // 		if (req.body.gender) {
+  // 			updateUser.props.gender = req.body.gender;
+  // 		}
+  // 		if (req.body.city) {
+  // 			updateUser.props.city = req.body.city;
+  // 		}
+  // 		// // console.log(updateUser);
 
-// 	});
+  // 		User.update(updateUser, function (err, user) {
+  // 			if (err)
+  // 				throw err;
+  // 			res.redirect('/profile');
+  // 		});
+  // 	});
 
-// 	// =============================================================================
-// 	// AUTHENTICATE (FIRST LOGIN) ==================================================
-// 	// =============================================================================
+  // 	// Update User
+  // 	app.post('/save', function (req, res) {
+  // 		// // console.log("save entered");
+  // 		// // console.log(req);
+  // 		//https://www.remwebdevelopment.com/blog/sql/some-basic-and-useful-cypher-queries-for-neo4j-201.html
+  // 		//https://gist.github.com/DaniSancas/1d5265fc159a95ff457b940fc5046887
 
-// 	// locally --------------------------------
-// 	// LOGIN ===============================
-// 	// show the login form
-// 	app.get('/login', function (req, res) {
-// 		// // console.log('casse-couille');
-// 		res.render('error', { message: req.flash('loginMessage') });
-// 	});
+  // 		truc.details("https://youtube.com/channel/UC9hUOU4rxr9_kSMaTpiqvDw", function (err, details) {
+  // 			// // console.log(err, details);
+  // 		});
 
-// 	// process the login form
-// 	app.post('/login', passport.authenticate('local-login'
-// 		, {
-// 			successRedirect: '/profile', // redirect to the secure profile section
-// 			failureRedirect: '/login', // redirect back to the signup page if there is an error
-// 			failureFlash: true // allow flash messages
-// 		}
-// 	));
+  // 	});
 
-// 	// SIGNUP =================================
-// 	// show the signup form
-// 	app.get('/signup', function (req, res) {
-// 		// // console.log('render signup');
-// 		res.render('auth/signup.ejs', { message: req.flash('loginMessage') });
-// 	});
+  // 	// =============================================================================
+  // 	// AUTHENTICATE (FIRST LOGIN) ==================================================
+  // 	// =============================================================================
 
-// 	// process the signup form
-// 	app.post('/signup', passport.authenticate('local-signup', {
-// 		successRedirect: '/profile', // redirect to the secure profile section
-// 		failureRedirect: '/signup', // redirect back to the signup page if there is an error
-// 		failureFlash: true // allow flash messages
-// 	}));
+  // 	// locally --------------------------------
+  // 	// LOGIN ===============================
+  // 	// show the login form
+  // 	app.get('/login', function (req, res) {
+  // 		// // console.log('casse-couille');
+  // 		res.render('error', { message: req.flash('loginMessage') });
+  // 	});
 
-// 	// facebook -------------------------------
+  // 	// process the login form
+  // 	app.post('/login', passport.authenticate('local-login'
+  // 		, {
+  // 			successRedirect: '/profile', // redirect to the secure profile section
+  // 			failureRedirect: '/login', // redirect back to the signup page if there is an error
+  // 			failureFlash: true // allow flash messages
+  // 		}
+  // 	));
 
-// 	// send to facebook to do the authentication
-// 	app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }));
+  // 	// SIGNUP =================================
+  // 	// show the signup form
+  // 	app.get('/signup', function (req, res) {
+  // 		// // console.log('render signup');
+  // 		res.render('auth/signup.ejs', { message: req.flash('loginMessage') });
+  // 	});
 
-// 	// handle the callback after facebook has authenticated the user
-// 	app.get('/auth/facebook/callback',
-// 		passport.authenticate('facebook', {
-// 			successRedirect: '/profile',
-// 			failureRedirect: '/',
-// 			failureFlash: true // allow flash messages
-// 		}));
+  // 	// process the signup form
+  // 	app.post('/signup', passport.authenticate('local-signup', {
+  // 		successRedirect: '/profile', // redirect to the secure profile section
+  // 		failureRedirect: '/signup', // redirect back to the signup page if there is an error
+  // 		failureFlash: true // allow flash messages
+  // 	}));
 
-// 	// twitter --------------------------------
+  // 	// facebook -------------------------------
 
-// 	// send to twitter to do the authentication
-// 	app.get('/auth/twitter', passport.authenticate('twitter', { scope: 'email' }));
+  // 	// send to facebook to do the authentication
+  // 	app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }));
 
-// 	// handle the callback after twitter has authenticated the user
-// 	app.get('/auth/twitter/callback',
-// 		passport.authenticate('twitter', {
-// 			successRedirect: '/profile',
-// 			failureRedirect: '/',
-// 			failureFlash: true // allow flash messages
-// 		}));
+  // 	// handle the callback after facebook has authenticated the user
+  // 	app.get('/auth/facebook/callback',
+  // 		passport.authenticate('facebook', {
+  // 			successRedirect: '/profile',
+  // 			failureRedirect: '/',
+  // 			failureFlash: true // allow flash messages
+  // 		}));
 
-// 	// =============================================================================
-// 	// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
-// 	// =============================================================================
+  // 	// twitter --------------------------------
 
-// 	// locally --------------------------------
-// 	app.get('/connect/local', function (req, res) {
-// 		res.render('auth/connect-local.ejs', { message: req.flash('loginMessage') });
-// 	});
-// 	app.post('/connect/local', passport.authenticate('local-signup', {
-// 		successRedirect: '/profile', // redirect to the secure profile section
-// 		failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
-// 		failureFlash: true // allow flash messages
-// 	}));
+  // 	// send to twitter to do the authentication
+  // 	app.get('/auth/twitter', passport.authenticate('twitter', { scope: 'email' }));
 
-// 	// =============================================================================
-// 	// UNLINK ACCOUNTS =============================================================
-// 	// =============================================================================
-// 	// used to unlink accounts. for social accounts, just remove the token
-// 	// for local account, remove email and password
-// 	// user account will stay active in case they want to reconnect in the future
+  // 	// handle the callback after twitter has authenticated the user
+  // 	app.get('/auth/twitter/callback',
+  // 		passport.authenticate('twitter', {
+  // 			successRedirect: '/profile',
+  // 			failureRedirect: '/',
+  // 			failureFlash: true // allow flash messages
+  // 		}));
 
-// 	// local -----------------------------------
-// 	app.get('/unlink/local', function (req, res) {
-// 		var updateUser = {};
-// 		updateUser.id = req.user._id;
-// 		updateUser.props = {};
-// 		updateUser.props.localEmail = undefined;
-// 		updateUser.props.localPassword = undefined;
-// 		User.update(updateUser, function (err, user) {
-// 			if (err)
-// 				throw err;
-// 			res.redirect('/profile');
-// 		});
-// 	});
+  // 	// =============================================================================
+  // 	// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
+  // 	// =============================================================================
 
-// 	// facebook -------------------------------
-// 	app.get('/unlink/facebook', function (req, res) {
-// 		var updateUser = {};
-// 		updateUser.id = req.user._id;
-// 		updateUser.props = {};
-// 		updateUser.props.facebookToken = undefined;
-// 		User.update(updateUser, function (err, user) {
-// 			if (err)
-// 				throw err;
-// 			res.redirect('/profile');
-// 		});
-// 	});
+  // 	// locally --------------------------------
+  // 	app.get('/connect/local', function (req, res) {
+  // 		res.render('auth/connect-local.ejs', { message: req.flash('loginMessage') });
+  // 	});
+  // 	app.post('/connect/local', passport.authenticate('local-signup', {
+  // 		successRedirect: '/profile', // redirect to the secure profile section
+  // 		failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
+  // 		failureFlash: true // allow flash messages
+  // 	}));
 
-// 	// twitter --------------------------------
-// 	app.get('/unlink/twitter', function (req, res) {
-// 		var updateUser = {};
-// 		updateUser.id = req.user._id;
-// 		updateUser.props = {};
-// 		updateUser.props.twitterToken = undefined;
-// 		User.update(updateUser, function (err, user) {
-// 			if (err)
-// 				throw err;
-// 			res.redirect('/profile');
-// 		});
-// 	});
+  // 	// =============================================================================
+  // 	// UNLINK ACCOUNTS =============================================================
+  // 	// =============================================================================
+  // 	// used to unlink accounts. for social accounts, just remove the token
+  // 	// for local account, remove email and password
+  // 	// user account will stay active in case they want to reconnect in the future
 
+  // 	// local -----------------------------------
+  // 	app.get('/unlink/local', function (req, res) {
+  // 		var updateUser = {};
+  // 		updateUser.id = req.user._id;
+  // 		updateUser.props = {};
+  // 		updateUser.props.localEmail = undefined;
+  // 		updateUser.props.localPassword = undefined;
+  // 		User.update(updateUser, function (err, user) {
+  // 			if (err)
+  // 				throw err;
+  // 			res.redirect('/profile');
+  // 		});
+  // 	});
 
+  // 	// facebook -------------------------------
+  // 	app.get('/unlink/facebook', function (req, res) {
+  // 		var updateUser = {};
+  // 		updateUser.id = req.user._id;
+  // 		updateUser.props = {};
+  // 		updateUser.props.facebookToken = undefined;
+  // 		User.update(updateUser, function (err, user) {
+  // 			if (err)
+  // 				throw err;
+  // 			res.redirect('/profile');
+  // 		});
+  // 	});
 
+  // 	// twitter --------------------------------
+  // 	app.get('/unlink/twitter', function (req, res) {
+  // 		var updateUser = {};
+  // 		updateUser.id = req.user._id;
+  // 		updateUser.props = {};
+  // 		updateUser.props.twitterToken = undefined;
+  // 		User.update(updateUser, function (err, user) {
+  // 			if (err)
+  // 				throw err;
+  // 			res.redirect('/profile');
+  // 		});
+  // 	});
 
-// };
-
-
+  // };
 
 // // route middleware to ensure user is logged in
 // function isLoggedIn(req, res, next) {

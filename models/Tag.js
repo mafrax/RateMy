@@ -60,7 +60,8 @@ Tag.getAll = function (callback) {
 	var qp = {
 		query: [
 			'MATCH (tag:Tag)',
-			'RETURN tag'
+			'RETURN tag',
+			'ORDER BY tag.tagName'
 		].join('\n')
 	}
 

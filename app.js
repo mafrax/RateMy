@@ -88,48 +88,7 @@ app.use(express.static(path.join(__dirname, '/public')));
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
-
-
-
 var handler = require('./models/serverEvents')(io);
-// app.set("io",io);
-
-// var sessionMW= app.get("sessionMW");
-
-// var socketmiddleware = function(socket, next) {
-//   session(socket.handshake, socket.request.res, next);
-//   // var handshakeData = socket.request;
-//   // var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-//   // var sid = cookieParser.signedCookie (parsedCookie['connect.sid'], config.secret);
-// }
-
-// io.use(socketmiddleware);
-
-
-
-
-  // io.use(function (data, accept ) {
-  //   var handshakeData = data.request;
-  //   var parsedCookie = cookie.parse(handshakeData.headers.cookie);
-  //   var truc = cookieParser.signedCookie(parsedCookie['sessionId'], 'keyboard cat');
-  //   console.log('truc');
-  //   console.log(truc);
-  //   handshakeData.sessionID = truc;
-  //   app.get('store').get(handshakeData.sessionID, function(err, session) {
-  //     if ( err || !session ) {
-  //       return accept("Invalid session", false);
-  //     }
-  //     handshakeData.session = new Session(handshakeData, session);
-  //     accept(null,true);
-  //   });
-  // });
-
- // app.use(sessionMW);
-
 
 
 require('./routes/index.js')(app);

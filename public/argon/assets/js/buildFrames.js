@@ -26,9 +26,7 @@ function buildIframe(video) {
   var iframe = "";
   var responsiveDiv = "";
 
-  // if (video["video"].properties.webM == null) {
 
-    
 
     if (video["video"].properties.thumbnails == null) {
 
@@ -87,80 +85,6 @@ function buildIframe(video) {
 
 
     }
-  // } 
-  // else {
-
-  //   if (video["video"].properties.thumbnails == null) {
-
-  //     responsiveDiv = '<div class="embed-responsive embed-responsive-16by9">' +
-  //       '<iframe class="embed-responsive-item" src="' +
-  //       video["video"].properties.embedUrl +
-  //       '" frameborder="0" allow="autoplay; encrypted-media"' +
-  //       'allowfullscreen id="modalEmbedVideoId">' +
-  //       '</iframe>'
-  //       +
-  //       '<input type="hidden" id="hiddenURl" value="' +
-  //       video["video"].properties.originalUrl +
-  //       '">' +
-  //       '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-80%;" onclick="expandIframe(' +
-  //       video["video"]._id + ')" ' +
-  //       'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" ' +
-  //       ' id="expandButton' + video["video"]._id + '"><span class="btn-inner--icon">' +
-  //       '<i class="ni ni-tv-2"></i></button>' +
-  //       "</span></button>" +
-  //       "</div>";
-
-  //   } else {
-  //     console.log("web is not null------------------------------");
-  //   console.log(video["video"].properties);
-  //   console.log(video["video"].properties.webM);
-
-  //         console.log("FOOOOOOOOOOOOOOOOOOOOORBIDDEN")
-
-  //         var nailsArray = video["video"].properties.thumbnails.split(',');
-
-  //         var lastnum = nailsArray.length - 1;
-  //         thumbnail += '<div class="thumbnailsWrapper col-12" onclick="showVideo(' + video["video"]._id + ')" onmouseover="imageCarrousel(this,' + nailsArray.length + ')" onmouseout="stopCarrousel(this)" id="thumbnailsWrapper' + video["video"]._id + '">';
-    
-  //         thumbnail += '<img class="vidThumb col-12 flex-wrap" src="' + nailsArray[nailsArray.length - 1] + '" data-thumb_url="' + nailsArray[nailsArray.length - 1] + '" id="thumbnail' + video["video"]._id + '_' + lastnum + '" style="display:none">';
-    
-  //         for (i = 0; i < nailsArray[nailsArray.length - 2]; i++) {
-  //           thumbnail += '<img class="vidThumb col-12" src="' + nailsArray[i] + '" data-thumb_url="' + nailsArray[i] + '" style="display:none" id="thumbnail' + video["video"]._id + '_' + i + '">';
-  //         }
-
-  //         thumbnail +=  '<video class="vidPreview col-12 flex-wrap" src="'+ video["video"].properties.webM +'" poster="' + nailsArray[nailsArray.length - 1] + '" muted="muted" id="vidPreview' + video["video"]._id + '_' + lastnum + '"> </video>';
-    
-  //         thumbnail += '</div>';
-    
-  //         responsiveDiv = '<div class="embed-responsive embed-responsive-16by9" style="display:none" id="responsiveDiv' + video["video"]._id + '">' +
-  //           '<iframe class="embed-responsive-item" src="' +
-  //           video["video"].properties.embedUrl +
-  //           '" frameborder="0" allow="autoplay; encrypted-media"' +
-  //           'allowfullscreen id="modalEmbedVideoId">' +
-  //           '</iframe>'
-  //           +
-  //           '<input type="hidden" id="hiddenURl" value="' +
-  //           video["video"].properties.originalUrl +
-  //           '">' +
-  //           '<button type="button" value="Edit" class="col-2 btn btn-sm btn-primary " style="border-radius: 100vh;right:-80%;" onclick="expandIframe(' +
-  //           video["video"]._id + ')" ' +
-  //           'data-toggle="tooltip" data-placement="top" title="Expand this video to a greater size" ' +
-  //           ' id="expandButton' + video["video"]._id + '"><span class="btn-inner--icon">' +
-  //           '<i class="ni ni-tv-2"></i></button>' +
-  //           "</span></button>" +
-  //           "</div>";
-
-
-
-  //   }
-
-    
- 
-
-
-
-  // }
-
 
 
   var image = thumbnail;
