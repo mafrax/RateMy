@@ -3,7 +3,7 @@
 var homePageLoader = require('../models/homePageLoader')
 var serverEvents = require('../models/serverEvents')
 var searchPageloader = require('../models/searchPageLoader')
-var cookie1
+var video = require('../models/Video')
 
 module.exports = function (app, passport) {
   // normal routes ===============================================================
@@ -43,9 +43,43 @@ module.exports = function (app, passport) {
 
   app.get('/search', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
-		res.render('searchPage.ejs', { tags: tags })
-	})
+      res.render('searchPage.ejs', { tags: tags, video:null })
+    })
 
+  })
+
+  app.get('/search/:tag', function (req, res) {
+    searchPageloader.loadSearchPage(function (_err, tags) {
+
+      var array = []
+      video.getVideovByCriterionLevel(req.params.tag , function(err, result) {
+			
+        var waiting =0;
+        console.log(result);
+		
+       result.forEach(element => {
+          waiting++;
+          video.getVideovByIdWithRelation(element.v._id, function(err, p) {
+            waiting--;
+            console.log(p);
+            array.push(p)
+            res.render('searchPage.ejs', { tags: tags, video: result })
+			complete(array);
+
+          })
+
+		});
+
+		function complete(array) {
+			if (!waiting) {
+				console.log(array);
+				console.log('done');    
+			}
+		}
+
+      })
+
+    })
 
   })
 

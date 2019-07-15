@@ -1,0 +1,71 @@
+
+<div class="flex-wrap" id="cell<%= video.id %>">
+    <div class="flex-wrap videoContainer"
+        style="border: rgb(19, 161, 243); border-width: 2px; border-style: ridge; border-radius: 0.9vh;  margin-bottom:5px;">
+        <div class="titleText"><a href="#" class="hrefTitle"><%= video.title %></a></div>
+        <div class="titleText2"><%= video.date %></div>
+        <div class="titleText2" style="padding:0;">
+            <button id="thbnB<%= video.id %>" class="btn btn-block bg-gradient-danger btn-primary"
+                style="margin: auto; margin-bottom: 5px; text-align:center;text-overflow:visible;">
+                <i class="ni ni-button-play"></i>
+            </button>
+        </div>
+
+
+
+
+        <div class="embed-responsive embed-responsive-16by9" style="" id="responsiveDiv<%= video.id %>">
+            <iframe class="embed-responsive-item" src="<%= video.embededURL %>" frameborder="0"
+                allow="autoplay; encrypted-media" allowfullscreen="" id="modalEmbedVideoId"></iframe><input
+                type="hidden" id="hiddenURl" value="<%= video.url %>">
+            <button type="button" value="Edit" class="col-2 btn btn-sm btn-primary "
+                style="border-radius: 100vh;right:-80%;" onclick="expandIframe(<%= video.id %>)" data-toggle="tooltip"
+                data-placement="top" title="" id="expandButton<%= video.id %>"
+                data-original-title="Expand this video to a greater size">
+                <span class="btn-inner--icon"><i class="ni ni-tv-2">
+
+                    </i>
+                </span>
+            </button>
+        </div>
+
+        <div class="flex-wrap">
+                <div class="input-group col-12" style="padding:0;">
+                    <div class="btn btn-1 btn-outline-warning" style="border:transparent; padding: .625rem .6rem;"
+                        data-toggle="collapse" data-target="#demo<%= video.id %>" aria-controls="nav-inner-primary" aria-expanded="false"
+                        aria-label="Toggle navigation">Top Tag:</div>
+                    <div class="btn btn-1 btn-outline-warning" style="padding: .625rem .9rem;" data-toggle="collapse"
+                        data-target="#demo<%= video.id %>" aria-controls="nav-inner-primary" aria-expanded="false"
+                        aria-label="Toggle navigation">japan</div>
+                    <div class="btn btn-1 btn-outline-warning" style="padding: .625rem .9rem;" data-toggle="collapse"
+                        data-target="#demo<%= video.id %>" aria-controls="nav-inner-primary" aria-expanded="false"
+                        aria-label="Toggle navigation">57.5</div><span class="input-group-btn"
+                        style="margin:auto; text-align: right; margin-right:0;"><button class="btn btn-neutral"
+                            type="button" data-toggle="collapse" data-target="#demo<%= video.id %>" aria-controls="nav-inner-primary"
+                            aria-expanded="false" aria-label="Toggle navigation"><span class="" data-toggle="tooltip"
+                                data-placement="top" title=""
+                                data-original-title="Consult the list of criterii applying to this video"><i
+                                    class="ni ni-bold-down"></i></span></button></span>
+                </div>
+            </div>
+
+
+            <div class="collapse col-12" id="demo<%= video.id %>" style="max-height: 50vh; overflow:auto;">
+                    <div class="container-fluid justify-content-center" id="progressBarContainer<%= video.id %>" style="float: left;">
+
+                            <% tags.forEach(function(tag) { %>
+                            
+                                <%- include('./partials/criterion', {video: video, tag : tag}); %>
+                            <% }); %>
+
+
+                    </div>
+                </div>
+
+
+
+
+
+
+    </div>
+</div>
