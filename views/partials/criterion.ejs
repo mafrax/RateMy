@@ -1,19 +1,19 @@
-<div id="criterionContainer<%= video.id %>_<%= tag.id %>">
-        <div class="progress-wrapper flex-wrap" id="wrapper<%= video.id %>_<%= tag.id %>">
+<div id="criterionContainer<%= video._id %>_<%= tag.id %>">
+        <div class="progress-wrapper flex-wrap" id="wrapper<%= video._id %>_<%= tag.id %>">
             <div class=" progress-info flex-wrap">
                 <div class="progress-label3 flex-wrap"><span class="criterionTitle"
-                        id="criterionName<%= video.id %>_<%= tag.id %>"><%= tag.name %></span><input type="hidden" id="custId3"></div>
+                        id="criterionName<%= video._id %>_<%= tag.id %>"><%= tag.tagName %></span><input type="hidden" id="custId3"></div>
                 <div class="progress-label2 flex-wrap">
                     <div class="progress-percentage"><span style="color:rgba(248, 9, 176, 0.575)"
-                            id="globalNote<%= tag.id %>_<%= video.id %>" data-toggle="tooltip" data-placement="top" title=""
-                            data-original-title="Average note on <%= tag.votes %> votes in total"><%= tag.value %></span></div>
+                            id="globalNote<%= tag.id %>_<%= video._id %>" data-toggle="tooltip" data-placement="top" title=""
+                            data-original-title="Average note on votes in total"><%= tag.level %></span></div>
                 </div>
                 <div class="progress-percentage2 "><span style="color: rgba(94, 114, 228)"
-                        id="criterionNote<%= tag.id %>_<%= video.id %>">0.00</span></div>
+                        id="criterionNote<%= tag.id %>_<%= video._id %>">0.00</span></div>
                 <div class="validateCriterionContainer">
                     <button type="submit" class="validateCriterion"
-                        data-toggle="tooltip" data-placement="top" title="" id="validateCriterionButton<%= video.id %>_<%= tag.id %>"
-                        onclick="validateSearchButton(<%= video.id %>,<%= tag.id %>)"
+                        data-toggle="tooltip" data-placement="top" title="" id="validateCriterionButton<%= video._id %>_<%= tag.id %>"
+                        onclick="validateSearchButton(<%= video._id %>,<%= tag.id %>)"
                         data-original-title="clic here to validate and save your note and criterion">
                     </button>
 

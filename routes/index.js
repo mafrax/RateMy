@@ -19,16 +19,16 @@ module.exports = function (app, passport) {
     if (req.session.views) {
       req.session.views++
       console.log(req.session.views)
-		  } else {
+    } else {
       req.session.views = 1
       console.log(req.session.views)
-		  }
+    }
 
-		  if (req.session.age) {
-			  console.log('OOOOOOOOOOOOOOOOOO')
-		  } else {
+    if (req.session.age) {
+      console.log('OOOOOOOOOOOOOOOOOO')
+    } else {
       console.log('XXXXXXXXXXXXXXXXXXXXXX')
-		  }
+    }
 
     res.render('argon')
   })
@@ -43,44 +43,38 @@ module.exports = function (app, passport) {
 
   app.get('/search', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
-      res.render('searchPage.ejs', { tags: tags, video:null })
+      res.render('searchPage.ejs', { tags: tags, video: null })
     })
-
   })
 
   app.get('/search/:tag', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
+      video.getAllVideosRelatedToTag(req.params.tag, function (_err, result) {
+        console.log(result)
 
-      var array = []
-      video.getVideovByCriterionLevel(req.params.tag , function(err, result) {
-			
-        var waiting =0;
-        console.log(result);
-		
-       result.forEach(element => {
-          waiting++;
-          video.getVideovByIdWithRelation(element.v._id, function(err, p) {
-            waiting--;
-            console.log(p);
-            array.push(p)
-            res.render('searchPage.ejs', { tags: tags, video: result })
-			complete(array);
+        var groupByVideo = {}
 
-          })
+        result.forEach(path => {
+          var tags
 
-		});
+          if (!groupByVideo['video' + path.nodes[0]._id]) {
+            var video = {}
+            video['video'] = path.nodes[0]
+            groupByVideo['video' + path.nodes[0]._id] = video
+            if (!video['tags']) {
+              tags = []
+              video['tags'] = tags
+            }
+          }
+          var video = groupByVideo['video' + path.nodes[0]._id]
 
-		function complete(array) {
-			if (!waiting) {
-				console.log(array);
-				console.log('done');    
-			}
-		}
+          var tag = { tagName: path.nodes[1].properties.tagName, level: path.r[0].properties.level, id: path.nodes[1]._id }
+          video['tags'].push(tag)
+        })
 
+        res.render('searchPage.ejs', { tags: tags, video: groupByVideo })
       })
-
     })
-
   })
 
   // 	// PROFILE SECTION =========================
@@ -267,11 +261,11 @@ module.exports = function (app, passport) {
 
   // };
 
-// // route middleware to ensure user is logged in
-// function isLoggedIn(req, res, next) {
-// 	// // console.log(req.user);
-// 	if (req.isAuthenticated())
-// 		return next();
-// 	// // console.log('redirected');
-// 	res.redirect('/');
+  // // route middleware to ensure user is logged in
+  // function isLoggedIn(req, res, next) {
+  // 	// // console.log(req.user);
+  // 	if (req.isAuthenticated())
+  // 		return next();
+  // 	// // console.log('redirected');
+  // 	res.redirect('/');
 }

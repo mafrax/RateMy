@@ -96,7 +96,10 @@
           
    
               <%if (video!==null) { %>
-              <%- include('./partials/frame', {video: video}); %>
+              <% Object.keys(video).forEach(function(key) { %>
+              <% console.log(JSON.stringify(video[key], null, '\t')) %>
+              <%- include('./partials/frame', {video: video[key]}); %>
+              <% }); %>
               <% } %>
 
 
