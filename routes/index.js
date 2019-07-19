@@ -43,6 +43,13 @@ module.exports = function (app, passport) {
     res.render('aboutus.ejs')
   })
 
+
+  app.get('/advancedSearch', function (req, res) {
+    searchPageloader.loadSearchPage(function (_err, tags) {
+      res.render('advancedSearchPage.ejs', { tags: tags, video: null })
+    })
+  })
+
   app.get('/search', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       res.render('searchPage.ejs', { tags: tags, video: null })
