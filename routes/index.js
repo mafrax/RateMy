@@ -5,6 +5,8 @@ var serverEvents = require('../models/serverEvents')
 var searchPageloader = require('../models/searchPageLoader')
 var video = require('../models/Video')
 
+var helpers = require('../views/function/initializeSlider')
+
 module.exports = function (app, passport) {
   // normal routes ===============================================================
 
@@ -67,15 +69,45 @@ module.exports = function (app, passport) {
             }
           }
           var video = groupByVideo['video' + path.nodes[0]._id]
-
+          video.video.properties.timeStamp = timeConverter(video.video.properties.timeStamp)
           var tag = { tagName: path.nodes[1].properties.tagName, level: path.r[0].properties.level, id: path.nodes[1]._id }
           video['tags'].push(tag)
+
+          video['tags'].sort(function (a, b) {
+            a = a.level
+            b = b.level
+            return a > b ? -1 : a < b ? 1 : 0
+          })
+
         })
 
-        res.render('searchPage.ejs', { tags: tags, video: groupByVideo })
+
+        res.render('searchPage.ejs', { tags: tags, video: groupByVideo, helper: helpers })
       })
     })
   })
+
+
+  app.post('/search/:tag', function(req, res){
+console.log(req)
+console.log(res)
+res.redirect("/search/"+req.params.tag)
+  })
+
+  function timeConverter(UNIX_timestamp) {
+    var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+    d.setUTCMilliseconds(UNIX_timestamp);
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var year = d.getFullYear();
+    var month = months[d.getMonth()];
+    var date = d.getDate();
+    var hour = d.getHours();
+    var min = d.getMinutes();
+    var sec = d.getSeconds();
+    var time = date + ' ' + month + ' ' + year;
+    return time;
+  }
+
 
   // 	// PROFILE SECTION =========================
   // 	app.get('/profile', isLoggedIn, function (req, res) {
