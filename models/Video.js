@@ -188,9 +188,9 @@ Video.computeQuery = function (data, tags, callback) {
     if (tags.hasOwnProperty(prop)) {
       var no = prop.slice(3, prop.length)
       if (no === '') {
-        quer += 'MERGE (video)-[:RATED {level:0}]->(tag' + prop + ') \n'
+        quer += 'CREATE (video)-[:RATED {level:0}]->(tag' + prop + ') \n'
       } else {
-        quer += 'MERGE (video)-[:RATED {level:' + tags['tag' + no].tagValue + '}]->(tag' + no + ') \n'
+        quer += 'CREATE (video)-[:RATED {level:' + tags['tag' + no].tagValue + '}]->(tag' + no + ') \n'
       }
     }
   }
