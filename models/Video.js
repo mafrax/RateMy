@@ -163,12 +163,12 @@ Video.computeQuery = function (data, tags, callback) {
   var quer = ''
   // // console.log("inside compute query, criterion getAll: "+ result);
   if (data.thumbNails == null || data.thumbNails.length == 0) {
-    quer += 'MERGE (video:Video {embedUrl: "' + data.embedUrl + '", originalUrl: "' + data.originalUrl + '", timeStamp: timestamp(), title:"' + data.title + '" }) \n'
+    quer += 'CREATE (video:Video {embedUrl: "' + data.embedUrl + '", originalUrl: "' + data.originalUrl + '", timeStamp: timestamp(), title:"' + data.title + '" }) \n'
   } else {
     if (data.webm !== null || data.webm.length !== 0) {
-      quer += 'MERGE (video:Video {embedUrl: "' + data.embedUrl + '", originalUrl: "' + data.originalUrl + '", timeStamp: timestamp(), title:"' + data.title + '", thumbnails: "' + data.thumbNails + '", webM: "' + data.webm + '" }) \n'
+      quer += 'CREATE (video:Video {embedUrl: "' + data.embedUrl + '", originalUrl: "' + data.originalUrl + '", timeStamp: timestamp(), title:"' + data.title + '", thumbnails: "' + data.thumbNails + '", webM: "' + data.webm + '" }) \n'
     } else {
-      quer += 'MERGE (video:Video {embedUrl: "' + data.embedUrl + '", originalUrl: "' + data.originalUrl + '", timeStamp: timestamp(), title:"' + data.title + '", thumbnails: "' + data.thumbNails + '" }) \n'
+      quer += 'CREATE (video:Video {embedUrl: "' + data.embedUrl + '", originalUrl: "' + data.originalUrl + '", timeStamp: timestamp(), title:"' + data.title + '", thumbnails: "' + data.thumbNails + '" }) \n'
     }
   }
 
