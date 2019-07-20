@@ -5,7 +5,6 @@ var serverEvents = require('../models/serverEvents')
 var searchPageloader = require('../models/searchPageLoader')
 var video = require('../models/Video')
 
-var helpers = require('../views/function/initializeSlider')
 
 module.exports = function (app, passport) {
   // normal routes ===============================================================
