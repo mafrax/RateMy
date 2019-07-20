@@ -1,6 +1,6 @@
 var socket = io.connect('http://rateyourporn.com')
 
-// var socketSearch = io.connect('http://5.39.80.142:3000/search')
+// var socketSearch = io.connect('http://localhost:3000/search')
 
 var globalVar = []
 var globalOrder = []
@@ -518,6 +518,87 @@ function validateSearchButton (videoNo, criterionno) {
     })
   }
 }
+
+
+function validateSearchButton2 (videoNo, criterionno) {
+  // // console.log(videoNo);
+  // // console.log(criterionno);
+  var container = document.getElementById('progressBarContainer' + videoNo)
+  var slider = container.querySelector('#slider-container' + videoNo+"_"+criterionno)
+  var name = container.querySelector(
+    '#criterionName' + videoNo + '_' + criterionno
+  )
+  var handler = slider.querySelector('.noUi-handle')
+  var note = container.querySelector(
+    '#criterionNote' + criterionno + '_' + videoNo
+  )
+  var globalNote = container.querySelector(
+    '#globalNote' + criterionno + '_' + videoNo
+  )
+  var button = document.getElementById(
+    'validateCriterionButton' + videoNo + '_' + criterionno
+  )
+
+  $(button)
+    .tooltip('hide')
+    .attr(
+      'data-original-title',
+      'By clicking here again you can revert your previous note'
+    )
+    .tooltip('show')
+
+  // // console.log(button.style.backgroundColor);
+
+  var inOut
+
+  if (button.className !== 'validateCriterion2') {
+    // // console.log(button.className);
+    button.setAttribute('class', 'validateCriterion2')
+    // // console.log(slider);
+    // // console.log(handler);
+    slider.style.display = 'none'
+    inOut = 1
+    // // console.log(name);
+
+    // var inputBar = document.querySelector('#searchVideoBar' + videoNo)
+    // console.log(inputBar)
+    // inputBar.value = ''
+    // console.log(inputBar.value)
+    // var event = new Event('keyup')
+    // inputBar.dispatchEvent(event)
+
+    socket.emit('validateNoteFromClient', {
+      tagName: name.innerHTML,
+      noteUser: note.innerHTML,
+      videoId: videoNo,
+      previousNote: globalNote.innerHTML,
+      tagNum: criterionno,
+      direction: inOut
+    })
+  } else {
+    // // console.log(button.className);
+    button.setAttribute('class', 'validateCriterion')
+    // // console.log(slider);
+    slider.style.display = 'initial'
+    inOut = -1
+
+    $(button)
+      .tooltip('hide')
+      .attr(
+        'data-original-title',
+        'clic here to validate and save your note and criterion'
+      )
+
+    socket.emit('validateNoteFromClient', {
+      tagName: name.innerHTML,
+      videoId: videoNo,
+      tagNum: criterionno,
+      direction: inOut
+    })
+  }
+}
+
+
 
 function loadMore () {
   var mainframe = document.getElementById('mainFrame1')

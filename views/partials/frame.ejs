@@ -36,10 +36,10 @@
                         aria-label="Toggle navigation">Top Tag:</div>
                     <div class="btn btn-1 btn-outline-warning" style="padding: .625rem .9rem;" data-toggle="collapse"
                         data-target="#demo<%= video.video._id %>" aria-controls="nav-inner-primary" aria-expanded="false"
-                        aria-label="Toggle navigation">japan</div>
+                        aria-label="Toggle navigation"><%= video.tags[0].tagName %></div>
                     <div class="btn btn-1 btn-outline-warning" style="padding: .625rem .9rem;" data-toggle="collapse"
                         data-target="#demo<%= video.video._id %>" aria-controls="nav-inner-primary" aria-expanded="false"
-                        aria-label="Toggle navigation">57.5</div><span class="input-group-btn"
+                        aria-label="Toggle navigation"><%= video.tags[0].level %></div><span class="input-group-btn"
                         style="margin:auto; text-align: right; margin-right:0;"><button class="btn btn-neutral"
                             type="button" data-toggle="collapse" data-target="#demo<%= video.video._id %>" aria-controls="nav-inner-primary"
                             aria-expanded="false" aria-label="Toggle navigation"><span class="" data-toggle="tooltip"

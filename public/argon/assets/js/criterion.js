@@ -247,12 +247,14 @@ initializeSliders = function() {
 
     var i = demo.id.slice(4, demo.id.length)
     slidercontainers.forEach(slidercontainer => {
-      var k = slidercontainer.id.slice(16, slidercontainer.id.length)
+      console.log(i)
+      var k = slidercontainer.id.slice(16+i.length+1, slidercontainer.id.length)
       console.log(k);
-      var container = demo.querySelector("#slider-container" + k);
+      var container = demo.querySelector("#slider-container"+ i + "_" + k);
       var wrapper = demo.querySelector("#wrapper" + i + "_" + k);
       console.log(slidercontainer)
-      initializeSlider(container, wrapper, k, i);
+      console.log(container)
+      initializeSlider2(container, wrapper, k, i);
 
     });
 
@@ -261,22 +263,56 @@ initializeSliders = function() {
 
 }
 
+function initializeSlider2(sliderContainer, new_element, new_numero, videoNo) {
+  console.log(new_numero)
+  console.log(videoNo)
+  var slider = sliderContainer.querySelector("#input-slider"+videoNo +"_" + new_numero);
+  console.log("criterionNote" + new_numero + "_" + videoNo)
+  var sliderPercent = new_element.querySelector(
+    "#criterionNote" + new_numero + "_" + videoNo
+  );
+console.log(sliderPercent)
+  var maxValue = slider.getAttribute("data-range-value-max");
+  var minValue = slider.getAttribute("data-range-value-min");
+  var sliderValue = sliderContainer.querySelector(
+    "#input-slider-value"+ videoNo+"_"+ new_numero
+  );
+console.log(sliderValue)
+  var startValue = sliderValue.getAttribute("data-range-value-low");
+  if (!slider.noUiSlider) {
+    noUiSlider.create(slider, {
+      start: [parseInt(startValue)],
+      connect: [true, false],
+      //step: 1000,
+      range: {
+        min: [parseInt(minValue)],
+        max: [parseInt(maxValue)]
+      }
+    });
+  }
+  slider.noUiSlider.on("update", function (a, b) {
+    sliderValue.textContent = a[b];
+    sliderPercent.innerHTML = sliderValue.innerHTML;
+  });
+
+}
+
 
 function initializeSlider(sliderContainer, new_element, new_numero, videoNo) {
   console.log(new_numero)
   console.log(videoNo)
-  var slider = sliderContainer.querySelector("#input-slider" + new_numero);
-
+  var slider = sliderContainer.querySelector("#input-slider"+ new_numero);
+  console.log("criterionNote" + new_numero)
   var sliderPercent = new_element.querySelector(
     "#criterionNote" + new_numero + "_" + videoNo
   );
-
+console.log(sliderPercent)
   var maxValue = slider.getAttribute("data-range-value-max");
   var minValue = slider.getAttribute("data-range-value-min");
   var sliderValue = sliderContainer.querySelector(
-    "#input-slider-value" + new_numero
+    "#input-slider-value"+ new_numero
   );
-
+console.log(sliderValue)
   var startValue = sliderValue.getAttribute("data-range-value-low");
   if (!slider.noUiSlider) {
     noUiSlider.create(slider, {
@@ -440,5 +476,17 @@ function addVideoSearchCriterion(videoNo) {
   // console.log(wrapper);
   initializeSlider(container, wrapper, criterionno, videoNo);
 
+
+}
+
+
+function linkPostandSliderValue(vidId, tagId){
+
+  var button = document.querySelector("#validateCriterionButton"+vidId +"_" + tagId);
+  var sliderValue = document.querySelector("#criterionNote"+tagId+"_"+vidId);
+  console.log(tagId)
+  console.log(vidId)
+console.log(sliderValue)
+  button.setAttribute("value", sliderValue.innerHTML);
 
 }
