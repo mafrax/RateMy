@@ -176,7 +176,7 @@ Video.computeQuery = function (data, tags, callback) {
     if (tags.hasOwnProperty(prop)) {
       var no = prop.slice(3, prop.length)
       if (no === '') {
-        Console.log( tags[prop] )
+        console.log( tags[prop] )
         quer += 'MERGE(tag' + prop + ':Tag {tagName: "' + tags[prop] + '"}) \n'
       } else {
         quer += 'MERGE (tag' + no + ':Tag {tagName: "' + tags['tag' + no].tagName + '"}) \n'
