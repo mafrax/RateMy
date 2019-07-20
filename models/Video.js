@@ -196,6 +196,7 @@ Video.computeQuery = function (data, tags, callback) {
   }
 
   quer += 'return video;'
+  console.log(quer)
   callback(quer)
 }
 
