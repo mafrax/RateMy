@@ -94,7 +94,7 @@ var handler = require('./models/serverEvents')(io);
 require('./routes/index.js')(app);
 
 //server is 2hours ealier than paris time 
-cron.schedule("*/2 * * * *", function() {
+cron.schedule("45 09 * * *", function() {
   console.log(new Date().toISOString())
   crawler.dailyCrawl(function(){
       console.log("truc2" + Date.now());
