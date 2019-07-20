@@ -1,6 +1,6 @@
 var socket = io.connect('http://rateyourporn.com')
 
-// var socketSearch = io.connect('http://localhost:3000/search')
+// var socketSearch = io.connect('http://5.39.80.142:3000/search')
 
 var globalVar = []
 var globalOrder = []
