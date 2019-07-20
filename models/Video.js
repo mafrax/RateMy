@@ -176,9 +176,10 @@ Video.computeQuery = function (data, tags, callback) {
     if (tags.hasOwnProperty(prop)) {
       var no = prop.slice(3, prop.length)
       if (no === '') {
-        quer += 'MERGE(tag' + prop + ':Tag {tagName: "' + tags[prop].toUppercase() + '"}) \n'
+        Console.log( tags[prop] )
+        quer += 'MERGE(tag' + prop + ':Tag {tagName: "' + tags[prop] + '"}) \n'
       } else {
-        quer += 'MERGE (tag' + no + ':Tag {tagName: "' + tags['tag' + no].tagName.toUppercase() + '"}) \n'
+        quer += 'MERGE (tag' + no + ':Tag {tagName: "' + tags['tag' + no].tagName + '"}) \n'
       }
     }
   }
