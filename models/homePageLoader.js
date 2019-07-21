@@ -84,8 +84,6 @@ function createArray (results) {
         localArray['video_' + results[prop].v._id] = newObject
       }
 
-      console.log(prop)
-
     }
 
   }
