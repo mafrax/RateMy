@@ -58,7 +58,6 @@ module.exports = function (app, passport) {
   app.get('/search/:tag', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       video.getAllVideosRelatedToTag(req.params.tag, function (_err, result) {
-        console.log(result)
 
         var groupByVideo = {}
 

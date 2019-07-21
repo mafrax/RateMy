@@ -114,16 +114,16 @@ Video.create = function (data, tags, callback) {
   // // console.log("into video Create: " + size)
   if (size > 0) {
     Video.computeQuery(data, tags, function (quer) {
-      // // console.log("compute Query" +quer);
+      console.log("compute Query" +quer);
       var qp = quer
       db.cypher(qp, function (err, results) {
+        console.log(results);
+        console.log(err);
         if (err) {
-          console.log(err);
           return callback(err)
         }
         // // console.log("Video CREATED "+results);
         callback(null, results)
-        console.log(results);
       })
     })
   } else {
@@ -176,7 +176,6 @@ Video.computeQuery = function (data, tags, callback) {
     if (tags.hasOwnProperty(prop)) {
       var no = prop.slice(3, prop.length)
       if (no === '') {
-        console.log( tags[prop] )
         quer += 'MERGE(tag' + prop + ':Tag {tagName: "' + tags[prop] + '"}) \n'
       } else {
         quer += 'MERGE (tag' + no + ':Tag {tagName: "' + tags['tag' + no].tagName + '"}) \n'

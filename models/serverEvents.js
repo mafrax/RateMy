@@ -27,15 +27,15 @@ var serverEvents = module.exports = function (io) {
     // console.log(app);
     console.time('dbsave2')
 
-    console.log(' serverEvent handshake session ' + socket.handshake.session)   
-    console.log(' serverEvent request session ' + socket.request.session)   
-    console.log(' serverEvent handshake session age' + socket.handshake.session.age) 
+    // console.log(' serverEvent handshake session ' + socket.handshake.session)   
+    // console.log(' serverEvent request session ' + socket.request.session)   
+    // console.log(' serverEvent handshake session age' + socket.handshake.session.age) 
 
     var userSession = socket.handshake.session
 
 
 
-        console.log('A socket with sessionID ' + socket.handshake.sessionID + ' connected!')
+        // console.log('A socket with sessionID ' + socket.handshake.sessionID + ' connected!')
 
 pageLoader.loadHomePage(function (videoWithTags) {
 
