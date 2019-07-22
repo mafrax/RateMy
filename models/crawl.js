@@ -317,9 +317,11 @@ Crawler.dailyCrawl = function (cb) {
 
         var all = $("*");
         var divs = $('a[href^="/view_video.php?"]')
-        var title0 = divs[0].attribs.title;
+
+        var random = Math.random() * (+divs.length - +0) + +0
+        var title0 = divs[random].attribs.title;
         var webm = $('img[alt*="' + title0 + '"]')
-        var url = "https://pornhub.com" + divs[0].attribs.href;
+        var url = "https://pornhub.com" + divs[random].attribs.href;
         Crawler.crawl(url, function (sourceEmbed, title, uniqueTags, thumbNails) {
 
           var newVideo = {};
@@ -351,7 +353,7 @@ Crawler.dailyCrawl = function (cb) {
 
 
        Video.create(newVideo, uniqueTags, function (err, video1) {
-
+        console.log(video1);
             console.log(err);
             // console.log(video1);
             // console.log("AFTER CREATE: "+video1);
