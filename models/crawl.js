@@ -319,11 +319,13 @@ Crawler.dailyCrawl = function (cb) {
         var divs = $('a[href^="/view_video.php?"]')
 
         var random = Math.random() * (+divs.length - +0) + +0
+        console.log(random)
         var title0 = divs[random].attribs.title;
         var webm = $('img[alt*="' + title0 + '"]')
         var url = "https://pornhub.com" + divs[random].attribs.href;
         Crawler.crawl(url, function (sourceEmbed, title, uniqueTags, thumbNails) {
 
+          console.log(sourceEmbed)
           var newVideo = {};
           newVideo.originalUrl = url;
           newVideo.embedUrl = sourceEmbed;
