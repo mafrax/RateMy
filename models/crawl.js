@@ -318,7 +318,7 @@ Crawler.dailyCrawl = function (cb) {
         var all = $("*");
         var divs = $('a[href^="/view_video.php?"]')
 
-        var random = Math.random() * (+divs.length - +0) + +0
+        var random = Math.floor((Math.random() * (+divs.length - +0) + +0)
         console.log(random)
         var title0 = divs[random].attribs.title;
         var webm = $('img[alt*="' + title0 + '"]')
