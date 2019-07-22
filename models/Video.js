@@ -332,13 +332,13 @@ Video.getAllVideosRelatedToTag = function (tagName, callback) {
 
 
   db.cypher(quer, function (err, results) {
+	console.log(err);
+  console.log(results);
 	if (err) {
-	  // console.log(err);
 	  return callback(err)
 	}
 	// // console.log("Video CREATED "+results);
 	callback(null, results)
-	// // console.log(results);
   })
 
 }
