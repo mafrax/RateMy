@@ -5,7 +5,6 @@ var serverEvents = require('../models/serverEvents')
 var searchPageloader = require('../models/searchPageLoader')
 var video = require('../models/Video')
 
-
 module.exports = function (app, passport) {
   // normal routes ===============================================================
 
@@ -42,7 +41,6 @@ module.exports = function (app, passport) {
     res.render('aboutus.ejs')
   })
 
-
   app.get('/advancedSearch', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       res.render('advancedSearchPage.ejs', { tags: tags, video: null })
@@ -58,7 +56,6 @@ module.exports = function (app, passport) {
   app.get('/search/:tag', function (req, res) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       video.getAllVideosRelatedToTag(req.params.tag, function (_err, result) {
-
         var groupByVideo = {}
 
         result.forEach(path => {
@@ -83,36 +80,32 @@ module.exports = function (app, passport) {
             b = b.level
             return a > b ? -1 : a < b ? 1 : 0
           })
-
         })
 
-
-        res.render('searchPage.ejs', { tags: tags, video: groupByVideo, helper: helpers })
+        res.render('searchPage.ejs', { tags: tags, video: groupByVideo })
       })
     })
   })
 
-
-  app.post('/search/:tag', function(req, res){
-console.log(req)
-console.log(res)
-res.redirect("/search/"+req.params.tag)
+  app.post('/search/:tag', function (req, res) {
+    console.log(req)
+    console.log(res)
+    res.redirect('/search/' + req.params.tag)
   })
 
-  function timeConverter(UNIX_timestamp) {
-    var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-    d.setUTCMilliseconds(UNIX_timestamp);
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    var year = d.getFullYear();
-    var month = months[d.getMonth()];
-    var date = d.getDate();
-    var hour = d.getHours();
-    var min = d.getMinutes();
-    var sec = d.getSeconds();
-    var time = date + ' ' + month + ' ' + year;
-    return time;
+  function timeConverter (UNIX_timestamp) {
+    var d = new Date(0) // The 0 there is the key, which sets the date to the epoch
+    d.setUTCMilliseconds(UNIX_timestamp)
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    var year = d.getFullYear()
+    var month = months[d.getMonth()]
+    var date = d.getDate()
+    var hour = d.getHours()
+    var min = d.getMinutes()
+    var sec = d.getSeconds()
+    var time = date + ' ' + month + ' ' + year
+    return time
   }
-
 
   // 	// PROFILE SECTION =========================
   // 	app.get('/profile', isLoggedIn, function (req, res) {

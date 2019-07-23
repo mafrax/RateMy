@@ -329,15 +329,10 @@ Video.createRelationShipWithTag = function (vId, relLevel, tId, callback) {
 
 Video.getAllVideosRelatedToTag = function (tagName, callback) {
   var quer = 'MATCH (tag: Tag{ tagName: "' + tagName + '" })--(v:Video) WITH v MATCH p=(v)-[rel]->(t:Tag) return nodes(p) as nodes, relationships(p) as r'
-
-
   db.cypher(quer, function (err, results) {
-	console.log(err);
-  console.log(results);
 	if (err) {
 	  return callback(err)
 	}
-	// // console.log("Video CREATED "+results);
 	callback(null, results)
   })
 

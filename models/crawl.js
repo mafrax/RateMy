@@ -357,19 +357,8 @@ Crawler.dailyCrawl = function (cb) {
        Video.create(newVideo, uniqueTags, function (err, video1) {
         console.log(video1);
             console.log(err);
-            // console.log(video1);
-            // console.log("AFTER CREATE: "+video1);
             if (err)
               return next(err);
-
-            // Video.getLatestEntry(function (err, video2) {
-            //   if (err)
-            //     return next(err);
-            //   console.log(video2);
-            // })
-
-
-
           });
 
             }
@@ -378,32 +367,7 @@ Crawler.dailyCrawl = function (cb) {
               // rejected
             });
 
-          // Video.create(newVideo, uniqueTags, function (err, video1) {
-
-          //   console.log(err);
-          //   // console.log(video1);
-          //   // console.log("AFTER CREATE: "+video1);
-          //   if (err)
-          //     return next(err);
-
-          //   video.getLatestEntry(function (err, video2) {
-          //     if (err)
-          //       return next(err);
-          //     console.log(video2);
-          //   })
-
-
-
-          // });
-
-
-
-
-
-
         })
-
-        console.log(JSON.stringify(all));
         console.log("truc");
 
       } catch (e) {
