@@ -183,27 +183,27 @@ Crawler.crawl = function (url, cb) {
 
           cb(sourceEmbed, title, uniqueTags, thumbNails);
 
-          uniqueTags.forEach(function (element) {
-            tagsBase.getBy("tag.tagName", element, function (err, tag) {
-              // // console.log("tag "+tag);
-              // // console.log("error "+err);
-              if (err != null && tag !== "undefined") {
-                // // console.log("tag already in base");
-              } else {
-                // // console.log(tag);
-                var newTag = {};
-                newTag.tagName = element;
-                newTag.timestamp = new Date();
+          // uniqueTags.forEach(function (element) {
+          //   tagsBase.getBy("tag.tagName", element, function (err, tag) {
+          //     // // console.log("tag "+tag);
+          //     // // console.log("error "+err);
+          //     if (err != null && tag !== "undefined") {
+          //       // // console.log("tag already in base");
+          //     } else {
+          //       // // console.log(tag);
+          //       var newTag = {};
+          //       newTag.tagName = element;
+          //       newTag.timestamp = new Date();
 
-                tagsBase.create(newTag, function (err, tag) {
-                  // // console.log(tag);
-                  // // console.log(err);
-                  if (err) return next(err);
-                });
-              }
+          //       tagsBase.create(newTag, function (err, tag) {
+          //         // // console.log(tag);
+          //         // // console.log(err);
+          //         if (err) return next(err);
+          //       });
+          //     }
 
-            });
-          });
+          //   });
+          // });
         }
       } catch (e) {
         // // console.log(e);
