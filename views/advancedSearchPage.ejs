@@ -102,7 +102,7 @@
 
               <%if (video!==null) { %>
               <% Object.keys(video).forEach(function(key) { %>
-              <%- include('./partials/frame', {video: video[key], helper: helper}); %>
+              <%- include('./partials/frame', {video: video[key]}); %>
               <% }); %>
               <% } %>
 
