@@ -86,7 +86,6 @@
           <div class="" style="border: solid; overflow: scroll ">
             <ol>
               <% tags.forEach(function(tag) { %>
-                <% console.log(JSON.stringify(tag, null, '\t')) %>
               <li onclick="moveTosearchBlock('<%= tag.tag.properties.tagName %>', null)" style="color: aliceblue"><%= tag.tag.properties.tagName %></li>
               <% }); %>
             </ol>
@@ -103,7 +102,6 @@
 
               <%if (video!==null) { %>
               <% Object.keys(video).forEach(function(key) { %>
-              <% console.log(JSON.stringify(video[key], null, '\t')) %>
               <%- include('./partials/frame', {video: video[key], helper: helper}); %>
               <% }); %>
               <% } %>
