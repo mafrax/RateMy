@@ -1,4 +1,4 @@
-var socket = io.connect('http://rateyourporn.com')
+var socket = io.connect('http:///5.39.80.142:3000')
 
 // var socketSearch = io.connect('http://5.39.80.142:3000/search')
 

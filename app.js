@@ -29,6 +29,7 @@ var Session = require('connect');
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
+var dotenv = require('dotenv')
 
 app.use(cookieParser());
 app.set('store' , store);
@@ -37,7 +38,12 @@ app.set('cookieParser', cookieParser);
 //   console.log('Redis error: ', err);
 // });
 
-/*  PASSPORT SETUP  */
+
+
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config()
+}
+console.log(process.env.PORT)
 
 const passport = require('passport');
 

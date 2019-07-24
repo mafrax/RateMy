@@ -86,20 +86,36 @@
           <div class="" style="border: solid; overflow: scroll ">
             <ol>
               <% tags.forEach(function(tag) { %>
-              <li onclick="moveTosearchBlock('<%= tag.tag.properties.tagName %>', null)" style="color: aliceblue"><%= tag.tag.properties.tagName %></li>
+              <li onclick="moveTosearchBlock('<%= tag.tag.properties.tagName %>', null)" style="color: aliceblue"><%= tag.tag.properties.tagName %>         
+              </li>
+              <button value="and" onclick="moveTosearchBlock('<%= tag.tag.properties.tagName %>', null, false)">and</button>
+              <button value="or" onclick="moveTosearchBlock('<%= tag.tag.properties.tagName %>', null, true)" >or</button>
               <% }); %>
             </ol>
           </div>
 
+          <div class="andBlock" style="border: solid; overflow: scroll " id="defaultBlock">
+              <ol class="defaultCriterionContainer">
+
+              </ol>
+            </div>
+
+            <div class="orBlock" style="border: solid; overflow: scroll " id="orBlock">
+                <ol class="defaultCriterionContainer">
+  
+                </ol>
+            </div>
+
+
           <div>
+            <button onclick="showQuery()" value="show_QUERY">
+              SHOW QUERY
+            </button>
           
-              <div class="andBlock" style="border: solid; overflow: scroll " id="defaultBlock">
-                  <ol class="defaultCriterionContainer">
-    
-                  </ol>
-                </div>
-
-
+            <div id="queryContainer">
+          
+            </div>
+ 
               <%if (video!==null) { %>
               <% Object.keys(video).forEach(function(key) { %>
               <%- include('./partials/frame', {video: video[key]}); %>
@@ -108,6 +124,12 @@
 
 
         </div>
+
+
+
+
+
+
         </div>
 
       </div>
