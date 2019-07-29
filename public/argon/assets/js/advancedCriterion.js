@@ -6,10 +6,10 @@ function moveTosearchBlock (tag, block, bool) {
   if (!block) {
     if (!bool) {
       block = document.querySelector('#defaultBlock')
-      console.log(block)
+      console.log('AND')
     } else {
       block = document.querySelector('#orBlock')
-      console.log(block)
+      console.log('OR')
     }
   }
   console.log(block)
@@ -98,18 +98,18 @@ function initializeRangeInitializeSlider (no) {
 const computeAdvancedSearchQuery = function () {
   var andBlock = document.getElementById('defaultBlock')
  var orBlock = document.getElementById('orBlock')
-
+ console.log(andBlock)
 
  var andCriterions = andBlock.querySelectorAll('*[id^="searchCriterion"]')
-
+ console.log(andCriterions)
  quer =''
  
  var i = 0
  andCriterions.forEach(criterions => {
-   
    quer += 'MATCH (v)-[r'+i+':RATED]->(tag'+i+':Tag) \n WHERE '
-
-    var name = criterions.querySelectorAll('*[id^="spanCriterionName"]')[0].innerHTML.trim()
+   
+   var name = criterions.querySelectorAll('*[id^="spanCriterionName"]')[0].innerHTML.trim()
+   console.log(name)
    
    var lowRange = criterions.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML
 
@@ -117,9 +117,31 @@ const computeAdvancedSearchQuery = function () {
 
    quer += 'tag'+i+'.tagName ="'+ name +'" and r'+i+'.level<='+highRange+' and r'+i+'.level>='+ lowRange+'\n'
  i++
+ console.log(quer)
   })
+  if(i>0){
+    quer += 'return v '
+  }
+  var orCriterions = orBlock.querySelectorAll('*[id^="searchCriterion"]')
 
-  quer += 'return v'
+  orCriterions.forEach(criterions => {
+    if(i>0){
+      quer += 'UNION \n'
+    }
+    quer += 'MATCH (v)-[r'+i+':RATED]->(tag'+i+':Tag) \n WHERE '
+ 
+     var name = criterions.querySelectorAll('*[id^="spanCriterionName"]')[0].innerHTML.trim()
+     console.log(name)
+    var lowRange = criterions.querySelectorAll('*[id^="criterionLowRange"]')[0].innerHTML
+ 
+    var highRange = criterions.querySelectorAll('*[id^="criterionHighRange"]')[0].innerHTML
+ 
+    quer += 'tag'+i+'.tagName ="'+ name +'" and r'+i+'.level<='+highRange+' and r'+i+'.level>='+ lowRange+'\n'
+    quer += 'return v \n'
+  i++
+   })
+
+  
 
 
   return quer;
