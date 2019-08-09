@@ -87,7 +87,7 @@
             <ol>
               <% tags.forEach(function(tag) { %>
               <li><a href="/search/<%= tag.tag.properties.tagName %>"
-                  style="color: aliceblue"><%= tag.tag.properties.tagName %></a></li>
+                  style="color: aliceblue"><%= tag.tag.properties.tagName %>  <%= tag.count %></a></li>
               <% }); %>
             </ol>
           </div>

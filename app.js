@@ -1,3 +1,7 @@
+
+/**
+ * Module dependencies.
+ */
 var createError = require('http-errors');
 var express = require('express');
 var cookieParser = require('cookie-parser');
@@ -12,16 +16,12 @@ var MemoryStore = require('memorystore')(session)
 var store = new MemoryStore();
 var cron = require("node-cron");
 var crawler = require('./models/crawl')
-/**
- * Module dependencies.
- */
+
 
 var debug = require('debug')('testserver:server');
 var http = require('http');
 var sharedsession = require("express-socket.io-session");
-var cookie = require('cookie');
 
-var Session = require('connect');
 // var redis = require('redis');
 // var redisClient = redis.createClient();
 // var redisStore = require('connect-redis')(session);
@@ -52,24 +52,21 @@ app.use(morgan('dev'));
  // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(helmet());
+
 
 var sessionMiddleware = session({
   secret: 'keyboard cat',
-  // key: 'express.sid',
   resave: true,
   name: 'sessionId',
   saveUninitialized: true,
   cookie: { maxAge: 6000000 },
   store:store
-  // store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
+  // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 io.use(sharedsession(sessionMiddleware, {
   autoSave:true}));
-// app.set("sessionMW", sessionMiddleware);
-// app.use(passport.initialize());
-// app.use(passport.session());
+
 app.use(flash());
 
 

@@ -1,5 +1,5 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4j:mafrax@5.39.80.142:7474');
+var db = new neo4j.GraphDatabase('http://neo4j:mafrax@localhost:7474');
 var bcrypt = require('bcrypt-nodejs');
 
 // private constructor:
@@ -59,8 +59,8 @@ Tag.create = function (data, callback) {
 Tag.getAll = function (callback) {
 	var qp = {
 		query: [
-			'MATCH (tag:Tag)',
-			'RETURN tag',
+			'MATCH (tag:Tag)<-[rel]-()',
+			'RETURN tag, count(rel) as count',
 			'ORDER BY tag.tagName'
 		].join('\n')
 	}

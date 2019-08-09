@@ -10,12 +10,10 @@ module.exports = function (app, passport) {
 
   // show the home page (will also have our login links)
   app.get('/', function (req, res, next) {
-    // res.cookie('mycookies', 'express');
-    // cookie1= req.cookies;
 
-    console.log(' Index req session ' + req.session)
-    console.log(req.session)
-    console.log(req.sessionID)
+
+    console.log(' Index req session ' + req.sessionID)
+
     if (req.session.views) {
       req.session.views++
       console.log(req.session.views)
@@ -37,23 +35,23 @@ module.exports = function (app, passport) {
     // // console.log("ca marche pas !!!!!!!!!!!!!!");
   })
 
-  app.get('/aboutus', function (req, res) {
+  app.get('/aboutus', function (req, res, next) {
     res.render('aboutus.ejs')
   })
 
-  app.get('/advancedSearch', function (req, res) {
+  app.get('/advancedSearch', function (req, res, next) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       res.render('advancedSearchPage.ejs', { tags: tags, video: null })
     })
   })
 
-  app.get('/search', function (req, res) {
+  app.get('/search', function (req, res, next) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       res.render('searchPage.ejs', { tags: tags, video: null })
     })
   })
 
-  app.get('/search/:tag', function (req, res) {
+  app.get('/search/:tag', function (req, res, next) {
     searchPageloader.loadSearchPage(function (_err, tags) {
       video.getAllVideosRelatedToTag(req.params.tag, function (_err, result) {
         var groupByVideo = {}
@@ -87,7 +85,7 @@ module.exports = function (app, passport) {
     })
   })
 
-  app.post('/search/:tag', function (req, res) {
+  app.post('/search/:tag', function (req, res, next) {
     console.log(req)
     console.log(res)
     res.redirect('/search/' + req.params.tag)

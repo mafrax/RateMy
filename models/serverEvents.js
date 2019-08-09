@@ -1,87 +1,65 @@
 
 var crawler = require('../models/crawl')
 var pageLoader = require('../models/homePageLoader')
-var csvDownloader = require('../models/csvDownloader')
 var video = require('../models/Video')
 var tag = require('../models/Tag')
-var cookieParser = require('cookie')
-// var pass = require('../config/passport');
-var neo4j = require('neo4j')
-var index = require('../routes/index')
-var db = new neo4j.GraphDatabase('http://neo4j:mafrax@5.39.80.142:7474')
-var fs = require('fs')
-var app = require('../app.js')
 
 var serverEvents = module.exports = function (io) {
-
-  // const nspSearch = io.of('/search');
-  // nspSearch.on('connection', function(socket){
-  //   console.log('someone connected');
-  // });
+ 
+  const nspSearch = io.of('/advancedSearch')
+  nspSearch.on('connection', function (socket) {
+    console.log('someone connected')
+  })
 
   const nsp = io.of('/')
-
   nsp.on('connection', function (socket) {
-    // console.log('Un client est connecté !');
-    // console.log('Un client est connecté ! again');
-    // console.log(app);
+    console.log('Un client est connecté !')
+
     console.time('dbsave2')
-
-    // console.log(' serverEvent handshake session ' + socket.handshake.session)   
-    // console.log(' serverEvent request session ' + socket.request.session)   
-    // console.log(' serverEvent handshake session age' + socket.handshake.session.age) 
-
     var userSession = socket.handshake.session
+    console.log('A socket with sessionID ' + socket.handshake.sessionID + ' connected!')
 
-
-
-        // console.log('A socket with sessionID ' + socket.handshake.sessionID + ' connected!')
-
-pageLoader.loadHomePage(function (videoWithTags) {
-
+    pageLoader.loadHomePage(function (videoWithTags) {
       if (videoWithTags != null || videoWithTags != undefined || videoWithTags.length != 0) {
         tag.getAll(function (_err, result2) {
-          socket.emit('loadHomePageFromServer', { session: userSession, videos: videoWithTags, tags: result2 })   
+          socket.emit('loadHomePageFromServer', { session: userSession, videos: videoWithTags, tags: result2 })
+        })
+      }
     })
-
-  }
-    })
-console.timeEnd('dbsave2')
+    console.timeEnd('dbsave2')
 
     socket.on('reloadAfterSave', function () {
 
-
     })
-      
-      // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client    
-      socket.on('messageUploadfromClient', function (message) {
+
+    // Quand le serveur reçoit un signal de type "messageUploadfromClient" du client
+    socket.on('messageUploadfromClient', function (message) {
       // console.log('Un client me parle ! Il me dit : messageUploadfromClient ' + message);
 
       if (message === '') {
         crawler.dailyCrawl(message, function () {
           // crawler.crawl(url2, function(url){
           console.log('truc2')
-              })
-
-          } else {
+        })
+      } else {
         crawler.crawl(message, function (url, title, tags, thumbNails) {
           // crawler.crawl(url2, function(url){
           if (url === null) {
             var html = crawler.addModalDiv(url, message, thumbNails)
-                socket.emit('messageUploadfromServer', { htmlfield: html, titlefield: title, originalUrlField: message, tags }) 
-              } else {
+            socket.emit('messageUploadfromServer', { htmlfield: html, titlefield: title, originalUrlField: message, tags })
+          } else {
             var html = crawler.addModalDiv(url, message, thumbNails)
-                socket.emit('messageUploadfromServer', { htmlfield: html, titlefield: title, originalUrlField: message, tags })                           
-              }
-        })
+            socket.emit('messageUploadfromServer', { htmlfield: html, titlefield: title, originalUrlField: message, tags })
           }
+        })
+      }
     })
 
-      socket.on('updateAgeSession', function (message) {
-      socket.handshake.session.age = '18';
+    socket.on('updateAgeSession', function (message) {
+      socket.handshake.session.age = '18'
       socket.handshake.session.save()
-         console.log(socket.handshake.session)
-      })
+      console.log(socket.handshake.session)
+    })
 
     socket.on('validateNoteFromClient', function (message) {
       // // console.log('Un client me parle ! Il me dit : ' + message);
@@ -89,20 +67,20 @@ console.timeEnd('dbsave2')
       video.getCriterionWithRelAndTag(message.videoId, message.tagName, function (_err, result) {
         var newtagName = message.tagName.toUpperCase()
 
-          if (result.length === 0) {
+        if (result.length === 0) {
           tag.getAll(function (err, results) {
-            var exists = [] 
+            var exists = []
 
-              for (prop in results) {
+            for (prop in results) {
               if (results.hasOwnProperty(prop)) {
                 if (results[prop].tag.properties.tagName.length > 0) {
                   var resultName = results[prop].tag.properties.tagName.toUpperCase()
 
-                    if (resultName === newtagName) {
+                  if (resultName === newtagName) {
                     exists.push(message.tagName)
-                        video.createRelationShipWithTag(message.videoId, message.noteUser, results[prop].tag._id, function (err, result) {
+                    video.createRelationShipWithTag(message.videoId, message.noteUser, results[prop].tag._id, function (err, result) {
                       setTagLevel(message, result, socket)
-                        })
+                    })
                   }
                 }
               }
@@ -110,18 +88,18 @@ console.timeEnd('dbsave2')
 
             if (exists.length === 0) {
               var data = {}
-                data['tagName'] = message.tagName
-                tag.create(data, function (err, result) {
+              data['tagName'] = message.tagName
+              tag.create(data, function (err, result) {
                 video.createRelationShipWithTag(message.videoId, message.noteUser, result._id, function (err, result) {
                   // // console.log(result);
                   setTagLevel(message, result, socket)
-                  })
+                })
               })
             }
           })
         } else {
           setTagLevel(message, result[0], socket)
-          }
+        }
       })
     })
 
@@ -129,14 +107,13 @@ console.timeEnd('dbsave2')
       // console.log('Un client me parle ! Il me dit messageSavefromClient: ' + message);
 
       var newVideo = {}
-        newVideo.originalUrl = message.originalUrlField
-        newVideo.embedUrl = message.embedUrlField
-        newVideo.title = message.titlefield
-        newVideo.timestamp = new Date()
-        newVideo.thumbNails = message.thumbNails
+      newVideo.originalUrl = message.originalUrlField
+      newVideo.embedUrl = message.embedUrlField
+      newVideo.title = message.titlefield
+      newVideo.timestamp = new Date()
+      newVideo.thumbNails = message.thumbNails
 
-
-        video.create(newVideo, message.tags, function (err, video1) {
+      video.create(newVideo, message.tags, function (err, video1) {
         // console.log(err);
         // console.log(video1);
         // console.log("AFTER CREATE: "+video1);
@@ -144,12 +121,10 @@ console.timeEnd('dbsave2')
 
         video.getLatestEntry(function (err, video2) {
           if (err) { return next(err) }
-          socket.emit('videoSavedfromServer', { video: video2, tagField: message.tags }) 
-          })
+          socket.emit('videoSavedfromServer', { video: video2, tagField: message.tags })
+        })
       })
-
     })
-
 
     socket.on('searchValidatedFromClient', function (searchTags) {
       // // console.log('Un client me parle ! Il me dit : ' + searchTags);
@@ -171,38 +146,33 @@ console.timeEnd('dbsave2')
             vidIds.push(videos[prop].v._id)
           }
         }
-        socket.emit('loadHomePageFromServer2', vidIds)    
-
-        })
-
-        
-
+        socket.emit('loadHomePageFromServer2', vidIds)
       })
-
     })
+  })
 
   function setTagLevel (message, result, socket) {
     if (message.direction < 0) {
       video.resetRelationLevel(result.rel._id, result.rel.properties.previousLevel, result.rel.properties.votes, function (_err, result2) {
-      // // console.log(result2);
-        socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2.rel.properties.level })
-    })
-  } else {
-      if (result.rel.properties.votes == null) {
-        video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
         // // console.log(result2);
-          socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level })
+        socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2.rel.properties.level })
       })
     } else {
-        video.updateRelationLevel(result.rel._id, result.rel.properties.level, result.rel.properties.votes, message.noteUser, message.previousNote, function (_err, result2) {
-        // // console.log(result2);
+      if (result.rel.properties.votes == null) {
+        video.updateRelationLevel(result.rel._id, result.rel.properties.level, 0, message.noteUser, message.previousNote, function (_err, result2) {
+          // // console.log(result2);
           socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level })
-      })
-    }
+        })
+      } else {
+        video.updateRelationLevel(result.rel._id, result.rel.properties.level, result.rel.properties.votes, message.noteUser, message.previousNote, function (_err, result2) {
+          // // console.log(result2);
+          socket.emit('validatedNoteFromServer', { vId: message.videoId, tagId: message.tagNum, newLevel: result2[0].rel.properties.level })
+        })
+      }
     }
   }
 
   function getCookie (cookie) {
-  // console.log(cookie);
+    // console.log(cookie);
   }
 }
