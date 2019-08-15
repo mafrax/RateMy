@@ -1,5 +1,5 @@
-var socket = io.connect('http:///rateyourporn.com/advancedSearch')
+// var socket = io.connect('http:///rateyourporn.com/advancedSearch')
 
-socket.on('truc', function (message) {
-    console.log(message)
-})
+// socket.on('truc', function (message) {
+//     console.log(message)
+// })
