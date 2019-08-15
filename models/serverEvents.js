@@ -22,6 +22,7 @@ var serverEvents = module.exports = function (io) {
     pageLoader.loadHomePage(function (videoWithTags) {
       if (videoWithTags != null || videoWithTags != undefined || videoWithTags.length != 0) {
         tag.getAll(function (_err, result2) {
+          console.log(result2)
           socket.emit('loadHomePageFromServer', { session: userSession, videos: videoWithTags, tags: result2 })
         })
       }
