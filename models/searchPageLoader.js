@@ -17,7 +17,7 @@ searchPageLoader.loadSearchPage = function (callback) {
 //   var div = document.createElement('div')
 //   var ol = document.createElement('ol')
 //   div.appendChild(ol)
-  tags.getAll(function (err, results) {
+  tags.getAllWithCount(function (err, results) {
     // results.forEach(element => {
     //   var tag = document.createElement('li')
     //   tag.innerHTML(element)

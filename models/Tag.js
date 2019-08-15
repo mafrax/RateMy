@@ -59,6 +59,23 @@ Tag.create = function (data, callback) {
 Tag.getAll = function (callback) {
 	var qp = {
 		query: [
+			'MATCH (tag:Tag)',
+			'RETURN tag',
+			'ORDER BY tag.tagName'
+		].join('\n')
+	}
+
+	db.cypher(qp, function (err, result) {
+		if (err) return callback(err);
+		callback(null, result);
+	});
+};
+
+
+
+Tag.getAllWithCount = function (callback) {
+	var qp = {
+		query: [
 			'MATCH (tag:Tag)<-[rel]-()',
 			'RETURN tag, count(rel) as count',
 			'ORDER BY tag.tagName'
