@@ -11,8 +11,8 @@ var serverEvents = module.exports = function (io) {
   //   console.log('someone connected')
   // })
 
-  const nsp = io.of('/')
-  nsp.on('connection', function (socket) {
+  // const nsp = io.of('/')
+  io.sockets.on('connection', function (socket) {
     console.log('Un client est connecté !')
 
     console.time('dbsave2')
