@@ -6,13 +6,13 @@ var tag = require('../models/Tag')
 
 var serverEvents = module.exports = function (io) {
  
-  const nspSearch = io.of('/advancedSearch')
-  nspSearch.on('connection', function (socket) {
-    console.log('someone connected')
-  })
+  // const nspSearch = io.of('/advancedSearch')
+  // nspSearch.on('connection', function (socket) {
+  //   console.log('someone connected')
+  // })
 
-  const nsp = io.of('/')
-  nsp.on('connection', function (socket) {
+  // const nsp = io.of('/')
+  socket.io.on('connection', function (socket) {
     console.log('Un client est connecté !')
 
     console.time('dbsave2')
