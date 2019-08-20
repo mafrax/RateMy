@@ -47,7 +47,14 @@ console.log(process.env.PORT)
 
 const passport = require('passport');
 
-// require('./config/passport')(passport); // pass passport for configuration
+require('./config/passport')(passport); // pass passport for configuration
+// required for passport
+app.use(session({ secret: 'keyboard cat' })); // session secret
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
+
+
 app.use(morgan('dev'));
  // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
@@ -61,7 +68,7 @@ var sessionMiddleware = session({
   saveUninitialized: true,
   cookie: { maxAge: 6000000 },
   store:store
-  // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+  // store: new redisStore({ host: '5.39.80.142', port: 6379, client: redisClient, ttl: 86400 }),
 });
 app.use(sessionMiddleware);
 io.use(sharedsession(sessionMiddleware, {
@@ -94,7 +101,8 @@ app.set('port', port);
 var handler = require('./models/serverEvents')(io);
 
 
-require('./routes/index.js')(app);
+require('./routes/index.js')(app, passport);
+require('./routes/users.js')(app, passport);
 
 //server is 2hours ealier than paris time 
 cron.schedule("00 10 * * *", function() {

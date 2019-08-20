@@ -1,7 +1,7 @@
 // users.js
 // Routes to CRUD users.
 
-var User = require('../models/user');
+var User = require('../models/User');
 
 module.exports = function(app, passport) {
 

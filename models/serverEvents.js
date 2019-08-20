@@ -56,7 +56,7 @@ var serverEvents = module.exports = function (io) {
       }
     })
 
-    socket.on('updateAgeSession', function (message) {
+    socket.on('updateAgeSession', function (_message) {
       socket.handshake.session.age = '18'
       socket.handshake.session.save()
       console.log(socket.handshake.session)
@@ -69,7 +69,7 @@ var serverEvents = module.exports = function (io) {
         var newtagName = message.tagName.toUpperCase()
 
         if (result.length === 0) {
-          tag.getAll(function (err, results) {
+          tag.getAll(function (_err, results) {
             var exists = []
 
             for (prop in results) {
@@ -79,7 +79,7 @@ var serverEvents = module.exports = function (io) {
 
                   if (resultName === newtagName) {
                     exists.push(message.tagName)
-                    video.createRelationShipWithTag(message.videoId, message.noteUser, results[prop].tag._id, function (err, result) {
+                    video.createRelationShipWithTag(message.videoId, message.noteUser, results[prop].tag._id, function (_err, result) {
                       setTagLevel(message, result, socket)
                     })
                   }
@@ -90,8 +90,8 @@ var serverEvents = module.exports = function (io) {
             if (exists.length === 0) {
               var data = {}
               data['tagName'] = message.tagName
-              tag.create(data, function (err, result) {
-                video.createRelationShipWithTag(message.videoId, message.noteUser, result._id, function (err, result) {
+              tag.create(data, function (_err, result) {
+                video.createRelationShipWithTag(message.videoId, message.noteUser, result._id, function (_err, result) {
                   // // console.log(result);
                   setTagLevel(message, result, socket)
                 })
@@ -114,7 +114,7 @@ var serverEvents = module.exports = function (io) {
       newVideo.timestamp = new Date()
       newVideo.thumbNails = message.thumbNails
 
-      video.create(newVideo, message.tags, function (err, video1) {
+      video.create(newVideo, message.tags, function (err, _video1) {
         // console.log(err);
         // console.log(video1);
         // console.log("AFTER CREATE: "+video1);
@@ -173,7 +173,7 @@ var serverEvents = module.exports = function (io) {
     }
   }
 
-  function getCookie (cookie) {
+  function getCookie (_cookie) {
     // console.log(cookie);
   }
 }

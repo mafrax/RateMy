@@ -10,8 +10,6 @@ module.exports = function (app, passport) {
 
   // show the home page (will also have our login links)
   app.get('/', function (req, res, next) {
-
-
     console.log(' Index req session ' + req.sessionID)
 
     if (req.session.views) {
@@ -105,100 +103,100 @@ module.exports = function (app, passport) {
     return time
   }
 
-  // 	// PROFILE SECTION =========================
-  // 	app.get('/profile', isLoggedIn, function (req, res) {
-  // 		// // console.log(req.user.properties);
-  // 		// // console.log(req.body.username);
-  // 		// // console.log(req.user.properties.firstName);
-  // 		res.render('profile.ejs', {
-  // 			user: req.user,
-  // 			message: req.flash('connectMessage')
-  // 		});
-  // 	});
+  	// PROFILE SECTION =========================
+  	app.get('/profile', isLoggedIn, function (req, res) {
+  		// // console.log(req.user.properties);
+  		// // console.log(req.body.username);
+  		// // console.log(req.user.properties.firstName);
+  		res.render('./auth/profile.ejs', {
+  			user: req.user,
+  			message: req.flash('connectMessage')
+  		})
+  	})
 
-  // 	// LOGOUT ==============================
-  // 	app.get('/logout', function (req, res) {
-  // 		req.logout();
-  // 		res.redirect('/');
-  // 	});
+  	// LOGOUT ==============================
+  	app.get('/logout', function (req, res) {
+  		req.logout()
+  		res.redirect('/')
+  	})
 
-  // 	// Update User
-  // 	app.post('/user/update', isLoggedIn, function (req, res) {
-  // 		// // console.log(req);
-  // 		var updateUser = {};
-  // 		updateUser.id = req.user._id;
-  // 		updateUser.props = {};
-  // 		if (req.body.username) {
-  // 			updateUser.props.username = req.body.username;
-  // 		}
-  // 		if (req.body.lastName) {
-  // 			updateUser.props.lastName = req.body.lastName;
-  // 		}
-  // 		if (req.body.datetimepicker) {
-  // 			updateUser.props.birthDay = req.body.datetimepicker;
-  // 		}
-  // 		if (req.body.gender) {
-  // 			updateUser.props.gender = req.body.gender;
-  // 		}
-  // 		if (req.body.city) {
-  // 			updateUser.props.city = req.body.city;
-  // 		}
-  // 		// // console.log(updateUser);
+  	// Update User
+  	app.post('/user/update', isLoggedIn, function (req, res) {
+  		// // console.log(req);
+  		var updateUser = {}
+  		updateUser.id = req.user._id
+  		updateUser.props = {}
+  		if (req.body.username) {
+  			updateUser.props.username = req.body.username
+  		}
+  		if (req.body.lastName) {
+  			updateUser.props.lastName = req.body.lastName
+  		}
+  		if (req.body.datetimepicker) {
+  			updateUser.props.birthDay = req.body.datetimepicker
+  		}
+  		if (req.body.gender) {
+  			updateUser.props.gender = req.body.gender
+  		}
+  		if (req.body.city) {
+  			updateUser.props.city = req.body.city
+  		}
+  		// // console.log(updateUser);
 
-  // 		User.update(updateUser, function (err, user) {
-  // 			if (err)
-  // 				throw err;
-  // 			res.redirect('/profile');
-  // 		});
-  // 	});
+  		User.update(updateUser, function (err, user) {
+  			if (err)
+  				{throw err;}
+  			res.redirect('/profile')
+  		})
+  	})
 
-  // 	// Update User
-  // 	app.post('/save', function (req, res) {
-  // 		// // console.log("save entered");
-  // 		// // console.log(req);
-  // 		//https://www.remwebdevelopment.com/blog/sql/some-basic-and-useful-cypher-queries-for-neo4j-201.html
-  // 		//https://gist.github.com/DaniSancas/1d5265fc159a95ff457b940fc5046887
+  	// Update User
+  	app.post('/save', function (req, res) {
+  		// // console.log("save entered");
+  		// // console.log(req);
+  		// https://www.remwebdevelopment.com/blog/sql/some-basic-and-useful-cypher-queries-for-neo4j-201.html
+  		// https://gist.github.com/DaniSancas/1d5265fc159a95ff457b940fc5046887
 
-  // 		truc.details("https://youtube.com/channel/UC9hUOU4rxr9_kSMaTpiqvDw", function (err, details) {
-  // 			// // console.log(err, details);
-  // 		});
+  		truc.details('https://youtube.com/channel/UC9hUOU4rxr9_kSMaTpiqvDw', function (err, details) {
+  			// // console.log(err, details);
+  		})
 
-  // 	});
+  	})
 
-  // 	// =============================================================================
-  // 	// AUTHENTICATE (FIRST LOGIN) ==================================================
-  // 	// =============================================================================
+  	// =============================================================================
+  	// AUTHENTICATE (FIRST LOGIN) ==================================================
+  	// =============================================================================
 
-  // 	// locally --------------------------------
-  // 	// LOGIN ===============================
-  // 	// show the login form
-  // 	app.get('/login', function (req, res) {
-  // 		// // console.log('casse-couille');
-  // 		res.render('error', { message: req.flash('loginMessage') });
-  // 	});
+  	// locally --------------------------------
+  	// LOGIN ===============================
+  	// show the login form
+  	app.get('/login', function (req, res) {
+  		// // console.log('casse-couille');
+  		res.render('error', { message: req.flash('loginMessage') })
+  	})
 
-  // 	// process the login form
-  // 	app.post('/login', passport.authenticate('local-login'
-  // 		, {
-  // 			successRedirect: '/profile', // redirect to the secure profile section
-  // 			failureRedirect: '/login', // redirect back to the signup page if there is an error
-  // 			failureFlash: true // allow flash messages
-  // 		}
-  // 	));
+  	// process the login form
+  	app.post('/login', passport.authenticate('local-login'
+  		, {
+  			successRedirect: '/profile', // redirect to the secure profile section
+  			failureRedirect: '/login', // redirect back to the signup page if there is an error
+  			failureFlash: true // allow flash messages
+  		}
+  	))
 
-  // 	// SIGNUP =================================
-  // 	// show the signup form
-  // 	app.get('/signup', function (req, res) {
-  // 		// // console.log('render signup');
-  // 		res.render('auth/signup.ejs', { message: req.flash('loginMessage') });
-  // 	});
+  	// SIGNUP =================================
+  	// show the signup form
+  	app.get('/signup', function (req, res) {
+  	  console.log('render signup');
+  		res.render('auth/signup.ejs', { message: req.flash('loginMessage') })
+  	})
 
-  // 	// process the signup form
-  // 	app.post('/signup', passport.authenticate('local-signup', {
-  // 		successRedirect: '/profile', // redirect to the secure profile section
-  // 		failureRedirect: '/signup', // redirect back to the signup page if there is an error
-  // 		failureFlash: true // allow flash messages
-  // 	}));
+  	// process the signup form
+  	app.post('/signup', passport.authenticate('local-signup', {
+  		successRedirect: '/profile', // redirect to the secure profile section
+  		failureRedirect: '/signup', // redirect back to the signup page if there is an error
+  		failureFlash: true // allow flash messages
+  	}))
 
   // 	// facebook -------------------------------
 
@@ -226,19 +224,19 @@ module.exports = function (app, passport) {
   // 			failureFlash: true // allow flash messages
   // 		}));
 
-  // 	// =============================================================================
-  // 	// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
-  // 	// =============================================================================
+  	// =============================================================================
+  	// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
+  	// =============================================================================
 
-  // 	// locally --------------------------------
-  // 	app.get('/connect/local', function (req, res) {
-  // 		res.render('auth/connect-local.ejs', { message: req.flash('loginMessage') });
-  // 	});
-  // 	app.post('/connect/local', passport.authenticate('local-signup', {
-  // 		successRedirect: '/profile', // redirect to the secure profile section
-  // 		failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
-  // 		failureFlash: true // allow flash messages
-  // 	}));
+  	// locally --------------------------------
+  	app.get('/connect/local', function (req, res) {
+  		res.render('auth/connect-local.ejs', { message: req.flash('loginMessage') });
+  	});
+  	app.post('/connect/local', passport.authenticate('local-signup', {
+  		successRedirect: '/profile', // redirect to the secure profile section
+  		failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
+  		failureFlash: true // allow flash messages
+  	}));
 
   // 	// =============================================================================
   // 	// UNLINK ACCOUNTS =============================================================
@@ -289,11 +287,12 @@ module.exports = function (app, passport) {
 
   // };
 
-  // // route middleware to ensure user is logged in
-  // function isLoggedIn(req, res, next) {
-  // 	// // console.log(req.user);
-  // 	if (req.isAuthenticated())
-  // 		return next();
-  // 	// // console.log('redirected');
-  // 	res.redirect('/');
+  // route middleware to ensure user is logged in
+  function isLoggedIn (req, res, next) {
+  	// // console.log(req.user);
+  	if (req.isAuthenticated())
+  		{return next();}
+  	// // console.log('redirected');
+    res.redirect('/')
+  }
 }
