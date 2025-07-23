@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15
-    container_name: ratemy-postgres
+    container_name: ratemy-postgres-simple
     restart: unless-stopped
     environment:
       POSTGRES_DB: ratemy_db
@@ -14,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_simple_data:/var/lib/postgresql/data
     networks:
       - ratemy-network
     healthcheck:
@@ -23,39 +21,19 @@ services:
       timeout: 5s
       retries: 5
 
-  # Next.js Application
+  # Next.js Development Application
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: ratemy-app
+      dockerfile: Dockerfile.simple
+    container_name: ratemy-app-simple
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://username:password@postgres:5432/ratemy_db
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=your-super-secret-jwt-secret-change-in-production
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - ratemy-network
-
-  # Development version (alternative to production build)
-  app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: ratemy-app-dev
-    restart: unless-stopped
-    ports:
-      - "3001:3000"
-    environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://username:password@postgres:5432/ratemy_db
-      - NEXTAUTH_URL=http://localhost:3001
+      - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=your-super-secret-jwt-secret-change-in-production
     depends_on:
       postgres:
@@ -66,11 +44,9 @@ services:
       - .:/app
       - /app/node_modules
       - /app/.next
-    profiles:
-      - dev
 
 volumes:
-  postgres_data:
+  postgres_simple_data:
     driver: local
 
 networks:
