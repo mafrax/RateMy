@@ -24,15 +24,6 @@ export const urlSchema = z
   .url('Please enter a valid URL')
   .min(1, 'URL is required')
 
-export const videoUrlSchema = z
-  .string()
-  .url('Please enter a valid video URL')
-  .refine(
-    (url) => {
-      return VALIDATION_PATTERNS.YOUTUBE_URL.test(url) || VALIDATION_PATTERNS.VIMEO_URL.test(url)
-    },
-    'Only YouTube and Vimeo URLs are supported'
-  )
 
 // User validation schemas
 export const signInSchema = z.object({
@@ -64,9 +55,9 @@ export const updateUserSchema = z.object({
 export const createVideoSchema = z.object({
   title: z
     .string()
-    .min(1, 'Title is required')
-    .max(VIDEO_LIMITS.MAX_TITLE_LENGTH, `Title must be at most ${VIDEO_LIMITS.MAX_TITLE_LENGTH} characters long`),
-  originalUrl: videoUrlSchema,
+    .max(VIDEO_LIMITS.MAX_TITLE_LENGTH, `Title must be at most ${VIDEO_LIMITS.MAX_TITLE_LENGTH} characters long`)
+    .optional(), // Title can be auto-extracted
+  originalUrl: urlSchema,
   description: z
     .string()
     .max(VIDEO_LIMITS.MAX_DESCRIPTION_LENGTH, `Description must be at most ${VIDEO_LIMITS.MAX_DESCRIPTION_LENGTH} characters long`)
@@ -80,9 +71,41 @@ export const createVideoSchema = z.object({
 
 export const updateVideoSchema = createVideoSchema.partial()
 
+// Tag rating filter schema
+const tagRatingFilterSchema = z.object({
+  tagName: z.string(),
+  minRating: z.number().min(1).max(5),
+  maxRating: z.number().min(1).max(5),
+})
+
+// Schema for validating query parameters (strings from URL)
+export const videoFilterQuerySchema = z.object({
+  search: z.string().optional(),
+  tags: z.union([z.string(), z.array(z.string())]).optional().default([]).transform(val => {
+    if (!val || val.length === 0) return []
+    return Array.isArray(val) ? val : [val]
+  }),
+  tagRatings: z.string().optional().transform(val => {
+    if (!val) return []
+    try {
+      const parsed = JSON.parse(val)
+      return Array.isArray(parsed) ? z.array(tagRatingFilterSchema).parse(parsed) : []
+    } catch {
+      return []
+    }
+  }),
+  userId: z.string().uuid().optional(),
+  sortBy: z.enum(['createdAt', 'title', 'ratings']).default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  page: z.string().optional().default('1').transform(val => parseInt(val, 10)).pipe(z.number().int().min(1)),
+  limit: z.string().optional().default('12').transform(val => parseInt(val, 10)).pipe(z.number().int().min(1).max(50)),
+})
+
+// Schema for validating already-typed filter objects (for service layer)
 export const videoFilterSchema = z.object({
   search: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).default([]),
+  tagRatings: z.array(tagRatingFilterSchema).default([]),
   userId: z.string().uuid().optional(),
   sortBy: z.enum(['createdAt', 'title', 'ratings']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
@@ -92,8 +115,8 @@ export const videoFilterSchema = z.object({
 
 // Rating validation schema
 export const ratingSchema = z.object({
-  tagId: z.string().uuid('Invalid tag ID'),
-  level: z.number().int().min(1, 'Rating must be at least 1').max(10, 'Rating must be at most 10'),
+  tagId: z.string().cuid('Invalid tag ID'),
+  level: z.number().int().min(1, 'Rating must be at least 1').max(5, 'Rating must be at most 5'),
 })
 
 // Query parameter schemas
@@ -171,7 +194,7 @@ export function isValidPassword(password: string): boolean {
 export function isValidVideoUrl(url: string): boolean {
   try {
     new URL(url) // Check if it's a valid URL
-    return VALIDATION_PATTERNS.YOUTUBE_URL.test(url) || VALIDATION_PATTERNS.VIMEO_URL.test(url)
+    return true // Accept any valid URL now that we support multiple platforms
   } catch {
     return false
   }

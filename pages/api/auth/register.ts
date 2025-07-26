@@ -1,4 +1,4 @@
-import { createApiRoute, POST, validateBody, successResponse } from '@/src/lib/api-handler'
+import { createApiRoute, validateBody } from '@/src/lib/api-handler'
 import { authService } from '@/src/services/auth.service'
 import { signUpSchema } from '@/src/lib/validation'
 import { SignUpForm } from '@/src/types'

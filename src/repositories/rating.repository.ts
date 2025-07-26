@@ -1,12 +1,12 @@
 import { Rating } from '../types'
 import { BaseRepository } from './base.repository'
-import { db } from '../lib/database'
+import { db } from '../lib/db'
 import { logger } from '../lib/logger'
 
 export class RatingRepositoryImpl extends BaseRepository<Rating> {
   protected tableName = 'rating'
 
-  async findByVideoId(videoId: string): Promise<Rating[]> {
+  async findByVideoId(videoId: string): Promise<any[]> {
     try {
       const ratings = await db.rating.findMany({
         where: { videoId },
@@ -33,7 +33,7 @@ export class RatingRepositoryImpl extends BaseRepository<Rating> {
     }
   }
 
-  async findByUserId(userId: string): Promise<Rating[]> {
+  async findByUserId(userId: string): Promise<any[]> {
     try {
       const ratings = await db.rating.findMany({
         where: { userId },
@@ -64,7 +64,7 @@ export class RatingRepositoryImpl extends BaseRepository<Rating> {
     }
   }
 
-  async findByUserAndVideo(userId: string, videoId: string): Promise<Rating[]> {
+  async findByUserAndVideo(userId: string, videoId: string): Promise<any[]> {
     try {
       const ratings = await db.rating.findMany({
         where: {
@@ -87,7 +87,7 @@ export class RatingRepositoryImpl extends BaseRepository<Rating> {
     userId: string,
     tagId: string,
     level: number
-  ): Promise<Rating> {
+  ): Promise<any> {
     try {
       const rating = await db.rating.upsert({
         where: {
@@ -200,7 +200,7 @@ export class RatingRepositoryImpl extends BaseRepository<Rating> {
     userId: string,
     videoId: string,
     tagId: string
-  ): Promise<Rating | null> {
+  ): Promise<any | null> {
     try {
       const rating = await db.rating.findUnique({
         where: {

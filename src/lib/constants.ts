@@ -128,8 +128,8 @@ export const VIDEO_PLATFORMS = {
 // Rating levels
 export const RATING_LEVELS = {
   MIN: 1,
-  MAX: 10,
-  DEFAULT: 5,
+  MAX: 5,
+  DEFAULT: 3,
 } as const
 
 // Default values

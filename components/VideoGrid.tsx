@@ -1,7 +1,23 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { VideoCard } from './VideoCard'
+import { FlexibleVideoGrid } from './FlexibleVideoGrid'
+
+interface TagRatingFilter {
+  tagName: string
+  minRating: number
+  maxRating: number
+}
+
+interface SearchFilters {
+  search: string
+  tags: string[]
+  tagRatings: TagRatingFilter[]
+  sortBy: 'createdAt' | 'title' | 'ratings'
+  sortOrder: 'desc' | 'asc'
+  page: number
+  limit: number
+}
 
 interface Video {
   id: string
@@ -25,6 +41,13 @@ interface Video {
   }>
   ratings: Array<{
     level: number
+    user: {
+      id: string
+      username: string
+      firstName?: string
+      lastName?: string
+      avatar?: string
+    }
     tag: {
       id: string
       name: string
@@ -35,21 +58,61 @@ interface Video {
   }
 }
 
-export function VideoGrid() {
+interface VideoGridProps {
+  searchFilters?: SearchFilters | null
+}
+
+export function VideoGrid({ searchFilters }: VideoGridProps) {
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchVideos()
-  }, [])
+  }, [searchFilters])
 
   const fetchVideos = async () => {
     try {
-      const response = await fetch('/api/videos')
-      if (!response.ok) {
-        throw new Error('Failed to fetch videos')
+      setLoading(true)
+      setError(null)
+      
+      // Build query parameters from search filters
+      const params = new URLSearchParams()
+      
+      if (searchFilters) {
+        if (searchFilters.search) {
+          params.append('search', searchFilters.search)
+        }
+        if (searchFilters.tags.length > 0) {
+          searchFilters.tags.forEach(tag => params.append('tags', tag))
+        }
+        if (searchFilters.tagRatings.length > 0) {
+          params.append('tagRatings', JSON.stringify(searchFilters.tagRatings))
+        }
+        if (searchFilters.sortBy) {
+          params.append('sortBy', searchFilters.sortBy)
+        }
+        if (searchFilters.sortOrder) {
+          params.append('sortOrder', searchFilters.sortOrder)
+        }
+        if (searchFilters.page) {
+          params.append('page', searchFilters.page.toString())
+        }
+        if (searchFilters.limit) {
+          params.append('limit', searchFilters.limit.toString())
+        }
       }
+      
+      const url = `/api/videos${params.toString() ? `?${params.toString()}` : ''}`
+      console.log('Fetching URL:', url) // Debug log
+      const response = await fetch(url)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API Error Response:', errorText) // Debug log
+        throw new Error(`Failed to fetch videos: ${response.status} ${errorText}`)
+      }
+      
       const data = await response.json()
       console.log('API Response:', data) // Debug log
       
@@ -71,47 +134,13 @@ export function VideoGrid() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="card animate-pulse">
-            <div className="aspect-video bg-gray-200 rounded-lg mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-red-600">Error: {error}</p>
-        <button
-          onClick={fetchVideos}
-          className="mt-4 btn-primary"
-        >
-          Try Again
-        </button>
-      </div>
-    )
-  }
-
-  if (!videos || videos.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">No videos found. Be the first to upload one!</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {videos.map((video) => (
-        <VideoCard key={video.id} video={video} />
-      ))}
-    </div>
+    <FlexibleVideoGrid 
+      videos={videos}
+      loading={loading}
+      error={error}
+      onRetry={fetchVideos}
+      onVideoUpdate={fetchVideos}
+    />
   )
 }

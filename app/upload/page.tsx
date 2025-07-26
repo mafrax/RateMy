@@ -32,11 +32,52 @@ export default function UploadPage() {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}`
     }
 
-    // Vimeo URLs
-    const phRegex = /(?:https?:\/\/)?(?:www\.)?pornhub\.com\/(\d+)/
-    const phMatch = url.match(phRegex)
-    if (phMatch) {
-      return `https://pornhub.com/embed/${phMatch[1]}`
+    // TikTok URLs
+    const tiktokRegex = /(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@[\w.-]+\/video\/(\d+)/
+    const tiktokMatch = url.match(tiktokRegex)
+    if (tiktokMatch) {
+      return `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`
+    }
+
+    // Instagram URLs
+    const instagramRegex = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel)\/([a-zA-Z0-9_-]+)/
+    const instagramMatch = url.match(instagramRegex)
+    if (instagramMatch) {
+      return `https://www.instagram.com/p/${instagramMatch[1]}/embed/`
+    }
+
+    // Twitter/X URLs
+    const twitterRegex = /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/
+    const twitterMatch = url.match(twitterRegex)
+    if (twitterMatch) {
+      return `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}`
+    }
+
+    // Dailymotion URLs
+    const dailymotionRegex = /(?:https?:\/\/)?(?:www\.)?dailymotion\.com\/video\/([a-zA-Z0-9]+)/
+    const dailymotionMatch = url.match(dailymotionRegex)
+    if (dailymotionMatch) {
+      return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`
+    }
+
+    // Twitch URLs
+    const twitchVideoRegex = /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/videos\/(\d+)/
+    const twitchVideoMatch = url.match(twitchVideoRegex)
+    if (twitchVideoMatch) {
+      return `https://player.twitch.tv/?video=${twitchVideoMatch[1]}&parent=${window.location.hostname}`
+    }
+
+    const twitchClipRegex = /(?:https?:\/\/)?clips\.twitch\.tv\/([a-zA-Z0-9_-]+)/
+    const twitchClipMatch = url.match(twitchClipRegex)
+    if (twitchClipMatch) {
+      return `https://clips.twitch.tv/embed?clip=${twitchClipMatch[1]}&parent=${window.location.hostname}`
+    }
+
+    // Direct video files
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v']
+    const urlPath = new URL(url).pathname.toLowerCase()
+    if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
+      return url // Return original URL for direct video files
     }
 
     // If it's already an embed URL or unsupported, return as is
@@ -52,8 +93,8 @@ export default function UploadPage() {
       return
     }
 
-    if (!formData.title || !formData.originalUrl) {
-      toast.error('Please fill in all required fields')
+    if (!formData.originalUrl) {
+      toast.error('Please provide a video URL')
       return
     }
 
@@ -71,6 +112,7 @@ export default function UploadPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           title: formData.title,
           originalUrl: formData.originalUrl,
@@ -138,17 +180,16 @@ export default function UploadPage() {
               {/* Title */}
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                  Video Title *
+                  Video Title <span className="text-sm text-gray-500">(optional - will be auto-extracted)</span>
                 </label>
                 <input
                   type="text"
                   id="title"
                   name="title"
-                  required
                   value={formData.title}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter video title"
+                  placeholder="Enter video title or leave empty for auto-extraction"
                 />
               </div>
 
@@ -165,17 +206,17 @@ export default function UploadPage() {
                   value={formData.originalUrl}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                  placeholder="https://www.youtube.com/watch?v=... or https://tiktok.com/@user/video/123... or direct video URL"
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Supported: YouTube, Vimeo URLs
+                  Supported: YouTube, Vimeo, TikTok, Instagram, Twitter/X, Dailymotion, Twitch, and direct video files (.mp4, .mov, etc.)
                 </p>
               </div>
 
               {/* Description */}
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
+                  Description <span className="text-sm text-gray-500">(optional - will be auto-extracted)</span>
                 </label>
                 <textarea
                   id="description"
@@ -184,14 +225,14 @@ export default function UploadPage() {
                   value={formData.description}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Describe your video..."
+                  placeholder="Describe your video or leave empty for auto-extraction..."
                 />
               </div>
 
               {/* Tags */}
               <div>
                 <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags
+                  Tags <span className="text-sm text-gray-500">(optional - will be auto-extracted)</span>
                 </label>
                 <input
                   type="text"
@@ -203,7 +244,7 @@ export default function UploadPage() {
                   placeholder="music, entertainment, tutorial (separate with commas)"
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Separate multiple tags with commas
+                  Additional tags will be automatically extracted from the video. You can add custom tags here.
                 </p>
               </div>
 

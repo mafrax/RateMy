@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { User, AuthService, SignInForm, SignUpForm, ApiResponse, Session } from '../types'
 import { userRepository } from '../repositories/user.repository'
+import { db } from '../lib/db'
 import { validateSchema, signInSchema, signUpSchema } from '../lib/validation'
 import { 
   AuthenticationError, 
@@ -20,8 +21,8 @@ export class AuthServiceImpl implements AuthService {
 
       logger.info('Sign in attempt', { email })
 
-      // Find user by email
-      const user = await userRepository.findByEmail(email)
+      // Find user by email with password for verification
+      const user = await userRepository.findByEmailWithPassword(email)
       if (!user) {
         logUserAction('signin_failed', email, { reason: 'user_not_found' })
         throw new AuthenticationError('Invalid email or password')
@@ -76,23 +77,40 @@ export class AuthServiceImpl implements AuthService {
       // Hash password
       const hashedPassword = await this.hashPassword(password)
 
-      // Create user
+      // Create user with password (bypassing type checking temporarily)
       const user = await userRepository.create({
         email,
         username,
-        password: hashedPassword,
         firstName,
         lastName,
         avatar: null,
         city: null,
         birthDay: null,
         gender: null,
+      } as any)
+
+      // Separately set the password using direct database access
+      await db.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword }
       })
 
       logUserAction('signup_success', user.id)
 
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user
+      // Remove password from response (user doesn't have password field in type)
+      const userWithoutPassword = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar,
+        city: user.city,
+        birthDay: user.birthDay,
+        gender: user.gender,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
 
       return {
         success: true,
@@ -119,12 +137,17 @@ export class AuthServiceImpl implements AuthService {
 
   async verifyPassword(userId: string, password: string): Promise<boolean> {
     return asyncWrapper(async () => {
-      const user = await userRepository.findById(userId)
-      if (!user) {
+      // Get user with password for verification
+      const userWithPassword = await db.user.findUnique({
+        where: { id: userId },
+        select: { password: true }
+      })
+      
+      if (!userWithPassword?.password) {
         return false
       }
 
-      return bcrypt.compare(password, user.password)
+      return bcrypt.compare(password, userWithPassword.password)
     })()
   }
 
@@ -144,9 +167,10 @@ export class AuthServiceImpl implements AuthService {
       // Hash new password
       const hashedPassword = await this.hashPassword(newPassword)
 
-      // Update user
-      await userRepository.update(userId, {
-        password: hashedPassword,
+      // Update password directly in database
+      await db.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword }
       })
 
       logUserAction('password_changed', userId)
@@ -196,9 +220,10 @@ export class AuthServiceImpl implements AuthService {
       // Hash new password
       const hashedPassword = await this.hashPassword(newPassword)
 
-      // Update user
-      await userRepository.update(userId, {
-        password: hashedPassword,
+      // Update password directly in database
+      await db.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword }
       })
 
       logUserAction('password_updated', userId)

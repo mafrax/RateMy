@@ -1,4 +1,4 @@
-import { db } from '../lib/database'
+import { db } from '../lib/db'
 import { logger } from '../lib/logger'
 import { Repository } from '../types'
 

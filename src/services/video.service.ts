@@ -1,6 +1,5 @@
 import { 
   Video, 
-  VideoService, 
   VideoFilters, 
   ApiResponse, 
   PaginatedResponse,
@@ -10,6 +9,7 @@ import { videoRepository } from '../repositories/video.repository'
 import { ratingRepository } from '../repositories/rating.repository'
 import { tagRepository } from '../repositories/tag.repository'
 import { userRepository } from '../repositories/user.repository'
+import { videoMetadataService } from './video-metadata.service'
 import { 
   validateSchema, 
   createVideoSchema, 
@@ -28,7 +28,7 @@ import { logger, logUserAction } from '../lib/logger'
 import { asyncWrapper } from '../lib/errors'
 import { VALIDATION_PATTERNS } from '../lib/constants'
 
-export class VideoServiceImpl implements VideoService {
+export class VideoServiceImpl {
   async getVideos(filters?: VideoFilters): Promise<PaginatedResponse<Video>> {
     return asyncWrapper(async () => {
       const validatedFilters = filters ? validateSchema(videoFilterSchema, filters) : {}
@@ -68,12 +68,12 @@ export class VideoServiceImpl implements VideoService {
     userId: string
   ): Promise<ApiResponse<Video>> {
     return asyncWrapper(async () => {
-      // Validate input
+      // Validate input - originalUrl is required
       const validatedData = validateSchema(createVideoSchema, {
-        title: data.title,
+        title: data.title || '', // Allow empty title for auto-extraction
         originalUrl: data.originalUrl,
-        description: data.description,
-        tags: [], // Will be handled separately
+        description: data.description || '',
+        tags: [], // Will be handled by auto-extraction
       })
 
       // Verify user exists
@@ -82,24 +82,37 @@ export class VideoServiceImpl implements VideoService {
         throw createNotFoundError('User', userId)
       }
 
+      // Extract metadata automatically from video URL
+      const extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+      
+      // Use extracted data or fallback to provided data
+      const finalTitle = data.title?.trim() || extractedMetadata.title
+      const finalDescription = data.description?.trim() || extractedMetadata.description || null
+      const finalThumbnail = extractedMetadata.thumbnail || null
+
+      // Combine provided tags with extracted tags
+      const providedTags = data.tags ? this.extractTagsFromVideo(data) : []
+      const combinedTags = Array.from(new Set([...providedTags, ...extractedMetadata.tags]))
+      const sanitizedTags = sanitizeTags(combinedTags)
+
       // Convert original URL to embed URL
       const embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
 
-      // Extract and sanitize tags
-      const tagNames = data.tags ? this.extractTagsFromVideo(data) : []
-      const sanitizedTags = sanitizeTags(tagNames)
-
       // Create video with tags
       const video = await videoRepository.createWithTags({
-        title: validatedData.title,
+        title: finalTitle,
         originalUrl: validatedData.originalUrl,
         embedUrl,
-        thumbnail: null, // TODO: Extract thumbnail from video URL
-        description: validatedData.description || null,
+        thumbnail: finalThumbnail,
+        description: finalDescription,
         userId,
       }, sanitizedTags)
 
-      logUserAction('video_created', userId, { videoId: video.id, title: video.title })
+      logUserAction('video_created', userId, { 
+        videoId: video.id, 
+        title: video.title,
+        autoExtracted: !data.title || !data.description 
+      })
 
       return {
         success: true,
@@ -198,10 +211,6 @@ export class VideoServiceImpl implements VideoService {
         throw createNotFoundError('Tag', validatedData.tagId)
       }
 
-      // Prevent users from rating their own videos
-      if (video.userId === userId) {
-        throw new ValidationError('You cannot rate your own videos')
-      }
 
       // Upsert rating
       const rating = await ratingRepository.upsertRating(
@@ -317,6 +326,46 @@ export class VideoServiceImpl implements VideoService {
 
     // If it's already an embed URL or unsupported, return as is
     return originalUrl
+  }
+
+  async addTagToVideo(videoId: string, tagId: string): Promise<ApiResponse<void>> {
+    return asyncWrapper(async () => {
+      // Check if video exists
+      const video = await videoRepository.findById(videoId)
+      if (!video) {
+        throw createNotFoundError('Video', videoId)
+      }
+
+      // Check if tag exists
+      const tag = await tagRepository.findById(tagId)
+      if (!tag) {
+        throw createNotFoundError('Tag', tagId)
+      }
+
+      // Add tag to video (repository should handle duplicates)
+      await videoRepository.addTagToVideo(videoId, tagId)
+
+      return {
+        success: true,
+      }
+    })()
+  }
+
+  async removeTagFromVideo(videoId: string, tagId: string): Promise<ApiResponse<void>> {
+    return asyncWrapper(async () => {
+      // Check if video exists
+      const video = await videoRepository.findById(videoId)
+      if (!video) {
+        throw createNotFoundError('Video', videoId)
+      }
+
+      // Remove tag from video
+      await videoRepository.removeTagFromVideo(videoId, tagId)
+
+      return {
+        success: true,
+      }
+    })()
   }
 
   private extractTagsFromVideo(data: any): string[] {

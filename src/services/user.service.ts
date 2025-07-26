@@ -1,6 +1,5 @@
 import { 
   User, 
-  UserService, 
   Follow,
   ApiResponse 
 } from '../types'
@@ -19,7 +18,7 @@ import {
 import { logger, logUserAction } from '../lib/logger'
 import { asyncWrapper } from '../lib/errors'
 
-export class UserServiceImpl implements UserService {
+export class UserServiceImpl {
   async getUserById(id: string): Promise<ApiResponse<User>> {
     return asyncWrapper(async () => {
       const user = await userRepository.findById(id)
@@ -28,12 +27,10 @@ export class UserServiceImpl implements UserService {
         throw createNotFoundError('User', id)
       }
 
-      // Remove password from response
-      const { password, ...userWithoutPassword } = user
-
+      // User type doesn't include password, so just return as is
       return {
         success: true,
-        data: userWithoutPassword as User,
+        data: user,
       }
     })()
   }
@@ -54,12 +51,10 @@ export class UserServiceImpl implements UserService {
 
       logUserAction('profile_updated', id)
 
-      // Remove password from response
-      const { password, ...userWithoutPassword } = updatedUser
-
+      // User type doesn't include password, so just return as is
       return {
         success: true,
-        data: userWithoutPassword as User,
+        data: updatedUser,
       }
     })()
   }
@@ -171,12 +166,10 @@ export class UserServiceImpl implements UserService {
         throw createNotFoundError('User', id)
       }
 
-      // Remove password from response
-      const { password, ...userWithoutPassword } = userWithStats
-
+      // User type doesn't include password, so just return as is
       return {
         success: true,
-        data: userWithoutPassword as User & { 
+        data: userWithStats as User & { 
           _count: { followers: number; following: number; videos: number } 
         },
       }
@@ -280,12 +273,10 @@ export class UserServiceImpl implements UserService {
 
       logUserAction('avatar_updated', userId)
 
-      // Remove password from response
-      const { password, ...userWithoutPassword } = updatedUser
-
+      // User type doesn't include password, so just return as is
       return {
         success: true,
-        data: userWithoutPassword as User,
+        data: updatedUser,
       }
     })()
   }

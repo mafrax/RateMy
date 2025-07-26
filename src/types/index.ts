@@ -113,10 +113,18 @@ export interface VideoRatingForm {
   level: number
 }
 
+// Tag rating filter type
+export interface TagRatingFilter {
+  tagName: string
+  minRating: number
+  maxRating: number
+}
+
 // Search and filter types
 export interface VideoFilters {
   search?: string
   tags?: string[]
+  tagRatings?: TagRatingFilter[]
   userId?: string
   sortBy?: 'createdAt' | 'title' | 'ratings'
   sortOrder?: 'asc' | 'desc'

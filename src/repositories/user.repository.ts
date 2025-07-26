@@ -1,6 +1,6 @@
 import { User, UserRepository } from '../types'
 import { BaseRepository } from './base.repository'
-import { db } from '../lib/database'
+import { db } from '../lib/db'
 import { logger } from '../lib/logger'
 
 export class UserRepositoryImpl extends BaseRepository<User> implements UserRepository {
@@ -14,6 +14,32 @@ export class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
       return user
     } catch (error) {
       logger.error('Error finding user by email', { email, error })
+      throw error
+    }
+  }
+
+  async findByEmailWithPassword(email: string): Promise<any | null> {
+    try {
+      const user = await db.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          password: true,
+          avatar: true,
+          city: true,
+          birthDay: true,
+          gender: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      })
+      return user
+    } catch (error) {
+      logger.error('Error finding user by email with password', { email, error })
       throw error
     }
   }

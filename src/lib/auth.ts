@@ -5,7 +5,6 @@ import { db } from './db'
 import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
   providers: [
     CredentialsProvider({
       name: 'credentials',

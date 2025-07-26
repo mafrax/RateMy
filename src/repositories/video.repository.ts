@@ -1,13 +1,13 @@
 import { Video, VideoRepository, VideoFilters } from '../types'
 import { BaseRepository } from './base.repository'
-import { db } from '../lib/database'
+import { db } from '../lib/db'
 import { logger } from '../lib/logger'
 import { PAGINATION } from '../lib/constants'
 
 export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoRepository {
   protected tableName = 'video'
 
-  async findByUserId(userId: string): Promise<Video[]> {
+  async findByUserId(userId: string): Promise<any[]> {
     try {
       const videos = await db.video.findMany({
         where: { userId },
@@ -23,6 +23,20 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
           },
           tags: {
             include: {
+              tag: true
+            }
+          },
+          ratings: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                }
+              },
               tag: true
             }
           },
@@ -43,7 +57,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
     }
   }
 
-  async findByTags(tags: string[]): Promise<Video[]> {
+  async findByTags(tags: string[]): Promise<any[]> {
     try {
       const videos = await db.video.findMany({
         where: {
@@ -72,6 +86,20 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
               tag: true
             }
           },
+          ratings: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                }
+              },
+              tag: true
+            }
+          },
           _count: {
             select: {
               ratings: true
@@ -89,7 +117,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
     }
   }
 
-  async search(query: string): Promise<Video[]> {
+  async search(query: string): Promise<any[]> {
     try {
       const videos = await db.video.findMany({
         where: {
@@ -135,6 +163,20 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
               tag: true
             }
           },
+          ratings: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                }
+              },
+              tag: true
+            }
+          },
           _count: {
             select: {
               ratings: true
@@ -152,7 +194,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
     }
   }
 
-  async findWithRatings(id: string): Promise<Video | null> {
+  async findWithRatings(id: string): Promise<any | null> {
     try {
       const video = await db.video.findUnique({
         where: { id },
@@ -200,7 +242,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
   }
 
   async findWithFilters(filters: VideoFilters): Promise<{
-    videos: Video[]
+    videos: any[]
     total: number
     totalPages: number
   }> {
@@ -208,6 +250,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
       const {
         search,
         tags,
+        tagRatings,
         userId,
         sortBy = 'createdAt',
         sortOrder = 'desc',
@@ -253,6 +296,22 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
         where.userId = userId
       }
 
+      // Add tagRatings filter - we'll filter by having the specified tags first
+      // then post-process to check rating ranges
+      if (tagRatings && tagRatings.length > 0) {
+        const tagNames = tagRatings.map(tr => tr.tagName)
+        // Ensure videos have all the specified tags
+        where.tags = {
+          some: {
+            tag: {
+              name: {
+                in: tagNames
+              }
+            }
+          }
+        }
+      }
+
       const skip = (page - 1) * limit
 
       // Build orderBy
@@ -265,7 +324,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
         orderBy[sortBy] = sortOrder
       }
 
-      const [videos, total] = await Promise.all([
+      let [videos, total] = await Promise.all([
         db.video.findMany({
           where,
           include: {
@@ -285,6 +344,15 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
             },
             ratings: {
               include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    firstName: true,
+                    lastName: true,
+                    avatar: true,
+                  }
+                },
                 tag: true
               }
             },
@@ -296,10 +364,37 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
           },
           orderBy,
           skip,
-          take: limit,
+          take: limit * 2, // Fetch more to account for filtering
         }),
         db.video.count({ where })
       ])
+
+      // Apply tagRatings filter in post-processing
+      if (tagRatings && tagRatings.length > 0) {
+        videos = videos.filter(video => {
+          // Check if video has all required tags with ratings in the specified ranges
+          return tagRatings.every(({ tagName, minRating, maxRating }) => {
+            // Find the tag in the video
+            const videoTag = video.tags.find(vt => vt.tag.name === tagName)
+            if (!videoTag) return false
+
+            // Calculate average rating for this tag on this video
+            const tagRatings = video.ratings.filter(r => r.tag.name === tagName)
+            if (tagRatings.length === 0) return false
+
+            const averageRating = tagRatings.reduce((sum, r) => sum + r.level, 0) / tagRatings.length
+
+            // Check if average rating is within the specified range
+            return averageRating >= minRating && averageRating <= maxRating
+          })
+        })
+
+        // Update total count after filtering
+        total = videos.length
+        
+        // Apply pagination after filtering
+        videos = videos.slice(0, limit)
+      }
 
       const totalPages = Math.ceil(total / limit)
 
@@ -317,7 +412,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
   async createWithTags(
     videoData: Omit<Video, 'id' | 'createdAt' | 'updatedAt' | 'user' | 'tags' | 'ratings'>,
     tagNames: string[]
-  ): Promise<Video> {
+  ): Promise<any> {
     try {
       const video = await db.video.create({
         data: {
@@ -416,7 +511,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
     }
   }
 
-  async getTrendingVideos(limit: number = 10): Promise<Video[]> {
+  async getTrendingVideos(limit: number = 10): Promise<any[]> {
     try {
       // Get videos with most ratings in the last 7 days
       const sevenDaysAgo = new Date()
@@ -460,6 +555,39 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
       return videos
     } catch (error) {
       logger.error('Error getting trending videos', { limit, error })
+      throw error
+    }
+  }
+
+  async addTagToVideo(videoId: string, tagId: string): Promise<void> {
+    try {
+      await db.videoTag.create({
+        data: {
+          videoId,
+          tagId
+        }
+      })
+    } catch (error) {
+      // Handle duplicate key error (tag already exists on video)
+      if (error instanceof Error && error.message.includes('Unique constraint')) {
+        logger.info('Tag already exists on video', { videoId, tagId })
+        return
+      }
+      logger.error('Error adding tag to video', { videoId, tagId, error })
+      throw error
+    }
+  }
+
+  async removeTagFromVideo(videoId: string, tagId: string): Promise<void> {
+    try {
+      await db.videoTag.deleteMany({
+        where: {
+          videoId,
+          tagId
+        }
+      })
+    } catch (error) {
+      logger.error('Error removing tag from video', { videoId, tagId, error })
       throw error
     }
   }

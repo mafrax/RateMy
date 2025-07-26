@@ -1,12 +1,12 @@
 import { Tag } from '../types'
 import { BaseRepository } from './base.repository'
-import { db } from '../lib/database'
+import { db } from '../lib/db'
 import { logger } from '../lib/logger'
 
 export class TagRepositoryImpl extends BaseRepository<Tag> {
   protected tableName = 'tag'
 
-  async findByName(name: string): Promise<Tag | null> {
+  async findByName(name: string): Promise<any | null> {
     try {
       const tag = await db.tag.findUnique({
         where: { name }
@@ -18,7 +18,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async findOrCreate(name: string): Promise<Tag> {
+  async findOrCreate(name: string): Promise<any> {
     try {
       const tag = await db.tag.upsert({
         where: { name },
@@ -32,7 +32,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async findManyByNames(names: string[]): Promise<Tag[]> {
+  async findManyByNames(names: string[]): Promise<any[]> {
     try {
       const tags = await db.tag.findMany({
         where: {
@@ -48,7 +48,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async searchTags(query: string, limit: number = 10): Promise<Tag[]> {
+  async searchTags(query: string, limit: number = 10): Promise<any[]> {
     try {
       const tags = await db.tag.findMany({
         where: {
@@ -69,7 +69,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async getPopularTags(limit: number = 20): Promise<Array<Tag & { _count: { videos: number } }>> {
+  async getPopularTags(limit: number = 20): Promise<any[]> {
     try {
       const tags = await db.tag.findMany({
         include: {
@@ -93,7 +93,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async getTagsWithVideoCount(): Promise<Array<Tag & { videoCount: number }>> {
+  async getTagsWithVideoCount(): Promise<any[]> {
     try {
       const tagsWithCount = await db.tag.findMany({
         include: {
@@ -118,7 +118,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async getTagsByVideoId(videoId: string): Promise<Tag[]> {
+  async getTagsByVideoId(videoId: string): Promise<any[]> {
     try {
       const videoTags = await db.videoTag.findMany({
         where: { videoId },
@@ -134,7 +134,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async createMultiple(names: string[]): Promise<Tag[]> {
+  async createMultiple(names: string[]): Promise<any[]> {
     try {
       // Filter out existing tags
       const existingTags = await this.findManyByNames(names)
@@ -191,7 +191,7 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
     }
   }
 
-  async getTrendingTags(days: number = 7, limit: number = 10): Promise<Array<Tag & { recentVideos: number }>> {
+  async getTrendingTags(days: number = 7, limit: number = 10): Promise<any[]> {
     try {
       const dateThreshold = new Date()
       dateThreshold.setDate(dateThreshold.getDate() - days)
@@ -222,6 +222,72 @@ export class TagRepositoryImpl extends BaseRepository<Tag> {
       return tagsWithCounts
     } catch (error) {
       logger.error('Error getting trending tags', { days, limit, error })
+      throw error
+    }
+  }
+
+  async findAllWithCounts(): Promise<any[]> {
+    try {
+      const tags = await db.tag.findMany({
+        include: {
+          _count: {
+            select: {
+              videos: true
+            }
+          }
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      })
+      return tags
+    } catch (error) {
+      logger.error('Error finding all tags with counts', { error })
+      throw error
+    }
+  }
+
+  async findPopular(limit: number = 20): Promise<any[]> {
+    try {
+      const tags = await db.tag.findMany({
+        include: {
+          _count: {
+            select: {
+              videos: true
+            }
+          }
+        },
+        orderBy: {
+          videos: {
+            _count: 'desc'
+          }
+        },
+        take: limit
+      })
+      return tags
+    } catch (error) {
+      logger.error('Error finding popular tags', { limit, error })
+      throw error
+    }
+  }
+
+  async search(query: string, limit: number = 10): Promise<any[]> {
+    try {
+      const tags = await db.tag.findMany({
+        where: {
+          name: {
+            contains: query,
+            mode: 'insensitive'
+          }
+        },
+        take: limit,
+        orderBy: {
+          name: 'asc'
+        }
+      })
+      return tags
+    } catch (error) {
+      logger.error('Error searching tags', { query, limit, error })
       throw error
     }
   }

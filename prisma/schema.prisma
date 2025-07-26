@@ -27,6 +27,7 @@ model User {
   // Relations
   videos    Video[]
   ratings   Rating[]
+  comments  Comment[]
   followers Follow[] @relation("UserFollowers")
   following Follow[] @relation("UserFollowing")
 
@@ -44,10 +45,11 @@ model Video {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  userId  String
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tags    VideoTag[]
-  ratings Rating[]
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags     VideoTag[]
+  ratings  Rating[]
+  comments Comment[]
 
   @@map("videos")
 }
@@ -107,4 +109,19 @@ model Follow {
 
   @@unique([followerId, followingId])
   @@map("follows")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  videoId   String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
 }
