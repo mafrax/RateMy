@@ -8,7 +8,6 @@ import { db } from './db'
 import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -54,7 +53,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'database'
+    strategy: 'jwt'
   },
   pages: {
     signIn: '/auth/signin'
