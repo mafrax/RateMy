@@ -94,21 +94,28 @@ export default function SignUpPage() {
         throw new Error(error.message || 'Registration failed')
       }
 
-      toast.success('Account created successfully!')
+      const data = await response.json()
       
-      // Automatically sign in the user after successful registration
-      const signInResult = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      })
+      if (data.success) {
+        toast.success('Account created successfully!')
+        
+        // Automatically sign in the user after successful registration
+        const signInResult = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        })
 
-      if (signInResult?.error) {
-        toast.error('Registration successful, but automatic sign-in failed. Please sign in manually.')
-        router.push('/auth/signin')
+        if (signInResult?.error) {
+          toast.error('Registration successful, but automatic sign-in failed. Please sign in manually.')
+          router.push('/auth/signin')
+        } else if (signInResult?.ok) {
+          toast.success('Welcome! You are now signed in.')
+          router.push('/')
+          router.refresh()
+        }
       } else {
-        toast.success('Welcome! You are now signed in.')
-        router.push('/')
+        throw new Error(data.message || 'Registration failed')
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An error occurred')
