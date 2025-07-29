@@ -1,10 +1,14 @@
 // Core entity types
 export interface User {
   id: string
+  name: string | null
   email: string
-  username: string
+  emailVerified: Date | null
+  image: string | null
+  username: string | null
   firstName: string | null
   lastName: string | null
+  password: string | null
   avatar: string | null
   city: string | null
   birthDay: Date | null
@@ -148,7 +152,7 @@ export interface VideoGridState extends LoadingState {
 export interface AuthUser {
   id: string
   email: string
-  username: string
+  username: string | null
   firstName?: string | null
   lastName?: string | null
 }

@@ -24,7 +24,10 @@ export class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
         where: { email },
         select: {
           id: true,
+          name: true,
           email: true,
+          emailVerified: true,
+          image: true,
           username: true,
           firstName: true,
           lastName: true,
@@ -85,16 +88,20 @@ export class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
         },
         select: {
           id: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          image: true,
           username: true,
           firstName: true,
           lastName: true,
+          password: true,
           avatar: true,
-          createdAt: true,
-          updatedAt: true,
-          email: true,
           city: true,
           birthDay: true,
           gender: true,
+          createdAt: true,
+          updatedAt: true
         }
       })
       return followers
@@ -116,16 +123,20 @@ export class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
         },
         select: {
           id: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          image: true,
           username: true,
           firstName: true,
           lastName: true,
+          password: true,
           avatar: true,
-          createdAt: true,
-          updatedAt: true,
-          email: true,
           city: true,
           birthDay: true,
           gender: true,
+          createdAt: true,
+          updatedAt: true
         }
       })
       return following
@@ -251,16 +262,20 @@ export class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
         take: limit,
         select: {
           id: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          image: true,
           username: true,
           firstName: true,
           lastName: true,
+          password: true,
           avatar: true,
-          createdAt: true,
-          updatedAt: true,
-          email: true,
           city: true,
           birthDay: true,
           gender: true,
+          createdAt: true,
+          updatedAt: true
         }
       })
       return users
