@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
@@ -82,6 +83,7 @@ export default function SignUpPage() {
           email: formData.email,
           username: formData.username,
           password: formData.password,
+          confirmPassword: formData.confirmPassword,
           firstName: formData.firstName,
           lastName: formData.lastName,
         }),
@@ -92,8 +94,29 @@ export default function SignUpPage() {
         throw new Error(error.message || 'Registration failed')
       }
 
-      toast.success('Account created successfully!')
-      router.push('/auth/signin')
+      const data = await response.json()
+      
+      if (data.success) {
+        toast.success('Account created successfully!')
+        
+        // Automatically sign in the user after successful registration
+        const signInResult = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        })
+
+        if (signInResult?.error) {
+          toast.error('Registration successful, but automatic sign-in failed. Please sign in manually.')
+          router.push('/auth/signin')
+        } else if (signInResult?.ok) {
+          toast.success('Welcome! You are now signed in.')
+          router.push('/')
+          router.refresh()
+        }
+      } else {
+        throw new Error(data.message || 'Registration failed')
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {

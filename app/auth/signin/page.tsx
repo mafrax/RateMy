@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -14,6 +14,12 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!email || !password) {
+      toast.error('Please fill in all fields')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -24,14 +30,15 @@ export default function SignInPage() {
       })
 
       if (result?.error) {
-        toast.error('Invalid credentials')
-      } else {
+        toast.error('Invalid email or password')
+      } else if (result?.ok) {
         toast.success('Signed in successfully!')
         router.push('/')
         router.refresh()
       }
     } catch (error) {
-      toast.error('An error occurred')
+      console.error('Sign in error:', error)
+      toast.error('An error occurred during sign in')
     } finally {
       setLoading(false)
     }
