@@ -82,6 +82,7 @@ export default function SignUpPage() {
           email: formData.email,
           username: formData.username,
           password: formData.password,
+          confirmPassword: formData.confirmPassword,
           firstName: formData.firstName,
           lastName: formData.lastName,
         }),
