@@ -175,10 +175,20 @@ The application features a modern, responsive design with:
 ## 🔐 Authentication
 
 - **NextAuth.js** for secure authentication
-- **Credential-based** login with email/password
-- **Session management** with JWT tokens
+- **Multiple providers**: Email/password, Google, Facebook, Apple OAuth
+- **Session management** with database sessions
 - **Protected routes** for authenticated features
 - **User registration** with form validation
+
+### OAuth Setup
+
+To enable social login providers, you'll need to configure OAuth applications:
+
+1. **Google**: Create OAuth app at https://console.developers.google.com/
+2. **Facebook**: Create OAuth app at https://developers.facebook.com/
+3. **Apple**: Create OAuth app at https://developer.apple.com/
+
+Then update your `.env` file with the client IDs and secrets from each provider.
 
 ## 🌐 API Endpoints
 
@@ -248,6 +258,19 @@ NEXTAUTH_SECRET="your-secret-key-here"
 
 # Application
 NODE_ENV="development"
+
+# OAuth Providers (Optional - for social login)
+# Google OAuth - Get from https://console.developers.google.com/
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+# Facebook OAuth - Get from https://developers.facebook.com/
+FACEBOOK_CLIENT_ID="your-facebook-app-id"
+FACEBOOK_CLIENT_SECRET="your-facebook-app-secret"
+
+# Apple OAuth - Get from https://developer.apple.com/
+APPLE_ID="your-apple-services-id"
+APPLE_SECRET="your-apple-private-key-or-jwt"
 ```
 
 ## 🤝 Contributing
