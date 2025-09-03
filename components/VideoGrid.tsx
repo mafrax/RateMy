@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FlexibleVideoGrid } from './FlexibleVideoGrid'
+import { IntelligentVideoGrid } from './IntelligentVideoGrid'
 
 interface TagRatingFilter {
   tagName: string
@@ -13,6 +13,7 @@ interface SearchFilters {
   search: string
   tags: string[]
   tagRatings: TagRatingFilter[]
+  includeNsfw: boolean
   sortBy: 'createdAt' | 'title' | 'ratings'
   sortOrder: 'desc' | 'asc'
   page: number
@@ -26,6 +27,7 @@ interface Video {
   originalUrl: string
   thumbnail?: string
   description?: string
+  isNsfw: boolean
   createdAt: string
   user: {
     id: string
@@ -89,6 +91,8 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
         if (searchFilters.tagRatings.length > 0) {
           params.append('tagRatings', JSON.stringify(searchFilters.tagRatings))
         }
+        // Add includeNsfw parameter
+        params.append('includeNsfw', searchFilters.includeNsfw.toString())
         if (searchFilters.sortBy) {
           params.append('sortBy', searchFilters.sortBy)
         }
@@ -101,6 +105,9 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
         if (searchFilters.limit) {
           params.append('limit', searchFilters.limit.toString())
         }
+      } else {
+        // Default to including NSFW when no filters are applied
+        params.append('includeNsfw', 'true')
       }
       
       const url = `/api/videos${params.toString() ? `?${params.toString()}` : ''}`
@@ -135,7 +142,7 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
   }
 
   return (
-    <FlexibleVideoGrid 
+    <IntelligentVideoGrid 
       videos={videos}
       loading={loading}
       error={error}
