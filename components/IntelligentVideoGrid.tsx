@@ -75,9 +75,9 @@ export function IntelligentVideoGrid({
   onVideoUpdate,
   defaultCardsPerRow = 3,
   minCardWidth = 300,
-  maxCardWidth = 800,
+  maxCardWidth = 1200,
   minCardHeight = 350,
-  maxCardHeight = 900,
+  maxCardHeight = 1200,
   containerPadding = 24,
   cardGap = 24
 }: IntelligentVideoGridProps) {
@@ -112,7 +112,7 @@ export function IntelligentVideoGrid({
     const availableWidth = containerW - (containerPadding * 2) - (cardGap * (cardsInRow - 1))
     const cellWidth = availableWidth / totalGridCells
     const span = Math.round(desiredWidth / cellWidth)
-    return Math.max(2, Math.min(span, totalGridCells - 1)) // Min 2 cells, max 11 cells
+    return Math.max(2, Math.min(span, totalGridCells)) // Min 2 cells, max 12 cells (full row)
   }, [containerPadding, cardGap, totalGridCells])
 
   // Initialize video cards with default sizing
@@ -515,7 +515,7 @@ export function IntelligentVideoGrid({
             <span>•</span>
             <span>{gridRows.length} rows</span>
             <span>•</span>
-            <span>Drag corners to resize</span>
+            <span>Drag corners to resize (up to 12 cells)</span>
             <span>•</span>
             <span>Drag cards to reorder</span>
             {draggedCardId && (

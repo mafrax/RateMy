@@ -93,8 +93,8 @@ export function ResizableVideoCard({
   defaultHeight = 480,
   minWidth = 300,
   minHeight = 350,
-  maxWidth = 800,
-  maxHeight = 900,
+  maxWidth = 1200,
+  maxHeight = 1200,
   gridPosition,
   isDragging = false,
   isDropTarget = false
