@@ -165,6 +165,11 @@ export function ResizableVideoCard({
     setLocalTags(video.tags)
   }, [video.tags])
 
+  // Sync card size when default dimensions change
+  useEffect(() => {
+    setCardSize({ width: defaultWidth, height: defaultHeight })
+  }, [defaultWidth, defaultHeight])
+
   const getAverageRating = (tagId: string) => {
     if (!video.ratings || !Array.isArray(video.ratings)) return 0
     const tagRatings = video.ratings.filter(r => r.tag.id === tagId)

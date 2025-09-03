@@ -444,14 +444,25 @@ export function IntelligentVideoGrid({
   // Reset to original layout and sizes
   const resetLayout = useCallback(() => {
     if (originalVideoCards.length > 0) {
-      // Restore the exact original state
-      setVideoCards([...originalVideoCards])
+      // Reset all cards to 4-cell size
+      const resetCards = originalVideoCards.map((card, index) => ({
+        ...card,
+        cellSpan: 4, // Set all cards to 4-cell size
+        width: calculateCardWidth(4, containerWidth, defaultCardsPerRow),
+        height: Math.max(minCardHeight, calculateCardWidth(4, containerWidth, defaultCardsPerRow) * 1.2),
+        gridPosition: {
+          row: Math.floor(index / defaultCardsPerRow),
+          col: index % defaultCardsPerRow
+        }
+      }))
       
-      // Reorganize grid rows with original cards
-      const { rows } = organizeCardsIntoRows(originalVideoCards)
+      setVideoCards(resetCards)
+      
+      // Reorganize grid rows with reset cards
+      const { rows } = organizeCardsIntoRows(resetCards)
       setGridRows(rows)
     }
-  }, [originalVideoCards, organizeCardsIntoRows])
+  }, [originalVideoCards, organizeCardsIntoRows, calculateCardWidth, containerWidth, defaultCardsPerRow, minCardHeight])
 
   if (loading) {
     return (
