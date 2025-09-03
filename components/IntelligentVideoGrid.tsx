@@ -88,6 +88,11 @@ export function IntelligentVideoGrid({
   const [isInitialized, setIsInitialized] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   
+  // Drag and drop state
+  const [draggedCardId, setDraggedCardId] = useState<string | null>(null)
+  const [dropTargetCardId, setDropTargetCardId] = useState<string | null>(null)
+  const [dropTargetRowIndex, setDropTargetRowIndex] = useState<number | null>(null)
+  
   // Grid system constants
   const totalGridCells = 12 // Total cells available per row
   const defaultCellSpan = totalGridCells / defaultCardsPerRow // 4 cells per card for 3-card layout
@@ -211,6 +216,14 @@ export function IntelligentVideoGrid({
       width: calculateCardWidth(card.cellSpan, containerWidth, cardsInRow)
     }))
   }, [calculateCardWidth, containerWidth])
+  
+  // Calculate available cells in a row
+  const getRowAvailableCells = useCallback((rowIndex: number) => {
+    if (!gridRows[rowIndex]) return 0
+    const row = gridRows[rowIndex]
+    const usedCells = row.reduce((sum, card) => sum + card.cellSpan, 0)
+    return totalGridCells - usedCells
+  }, [gridRows, totalGridCells])
 
   // Update grid organization when container width changes
   useEffect(() => {
@@ -252,6 +265,181 @@ export function IntelligentVideoGrid({
       return reorganizedCards
     })
   }, [calculateCellSpan, containerWidth, minCardHeight, maxCardHeight, organizeCardsIntoRows])
+
+  // Drag and drop handlers
+  const handleDragStart = useCallback((e: React.DragEvent, videoId: string) => {
+    setDraggedCardId(videoId)
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedCardId(null)
+    setDropTargetCardId(null)
+    setDropTargetRowIndex(null)
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent, targetVideoId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    console.log('Drop event:', { draggedCardId, targetVideoId }) // Debug log
+    
+    if (!draggedCardId || draggedCardId === targetVideoId) {
+      setDraggedCardId(null)
+      setDropTargetCardId(null)
+      return
+    }
+
+    setVideoCards(prevCards => {
+      console.log('Processing drop with cards:', prevCards.length) // Debug log
+      
+      const draggedIndex = prevCards.findIndex(card => card.video.id === draggedCardId)
+      const targetIndex = prevCards.findIndex(card => card.video.id === targetVideoId)
+      
+      if (draggedIndex === -1 || targetIndex === -1) {
+        console.log('Card not found:', { draggedIndex, targetIndex }) // Debug log
+        return prevCards
+      }
+
+      // Simple position swap - create new array with swapped positions
+      const newCards = [...prevCards]
+      const draggedCard = newCards[draggedIndex]
+      const targetCard = newCards[targetIndex]
+      
+      // Swap the cards in the array
+      newCards[draggedIndex] = targetCard
+      newCards[targetIndex] = draggedCard
+      
+      console.log('Cards swapped successfully') // Debug log
+      
+      // Reorganize grid after swap
+      const { rows, updatedCards } = organizeCardsIntoRows(newCards)
+      setGridRows(rows)
+      return updatedCards
+    })
+
+    setDraggedCardId(null)
+    setDropTargetCardId(null)
+  }, [draggedCardId, organizeCardsIntoRows])
+
+  const handleCardDragOver = useCallback((targetVideoId: string) => {
+    if (draggedCardId && draggedCardId !== targetVideoId) {
+      setDropTargetCardId(targetVideoId)
+    }
+  }, [draggedCardId])
+
+  const handleCardDragLeave = useCallback((e: React.DragEvent) => {
+    // Only clear drop target if we're actually leaving the card
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setDropTargetCardId(null)
+    }
+  }, [])
+
+  // Row drop handlers
+  const handleRowDragOver = useCallback((e: React.DragEvent, rowIndex: number) => {
+    if (!draggedCardId) return
+    
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    
+    const draggedCard = videoCards.find(card => card.video.id === draggedCardId)
+    if (!draggedCard) return
+    
+    const availableCells = getRowAvailableCells(rowIndex)
+    // Only show as drop target if the card can fit
+    if (draggedCard.cellSpan <= availableCells) {
+      setDropTargetRowIndex(rowIndex)
+      setDropTargetCardId(null) // Clear card drop target
+    }
+  }, [draggedCardId, videoCards, getRowAvailableCells])
+
+  const handleRowDrop = useCallback((e: React.DragEvent, targetRowIndex: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    console.log('Row drop event:', { draggedCardId, targetRowIndex }) // Debug log
+    
+    if (!draggedCardId) return
+    
+    const draggedCard = videoCards.find(card => card.video.id === draggedCardId)
+    if (!draggedCard) return
+    
+    // Check if card can fit in target row
+    const availableCells = getRowAvailableCells(targetRowIndex)
+    if (draggedCard.cellSpan > availableCells) {
+      console.log('Card does not fit in target row') // Debug log
+      return
+    }
+    
+    setVideoCards(prevCards => {
+      console.log('Moving card to row:', targetRowIndex) // Debug log
+      
+      // Manual placement - don't reorganize, just move the card to the specific row
+      const updatedCards = prevCards.map(card => {
+        if (card.video.id === draggedCardId) {
+          // Find the next available column position in the target row
+          const targetRowCards = prevCards.filter(c => c.gridPosition.row === targetRowIndex && c.video.id !== draggedCardId)
+          return {
+            ...card,
+            gridPosition: { row: targetRowIndex, col: targetRowCards.length }
+          }
+        }
+        return card
+      })
+      
+      // Only recalculate widths for the rows that were affected, don't reorganize positions
+      const affectedRows = new Set([draggedCard.gridPosition.row, targetRowIndex])
+      const updatedCardsWithWidths = updatedCards.map(card => {
+        if (affectedRows.has(card.gridPosition.row)) {
+          const rowCards = updatedCards.filter(c => c.gridPosition.row === card.gridPosition.row)
+          return {
+            ...card,
+            width: calculateCardWidth(card.cellSpan, containerWidth, rowCards.length)
+          }
+        }
+        return card
+      })
+      
+      // Manually rebuild grid rows without reorganization
+      const maxRow = Math.max(...updatedCardsWithWidths.map(card => card.gridPosition.row))
+      const newRows: VideoCardData[][] = []
+      
+      for (let rowIndex = 0; rowIndex <= maxRow; rowIndex++) {
+        const rowCards = updatedCardsWithWidths
+          .filter(card => card.gridPosition.row === rowIndex)
+          .sort((a, b) => a.gridPosition.col - b.gridPosition.col)
+        
+        if (rowCards.length > 0) {
+          newRows.push(rowCards)
+        }
+      }
+      
+      setGridRows(newRows)
+      return updatedCardsWithWidths
+    })
+    
+    setDraggedCardId(null)
+    setDropTargetCardId(null)
+    setDropTargetRowIndex(null)
+  }, [draggedCardId, videoCards, getRowAvailableCells, calculateCardWidth, containerWidth])
+
+  const handleRowDragLeave = useCallback((e: React.DragEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setDropTargetRowIndex(null)
+    }
+  }, [])
 
   // Reset to original layout and sizes
   const resetLayout = useCallback(() => {
@@ -328,6 +516,16 @@ export function IntelligentVideoGrid({
             <span>{gridRows.length} rows</span>
             <span>•</span>
             <span>Drag corners to resize</span>
+            <span>•</span>
+            <span>Drag cards to reorder</span>
+            {draggedCardId && (
+              <>
+                <span>•</span>
+                <span className="text-blue-600 font-medium">
+                  Dragging {videoCards.find(c => c.video.id === draggedCardId)?.cellSpan} cells...
+                </span>
+              </>
+            )}
           </div>
           
           <button
@@ -432,35 +630,71 @@ export function IntelligentVideoGrid({
             </div>
           </div>
         )}
-        {gridRows.map((row, rowIndex) => (
-          <div 
-            key={`row-${rowIndex}`}
-            className="flex items-start mb-6 last:mb-0"
-            style={{ gap: `${cardGap}px` }}
-          >
-            {row.map((cardData) => (
-              <div
-                key={cardData.video.id}
-                className={`flex-shrink-0 transition-all duration-300 ${
-                  cardData.isResizing ? 'z-50' : 'z-10'
-                }`}
-              >
-                <ResizableVideoCard
-                  video={cardData.video}
-                  onVideoUpdate={onVideoUpdate}
-                  onResize={handleCardResize}
-                  defaultWidth={cardData.width}
-                  defaultHeight={cardData.height}
-                  minWidth={minCardWidth}
-                  minHeight={minCardHeight}
-                  maxWidth={maxCardWidth}
-                  maxHeight={maxCardHeight}
-                  gridPosition={cardData.gridPosition}
-                />
-              </div>
-            ))}
-          </div>
-        ))}
+        {gridRows.map((row, rowIndex) => {
+          const availableCells = getRowAvailableCells(rowIndex)
+          const draggedCard = draggedCardId ? videoCards.find(card => card.video.id === draggedCardId) : null
+          const canDropInRow = draggedCard ? draggedCard.cellSpan <= availableCells : false
+          const isRowDropTarget = dropTargetRowIndex === rowIndex
+          
+          return (
+            <div 
+              key={`row-${rowIndex}`}
+              className={`flex items-start mb-6 last:mb-0 relative transition-all duration-200 ${
+                isRowDropTarget 
+                  ? 'bg-green-50 border-2 border-green-300 border-dashed rounded-lg p-2' 
+                  : draggedCardId && canDropInRow 
+                    ? 'border-2 border-transparent hover:border-green-200 hover:bg-green-25 rounded-lg p-2'
+                    : ''
+              }`}
+              style={{ gap: `${cardGap}px` }}
+              onDragOver={(e) => handleRowDragOver(e, rowIndex)}
+              onDragLeave={handleRowDragLeave}
+              onDrop={(e) => handleRowDrop(e, rowIndex)}
+            >
+              {row.map((cardData) => (
+                <div
+                  key={cardData.video.id}
+                  className={`flex-shrink-0 transition-all duration-300 ${
+                    cardData.isResizing ? 'z-50' : 'z-10'
+                  }`}
+                >
+                  <ResizableVideoCard
+                    video={cardData.video}
+                    onVideoUpdate={onVideoUpdate}
+                    onResize={handleCardResize}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => {
+                      handleDragOver(e)
+                      handleCardDragOver(cardData.video.id)
+                    }}
+                    onDragLeave={handleCardDragLeave}
+                    onDrop={handleDrop}
+                    defaultWidth={cardData.width}
+                    defaultHeight={cardData.height}
+                    minWidth={minCardWidth}
+                    minHeight={minCardHeight}
+                    maxWidth={maxCardWidth}
+                    maxHeight={maxCardHeight}
+                    gridPosition={cardData.gridPosition}
+                    isDragging={draggedCardId === cardData.video.id}
+                    isDropTarget={dropTargetCardId === cardData.video.id}
+                  />
+                </div>
+              ))}
+              
+              {/* Show available space indicator when dragging */}
+              {draggedCardId && canDropInRow && (
+                <div className="flex-1 flex items-center justify-center min-h-[100px] border-2 border-green-300 border-dashed rounded-lg bg-green-50 opacity-75">
+                  <div className="text-center text-green-700">
+                    <div className="text-sm font-medium">Drop Here</div>
+                    <div className="text-xs">{availableCells} cells available</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Grid Statistics */}
@@ -483,6 +717,12 @@ export function IntelligentVideoGrid({
             <span className="text-gray-600 dark:text-gray-400">Cards Per Row:</span>
             <span className="ml-2 font-medium text-gray-900 dark:text-white">
               {gridRows.length > 0 ? `${Math.min(...gridRows.map(row => row.length))}-${Math.max(...gridRows.map(row => row.length))}` : '0'}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600 dark:text-gray-400">Available Cells:</span>
+            <span className="ml-2 font-medium text-gray-900 dark:text-white">
+              {gridRows.map((row, i) => getRowAvailableCells(i)).join(', ')}
             </span>
           </div>
         </div>

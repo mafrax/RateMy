@@ -64,6 +64,11 @@ interface ResizableVideoCardProps {
   video: Video
   onVideoUpdate?: () => void
   onResize?: (width: number, height: number, videoId: string) => void
+  onDragStart?: (e: React.DragEvent, videoId: string) => void
+  onDragEnd?: () => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDragLeave?: (e: React.DragEvent) => void
+  onDrop?: (e: React.DragEvent, targetVideoId: string) => void
   defaultWidth?: number
   defaultHeight?: number
   minWidth?: number
@@ -71,19 +76,28 @@ interface ResizableVideoCardProps {
   maxWidth?: number
   maxHeight?: number
   gridPosition?: { row: number; col: number }
+  isDragging?: boolean
+  isDropTarget?: boolean
 }
 
 export function ResizableVideoCard({ 
   video, 
   onVideoUpdate, 
   onResize,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDragLeave,
+  onDrop,
   defaultWidth = 400,
   defaultHeight = 480,
   minWidth = 300,
   minHeight = 350,
   maxWidth = 800,
   maxHeight = 900,
-  gridPosition
+  gridPosition,
+  isDragging = false,
+  isDropTarget = false
 }: ResizableVideoCardProps) {
   const { data: session } = useSession()
   const { globalBlurEnabled, isVideoRevealed, revealVideo } = useNSFW()
@@ -97,6 +111,51 @@ export function ResizableVideoCard({
   // Resizable state
   const [cardSize, setCardSize] = useState({ width: defaultWidth, height: defaultHeight })
   const [isResizing, setIsResizing] = useState(false)
+  
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent) => {
+    if (isResizing) {
+      e.preventDefault()
+      return
+    }
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', video.id)
+    if (onDragStart) {
+      onDragStart(e, video.id)
+    }
+  }
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (onDragEnd) {
+      onDragEnd()
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (isResizing) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (onDragOver) {
+      onDragOver(e)
+    }
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (isResizing) return
+    if (onDragLeave) {
+      onDragLeave(e)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (isResizing) return
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('ResizableVideoCard handleDrop called for:', video.id) // Debug log
+    if (onDrop) {
+      onDrop(e, video.id)
+    }
+  }
   
   const cardRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -244,47 +303,63 @@ export function ResizableVideoCard({
 
   return (
     <>
-      <Resizable
-        size={cardSize}
-        onResizeStart={handleResizeStart}
-        onResize={handleResize}
-        onResizeStop={handleResizeStop}
-        minWidth={minWidth}
-        minHeight={minHeight}
-        maxWidth={maxWidth}
-        maxHeight={maxHeight}
-        enable={{
-          top: true,
-          right: true,
-          bottom: true,
-          left: true,
-          topRight: true,
-          bottomRight: true,
-          bottomLeft: true,
-          topLeft: true
-        }}
-        handleStyles={{
-          top: { height: '8px', top: '-4px' },
-          right: { width: '8px', right: '-4px' },
-          bottom: { height: '8px', bottom: '-4px' },
-          left: { width: '8px', left: '-4px' },
-          topRight: { width: '12px', height: '12px', top: '-6px', right: '-6px' },
-          bottomRight: { width: '12px', height: '12px', bottom: '-6px', right: '-6px' },
-          bottomLeft: { width: '12px', height: '12px', bottom: '-6px', left: '-6px' },
-          topLeft: { width: '12px', height: '12px', top: '-6px', left: '-6px' }
-        }}
-        handleClasses={{
-          top: 'resize-handle resize-handle-top',
-          right: 'resize-handle resize-handle-right',
-          bottom: 'resize-handle resize-handle-bottom',
-          left: 'resize-handle resize-handle-left',
-          topRight: 'resize-handle resize-handle-corner',
-          bottomRight: 'resize-handle resize-handle-corner',
-          bottomLeft: 'resize-handle resize-handle-corner',
-          topLeft: 'resize-handle resize-handle-corner'
-        }}
-        className={`relative ${isResizing ? 'z-50' : 'z-10'}`}
+      <div
+        draggable={!isResizing}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`relative transition-all duration-200 ${
+          isDragging 
+            ? 'opacity-50 scale-95 rotate-1 z-50 cursor-grabbing' 
+            : isDropTarget
+              ? 'scale-105 shadow-2xl ring-2 ring-blue-400 bg-blue-50 z-40'
+              : isResizing 
+                ? 'z-50' 
+                : 'z-10 hover:scale-102 cursor-grab'
+        }`}
       >
+        <Resizable
+          size={cardSize}
+          onResizeStart={handleResizeStart}
+          onResize={handleResize}
+          onResizeStop={handleResizeStop}
+          minWidth={minWidth}
+          minHeight={minHeight}
+          maxWidth={maxWidth}
+          maxHeight={maxHeight}
+          enable={{
+            top: true,
+            right: true,
+            bottom: true,
+            left: true,
+            topRight: true,
+            bottomRight: true,
+            bottomLeft: true,
+            topLeft: true
+          }}
+          handleStyles={{
+            top: { height: '8px', top: '-4px' },
+            right: { width: '8px', right: '-4px' },
+            bottom: { height: '8px', bottom: '-4px' },
+            left: { width: '8px', left: '-4px' },
+            topRight: { width: '12px', height: '12px', top: '-6px', right: '-6px' },
+            bottomRight: { width: '12px', height: '12px', bottom: '-6px', right: '-6px' },
+            bottomLeft: { width: '12px', height: '12px', bottom: '-6px', left: '-6px' },
+            topLeft: { width: '12px', height: '12px', top: '-6px', left: '-6px' }
+          }}
+          handleClasses={{
+            top: 'resize-handle resize-handle-top',
+            right: 'resize-handle resize-handle-right',
+            bottom: 'resize-handle resize-handle-bottom',
+            left: 'resize-handle resize-handle-left',
+            topRight: 'resize-handle resize-handle-corner',
+            bottomRight: 'resize-handle resize-handle-corner',
+            bottomLeft: 'resize-handle resize-handle-corner',
+            topLeft: 'resize-handle resize-handle-corner'
+          }}
+        >
         <div
           ref={cardRef}
           className={`
@@ -298,6 +373,16 @@ export function ResizableVideoCard({
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
+              {/* Drag Handle */}
+              <div 
+                className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Drag to reorder"
+              >
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z"/>
+                </svg>
+              </div>
+              
               <Link 
                 href={`/profile/${video.user.id}`}
                 className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
@@ -455,7 +540,8 @@ export function ResizableVideoCard({
             )}
           </div>
         </div>
-      </Resizable>
+        </Resizable>
+      </div>
 
       {/* Modal */}
       {isModalOpen && (
