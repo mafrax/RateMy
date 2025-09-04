@@ -172,15 +172,28 @@ export class VideoServiceImpl {
         throw createNotFoundError('Video', id)
       }
 
-      // Check ownership
-      if (existingVideo.userId !== userId) {
-        throw new AuthorizationError('You can only delete your own videos')
+      // Get user to check if they're admin
+      const user = await userRepository.findById(userId)
+      if (!user) {
+        throw createNotFoundError('User', userId)
+      }
+
+      // Check ownership or admin status
+      const isOwner = existingVideo.userId === userId
+      const isAdmin = (user as any).isAdmin === true
+      
+      if (!isOwner && !isAdmin) {
+        throw new AuthorizationError('You can only delete your own videos or must be an admin')
       }
 
       // Delete video (cascade will handle related records)
       await videoRepository.delete(id)
 
-      logUserAction('video_deleted', userId, { videoId: id, title: existingVideo.title })
+      logUserAction('video_deleted', userId, { 
+        videoId: id, 
+        title: existingVideo.title,
+        isAdminDelete: !isOwner 
+      })
 
       return {
         success: true,

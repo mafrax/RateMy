@@ -19,6 +19,7 @@ import { AddTagInput } from './AddTagInput'
 import { CommentSection } from './CommentSection'
 import { NSFWBlurOverlay } from './NSFWBlurOverlay'
 import { useNSFW } from '@/contexts/NSFWContext'
+import { ConfirmDialog } from './ConfirmDialog'
 
 interface Video {
   id: string
@@ -111,6 +112,8 @@ export function ResizableVideoCard({
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
   const [commentCount, setCommentCount] = useState(0)
   const [tagsExpanded, setTagsExpanded] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   // Resizable state
   const [cardSize, setCardSize] = useState({ width: defaultWidth, height: defaultHeight })
@@ -357,6 +360,57 @@ export function ResizableVideoCard({
     ? `${video.user.firstName} ${video.user.lastName}`
     : video.user.username
 
+  // Check if current user can delete this video
+  const canDelete = session?.user && (
+    (session.user as any).id === video.user.id || // Owner can delete
+    (session.user as any).isAdmin === true // Admin can delete any video
+  )
+  
+  const isAdmin = session?.user && (session.user as any).isAdmin === true
+  const isOwner = session?.user && (session.user as any).id === video.user.id
+
+  // Handle video deletion
+  const handleDeleteVideo = async () => {
+    if (!session?.user) {
+      toast.error('You must be logged in to delete videos')
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/videos/${video.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || 'Failed to delete video')
+      }
+
+      toast.success('Video deleted successfully')
+      
+      // Close modal if open
+      if (isModalOpen) {
+        closeModal()
+      }
+      
+      // Trigger refresh of video list
+      if (onVideoUpdate) {
+        onVideoUpdate()
+      }
+
+    } catch (error) {
+      console.error('Error deleting video:', error)
+      toast.error((error as Error).message || 'Failed to delete video')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
+  }
+
   // Calculate iframe dimensions based on card size
   const videoAspectRatio = 16 / 9
   const maxVideoWidth = cardSize.width - 32 // Account for padding
@@ -467,6 +521,23 @@ export function ResizableVideoCard({
             </div>
             
             <div className="flex items-center space-x-1">
+              {canDelete && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={isDeleting}
+                  className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 
+                           hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={isAdmin && !isOwner ? 'Delete video (Admin)' : 'Delete your video'}
+                  aria-label="Delete video"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              )}
+              
               <button
                 onClick={openModal}
                 className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
@@ -756,6 +827,23 @@ export function ResizableVideoCard({
                         </button>
                       )}
                       
+                      {/* Delete button in modal header */}
+                      {canDelete && (
+                        <button
+                          onClick={() => setShowDeleteConfirm(true)}
+                          disabled={isDeleting}
+                          className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 
+                                   hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                          title={isAdmin && !isOwner ? 'Delete video (Admin)' : 'Delete your video'}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                      
                       <button
                         onClick={closeModal}
                         className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
@@ -922,6 +1010,17 @@ export function ResizableVideoCard({
           )}
         </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Video"
+        message={`Are you sure you want to delete "${video.title}"? This action cannot be undone.${isAdmin && !isOwner ? '\n\nYou are deleting this video as an administrator.' : ''}`}
+        confirmText={isDeleting ? 'Deleting...' : 'Delete'}
+        cancelText="Cancel"
+        onConfirm={handleDeleteVideo}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
 
       {/* Resize Handle Styles */}
       <style jsx global>{`

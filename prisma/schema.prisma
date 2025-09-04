@@ -24,6 +24,7 @@ model User {
   city          String?
   birthDay      DateTime?
   gender        String?
+  isAdmin       Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
