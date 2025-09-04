@@ -708,14 +708,14 @@ export function IntelligentVideoGrid({
           </div>
         )}
 
-        {/* Render preview grid during resize */}
+        {/* Render centered preview grid during resize */}
         {isResizing && previewGridRows.length > 0 && (
-          <div className="absolute inset-0 z-30 pointer-events-none bg-white bg-opacity-75">
-            <div className="space-y-4">
+          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center bg-white bg-opacity-75">
+            <div className="space-y-4 max-w-6xl max-h-[80vh] overflow-auto">
               <div className="bg-blue-100 border border-blue-300 rounded-lg p-2 text-center">
                 <span className="text-blue-700 font-medium text-sm">Preview: Release mouse to apply</span>
               </div>
-              {previewGridRows.map((row, rowIndex) => (
+              {previewGridRows.slice(0, 5).map((row, rowIndex) => (
                 <div 
                   key={`preview-row-${rowIndex}`}
                   className="flex items-start opacity-60"
@@ -745,6 +745,11 @@ export function IntelligentVideoGrid({
                   ))}
                 </div>
               ))}
+              {previewGridRows.length > 5 && (
+                <div className="text-center text-gray-500 text-sm py-2">
+                  ... and {previewGridRows.length - 5} more rows
+                </div>
+              )}
             </div>
           </div>
         )}
