@@ -710,7 +710,7 @@ export function IntelligentVideoGrid({
 
         {/* Render centered preview grid during resize */}
         {isResizing && previewGridRows.length > 0 && (
-          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center bg-white bg-opacity-75">
+          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center bg-white bg-opacity-20">
             <div className="space-y-4 max-w-6xl max-h-[80vh] overflow-auto">
               <div className="bg-blue-100 border border-blue-300 rounded-lg p-2 text-center">
                 <span className="text-blue-700 font-medium text-sm">Preview: Release mouse to apply</span>
