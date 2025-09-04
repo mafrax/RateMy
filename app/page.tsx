@@ -15,6 +15,7 @@ interface SearchFilters {
   search: string
   tags: string[]
   tagRatings: TagRatingFilter[]
+  includeNsfw: boolean
   sortBy: 'createdAt' | 'title' | 'ratings'
   sortOrder: 'desc' | 'asc'
   page: number

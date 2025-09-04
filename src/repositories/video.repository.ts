@@ -117,35 +117,40 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
     }
   }
 
-  async search(query: string): Promise<any[]> {
+  async search(query: string, includeNsfw: boolean = true): Promise<any[]> {
     try {
       const videos = await db.video.findMany({
         where: {
-          OR: [
+          AND: [
             {
-              title: {
-                contains: query,
-                mode: 'insensitive'
-              }
-            },
-            {
-              description: {
-                contains: query,
-                mode: 'insensitive'
-              }
-            },
-            {
-              tags: {
-                some: {
-                  tag: {
-                    name: {
-                      contains: query,
-                      mode: 'insensitive'
+              OR: [
+                {
+                  title: {
+                    contains: query,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  description: {
+                    contains: query,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  tags: {
+                    some: {
+                      tag: {
+                        name: {
+                          contains: query,
+                          mode: 'insensitive'
+                        }
+                      }
                     }
                   }
                 }
-              }
-            }
+              ]
+            },
+            ...(includeNsfw ? [] : [{ isNsfw: false }])
           ]
         },
         include: {
@@ -251,6 +256,7 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
         search,
         tags,
         tagRatings,
+        includeNsfw = true,
         userId,
         sortBy = 'createdAt',
         sortOrder = 'desc',
@@ -294,6 +300,11 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
       // Add user filter
       if (userId) {
         where.userId = userId
+      }
+
+      // Add NSFW filter
+      if (!includeNsfw) {
+        where.isNsfw = false
       }
 
       // Add tagRatings filter - we'll filter by having the specified tags first

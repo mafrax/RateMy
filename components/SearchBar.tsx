@@ -8,8 +8,11 @@ import {
   StarIcon,
   XMarkIcon,
   ChevronDownIcon,
-  AdjustmentsHorizontalIcon
+  AdjustmentsHorizontalIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline'
+import { useNSFW } from '@/contexts/NSFWContext'
 // Custom Range Slider Component
 interface RangeSliderProps {
   min: number
@@ -121,6 +124,7 @@ interface SearchFilters {
   search: string
   tags: string[]
   tagRatings: TagRatingFilter[]
+  includeNsfw: boolean
   sortBy: 'createdAt' | 'title' | 'ratings'
   sortOrder: 'desc' | 'asc'
   page: number
@@ -136,10 +140,12 @@ const sortOptions = [
 ]
 
 export function SearchBar({ onSearch }: SearchBarProps) {
+  const { isNSFWBlurred, toggleNSFWBlur } = useNSFW()
   const [filters, setFilters] = useState<SearchFilters>({
     search: '',
     tags: [],
     tagRatings: [],
+    includeNsfw: true,
     sortBy: 'createdAt',
     sortOrder: 'desc',
     page: 1,
@@ -303,6 +309,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       search: '',
       tags: [],
       tagRatings: [],
+      includeNsfw: true,
       sortBy: 'createdAt',
       sortOrder: 'desc',
       page: 1,
@@ -535,6 +542,75 @@ export function SearchBar({ onSearch }: SearchBarProps) {
                       ))}
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* NSFW Controls */}
+              <div id="nsfw-controls">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  NSFW Content Controls
+                </label>
+                
+                {/* Include NSFW Toggle */}
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-3">
+                  <div className="flex items-center">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                      <span className="font-medium">Include NSFW Content</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Show explicit or adult content in results
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    id="nsfw-include-toggle"
+                    type="button"
+                    onClick={() => updateFilters({ includeNsfw: !filters.includeNsfw }, true)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                      filters.includeNsfw 
+                        ? 'bg-purple-600' 
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        filters.includeNsfw ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Global Blur Toggle */}
+                <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <div className="flex items-center">
+                    <div className="text-sm text-amber-700 dark:text-amber-300">
+                      <span className="font-medium">Blur All NSFW Content</span>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                        Globally blur/unblur all NSFW videos on the page
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    id="global-nsfw-blur-toggle"
+                    type="button"
+                    onClick={toggleNSFWBlur}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${
+                      isNSFWBlurred
+                        ? 'bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 hover:bg-amber-300 dark:hover:bg-amber-700'
+                        : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 hover:bg-green-300 dark:hover:bg-green-700'
+                    }`}
+                  >
+                    {isNSFWBlurred ? (
+                      <>
+                        <EyeIcon className="h-4 w-4" />
+                        <span className="text-sm">Show All</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeSlashIcon className="h-4 w-4" />
+                        <span className="text-sm">Blur All</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 

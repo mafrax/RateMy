@@ -82,6 +82,19 @@ export function Navbar() {
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
+                            <Link
+                              href="/admin/nsfw"
+                              className={classNames(
+                                active ? 'bg-gray-100 dark:bg-gray-600' : '',
+                                'block px-4 py-2 text-sm text-gray-700 dark:text-gray-200'
+                              )}
+                            >
+                              NSFW Admin
+                            </Link>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
                             <button
                               onClick={() => signOut()}
                               className={classNames(
@@ -149,6 +162,13 @@ export function Navbar() {
                     className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-100 transition-colors"
                   >
                     Your Profile
+                  </Disclosure.Button>
+                  <Disclosure.Button
+                    as={Link}
+                    href="/admin/nsfw"
+                    className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-100 transition-colors"
+                  >
+                    NSFW Admin
                   </Disclosure.Button>
                   <Disclosure.Button
                     as="button"

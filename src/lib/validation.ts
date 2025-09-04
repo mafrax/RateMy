@@ -62,6 +62,7 @@ export const createVideoSchema = z.object({
     .string()
     .max(VIDEO_LIMITS.MAX_DESCRIPTION_LENGTH, `Description must be at most ${VIDEO_LIMITS.MAX_DESCRIPTION_LENGTH} characters long`)
     .optional(),
+  isNsfw: z.boolean().optional(), // Auto-detected, but can be manually set
   tags: z
     .array(z.string().min(1).max(50))
     .max(VIDEO_LIMITS.MAX_TAGS, `Maximum ${VIDEO_LIMITS.MAX_TAGS} tags allowed`)
@@ -94,6 +95,7 @@ export const videoFilterQuerySchema = z.object({
       return []
     }
   }),
+  includeNsfw: z.string().optional().default('true').transform(val => val === 'true'),
   userId: z.string().uuid().optional(),
   sortBy: z.enum(['createdAt', 'title', 'ratings']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
@@ -106,6 +108,7 @@ export const videoFilterSchema = z.object({
   search: z.string().optional(),
   tags: z.array(z.string()).default([]),
   tagRatings: z.array(tagRatingFilterSchema).default([]),
+  includeNsfw: z.boolean().default(true),
   userId: z.string().uuid().optional(),
   sortBy: z.enum(['createdAt', 'title', 'ratings']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),

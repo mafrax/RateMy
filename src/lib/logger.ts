@@ -139,3 +139,41 @@ export function logSystemEvent(event: string, context?: LogContext) {
     ...context,
   })
 }
+
+export function logStartup(component: string, status: 'starting' | 'ready' | 'failed', context?: LogContext) {
+  const level = status === 'failed' ? 'error' : 'info'
+  logger[level](`🚀 ${component} ${status.toUpperCase()}`, {
+    component,
+    status,
+    timestamp: new Date().toISOString(),
+    ...context,
+  })
+}
+
+export function logHealthCheck(component: string, healthy: boolean, context?: LogContext) {
+  const status = healthy ? 'healthy' : 'unhealthy'
+  const level = healthy ? 'info' : 'error'
+  logger[level](`💚 Health Check: ${component} is ${status}`, {
+    component,
+    healthy,
+    ...context,
+  })
+}
+
+export function logNetworkInfo(port: number, host = 'localhost', context?: LogContext) {
+  logger.info('🌐 Server Network Configuration', {
+    port,
+    host,
+    url: `http://${host}:${port}`,
+    ...context,
+  })
+}
+
+export function logDatabaseConnection(status: 'connecting' | 'connected' | 'failed', context?: LogContext) {
+  const level = status === 'failed' ? 'error' : 'info'
+  const emoji = status === 'connected' ? '✅' : status === 'connecting' ? '🔄' : '❌'
+  logger[level](`${emoji} Database ${status.toUpperCase()}`, {
+    status,
+    ...context,
+  })
+}

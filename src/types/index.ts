@@ -24,6 +24,7 @@ export interface Video {
   embedUrl: string
   thumbnail: string | null
   description: string | null
+  isNsfw: boolean
   createdAt: Date
   updatedAt: Date
   userId: string
@@ -129,6 +130,7 @@ export interface VideoFilters {
   search?: string
   tags?: string[]
   tagRatings?: TagRatingFilter[]
+  includeNsfw?: boolean
   userId?: string
   sortBy?: 'createdAt' | 'title' | 'ratings'
   sortOrder?: 'asc' | 'desc'

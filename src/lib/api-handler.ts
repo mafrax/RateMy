@@ -47,6 +47,16 @@ export function createApiRoute(
     const { method = 'GET' } = req
     let user
 
+    // Enhanced request logging
+    logger.debug('API Request Starting', {
+      method,
+      url: req.url,
+      userAgent: req.headers['user-agent'],
+      ip: req.connection.remoteAddress || req.headers['x-forwarded-for'],
+      contentType: req.headers['content-type'],
+      origin: req.headers.origin
+    })
+
     try {
       // Check if method is allowed
       if (!methods.includes(method)) {

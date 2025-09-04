@@ -10,6 +10,7 @@ import { ratingRepository } from '../repositories/rating.repository'
 import { tagRepository } from '../repositories/tag.repository'
 import { userRepository } from '../repositories/user.repository'
 import { videoMetadataService } from './video-metadata.service'
+import { nsfwService } from './nsfw.service'
 import { 
   validateSchema, 
   createVideoSchema, 
@@ -98,6 +99,9 @@ export class VideoServiceImpl {
       // Convert original URL to embed URL
       const embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
 
+      // Detect NSFW content automatically
+      const isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)
+
       // Create video with tags
       const video = await videoRepository.createWithTags({
         title: finalTitle,
@@ -105,6 +109,7 @@ export class VideoServiceImpl {
         embedUrl,
         thumbnail: finalThumbnail,
         description: finalDescription,
+        isNsfw: isNSFW,
         userId,
       }, sanitizedTags)
 

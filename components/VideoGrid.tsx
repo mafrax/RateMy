@@ -92,7 +92,7 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
           params.append('tagRatings', JSON.stringify(searchFilters.tagRatings))
         }
         // Add includeNsfw parameter
-        params.append('includeNsfw', searchFilters.includeNsfw.toString())
+        params.append('includeNsfw', (searchFilters.includeNsfw ?? true).toString())
         if (searchFilters.sortBy) {
           params.append('sortBy', searchFilters.sortBy)
         }

@@ -100,7 +100,7 @@ export function ResizableVideoCard({
   isDropTarget = false
 }: ResizableVideoCardProps) {
   const { data: session } = useSession()
-  const { globalBlurEnabled, isVideoRevealed, revealVideo } = useNSFW()
+  const { globalBlurEnabled, isVideoRevealed, revealVideo, toggleVideoReveal } = useNSFW()
   const [isRating, setIsRating] = useState(false)
   const [localTags, setLocalTags] = useState(video.tags)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -154,6 +154,46 @@ export function ResizableVideoCard({
     console.log('ResizableVideoCard handleDrop called for:', video.id) // Debug log
     if (onDrop) {
       onDrop(e, video.id)
+    }
+  }
+
+  // NSFW marking functionality
+  const handleNSFWToggle = async () => {
+    if (!session?.user) {
+      toast.error('You must be logged in to mark videos')
+      return
+    }
+
+    try {
+      const newNSFWStatus = !video.isNsfw
+      
+      const response = await fetch(`/api/videos/${video.id}/nsfw`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          isNSFW: newNSFWStatus
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update NSFW status')
+      }
+
+      // Update local state - this will trigger a re-render
+      video.isNsfw = newNSFWStatus
+      
+      toast.success(`Video marked as ${newNSFWStatus ? 'NSFW' : 'safe'}`)
+      
+      // Force a re-render by calling onResize (this will trigger parent re-render)
+      if (onResize) {
+        onResize(cardWidth, cardHeight, video.id)
+      }
+
+    } catch (error) {
+      console.error('Error updating NSFW status:', error)
+      toast.error('Failed to update video status')
     }
   }
   
@@ -309,6 +349,7 @@ export function ResizableVideoCard({
   return (
     <>
       <div
+        id={`video-card-${video.id}`}
         draggable={!isResizing}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -413,10 +454,13 @@ export function ResizableVideoCard({
           </div>
 
           {/* Video Section */}
-          <div className="p-4">
-            <div className="relative mb-3" style={{ height: videoHeight }}>
+          <div id={`video-section-${video.id}`} className="p-4">
+            <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: videoHeight }}>
               {shouldBlur ? (
-                <NSFWBlurOverlay onReveal={() => revealVideo(video.id)}>
+                <NSFWBlurOverlay 
+                  isNSFW={video.isNsfw}
+                  onReveal={() => revealVideo(video.id)}
+                >
                   <iframe
                     ref={iframeRef}
                     src={video.embedUrl}
@@ -443,9 +487,56 @@ export function ResizableVideoCard({
             </div>
 
             {/* Title */}
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
-              {video.title}
-            </h3>
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1 pr-2">
+                {video.title}
+              </h3>
+              
+              {/* NSFW Status and Controls */}
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                {video.isNsfw && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                    NSFW
+                  </span>
+                )}
+                
+                {session?.user && (
+                  <button
+                    onClick={handleNSFWToggle}
+                    className={`p-1 rounded-full transition-colors ${
+                      video.isNsfw 
+                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20' 
+                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                    title={video.isNsfw ? 'Mark as Safe' : 'Mark as NSFW'}
+                  >
+                    <svg 
+                      className="w-4 h-4" 
+                      fill="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* NSFW Video Control */}
+            {video.isNsfw && (
+              <div id={`nsfw-warning-${video.id}`} className="mb-2 flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                <div id={`nsfw-text-${video.id}`} className="text-xs text-amber-700 dark:text-amber-300">
+                  <span className="font-medium">This content is marked as NSFW</span>
+                </div>
+                <button
+                  id={`nsfw-toggle-${video.id}`}
+                  onClick={() => toggleVideoReveal(video.id)}
+                  className="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 rounded hover:bg-amber-300 dark:hover:bg-amber-700 transition-colors"
+                >
+                  {isVideoRevealed(video.id) ? 'Hide NSFW' : 'Show NSFW'}
+                </button>
+              </div>
+            )}
 
             {/* Description */}
             {video.description && (
