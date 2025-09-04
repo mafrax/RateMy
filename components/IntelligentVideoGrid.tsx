@@ -88,6 +88,11 @@ export function IntelligentVideoGrid({
   const [isInitialized, setIsInitialized] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   
+  // Resize preview state
+  const [resizePreviewCard, setResizePreviewCard] = useState<VideoCardData | null>(null)
+  const [previewGridRows, setPreviewGridRows] = useState<VideoCardData[][]>([])
+  const [isResizing, setIsResizing] = useState(false)
+  
   // Drag and drop state
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null)
   const [dropTargetCardId, setDropTargetCardId] = useState<string | null>(null)
@@ -233,10 +238,22 @@ export function IntelligentVideoGrid({
     }
   }, [containerWidth, organizeCardsIntoRows])
 
-  // Handle card resize with cell-based system
+  // Handle card resize start
+  const handleCardResizeStart = useCallback((videoId: string) => {
+    setIsResizing(true)
+    setVideoCards(prevCards => 
+      prevCards.map(card => 
+        card.video.id === videoId 
+          ? { ...card, isResizing: true }
+          : { ...card, isResizing: false }
+      )
+    )
+  }, [])
+
+  // Handle card resize during drag (preview only)
   const handleCardResize = useCallback((width: number, height: number, videoId: string) => {
+    // Only update the visual size, don't reorganize grid yet
     setVideoCards(prevCards => {
-      // Find the card being resized
       const cardIndex = prevCards.findIndex(card => card.video.id === videoId)
       if (cardIndex === -1) return prevCards
 
@@ -246,19 +263,68 @@ export function IntelligentVideoGrid({
       // Calculate new cell span based on desired width
       const newCellSpan = calculateCellSpan(width, containerWidth, currentRow.length)
       
+      // Create preview card with new dimensions
+      const previewCard: VideoCardData = {
+        ...resizedCard,
+        cellSpan: newCellSpan,
+        height: Math.max(minCardHeight, Math.min(height, maxCardHeight)),
+        width: width,
+        isResizing: true
+      }
+      
+      // Generate preview layout without affecting actual grid
+      const previewCards = prevCards.map(card => 
+        card.video.id === videoId ? previewCard : card
+      )
+      
+      const { rows: newRows } = organizeCardsIntoRows(previewCards)
+      setPreviewGridRows(newRows)
+      setResizePreviewCard(previewCard)
+
+      // Only update the resizing card's visual size, keep grid structure
+      return prevCards.map(card => 
+        card.video.id === videoId 
+          ? { 
+              ...card,
+              width: width,
+              height: Math.max(minCardHeight, Math.min(height, maxCardHeight)), 
+              isResizing: true 
+            }
+          : card
+      )
+    })
+  }, [calculateCellSpan, containerWidth, minCardHeight, maxCardHeight, organizeCardsIntoRows])
+
+  // Handle card resize stop (apply changes)
+  const handleCardResizeStop = useCallback((width: number, height: number, videoId: string) => {
+    setIsResizing(false)
+    setResizePreviewCard(null)
+    setPreviewGridRows([])
+    
+    setVideoCards(prevCards => {
+      const cardIndex = prevCards.findIndex(card => card.video.id === videoId)
+      if (cardIndex === -1) return prevCards
+
+      const resizedCard = prevCards[cardIndex]
+      const currentRow = prevCards.filter(card => card.gridPosition.row === resizedCard.gridPosition.row)
+      
+      // Calculate new cell span based on final width
+      const newCellSpan = calculateCellSpan(width, containerWidth, currentRow.length)
+      
       // Update the card with new cell span and height
       const updatedCards = prevCards.map(card => 
         card.video.id === videoId 
           ? { 
               ...card, 
               cellSpan: newCellSpan,
+              width: width,
               height: Math.max(minCardHeight, Math.min(height, maxCardHeight)), 
-              isResizing: true 
+              isResizing: false 
             }
           : { ...card, isResizing: false }
       )
 
-      // Reorganize grid with new cell spans
+      // Now reorganize grid with final dimensions
       const { rows: newRows, updatedCards: reorganizedCards } = organizeCardsIntoRows(updatedCards)
       setGridRows(newRows)
 
@@ -641,6 +707,49 @@ export function IntelligentVideoGrid({
             </div>
           </div>
         )}
+
+        {/* Render preview grid during resize */}
+        {isResizing && previewGridRows.length > 0 && (
+          <div className="absolute inset-0 z-30 pointer-events-none bg-white bg-opacity-75">
+            <div className="space-y-4">
+              <div className="bg-blue-100 border border-blue-300 rounded-lg p-2 text-center">
+                <span className="text-blue-700 font-medium text-sm">Preview: Release mouse to apply</span>
+              </div>
+              {previewGridRows.map((row, rowIndex) => (
+                <div 
+                  key={`preview-row-${rowIndex}`}
+                  className="flex items-start opacity-60"
+                  style={{ gap: `${cardGap}px`, paddingLeft: `${containerPadding}px`, paddingRight: `${containerPadding}px` }}
+                >
+                  {row.map((cardData) => (
+                    <div
+                      key={`preview-${cardData.video.id}`}
+                      className={`flex-shrink-0 border-2 border-dashed rounded-lg flex items-center justify-center ${
+                        resizePreviewCard?.video.id === cardData.video.id 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-300 bg-gray-50'
+                      }`}
+                      style={{ 
+                        width: cardData.width, 
+                        height: Math.min(cardData.height, 100),
+                        minHeight: '80px'
+                      }}
+                    >
+                      <div className="text-center text-xs">
+                        <div className="font-medium">{cardData.cellSpan} cells</div>
+                        {resizePreviewCard?.video.id === cardData.video.id && (
+                          <div className="text-blue-600 font-bold">New Position</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Actual grid */}
         {gridRows.map((row, rowIndex) => {
           const availableCells = getRowAvailableCells(rowIndex)
           const draggedCard = draggedCardId ? videoCards.find(card => card.video.id === draggedCardId) : null
@@ -673,6 +782,8 @@ export function IntelligentVideoGrid({
                     video={cardData.video}
                     onVideoUpdate={onVideoUpdate}
                     onResize={handleCardResize}
+                    onResizeStart={handleCardResizeStart}
+                    onResizeStop={handleCardResizeStop}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                     onDragOver={(e) => {
