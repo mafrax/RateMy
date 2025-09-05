@@ -50,6 +50,16 @@ interface VideoCardData {
   gridPosition: { row: number; col: number }
   cellSpan: number // How many grid cells this card occupies
   isResizing?: boolean
+  subPosition?: { parentCardId: string; offsetY: number } // For cards positioned below other cards
+}
+
+interface SubSpace {
+  parentCardId: string
+  parentRow: number
+  parentCol: number
+  availableHeight: number
+  availableWidth: number
+  offsetY: number // Y position relative to parent card
 }
 
 interface IntelligentVideoGridProps {
@@ -98,6 +108,10 @@ export function IntelligentVideoGrid({
   const [dropTargetCardId, setDropTargetCardId] = useState<string | null>(null)
   const [dropTargetRowIndex, setDropTargetRowIndex] = useState<number | null>(null)
   
+  // Sub-positioning state
+  const [availableSubSpaces, setAvailableSubSpaces] = useState<SubSpace[]>([])
+  const [dropTargetSubSpace, setDropTargetSubSpace] = useState<SubSpace | null>(null)
+  
   // Grid system constants
   const totalGridCells = 12 // Total cells available per row
   const defaultCellSpan = totalGridCells / defaultCardsPerRow // 4 cells per card for 3-card layout
@@ -119,6 +133,56 @@ export function IntelligentVideoGrid({
     const span = Math.round(desiredWidth / cellWidth)
     return Math.max(2, Math.min(span, totalGridCells)) // Min 2 cells, max 12 cells (full row)
   }, [containerPadding, cardGap, totalGridCells])
+
+  // Detect available sub-spaces where cards can be positioned below shorter cards
+  const detectAvailableSubSpaces = useCallback((cards: VideoCardData[]): SubSpace[] => {
+    const subSpaces: SubSpace[] = []
+    const minSubSpaceHeight = 150 // Minimum height required for a sub-space
+    
+    // Group cards by rows to analyze height differences
+    const rowGroups: { [key: number]: VideoCardData[] } = {}
+    cards.forEach(card => {
+      if (!card.subPosition) { // Only consider main positioned cards
+        if (!rowGroups[card.gridPosition.row]) {
+          rowGroups[card.gridPosition.row] = []
+        }
+        rowGroups[card.gridPosition.row].push(card)
+      }
+    })
+
+    // Analyze each row for height differences
+    Object.entries(rowGroups).forEach(([rowIndexStr, rowCards]) => {
+      const rowIndex = parseInt(rowIndexStr)
+      if (rowCards.length < 2) return // Need at least 2 cards to create sub-spaces
+      
+      // Find the tallest card in the row
+      const maxHeight = Math.max(...rowCards.map(card => card.height))
+      
+      // Check each card to see if there's space below it
+      rowCards.forEach(card => {
+        const availableHeight = maxHeight - card.height
+        if (availableHeight >= minSubSpaceHeight) {
+          // Check if there's already a sub-positioned card below this parent
+          const hasSubCard = cards.some(c => 
+            c.subPosition?.parentCardId === card.video.id
+          )
+          
+          if (!hasSubCard) {
+            subSpaces.push({
+              parentCardId: card.video.id,
+              parentRow: rowIndex,
+              parentCol: card.gridPosition.col,
+              availableHeight,
+              availableWidth: card.width,
+              offsetY: card.height + 10 // Small gap below the parent card
+            })
+          }
+        }
+      })
+    })
+    
+    return subSpaces
+  }, [])
 
   // Initialize video cards with default sizing
   useEffect(() => {
@@ -175,7 +239,10 @@ export function IntelligentVideoGrid({
     let currentRow: VideoCardData[] = []
     let currentRowCells = 0
 
-    for (const card of cards) {
+    // Filter out sub-positioned cards from main grid layout
+    const mainGridCards = cards.filter(card => !card.subPosition)
+
+    for (const card of mainGridCards) {
       // Check if card fits in current row (based on cell span)
       if (currentRowCells + card.cellSpan <= totalGridCells && currentRow.length > 0) {
         currentRow.push(card)
@@ -199,18 +266,22 @@ export function IntelligentVideoGrid({
       rows.push(updatedRow)
     }
 
-    // Update grid positions
-    const updatedCards: VideoCardData[] = []
+    // Update grid positions for main grid cards only
+    const updatedMainGridCards: VideoCardData[] = []
     rows.forEach((row, rowIndex) => {
       row.forEach((card, colIndex) => {
-        updatedCards.push({
+        updatedMainGridCards.push({
           ...card,
           gridPosition: { row: rowIndex, col: colIndex }
         })
       })
     })
 
-    return { rows, updatedCards }
+    // Preserve sub-positioned cards unchanged and combine with main grid cards
+    const subPositionedCards = cards.filter(card => card.subPosition)
+    const allUpdatedCards = [...updatedMainGridCards, ...subPositionedCards]
+
+    return { rows, updatedCards: allUpdatedCards }
   }, [totalGridCells])
 
   // Recalculate actual widths based on cell spans for cards in a row
@@ -230,13 +301,74 @@ export function IntelligentVideoGrid({
     return totalGridCells - usedCells
   }, [gridRows, totalGridCells])
 
+  // Auto-cleanup function to move orphaned sub-positioned cards back to main grid
+  const cleanupOrphanedSubCards = useCallback((cards: VideoCardData[]): VideoCardData[] => {
+    const availableSubSpaces = detectAvailableSubSpaces(cards)
+    const availableParentIds = new Set(availableSubSpaces.map(space => space.parentCardId))
+    
+    return cards.map(card => {
+      // If card is sub-positioned but its parent no longer has available sub-space
+      if (card.subPosition && !availableParentIds.has(card.subPosition.parentCardId)) {
+        // Double-check: Find the actual parent card and verify it truly can't accommodate this sub-card
+        const parentCard = cards.find(c => c.video.id === card.subPosition!.parentCardId)
+        if (parentCard) {
+          // Check if the parent card in its current row has sufficient height difference
+          const rowCards = cards.filter(c => 
+            !c.subPosition && c.gridPosition.row === parentCard.gridPosition.row
+          )
+          const maxRowHeight = Math.max(...rowCards.map(c => c.height))
+          const availableHeight = maxRowHeight - parentCard.height
+          
+          // If there's still sufficient space (150px minimum), keep the sub-positioning
+          if (availableHeight >= 150) {
+            return card
+          }
+        }
+        
+        console.log(`Auto-cleanup: Moving card ${card.video.id} back to main grid`) // Debug log
+        
+        // Remove sub-positioning and restore card to main grid
+        return {
+          ...card,
+          subPosition: undefined,
+          // Reset to reasonable main-grid dimensions
+          width: Math.max(card.width, minCardWidth),
+          height: Math.max(card.height, minCardHeight),
+        }
+      }
+      return card
+    })
+  }, [detectAvailableSubSpaces, minCardWidth, minCardHeight])
+
   // Update grid organization when container width changes
   useEffect(() => {
     if (videoCards.length > 0 && containerWidth > 0) {
+      // Skip cleanup during drag operations to avoid interfering
+      if (!draggedCardId) {
+        // First cleanup orphaned sub-positioned cards
+        const cleanedCards = cleanupOrphanedSubCards(videoCards)
+        
+        // If cleanup resulted in changes, update the cards state
+        if (cleanedCards !== videoCards) {
+          const hasChanges = cleanedCards.some((card, index) => 
+            card.subPosition !== videoCards[index]?.subPosition
+          )
+          
+          if (hasChanges) {
+            setVideoCards(cleanedCards)
+            return // Exit early, useEffect will re-run with cleaned cards
+          }
+        }
+      }
+      
       const { rows } = organizeCardsIntoRows(videoCards)
       setGridRows(rows)
+      
+      // Update available sub-spaces when grid changes
+      const subSpaces = detectAvailableSubSpaces(videoCards)
+      setAvailableSubSpaces(subSpaces)
     }
-  }, [containerWidth, organizeCardsIntoRows])
+  }, [containerWidth, organizeCardsIntoRows, detectAvailableSubSpaces, videoCards, cleanupOrphanedSubCards, draggedCardId])
 
   // Handle card resize start
   const handleCardResizeStart = useCallback((videoId: string) => {
@@ -324,13 +456,16 @@ export function IntelligentVideoGrid({
           : { ...card, isResizing: false }
       )
 
+      // Apply auto-cleanup for orphaned sub-positioned cards after resize
+      const cleanedCards = cleanupOrphanedSubCards(updatedCards)
+
       // Now reorganize grid with final dimensions
-      const { rows: newRows, updatedCards: reorganizedCards } = organizeCardsIntoRows(updatedCards)
+      const { rows: newRows, updatedCards: reorganizedCards } = organizeCardsIntoRows(cleanedCards)
       setGridRows(newRows)
 
       return reorganizedCards
     })
-  }, [calculateCellSpan, containerWidth, minCardHeight, maxCardHeight, organizeCardsIntoRows])
+  }, [calculateCellSpan, containerWidth, minCardHeight, maxCardHeight, organizeCardsIntoRows, cleanupOrphanedSubCards])
 
   // Drag and drop handlers
   const handleDragStart = useCallback((e: React.DragEvent, videoId: string) => {
@@ -341,6 +476,7 @@ export function IntelligentVideoGrid({
     setDraggedCardId(null)
     setDropTargetCardId(null)
     setDropTargetRowIndex(null)
+    setDropTargetSubSpace(null)
   }, [])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -507,10 +643,88 @@ export function IntelligentVideoGrid({
     }
   }, [])
 
+  // Sub-space drag handlers
+  const handleSubSpaceDragOver = useCallback((e: React.DragEvent, subSpace: SubSpace) => {
+    if (!draggedCardId) return
+    
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = 'move'
+    
+    setDropTargetSubSpace(subSpace)
+    setDropTargetCardId(null) // Clear card drop target
+    setDropTargetRowIndex(null) // Clear row drop target
+  }, [draggedCardId])
+
+  const handleSubSpaceDragLeave = useCallback((e: React.DragEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setDropTargetSubSpace(null)
+    }
+  }, [])
+
+  const handleSubSpaceDrop = useCallback((e: React.DragEvent, subSpace: SubSpace) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    console.log('Sub-space drop event:', { draggedCardId, subSpace }) // Debug log
+    
+    if (!draggedCardId) return
+    
+    setVideoCards(prevCards => {
+      console.log('Moving card to sub-space:', subSpace.parentCardId) // Debug log
+      
+      const updatedCards = prevCards.map(card => {
+        if (card.video.id === draggedCardId) {
+          // Calculate adaptive dimensions for sub-space
+          const maxSubWidth = subSpace.availableWidth
+          const maxSubHeight = subSpace.availableHeight
+          
+          // Adaptive sizing - maintain aspect ratio but fit within constraints
+          const currentAspectRatio = card.width / card.height
+          let newWidth = maxSubWidth
+          let newHeight = newWidth / currentAspectRatio
+          
+          // If height exceeds available space, constrain by height instead
+          if (newHeight > maxSubHeight) {
+            newHeight = maxSubHeight
+            newWidth = newHeight * currentAspectRatio
+          }
+          
+          // Ensure minimum dimensions
+          newWidth = Math.max(newWidth, minCardWidth * 0.7) // Allow smaller in sub-spaces
+          newHeight = Math.max(newHeight, minCardHeight * 0.7)
+          
+          return {
+            ...card,
+            subPosition: {
+              parentCardId: subSpace.parentCardId,
+              offsetY: subSpace.offsetY
+            },
+            width: newWidth,
+            height: newHeight,
+            // Keep original grid position for potential restoration
+            gridPosition: card.gridPosition
+          }
+        }
+        return card
+      })
+      
+      // Don't run cleanup immediately after positioning, let the useEffect handle it later
+      return updatedCards
+    })
+    
+    setDraggedCardId(null)
+    setDropTargetSubSpace(null)
+  }, [draggedCardId, detectAvailableSubSpaces, minCardWidth, minCardHeight])
+
   // Reset to original layout and sizes
   const resetLayout = useCallback(() => {
     if (originalVideoCards.length > 0) {
-      // Reset all cards to 4-cell size
+      // Reset all cards to 4-cell size and clear sub-positioning
       const resetCards = originalVideoCards.map((card, index) => ({
         ...card,
         cellSpan: 4, // Set all cards to 4-cell size
@@ -519,7 +733,9 @@ export function IntelligentVideoGrid({
         gridPosition: {
           row: Math.floor(index / defaultCardsPerRow),
           col: index % defaultCardsPerRow
-        }
+        },
+        subPosition: undefined, // Clear any sub-positioning
+        isResizing: false // Ensure clean state
       }))
       
       setVideoCards(resetCards)
@@ -527,6 +743,9 @@ export function IntelligentVideoGrid({
       // Reorganize grid rows with reset cards
       const { rows } = organizeCardsIntoRows(resetCards)
       setGridRows(rows)
+      
+      // Clear sub-spaces since all cards are back in main grid
+      setAvailableSubSpaces([])
     }
   }, [originalVideoCards, organizeCardsIntoRows, calculateCardWidth, containerWidth, defaultCardsPerRow, minCardHeight])
 
@@ -710,7 +929,7 @@ export function IntelligentVideoGrid({
 
         {/* Render centered preview grid during resize */}
         {isResizing && previewGridRows.length > 0 && (
-          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center bg-white bg-opacity-20">
+          <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-white bg-opacity-20">
             <div className="space-y-4 max-w-6xl max-h-[80vh] overflow-auto">
               <div className="bg-blue-100 border border-blue-300 rounded-lg p-2 text-center">
                 <span className="text-blue-700 font-medium text-sm">Preview: Release mouse to apply</span>
@@ -779,7 +998,7 @@ export function IntelligentVideoGrid({
               {row.map((cardData) => (
                 <div
                   key={cardData.video.id}
-                  className={`flex-shrink-0 transition-all duration-300 ${
+                  className={`flex-shrink-0 transition-all duration-300 relative ${
                     cardData.isResizing ? 'z-50' : 'z-10'
                   }`}
                 >
@@ -807,6 +1026,84 @@ export function IntelligentVideoGrid({
                     isDragging={draggedCardId === cardData.video.id}
                     isDropTarget={dropTargetCardId === cardData.video.id}
                   />
+                  
+                  {/* Sub-space indicators - show available vertical space below cards */}
+                  {draggedCardId && draggedCardId !== cardData.video.id && (
+                    availableSubSpaces
+                      .filter(subSpace => subSpace.parentCardId === cardData.video.id)
+                      .map(subSpace => {
+                        const isDropTarget = dropTargetSubSpace?.parentCardId === cardData.video.id
+                        return (
+                          <div
+                            key={`subspace-${subSpace.parentCardId}`}
+                            className={`absolute border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer ${
+                              isDropTarget 
+                                ? 'border-purple-400 bg-purple-50' 
+                                : 'border-purple-300 bg-purple-25 hover:border-purple-400 hover:bg-purple-50'
+                            }`}
+                            style={{
+                              top: subSpace.offsetY,
+                              left: 0,
+                              width: subSpace.availableWidth,
+                              height: Math.min(subSpace.availableHeight, 200), // Cap visual height
+                            }}
+                            onDragOver={(e) => handleSubSpaceDragOver(e, subSpace)}
+                            onDragLeave={handleSubSpaceDragLeave}
+                            onDrop={(e) => handleSubSpaceDrop(e, subSpace)}
+                          >
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="text-center text-purple-700">
+                                <div className="text-xs font-medium">Sub-space available</div>
+                                <div className="text-xs opacity-75">
+                                  {Math.round(subSpace.availableHeight)}px × {Math.round(subSpace.availableWidth)}px
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                  )}
+
+                  {/* Render sub-positioned cards below this parent card */}
+                  {videoCards
+                    .filter(subCard => subCard.subPosition?.parentCardId === cardData.video.id)
+                    .map(subCard => (
+                      <div
+                        key={`sub-${subCard.video.id}`}
+                        className={`absolute transition-all duration-300 ${
+                          subCard.isResizing ? 'z-50' : 'z-20'
+                        }`}
+                        style={{
+                          top: subCard.subPosition!.offsetY,
+                          left: 0,
+                        }}
+                      >
+                        <ResizableVideoCard
+                          video={subCard.video}
+                          onVideoUpdate={onVideoUpdate}
+                          onResize={handleCardResize}
+                          onResizeStart={handleCardResizeStart}
+                          onResizeStop={handleCardResizeStop}
+                          onDragStart={handleDragStart}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={(e) => {
+                            handleDragOver(e)
+                            handleCardDragOver(subCard.video.id)
+                          }}
+                          onDragLeave={handleCardDragLeave}
+                          onDrop={handleDrop}
+                          defaultWidth={subCard.width}
+                          defaultHeight={subCard.height}
+                          minWidth={minCardWidth * 0.7} // Allow smaller in sub-spaces
+                          minHeight={minCardHeight * 0.7}
+                          maxWidth={maxCardWidth}
+                          maxHeight={maxCardHeight}
+                          gridPosition={subCard.gridPosition}
+                          isDragging={draggedCardId === subCard.video.id}
+                          isDropTarget={dropTargetCardId === subCard.video.id}
+                        />
+                      </div>
+                    ))}
                 </div>
               ))}
               
