@@ -111,17 +111,14 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
       }
       
       const url = `/api/videos${params.toString() ? `?${params.toString()}` : ''}`
-      console.log('Fetching URL:', url) // Debug log
       const response = await fetch(url)
       
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('API Error Response:', errorText) // Debug log
         throw new Error(`Failed to fetch videos: ${response.status} ${errorText}`)
       }
       
       const data = await response.json()
-      console.log('API Response:', data) // Debug log
       
       // Handle different response structures
       if (data.success && data.data) {

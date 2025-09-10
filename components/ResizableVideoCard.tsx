@@ -14,12 +14,14 @@ import {
   ChevronDownIcon,
   ChevronUpIcon 
 } from '@heroicons/react/24/outline'
+import { TagWithSlider } from './TagWithSlider'
 import toast from 'react-hot-toast'
 import { AddTagInput } from './AddTagInput'
 import { CommentSection } from './CommentSection'
 import { NSFWBlurOverlay } from './NSFWBlurOverlay'
 import { useNSFW } from '@/contexts/NSFWContext'
 import { ConfirmDialog } from './ConfirmDialog'
+import { useRatingCache } from '@/contexts/RatingCacheContext'
 
 interface Video {
   id: string
@@ -106,12 +108,13 @@ export function ResizableVideoCard({
 }: ResizableVideoCardProps) {
   const { data: session } = useSession()
   const { globalBlurEnabled, isVideoRevealed, revealVideo, toggleVideoReveal } = useNSFW()
+  const { setCachedRating, getCachedRating, hasPendingRating, addRatingSavedCallback, removeRatingSavedCallback } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
   const [localTags, setLocalTags] = useState(video.tags)
+  const [tagsExpanded, setTagsExpanded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
   const [commentCount, setCommentCount] = useState(0)
-  const [tagsExpanded, setTagsExpanded] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   
@@ -129,6 +132,15 @@ export function ResizableVideoCard({
       e.preventDefault()
       return
     }
+    
+    // Check if the drag started from a no-drag element
+    const target = e.target as HTMLElement
+    const noDragElement = target.closest('[data-no-drag="true"]')
+    if (noDragElement) {
+      e.preventDefault()
+      return
+    }
+    
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/html', video.id)
     if (onDragStart) {
@@ -221,6 +233,22 @@ export function ResizableVideoCard({
     setCardSize({ width: defaultWidth, height: defaultHeight })
   }, [defaultWidth, defaultHeight])
 
+  // Set up rating saved callback to trigger video refresh
+  useEffect(() => {
+    const handleRatingSaved = () => {
+      if (onVideoUpdate) {
+        onVideoUpdate()
+      }
+    }
+    
+    addRatingSavedCallback(video.id, handleRatingSaved)
+    
+    return () => {
+      removeRatingSavedCallback(video.id)
+    }
+  }, [video.id, onVideoUpdate, addRatingSavedCallback, removeRatingSavedCallback])
+
+
   const getAverageRating = (tagId: string) => {
     if (!video.ratings || !Array.isArray(video.ratings)) return 0
     const tagRatings = video.ratings.filter(r => r.tag.id === tagId)
@@ -230,6 +258,12 @@ export function ResizableVideoCard({
 
   const getUserRating = (tagId: string) => {
     if (!session || !video.ratings || !Array.isArray(video.ratings)) return 0
+    
+    // Check if there's a cached rating first
+    const cachedRating = getCachedRating(video.id, tagId)
+    if (cachedRating !== null) return cachedRating
+    
+    // Fall back to saved rating from database
     const userRating = video.ratings.find(r => r.tag.id === tagId && r.user?.id === (session.user as any)?.id)
     return userRating ? userRating.level : 0
   }
@@ -240,33 +274,11 @@ export function ResizableVideoCard({
       return
     }
 
-    setIsRating(true)
-    try {
-      const payload = { tagId, level }
-      const response = await fetch(`/api/videos/${video.id}/rate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
-
-      const data = await response.json()
-      
-      if (response.ok && data.success) {
-        toast.success('Rating submitted!')
-        if (onVideoUpdate) {
-          onVideoUpdate()
-        }
-      } else {
-        toast.error(data.message || 'Failed to submit rating')
-      }
-    } catch (error) {
-      console.error('Error submitting rating:', error)
-      toast.error('Failed to submit rating')
-    } finally {
-      setIsRating(false)
-    }
+    // Immediately cache the rating for instant UI feedback
+    setCachedRating(video.id, tagId, level)
+    
+    // Show toast to indicate rating was cached
+    toast.success('Rating saved! Will sync to server shortly.')
   }
 
   const handleAddTag = async (tagName: string) => {
@@ -411,6 +423,7 @@ export function ResizableVideoCard({
     }
   }
 
+
   // Calculate iframe dimensions based on card size
   const videoAspectRatio = 16 / 9
   const maxVideoWidth = cardSize.width - 32 // Account for padding
@@ -497,7 +510,7 @@ export function ResizableVideoCard({
           data-testid="video-card"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="video-card-header flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
               {/* Drag Handle */}
               <div 
@@ -642,95 +655,53 @@ export function ResizableVideoCard({
               </p>
             )}
 
-            {/* Tags and Ratings */}
-            <div className="space-y-2">
-              {localTags.slice(0, tagsExpanded ? localTags.length : 3).map(({ tag }) => {
-                const averageRating = getAverageRating(tag.id)
-                const userRating = getUserRating(tag.id)
+            {/* Tags Section - Scrollable */}
+            <div 
+              className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+              style={{ height: `${Math.max(120, cardSize.height - videoHeight - 200)}px` }}
+            >
+              <div className="space-y-2 pr-2">
+                {localTags.map(({ tag }) => {
+                  const averageRating = getAverageRating(tag.id)
+                  const userRating = getUserRating(tag.id)
+                  const isPending = hasPendingRating(video.id, tag.id)
 
-                return (
-                  <div key={tag.id} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">{tag.name}</span>
-                    <div className="flex items-center space-x-1">
-                      {/* User Rating */}
-                      <div className="flex items-center space-x-0.5">
-                        {[1, 2, 3, 4, 5].map((level) => (
-                          <button
-                            key={level}
-                            onClick={() => handleRate(tag.id, level)}
-                            disabled={isRating}
-                            className={`p-0.5 rounded transition-colors ${
-                              level <= userRating
-                                ? 'text-blue-500'
-                                : 'text-gray-300 dark:text-gray-600 hover:text-blue-400'
-                            } ${isRating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            aria-label={`Rate ${tag.name} ${level} stars`}
-                          >
-                            {level <= userRating ? (
-                              <StarIcon className="h-3 w-3" />
-                            ) : (
-                              <StarOutlineIcon className="h-3 w-3" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                      
-                      {/* Average Rating */}
-                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                        {averageRating > 0 ? averageRating.toFixed(1) : '—'}
-                      </span>
-                    </div>
+                  return (
+                    <TagWithSlider
+                      key={tag.id}
+                      tag={tag}
+                      userRating={userRating}
+                      avgRating={averageRating}
+                      isPending={isPending}
+                      onRate={handleRate}
+                      disabled={isRating || !session}
+                      canRemove={false}
+                    />
+                  )
+                })}
+
+                {/* Add Tag Input */}
+                {session && (
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <AddTagInput onAddTag={handleAddTag} />
                   </div>
-                )
-              })}
+                )}
 
-              {localTags.length > 3 && (
-                <button
-                  onClick={() => setTagsExpanded(!tagsExpanded)}
-                  className="flex items-center space-x-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                >
-                  {tagsExpanded ? (
-                    <>
-                      <ChevronUpIcon className="h-4 w-4" />
-                      <span>Show less</span>
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDownIcon className="h-4 w-4" />
-                      <span>Show {localTags.length - 3} more</span>
-                    </>
-                  )}
-                </button>
-              )}
-
-              {/* Add Tag Input */}
-              {session && (
+                {/* Comments Toggle */}
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <AddTagInput onAddTag={handleAddTag} />
+                  <button
+                    onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+                    className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 w-full"
+                  >
+                    <Bars3Icon className="h-4 w-4" />
+                    <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
+                    <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-auto">
+                      {commentCount}
+                    </span>
+                  </button>
                 </div>
-              )}
-            </div>
-
-            {/* Comments Toggle */}
-            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
-                className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-              >
-                <Bars3Icon className="h-4 w-4" />
-                <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
-                <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full">
-                  {commentCount}
-                </span>
-              </button>
-            </div>
-
-            {/* Comments Section */}
-            {isCommentsExpanded && (
-              <div className="mt-3">
-                <CommentSection videoId={video.id} onCommentCountChange={setCommentCount} />
               </div>
-            )}
+            </div>
           </div>
         </div>
         </Resizable>
@@ -925,39 +896,19 @@ export function ResizableVideoCard({
                             {localTags.slice(0, tagsExpanded ? localTags.length : 5).map(({ tag }) => {
                               const averageRating = getAverageRating(tag.id)
                               const userRating = getUserRating(tag.id)
+                              const isPending = hasPendingRating(video.id, tag.id)
 
                               return (
-                                <div key={tag.id} className="bg-white dark:bg-gray-800 rounded-lg p-3">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium text-gray-900 dark:text-white">{tag.name}</span>
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                                      {averageRating > 0 ? averageRating.toFixed(1) : '—'}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* User Rating */}
-                                  <div className="flex items-center space-x-1">
-                                    {[1, 2, 3, 4, 5].map((level) => (
-                                      <button
-                                        key={level}
-                                        onClick={() => handleRate(tag.id, level)}
-                                        disabled={isRating}
-                                        className={`p-1 rounded transition-colors ${
-                                          level <= userRating
-                                            ? 'text-blue-500'
-                                            : 'text-gray-300 dark:text-gray-600 hover:text-blue-400'
-                                        } ${isRating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        aria-label={`Rate ${tag.name} ${level} stars`}
-                                      >
-                                        {level <= userRating ? (
-                                          <StarIcon className="h-4 w-4" />
-                                        ) : (
-                                          <StarOutlineIcon className="h-4 w-4" />
-                                        )}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
+                                <TagWithSlider
+                                  key={tag.id}
+                                  tag={tag}
+                                  userRating={userRating}
+                                  avgRating={averageRating}
+                                  isPending={isPending}
+                                  onRate={handleRate}
+                                  disabled={isRating || !session}
+                                  canRemove={false}
+                                />
                               )
                             })}
 

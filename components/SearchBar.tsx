@@ -13,102 +13,8 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline'
 import { useNSFW } from '@/contexts/NSFWContext'
-// Custom Range Slider Component
-interface RangeSliderProps {
-  min: number
-  max: number
-  step: number
-  value: [number, number]
-  onChange: (values: [number, number]) => void
-  onEnd?: (values: [number, number]) => void
-}
-
-function RangeSlider({ min, max, step, value, onChange, onEnd }: RangeSliderProps) {
-  const [minVal, maxVal] = value
-  const minValRef = useRef(minVal)
-  const maxValRef = useRef(maxVal)
-  const range = useRef<HTMLDivElement>(null)
-
-  // Convert to percentage
-  const getPercent = useCallback((value: number) => Math.round(((value - min) / (max - min)) * 100), [min, max])
-
-  // Set width of the range to decrease from the left side
-  useEffect(() => {
-    const minPercent = getPercent(minVal)
-    const maxPercent = getPercent(maxValRef.current)
-
-    if (range.current) {
-      range.current.style.left = `${minPercent}%`
-      range.current.style.width = `${maxPercent - minPercent}%`
-    }
-  }, [minVal, getPercent])
-
-  // Set width of the range to decrease from the right side
-  useEffect(() => {
-    const minPercent = getPercent(minValRef.current)
-    const maxPercent = getPercent(maxVal)
-
-    if (range.current) {
-      range.current.style.width = `${maxPercent - minPercent}%`
-    }
-  }, [maxVal, getPercent])
-
-  return (
-    <div className="relative">
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={minVal}
-        onChange={(event) => {
-          const value = Math.min(Number(event.target.value), maxVal - step)
-          minValRef.current = value
-          onChange([value, maxVal])
-        }}
-        onMouseUp={() => {
-          onEnd?.([minVal, maxVal])
-        }}
-        className="thumb thumb--left absolute h-0 w-full outline-none appearance-none bg-transparent pointer-events-none"
-        style={{ zIndex: 3 }}
-      />
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={maxVal}
-        onChange={(event) => {
-          const value = Math.max(Number(event.target.value), minVal + step)
-          maxValRef.current = value
-          onChange([minVal, value])
-        }}
-        onMouseUp={() => {
-          onEnd?.([minVal, maxVal])
-        }}
-        className="thumb thumb--right absolute h-0 w-full outline-none appearance-none bg-transparent pointer-events-none"
-        style={{ zIndex: 4 }}
-      />
-
-      <div className="slider relative">
-        <div className="slider__track absolute rounded-md h-2 bg-gray-200 dark:bg-gray-700 w-full z-1"></div>
-        <div ref={range} className="slider__range absolute rounded-md h-2 bg-purple-500 z-2"></div>
-        <div 
-          className="slider__left-value absolute text-xs font-medium text-gray-700 dark:text-gray-300 -top-8 transform -translate-x-1/2"
-          style={{ left: `${getPercent(minVal)}%` }}
-        >
-          {minVal}⭐
-        </div>
-        <div 
-          className="slider__right-value absolute text-xs font-medium text-gray-700 dark:text-gray-300 -top-8 transform -translate-x-1/2"
-          style={{ left: `${getPercent(maxVal)}%` }}
-        >
-          {maxVal}⭐
-        </div>
-      </div>
-    </div>
-  )
-}
+import { DualRangeSlider } from './DualRangeSlider'
+import { TagRatingFilter } from './TagRatingFilter'
 
 interface SearchBarProps {
   onSearch?: (filters: SearchFilters) => void
@@ -283,18 +189,15 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     }, true)
   }
 
-  const handleTagRatingChange = (tagName: string, minRating: number, maxRating: number, immediate = false) => {
+  const handleTagRatingChange = (tagName: string, minRating: number, maxRating: number) => {
     const newTagRatings = filters.tagRatings.map(rating => 
       rating.tagName === tagName 
         ? { ...rating, minRating, maxRating }
         : rating
     )
     
-    if (immediate) {
-      updateFilters({ tagRatings: newTagRatings }, true)
-    } else {
-      updateFiltersWithDebounce({ tagRatings: newTagRatings }, 300)
-    }
+    // Only update local state, don't trigger search
+    setFilters({ ...filters, tagRatings: newTagRatings })
   }
 
 
@@ -463,41 +366,31 @@ export function SearchBar({ onSearch }: SearchBarProps) {
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                         Rating Ranges for Selected Tags
                       </h4>
-                      {filters.tagRatings.map((tagRating) => (
-                        <div key={tagRating.tagName} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              {tagRating.tagName}
-                            </span>
-                            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                              <StarIcon className="h-4 w-4 text-yellow-400" />
-                              <span>{tagRating.minRating} - {tagRating.maxRating}</span>
-                            </div>
-                          </div>
-                          
-                          {/* noUiSlider Range Slider */}
-                          <div className="px-3 py-4">
-                            <div className="flex items-center space-x-3">
-                              <span className="text-xs font-medium text-gray-500">1</span>
-                              <div className="flex-1 mx-2">
-                                <RangeSlider
-                                  min={1}
-                                  max={5}
-                                  step={0.5}
-                                  value={[tagRating.minRating, tagRating.maxRating]}
-                                  onChange={(values) => {
-                                    handleTagRatingChange(tagRating.tagName, values[0], values[1])
-                                  }}
-                                  onEnd={(values) => {
-                                    handleTagRatingChange(tagRating.tagName, values[0], values[1], true)
-                                  }}
-                                />
-                              </div>
-                              <span className="text-xs font-medium text-gray-500">5</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                      <div className="space-y-3">
+                        {filters.tagRatings.map((tagRating) => (
+                          <TagRatingFilter
+                            key={tagRating.tagName}
+                            tagName={tagRating.tagName}
+                            minRating={tagRating.minRating}
+                            maxRating={tagRating.maxRating}
+                            onApply={(tagName, minRating, maxRating) => {
+                              // Update the tag rating in filters
+                              const newTagRatings = filters.tagRatings.map(rating => 
+                                rating.tagName === tagName 
+                                  ? { ...rating, minRating, maxRating }
+                                  : rating
+                              )
+                              const updatedFilters = {
+                                ...filters,
+                                tagRatings: newTagRatings
+                              }
+                              setFilters(updatedFilters)
+                              // Immediately trigger search with updated filters
+                              onSearch?.(updatedFilters)
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
