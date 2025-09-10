@@ -362,15 +362,32 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
         </div>
 
         {/* Video Area */}
-        <div className="aspect-video mb-4 flex-shrink-0">
-          <iframe
-            ref={iframeRef}
-            src={video.embedUrl}
-            title={video.title}
-            className="w-full h-full rounded-lg"
-            allowFullScreen
-          />
-        </div>
+        {video.originalUrl?.includes('redgifs.com') ? (
+          <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: '189px' }}>
+            <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
+              <video
+                src={video.embedUrl}
+                className="w-full h-full rounded-md object-contain"
+                controls
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="aspect-video mb-4 flex-shrink-0">
+            <iframe
+              ref={iframeRef}
+              src={video.embedUrl}
+              title={video.title}
+              className="w-full h-full rounded-lg"
+              allowFullScreen
+            />
+          </div>
+        )}
       
       {/* Scrollable Info Panel */}
       <div className="flex-1 overflow-y-auto">

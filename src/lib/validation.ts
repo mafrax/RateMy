@@ -274,6 +274,8 @@ export function sanitizeArray(input: string[]): string[] {
 
 export function sanitizeTags(tags: string[]): string[] {
   return sanitizeArray(tags)
-    .map(tag => tag.toLowerCase())
+    .map(tag => tag.toLowerCase().trim())
+    .filter(tag => tag.length >= 2 && tag.length <= 50) // Reasonable tag length limits
+    .filter(tag => /^[a-z0-9\s-_]+$/i.test(tag)) // Only allow alphanumeric, spaces, hyphens, underscores
     .slice(0, VIDEO_LIMITS.MAX_TAGS)
 }
