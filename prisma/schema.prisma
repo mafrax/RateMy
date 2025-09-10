@@ -127,7 +127,7 @@ model VideoTag {
 
 model Rating {
   id        String   @id @default(cuid())
-  level     Float
+  level     Int
   videoId   String
   userId    String
   tagId     String

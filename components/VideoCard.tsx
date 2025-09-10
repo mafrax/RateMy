@@ -6,9 +6,11 @@ import { createPortal } from 'react-dom'
 import { useSession } from 'next-auth/react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { StarIcon as StarOutlineIcon, XMarkIcon, ArrowsPointingOutIcon, Bars3Icon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
+import { TagWithSlider } from './TagWithSlider'
 import toast from 'react-hot-toast'
 import { AddTagInput } from './AddTagInput'
 import { CommentSection } from './CommentSection'
+import { useRatingCache } from '@/contexts/RatingCacheContext'
 
 interface VideoCardProps {
   video: {
@@ -54,6 +56,7 @@ interface VideoCardProps {
 
 export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   const { data: session } = useSession()
+  const { setCachedRating, getCachedRating, hasPendingRating, addRatingSavedCallback, removeRatingSavedCallback } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
   const [localTags, setLocalTags] = useState(video.tags)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -70,6 +73,22 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
     setLocalTags(video.tags)
   }, [video.tags])
 
+  // Set up rating saved callback to trigger video refresh
+  useEffect(() => {
+    const handleRatingSaved = () => {
+      if (onVideoUpdate) {
+        onVideoUpdate()
+      }
+    }
+    
+    addRatingSavedCallback(video.id, handleRatingSaved)
+    
+    return () => {
+      removeRatingSavedCallback(video.id)
+    }
+  }, [video.id, onVideoUpdate, addRatingSavedCallback, removeRatingSavedCallback])
+
+
   const getAverageRating = (tagId: string) => {
     if (!video.ratings || !Array.isArray(video.ratings)) return 0
     const tagRatings = video.ratings.filter(r => r.tag.id === tagId)
@@ -79,6 +98,12 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
 
   const getUserRating = (tagId: string) => {
     if (!session || !video.ratings || !Array.isArray(video.ratings)) return 0
+    
+    // Check if there's a cached rating first
+    const cachedRating = getCachedRating(video.id, tagId)
+    if (cachedRating !== null) return cachedRating
+    
+    // Fall back to saved rating from database
     const userRating = video.ratings.find(r => r.tag.id === tagId && r.user?.id === (session.user as any)?.id)
     return userRating ? userRating.level : 0
   }
@@ -89,38 +114,11 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
       return
     }
 
-    setIsRating(true)
-    try {
-      const payload = { tagId, level }
-      console.log('Submitting rating:', payload, 'for video:', video.id)
-      
-      const response = await fetch(`/api/videos/${video.id}/rate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Rating submission failed:', response.status, errorText)
-        throw new Error(`Failed to rate video: ${response.status} ${errorText}`)
-      }
-
-      toast.success('Rating submitted!')
-      
-      // Refresh video data to get updated ratings
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
-    } catch (error) {
-      console.error('Rating error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to submit rating')
-    } finally {
-      setIsRating(false)
-    }
+    // Immediately cache the rating for instant UI feedback
+    setCachedRating(video.id, tagId, level)
+    
+    // Show toast to indicate rating was cached
+    toast.success('Rating saved! Will sync to server shortly.')
   }
 
   const handleRemoveTag = async (tagId: string) => {
@@ -293,46 +291,6 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   }, [isModalOpen])
 
 
-  const renderStars = (tagId: string) => {
-    const userRating = getUserRating(tagId)
-    const avgRating = getAverageRating(tagId)
-    
-    return [...Array(5)].map((_, i) => {
-      const starIndex = i + 1
-      const userFilled = starIndex <= userRating
-      const avgFilled = starIndex <= Math.round(avgRating)
-      
-      return (
-        <button
-          key={i}
-          onClick={() => handleRate(tagId, starIndex)}
-          disabled={isRating || !session}
-          className="relative text-yellow-400 hover:text-yellow-500 dark:text-yellow-400 dark:hover:text-yellow-300 disabled:opacity-50 transition-colors"
-          title={session ? `Your rating: ${userRating}/5, Average: ${avgRating.toFixed(1)}/5` : `Average: ${avgRating.toFixed(1)}/5`}
-        >
-          {/* User rating star (more prominent) */}
-          {session && userFilled && (
-            <StarIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-          )}
-          
-          {/* Average rating star (background) */}
-          {(!session || !userFilled) && avgFilled && (
-            <StarIcon className="h-4 w-4" />
-          )}
-          
-          {/* Empty star outline */}
-          {(!avgFilled || (session && !userFilled && !avgFilled)) && (
-            <StarOutlineIcon className="h-4 w-4" />
-          )}
-          
-          {/* User rating outline overlay when user hasn't rated but avg is filled */}
-          {session && !userFilled && avgFilled && (
-            <StarOutlineIcon className="absolute inset-0 h-4 w-4 text-blue-300 dark:text-blue-500 opacity-60" />
-          )}
-        </button>
-      )
-    })
-  }
 
 
   return (
@@ -401,36 +359,21 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
               <>
                 {tagsToShow.map(({ tag }) => {
                   const avgRating = getAverageRating(tag.id)
+                  const userRating = getUserRating(tag.id)
+                  const isPending = hasPendingRating(video.id, tag.id)
+                  
                   return (
-                    <div key={tag.id} className="flex items-center justify-between group">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {tag.name}
-                        </span>
-                        {session && (
-                          <button
-                            onClick={() => handleRemoveTag(tag.id)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
-                            title="Remove tag"
-                          >
-                            <XMarkIcon className="h-3 w-3" />
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        {renderStars(tag.id)}
-                        <div className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                          {session && getUserRating(tag.id) > 0 ? (
-                            <div className="flex flex-col items-end">
-                              <span className="text-blue-600 dark:text-blue-400">You: {getUserRating(tag.id)}/5</span>
-                              <span>Avg: {avgRating.toFixed(1)}/5</span>
-                            </div>
-                          ) : (
-                            <span>Avg: {avgRating.toFixed(1)}/5</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                    <TagWithSlider
+                      key={tag.id}
+                      tag={tag}
+                      userRating={userRating}
+                      avgRating={avgRating}
+                      isPending={isPending}
+                      onRate={handleRate}
+                      onRemoveTag={session ? handleRemoveTag : undefined}
+                      disabled={isRating || !session}
+                      canRemove={!!session}
+                    />
                   )
                 })}
                 
@@ -563,36 +506,21 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
                           <>
                             {tagsToShow.map(({ tag }) => {
                               const avgRating = getAverageRating(tag.id)
+                              const userRating = getUserRating(tag.id)
+                              const isPending = hasPendingRating(video.id, tag.id)
+                              
                               return (
-                                <div key={tag.id} className="flex items-center justify-between group">
-                                  <div className="flex items-center space-x-2">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                      {tag.name}
-                                    </span>
-                                    {session && (
-                                      <button
-                                        onClick={() => handleRemoveTag(tag.id)}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
-                                        title="Remove tag"
-                                      >
-                                        <XMarkIcon className="h-3 w-3" />
-                                      </button>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    {renderStars(tag.id)}
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                                      {session && getUserRating(tag.id) > 0 ? (
-                                        <div className="flex flex-col items-end">
-                                          <span className="text-blue-600 dark:text-blue-400">You: {getUserRating(tag.id)}/5</span>
-                                          <span>Avg: {avgRating.toFixed(1)}/5</span>
-                                        </div>
-                                      ) : (
-                                        <span>Avg: {avgRating.toFixed(1)}/5</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
+                                <TagWithSlider
+                                  key={tag.id}
+                                  tag={tag}
+                                  userRating={userRating}
+                                  avgRating={avgRating}
+                                  isPending={isPending}
+                                  onRate={handleRate}
+                                  onRemoveTag={session ? handleRemoveTag : undefined}
+                                  disabled={isRating || !session}
+                                  canRemove={!!session}
+                                />
                               )
                             })}
                             
