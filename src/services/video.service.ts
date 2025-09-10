@@ -11,6 +11,7 @@ import { tagRepository } from '../repositories/tag.repository'
 import { userRepository } from '../repositories/user.repository'
 import { videoMetadataService } from './video-metadata.service'
 import { nsfwService } from './nsfw.service'
+import { redGifsService } from './redgifs.service'
 import { 
   validateSchema, 
   createVideoSchema, 
@@ -83,35 +84,102 @@ export class VideoServiceImpl {
         throw createNotFoundError('User', userId)
       }
 
-      // Extract metadata automatically from video URL
-      const extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+      // Check if this is a RedGifs URL and handle it specially
+      let extractedMetadata, embedUrl, finalThumbnail
+
+      if (redGifsService.isRedGifsUrl(validatedData.originalUrl)) {
+        try {
+          const redGifsData = await redGifsService.processRedGifsUrl(validatedData.originalUrl)
+          extractedMetadata = {
+            title: redGifsData.metadata.title,
+            description: redGifsData.metadata.description || '',
+            tags: redGifsData.tags,
+            thumbnail: redGifsData.thumbnail
+          }
+          embedUrl = redGifsData.embedUrl // This will be the direct video URL
+          finalThumbnail = redGifsData.thumbnail
+        } catch (error) {
+          logger.error('Failed to process RedGifs URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = extractedMetadata.thumbnail || null
+        }
+      } else {
+        // Extract metadata automatically from video URL
+        extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+        
+        // Convert original URL to embed URL
+        embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+        finalThumbnail = extractedMetadata.thumbnail || null
+      }
       
       // Use extracted data or fallback to provided data
-      const finalTitle = data.title?.trim() || extractedMetadata.title
+      let finalTitle = data.title?.trim() || extractedMetadata.title
+      
+      // If still no title, generate one from the URL
+      if (!finalTitle) {
+        if (validatedData.originalUrl.includes('redgifs.com')) {
+          const match = validatedData.originalUrl.match(/\/watch\/([a-zA-Z0-9]+)/)
+          const gifId = match ? match[1] : 'video'
+          finalTitle = `RedGifs ${gifId}`
+        } else {
+          finalTitle = 'Untitled Video'
+        }
+      }
+      
       const finalDescription = data.description?.trim() || extractedMetadata.description || null
-      const finalThumbnail = extractedMetadata.thumbnail || null
 
       // Combine provided tags with extracted tags
       const providedTags = data.tags ? this.extractTagsFromVideo(data) : []
-      const combinedTags = Array.from(new Set([...providedTags, ...extractedMetadata.tags]))
+      const extractedTags = Array.isArray(extractedMetadata.tags) ? extractedMetadata.tags : []
+      const combinedTags = Array.from(new Set([...providedTags, ...extractedTags]))
       const sanitizedTags = sanitizeTags(combinedTags)
-
-      // Convert original URL to embed URL
-      const embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+      
+      logger.info('Processing tags for video creation', {
+        providedTags: providedTags.length,
+        extractedTags: extractedTags.length,
+        combinedTags: combinedTags.length,
+        sanitizedTags: sanitizedTags.length,
+        finalTags: sanitizedTags
+      })
 
       // Detect NSFW content automatically
       const isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)
 
       // Create video with tags
-      const video = await videoRepository.createWithTags({
-        title: finalTitle,
-        originalUrl: validatedData.originalUrl,
-        embedUrl,
-        thumbnail: finalThumbnail,
-        description: finalDescription,
-        isNsfw: isNSFW,
-        userId,
-      }, sanitizedTags)
+      let video
+      try {
+        video = await videoRepository.createWithTags({
+          title: finalTitle,
+          originalUrl: validatedData.originalUrl,
+          embedUrl,
+          thumbnail: finalThumbnail,
+          description: finalDescription,
+          isNsfw: isNSFW,
+          userId,
+        }, sanitizedTags)
+        
+        logger.info('Video created successfully', { 
+          videoId: video.id, 
+          title: finalTitle,
+          tagsCount: sanitizedTags.length 
+        })
+      } catch (createError) {
+        logger.error('Failed to create video in database', {
+          error: createError,
+          videoData: {
+            title: finalTitle,
+            originalUrl: validatedData.originalUrl,
+            embedUrl,
+            thumbnail: finalThumbnail,
+            description: finalDescription,
+            isNsfw: isNSFW,
+            userId,
+          },
+          tags: sanitizedTags
+        })
+        throw createError
+      }
 
       logUserAction('video_created', userId, { 
         videoId: video.id, 
@@ -340,6 +408,61 @@ export class VideoServiceImpl {
     const vimeoMatch = originalUrl.match(VALIDATION_PATTERNS.VIMEO_URL)
     if (vimeoMatch) {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}`
+    }
+
+    // RedGifs URLs - fallback if not processed by RedGifs service
+    const redgifsRegex = /(?:https?:\/\/)?(?:www\.)?redgifs\.com\/(?:watch\/|ifr\/)([a-zA-Z0-9]+)/i
+    const redgifsMatch = originalUrl.match(redgifsRegex)
+    if (redgifsMatch) {
+      return `https://www.redgifs.com/ifr/${redgifsMatch[1]}`
+    }
+
+    // TikTok URLs
+    const tiktokRegex = /(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@[\w.-]+\/video\/(\d+)/
+    const tiktokMatch = originalUrl.match(tiktokRegex)
+    if (tiktokMatch) {
+      return `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`
+    }
+
+    // Instagram URLs
+    const instagramRegex = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel)\/([a-zA-Z0-9_-]+)/
+    const instagramMatch = originalUrl.match(instagramRegex)
+    if (instagramMatch) {
+      return `https://www.instagram.com/p/${instagramMatch[1]}/embed/`
+    }
+
+    // Twitter/X URLs
+    const twitterRegex = /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/
+    const twitterMatch = originalUrl.match(twitterRegex)
+    if (twitterMatch) {
+      return `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}`
+    }
+
+    // Dailymotion URLs
+    const dailymotionRegex = /(?:https?:\/\/)?(?:www\.)?dailymotion\.com\/video\/([a-zA-Z0-9]+)/
+    const dailymotionMatch = originalUrl.match(dailymotionRegex)
+    if (dailymotionMatch) {
+      return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`
+    }
+
+    // Twitch URLs
+    const twitchVideoRegex = /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/videos\/(\d+)/
+    const twitchVideoMatch = originalUrl.match(twitchVideoRegex)
+    if (twitchVideoMatch) {
+      return `https://player.twitch.tv/?video=${twitchVideoMatch[1]}&parent=${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}`
+    }
+
+    const twitchClipRegex = /(?:https?:\/\/)?clips\.twitch\.tv\/([a-zA-Z0-9_-]+)/
+    const twitchClipMatch = originalUrl.match(twitchClipRegex)
+    if (twitchClipMatch) {
+      return `https://clips.twitch.tv/embed?clip=${twitchClipMatch[1]}&parent=${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}`
+    }
+
+    // Direct video files
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v']
+    const urlPath = new URL(originalUrl).pathname.toLowerCase()
+    if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
+      return originalUrl // Return original URL for direct video files
     }
 
     // If it's already an embed URL or unsupported, return as is

@@ -565,12 +565,60 @@ export function ResizableVideoCard({
 
           {/* Video Section */}
           <div id={`video-section-${video.id}`} className="p-4">
-            <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: videoHeight }}>
-              {shouldBlur ? (
-                <NSFWBlurOverlay 
-                  isNSFW={video.isNsfw}
-                  onReveal={() => revealVideo(video.id)}
-                >
+            {video.originalUrl?.includes('redgifs.com') ? (
+              <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: '189px' }}>
+                <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
+                  {shouldBlur ? (
+                    <NSFWBlurOverlay 
+                      isNSFW={video.isNsfw}
+                      onReveal={() => revealVideo(video.id)}
+                    >
+                      <video
+                        ref={iframeRef}
+                        src={video.embedUrl}
+                        className="w-full h-full rounded-md object-contain"
+                        controls
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                    </NSFWBlurOverlay>
+                  ) : (
+                    <video
+                      ref={iframeRef}
+                      src={video.embedUrl}
+                      className="w-full h-full rounded-md object-contain"
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: videoHeight }}>
+                {shouldBlur ? (
+                  <NSFWBlurOverlay 
+                    isNSFW={video.isNsfw}
+                    onReveal={() => revealVideo(video.id)}
+                  >
+                    <iframe
+                      ref={iframeRef}
+                      src={video.embedUrl}
+                      title={video.title}
+                      className="w-full h-full rounded-md"
+                      style={{ width: videoWidth, height: videoHeight, margin: '0 auto', display: 'block' }}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </NSFWBlurOverlay>
+                ) : (
                   <iframe
                     ref={iframeRef}
                     src={video.embedUrl}
@@ -581,20 +629,9 @@ export function ResizableVideoCard({
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
-                </NSFWBlurOverlay>
-              ) : (
-                <iframe
-                  ref={iframeRef}
-                  src={video.embedUrl}
-                  title={video.title}
-                  className="w-full h-full rounded-md"
-                  style={{ width: videoWidth, height: videoHeight, margin: '0 auto', display: 'block' }}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Title */}
             <div className="flex items-start justify-between mb-2">
@@ -858,12 +895,56 @@ export function ResizableVideoCard({
                       )}
                       
                       {/* Video Player */}
-                      <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                        {shouldBlur ? (
-                          <NSFWBlurOverlay 
-                            isNSFW={video.isNsfw}
-                            onReveal={() => revealVideo(video.id)}
-                          >
+                      {video.originalUrl?.includes('redgifs.com') ? (
+                        <div className="relative mb-3" style={{ height: '189px' }}>
+                          <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
+                            {shouldBlur ? (
+                              <NSFWBlurOverlay 
+                                isNSFW={video.isNsfw}
+                                onReveal={() => revealVideo(video.id)}
+                              >
+                                <video
+                                  src={video.embedUrl}
+                                  className="w-full h-full rounded-md object-contain"
+                                  controls
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  preload="metadata"
+                                />
+                              </NSFWBlurOverlay>
+                            ) : (
+                              <video
+                                src={video.embedUrl}
+                                className="w-full h-full rounded-md object-contain"
+                                controls
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="metadata"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                          {shouldBlur ? (
+                            <NSFWBlurOverlay 
+                              isNSFW={video.isNsfw}
+                              onReveal={() => revealVideo(video.id)}
+                            >
+                              <iframe
+                                src={video.embedUrl}
+                                title={video.title}
+                                className="w-full h-full"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </NSFWBlurOverlay>
+                          ) : (
                             <iframe
                               src={video.embedUrl}
                               title={video.title}
@@ -872,18 +953,9 @@ export function ResizableVideoCard({
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
                             />
-                          </NSFWBlurOverlay>
-                        ) : (
-                          <iframe
-                            src={video.embedUrl}
-                            title={video.title}
-                            className="w-full h-full"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        )}
-                      </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Right Column - Tags, Ratings, and Comments */}

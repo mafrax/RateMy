@@ -1,0 +1,42 @@
+{
+  "sampleUrls": [
+    "https://www.redgifs.com/watch/admirablevictoriousdog",
+    "https://www.redgifs.com/watch/genuinehopefulbat", 
+    "https://www.redgifs.com/watch/wildkeencat",
+    "https://www.redgifs.com/watch/helpfulblackandwhiteswan",
+    "https://www.redgifs.com/watch/seriousillegaljellyfish"
+  ],
+  "instructions": {
+    "step1": "Start your Next.js server: npm run dev",
+    "step2": "Sign in to your application",
+    "step3": "Navigate to /upload",
+    "step4": "Paste one of the sample URLs above",
+    "step5": "The form should automatically detect metadata",
+    "step6": "Review auto-filled title, description, and tags",
+    "step7": "Submit to upload the RedGifs content"
+  },
+  "features": {
+    "redgifs_detection": "Automatically recognizes RedGifs URLs",
+    "metadata_extraction": "Fetches title, description, and tags from RedGifs API", 
+    "embed_conversion": "Converts watch URLs to embed format for display",
+    "tag_integration": "Auto-detected tags are added to the video",
+    "preview": "Shows embed preview in upload form"
+  },
+  "api_endpoints": [
+    "/api/redgifs/metadata - Fetch metadata for a RedGifs URL",
+    "/api/redgifs/search - Search RedGifs content (requires authentication)"
+  ],
+  "service_features": {
+    "authentication": "Automatic token management with RedGifs API",
+    "url_validation": "Validates and extracts IDs from RedGifs URLs",  
+    "embed_generation": "Creates proper embed URLs for display",
+    "thumbnail_generation": "Generates thumbnail URLs",
+    "error_handling": "Comprehensive error handling and logging"
+  },
+  "supported_urls": [
+    "https://www.redgifs.com/watch/[id]",
+    "https://redgifs.com/watch/[id]",
+    "https://www.redgifs.com/ifr/[id]",
+    "redgifs.com/[id]"
+  ]
+}
