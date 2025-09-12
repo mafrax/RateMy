@@ -6,13 +6,13 @@ import Link from 'next/link'
 import { createPortal } from 'react-dom'
 import { useSession } from 'next-auth/react'
 import { StarIcon } from '@heroicons/react/24/solid'
-import { 
-  StarIcon as StarOutlineIcon, 
-  XMarkIcon, 
-  ArrowsPointingOutIcon, 
+import {
+  StarIcon as StarOutlineIcon,
+  XMarkIcon,
+  ArrowsPointingOutIcon,
   Bars3Icon,
   ChevronDownIcon,
-  ChevronUpIcon 
+  ChevronUpIcon
 } from '@heroicons/react/24/outline'
 import { TagWithSlider } from './TagWithSlider'
 import toast from 'react-hot-toast'
@@ -85,9 +85,9 @@ interface ResizableVideoCardProps {
   isDropTarget?: boolean
 }
 
-export function ResizableVideoCard({ 
-  video, 
-  onVideoUpdate, 
+export function ResizableVideoCard({
+  video,
+  onVideoUpdate,
   onResize,
   onResizeStart,
   onResizeStop,
@@ -117,30 +117,75 @@ export function ResizableVideoCard({
   const [commentCount, setCommentCount] = useState(0)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  
+
   // Resizable state
   const [cardSize, setCardSize] = useState({ width: defaultWidth, height: defaultHeight })
   const [isResizing, setIsResizing] = useState(false)
-  
+
   // Modal resizable state
   const [modalSize, setModalSize] = useState({ width: 1200, height: 800 })
   const [isModalResizing, setIsModalResizing] = useState(false)
+
+  // Video orientation state
+  const [isVerticalVideo, setIsVerticalVideo] = useState(false)
+  const videoElementRef = useRef<HTMLVideoElement>(null)
+  const iframeElementRef = useRef<HTMLIFrameElement>(null)
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
+  const videoContainerRef = useRef<HTMLDivElement>(null)
+
+  // Info section collapse state for horizontal layouts
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
+
+  const [isNoDrag, setIsNoDrag] = useState(false)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+  const target = e.target as HTMLElement
+  if (target.closest(".infosection")) {
+    // mark that dragging should be disabled
+    setIsNoDrag(true)
+  } else {
+    setIsNoDrag(false)
+  }
+}
+
+
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+
+    console.log("=== CLICK DEBUG ===");
+    console.log("event.target:", target);
+    console.log("target.className:", target.className);
+
+    // walk up the DOM tree and log each ancestor
+    let el: HTMLElement | null = target;
+    while (el) {
+      console.log(" →", el.tagName, el.className);
+      el = el.parentElement;
+    }
+
+    console.log("closest .infosection:", target.closest(".infosection"));
+  };
   
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent) => {
-    if (isResizing) {
-      e.preventDefault()
-      return
-    }
-    
+  if (isResizing || isNoDrag) {
+    e.preventDefault()
+    return
+  }
+
     // Check if the drag started from a no-drag element
     const target = e.target as HTMLElement
-    const noDragElement = target.closest('[data-no-drag="true"]')
+    const noDragElement = target.closest(".infosection")
+        // const noDragElement = target.closest('[data-no-drag="true"]')
+    console.log('event.target:', e.target);
+    console.log("event.currentTarget:", e.currentTarget);
+    console.log(noDragElement)
+    console.log(target.closest)
     if (noDragElement) {
       e.preventDefault()
       return
     }
-    
+
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/html', video.id)
     if (onDragStart) {
@@ -189,7 +234,7 @@ export function ResizableVideoCard({
 
     try {
       const newNSFWStatus = !video.isNsfw
-      
+
       const response = await fetch(`/api/videos/${video.id}/nsfw`, {
         method: 'PATCH',
         headers: {
@@ -206,9 +251,9 @@ export function ResizableVideoCard({
 
       // Update local state - this will trigger a re-render
       video.isNsfw = newNSFWStatus
-      
+
       toast.success(`Video marked as ${newNSFWStatus ? 'NSFW' : 'safe'}`)
-      
+
       // Force a re-render by calling onResize (this will trigger parent re-render)
       if (onResize) {
         onResize(cardSize.width, cardSize.height, video.id)
@@ -219,9 +264,8 @@ export function ResizableVideoCard({
       toast.error('Failed to update video status')
     }
   }
-  
+
   const cardRef = useRef<HTMLDivElement>(null)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // Sync local tags when video prop changes
   useEffect(() => {
@@ -240,13 +284,64 @@ export function ResizableVideoCard({
         onVideoUpdate()
       }
     }
-    
+
     addRatingSavedCallback(video.id, handleRatingSaved)
-    
+
     return () => {
       removeRatingSavedCallback(video.id)
     }
   }, [video.id, onVideoUpdate, addRatingSavedCallback, removeRatingSavedCallback])
+
+  // Detect video orientation and aspect ratio
+  useEffect(() => {
+    const detectVideoOrientation = () => {
+      if (video.originalUrl?.includes('redgifs.com') || video.embedUrl?.includes('redgifs.com')) {
+        // For RedGifs iframe URLs, assume vertical orientation for now
+        if (video.embedUrl?.includes('/ifr/')) {
+          setIsVerticalVideo(true)
+          setVideoAspectRatio(9 / 16)
+        } else {
+          // For direct RedGifs video URLs, we need to wait for the video element to load
+          const videoElement = videoElementRef.current
+          if (videoElement) {
+            const checkDimensions = () => {
+              if (videoElement.videoWidth && videoElement.videoHeight) {
+                const isVertical = videoElement.videoHeight > videoElement.videoWidth
+                const aspectRatio = videoElement.videoWidth / videoElement.videoHeight
+                setIsVerticalVideo(isVertical)
+                setVideoAspectRatio(aspectRatio)
+              }
+            }
+
+            // Check when metadata is loaded
+            videoElement.addEventListener('loadedmetadata', checkDimensions)
+            
+            // Also check if already loaded
+            if (videoElement.readyState >= 1) {
+              checkDimensions()
+            }
+
+            return () => {
+              videoElement.removeEventListener('loadedmetadata', checkDimensions)
+            }
+          }
+        }
+      } else {
+        // For other videos, try to infer from URL or use heuristics
+        // Most RedGifs, TikTok, Instagram Reels, YouTube Shorts are typically vertical
+        const url = video.originalUrl?.toLowerCase() || ''
+        const isLikelyVertical = url.includes('tiktok') || 
+                                url.includes('instagram') || 
+                                url.includes('shorts') ||
+                                (url.includes('youtube') && url.includes('shorts'))
+        setIsVerticalVideo(isLikelyVertical)
+        // Set default aspect ratios based on orientation
+        setVideoAspectRatio(isLikelyVertical ? (9 / 16) : (16 / 9))
+      }
+    }
+
+    detectVideoOrientation()
+  }, [video.originalUrl, video.embedUrl])
 
 
   const getAverageRating = (tagId: string) => {
@@ -258,11 +353,11 @@ export function ResizableVideoCard({
 
   const getUserRating = (tagId: string) => {
     if (!session || !video.ratings || !Array.isArray(video.ratings)) return 0
-    
+
     // Check if there's a cached rating first
     const cachedRating = getCachedRating(video.id, tagId)
     if (cachedRating !== null) return cachedRating
-    
+
     // Fall back to saved rating from database
     const userRating = video.ratings.find(r => r.tag.id === tagId && r.user?.id === (session.user as any)?.id)
     return userRating ? userRating.level : 0
@@ -276,7 +371,7 @@ export function ResizableVideoCard({
 
     // Immediately cache the rating for instant UI feedback
     setCachedRating(video.id, tagId, level)
-    
+
     // Show toast to indicate rating was cached
     toast.success('Rating saved! Will sync to server shortly.')
   }
@@ -297,7 +392,7 @@ export function ResizableVideoCard({
       })
 
       const data = await response.json()
-      
+
       if (response.ok && data.success) {
         toast.success('Tag added!')
         if (onVideoUpdate) {
@@ -322,9 +417,9 @@ export function ResizableVideoCard({
   const handleResize = (e: MouseEvent | TouchEvent, direction: any, ref: HTMLElement) => {
     const newWidth = ref.offsetWidth
     const newHeight = ref.offsetHeight
-    
+
     setCardSize({ width: newWidth, height: newHeight })
-    
+
     if (onResize) {
       onResize(newWidth, newHeight, video.id)
     }
@@ -334,9 +429,9 @@ export function ResizableVideoCard({
     setIsResizing(false)
     const finalWidth = ref.offsetWidth
     const finalHeight = ref.offsetHeight
-    
+
     setCardSize({ width: finalWidth, height: finalHeight })
-    
+
     if (onResizeStop) {
       onResizeStop(finalWidth, finalHeight, video.id)
     }
@@ -348,7 +443,7 @@ export function ResizableVideoCard({
     const viewportHeight = window.innerHeight
     const initialWidth = Math.min(1200, viewportWidth * 0.9)
     const initialHeight = Math.min(800, viewportHeight * 0.9)
-    
+
     setModalSize({ width: initialWidth, height: initialHeight })
     setIsModalOpen(true)
     document.body.style.overflow = 'hidden'
@@ -361,14 +456,14 @@ export function ResizableVideoCard({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     })
   }
 
-  const displayName = video.user.firstName && video.user.lastName 
+  const displayName = video.user.firstName && video.user.lastName
     ? `${video.user.firstName} ${video.user.lastName}`
     : video.user.username
 
@@ -377,7 +472,7 @@ export function ResizableVideoCard({
     (session.user as any).id === video.user.id || // Owner can delete
     (session.user as any).isAdmin === true // Admin can delete any video
   )
-  
+
   const isAdmin = session?.user && (session.user as any).isAdmin === true
   const isOwner = session?.user && (session.user as any).id === video.user.id
 
@@ -403,12 +498,12 @@ export function ResizableVideoCard({
       }
 
       toast.success('Video deleted successfully')
-      
+
       // Close modal if open
       if (isModalOpen) {
         closeModal()
       }
-      
+
       // Trigger refresh of video list
       if (onVideoUpdate) {
         onVideoUpdate()
@@ -424,41 +519,424 @@ export function ResizableVideoCard({
   }
 
 
-  // Calculate iframe dimensions based on card size
-  const videoAspectRatio = 16 / 9
-  const maxVideoWidth = cardSize.width - 32 // Account for padding
-  const maxVideoHeight = (cardSize.height * 0.6) // Use 60% of card height for video
-  
-  let videoWidth = maxVideoWidth
-  let videoHeight = videoWidth / videoAspectRatio
-  
-  if (videoHeight > maxVideoHeight) {
-    videoHeight = maxVideoHeight
-    videoWidth = videoHeight * videoAspectRatio
+
+  // Calculate video dimensions based on card size and video orientation with fixed info width
+  const getVideoDimensions = () => {
+    if (isVerticalVideo) {
+      // For vertical videos in horizontal layout - fixed info section width
+      const headerHeight = 60 // Approximate header height
+      const padding = 32 // Total padding
+      const availableHeight = cardSize.height - headerHeight - padding
+      
+      // Fixed info section width (doesn't change with resize)
+      const fixedInfoWidth = 200 // Further increased width for info section to prevent overlap
+      
+      // Available width for video section
+      const availableVideoWidth = cardSize.width - fixedInfoWidth - 24 // Reduced padding for tighter layout
+      
+      // Use actual aspect ratio if available, fallback to 9:16
+      const aspectRatio = videoAspectRatio || (9 / 16)
+      
+      // Calculate video dimensions maintaining aspect ratio
+      // Start with width-constrained approach
+      let videoWidth = Math.max(120, Math.min(availableVideoWidth, 300)) // Min 120px, max 300px
+      let videoHeight = videoWidth / aspectRatio
+      
+      // If height exceeds available space, constrain by height
+      if (videoHeight > availableHeight) {
+        videoHeight = Math.max(200, availableHeight) // Minimum 200px height
+        videoWidth = videoHeight * aspectRatio
+        
+        // If width now exceeds available width, constrain by width again
+        if (videoWidth > availableVideoWidth) {
+          videoWidth = Math.max(120, availableVideoWidth)
+          videoHeight = videoWidth / aspectRatio
+        }
+      }
+      
+      // Final constraint check - ensure video fits in both dimensions
+      const maxWidth = Math.min(availableVideoWidth, 300)
+      const maxHeight = Math.min(availableHeight, 400)
+      
+      if (videoWidth > maxWidth) {
+        videoWidth = maxWidth
+        videoHeight = videoWidth / aspectRatio
+      }
+      
+      if (videoHeight > maxHeight) {
+        videoHeight = maxHeight
+        videoWidth = videoHeight * aspectRatio
+      }
+      
+      return { 
+        width: videoWidth, 
+        height: videoHeight,
+        infoWidth: fixedInfoWidth // Fixed width for info section
+      }
+    } else {
+      // For horizontal videos in vertical layout
+      const aspectRatio = videoAspectRatio || (16 / 9)
+      const maxVideoWidth = cardSize.width - 32 // Account for padding
+      const maxVideoHeight = (cardSize.height * 0.6) // Use 60% of card height for video
+
+      let videoWidth = maxVideoWidth
+      let videoHeight = videoWidth / aspectRatio
+
+      if (videoHeight > maxVideoHeight) {
+        videoHeight = maxVideoHeight
+        videoWidth = videoHeight * aspectRatio
+      }
+      
+      return { width: videoWidth, height: videoHeight }
+    }
   }
+
+  const videoDimensions = getVideoDimensions()
+  const { width: videoWidth, height: videoHeight } = videoDimensions
+  const infoWidth = videoDimensions.infoWidth
 
   const shouldBlur = video.isNsfw && globalBlurEnabled && !isVideoRevealed(video.id)
 
+  // Get the card position for portal positioning
+  const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 })
+
+  // Update card position when expanded
+  useEffect(() => {
+    if (isVerticalVideo && isInfoExpanded && cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect()
+      setCardPosition({ x: rect.left, y: rect.top })
+    }
+  }, [isVerticalVideo, isInfoExpanded])
+
+  // Render the expanded card as a portal
+  const ExpandedCardPortal = () => {
+    if (!isVerticalVideo || !isInfoExpanded) return null
+
+    return createPortal(
+      <div
+        style={{
+          position: 'fixed',
+          top: cardPosition.y,
+          left: cardPosition.x,
+          width: `${cardSize.width + 180}px`, // Expanded by 180px (300px overlay - 120px normal)
+          height: cardSize.height,
+          zIndex: 9999,
+          pointerEvents: 'auto'
+        }}
+        className="transition-all duration-200"
+      >
+        <Resizable
+          size={{ width: cardSize.width + 180, height: cardSize.height }}
+          onResizeStart={handleResizeStart}
+          onResize={handleResize}
+          onResizeStop={handleResizeStop}
+          minWidth={minWidth}
+          minHeight={minHeight}
+          maxWidth={maxWidth}
+          maxHeight={maxHeight}
+          enable={{
+            top: false,
+            right: false,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+        >
+          <div
+            className="h-full w-full bg-white dark:bg-gray-800 rounded-lg shadow-2xl 
+            border border-gray-200 dark:border-gray-700 
+            transition-all duration-200 overflow-hidden ring-2 ring-blue-500 ring-opacity-30"
+            data-testid="video-card-expanded"
+            
+          >
+            {/* Header */}
+            <div className="video-card-header flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-2">
+                <Link
+                  href={`/profile/${video.user.id}`}
+                  className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  {displayName}
+                </Link>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatDate(video.createdAt)}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-1">
+                {canDelete && (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={isDeleting}
+                    className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 
+                           hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={isAdmin && !isOwner ? 'Delete video (Admin)' : 'Delete your video'}
+                    aria-label="Delete video"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+
+                <button
+                  onClick={openModal}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
+                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                  title="Expand to fullscreen"
+                  aria-label="Expand video to fullscreen"
+                >
+                  <ArrowsPointingOutIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Main Content Area - Flex container for video and info */}
+            <div className="flex flex-row h-full">
+              {/* Video Section */}
+              <div className="videoSection flex-grow flex flex-col mb-4" style={{ minHeight: 0 }}>
+                <div className="flex-1 p-4 pb-6" style={{ minHeight: 0 }}>
+                  {(video.originalUrl?.includes('redgifs.com') || video.embedUrl?.includes('redgifs.com')) && !video.embedUrl?.includes('/ifr/') ? (
+                    <div className="w-full h-full bg-gray-200 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
+                      {shouldBlur ? (
+                          <NSFWBlurOverlay
+                            isNSFW={video.isNsfw}
+                            onReveal={() => revealVideo(video.id)}
+                          >
+                            <video
+                              src={video.embedUrl}
+                              className="w-full h-full rounded-md object-contain"
+                              controls
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                          </NSFWBlurOverlay>
+                        ) : (
+                          <video
+                            src={video.embedUrl}
+                            className="w-full h-full rounded-md object-contain"
+                            controls
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                        )}
+                      </div>
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
+                      {shouldBlur ? (
+                          <NSFWBlurOverlay
+                            isNSFW={video.isNsfw}
+                            onReveal={() => revealVideo(video.id)}
+                          >
+                            <iframe
+                              src={video.embedUrl}
+                              title={video.title}
+                              className="w-full h-full rounded-md"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </NSFWBlurOverlay>
+                        ) : (
+                          <iframe
+                            src={video.embedUrl}
+                            title={video.title}
+                            className="w-full h-full rounded-md"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        )}
+                      </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Info Section - Expanded */}
+              <div 
+                className="infosection ml-4 flex-shrink-0 relative data-no-drag"
+                data-no-drag="true"
+                style={{ 
+                  width: 300,
+                  minWidth: 300,
+                  maxWidth: 300
+                }}
+                draggable={false}
+              >
+                {/* Collapse Toggle */}
+                <button
+                  onClick={() => setIsInfoExpanded(false)}
+                  className="absolute top-2 right-2 z-10 p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                  title="Collapse info"
+                  data-no-drag="true"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                <div className="p-4 h-full">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1 pr-2">
+                      {video.title}
+                    </h3>
+
+                    {/* NSFW Status and Controls */}
+                    <div className="flex items-center space-x-2 flex-shrink-0">
+                      {video.isNsfw && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          NSFW
+                        </span>
+                      )}
+
+                      {session?.user && (
+                        <button
+                          onClick={handleNSFWToggle}
+                          className={`p-1 rounded-full transition-colors ${video.isNsfw
+                            ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            }`}
+                          title={video.isNsfw ? 'Mark as Safe' : 'Mark as NSFW'}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* NSFW Video Control */}
+                  {video.isNsfw && (
+                    <div className="mb-2 flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <div className="text-xs text-amber-700 dark:text-amber-300">
+                        <span className="font-medium">This content is marked as NSFW</span>
+                      </div>
+                      <button
+                        onClick={() => toggleVideoReveal(video.id)}
+                        className="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 rounded hover:bg-amber-300 dark:hover:bg-amber-700 transition-colors"
+                      >
+                        {isVideoRevealed(video.id) ? 'Hide NSFW' : 'Show NSFW'}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  {video.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                      {video.description}
+                    </p>
+                  )}
+
+                  {/* Tags Section - Scrollable */}
+                  <div
+                    className="overflow-y-auto custom-scrollbar"
+                    style={{ 
+                      height: `${Math.max(200, videoHeight - 300)}px`
+                    }}
+                  >
+                    <div className="space-y-2 pr-2">
+                      {localTags.map(({ tag }) => {
+                        const averageRating = getAverageRating(tag.id)
+                        const userRating = getUserRating(tag.id)
+                        const isPending = hasPendingRating(video.id, tag.id)
+
+                        return (
+                          <TagWithSlider
+                            key={tag.id}
+                            tag={tag}
+                            userRating={userRating}
+                            avgRating={averageRating}
+                            isPending={isPending}
+                            onRate={handleRate}
+                            disabled={isRating || !session}
+                            canRemove={false}
+                          />
+                        )
+                      })}
+
+                      {/* Add Tag Input */}
+                      {session && (
+                        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                          <AddTagInput videoId={video.id} onTagAdded={(tag) => {
+                            if (onVideoUpdate) onVideoUpdate()
+                          }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Comments Toggle */}
+                  <div className="comment">
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <button
+                        onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+                        className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 w-full"
+                      >
+                        <Bars3Icon className="h-4 w-4" />
+                        <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
+                        <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-auto">
+                          {commentCount}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Resizable>
+      </div>,
+      document.body
+    )
+  }
+
   return (
     <>
+      {/* Wrapper container to maintain layout when card is expanded via portal */}
       <div
-        id={`video-card-${video.id}`}
-        draggable={!isResizing}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={`relative transition-all duration-200 ${
-          isDragging 
-            ? 'opacity-50 scale-95 rotate-1 z-50 cursor-grabbing' 
+        className="relative"
+        style={{
+          width: cardSize.width,
+          height: cardSize.height
+        }}
+      >
+        <div
+          ref={cardRef}
+          id={isVerticalVideo ? `vertical-video-card-${video.id}` : `horizontal-video-card-${video.id}`}
+          draggable={!isResizing && !(isVerticalVideo && isInfoExpanded)}
+          onMouseDown={handleMouseDown}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={handleClick}
+          className={` ${isVerticalVideo ? 'video-card-type-1' :  'video-card-type-2'} relative transition-all duration-200 ${isDragging
+            ? 'opacity-50 scale-95 rotate-1 z-50 cursor-grabbing'
             : isDropTarget
               ? 'scale-105 shadow-2xl ring-2 ring-blue-400 bg-blue-50 z-40'
-              : isResizing 
-                ? 'z-50' 
-                : 'z-10 hover:scale-102 cursor-grab'
-        }`}
-      >
+              : isResizing
+                ? 'z-50'
+                : ''
+            }`}
+          style={isVerticalVideo && isInfoExpanded ? { opacity: 0.3, border : '2px solid red'} : {border : '2px solid red'}}
+        >
         <Resizable
           size={cardSize}
           onResizeStart={handleResizeStart}
@@ -479,14 +957,14 @@ export function ResizableVideoCard({
             topLeft: true
           }}
           handleStyles={{
-            top: { height: '8px', top: '-4px' },
-            right: { width: '8px', right: '-4px' },
-            bottom: { height: '8px', bottom: '-4px' },
-            left: { width: '8px', left: '-4px' },
-            topRight: { width: '12px', height: '12px', top: '-6px', right: '-6px' },
-            bottomRight: { width: '12px', height: '12px', bottom: '-6px', right: '-6px' },
-            bottomLeft: { width: '12px', height: '12px', bottom: '-6px', left: '-6px' },
-            topLeft: { width: '12px', height: '12px', top: '-6px', left: '-6px' }
+            top: { height: '12px', top: '-6px' },
+            right: { width: '12px', right: '-6px' },
+            bottom: { height: '12px', bottom: '-6px' },
+            left: { width: '12px', left: '-6px' },
+            topRight: { width: '24px', height: '24px', top: '-12px', right: '-12px' },
+            bottomRight: { width: '24px', height: '24px', bottom: '-12px', right: '-12px' },
+            bottomLeft: { width: '24px', height: '24px', bottom: '-12px', left: '-12px' },
+            topLeft: { width: '24px', height: '24px', top: '-12px', left: '-12px' }
           }}
           handleClasses={{
             top: 'resize-handle resize-handle-top',
@@ -499,256 +977,411 @@ export function ResizableVideoCard({
             topLeft: 'resize-handle resize-handle-corner'
           }}
         >
-        <div
-          ref={cardRef}
-          className={`
+          <div
+            ref={cardRef}
+            className={`
             h-full w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg 
             border border-gray-200 dark:border-gray-700 
             transition-all duration-200 overflow-hidden
             ${isResizing ? 'shadow-2xl ring-2 ring-blue-400 ring-opacity-50' : 'hover:shadow-xl'}
+            ${isVerticalVideo && isInfoExpanded ? 'shadow-2xl ring-2 ring-blue-500 ring-opacity-30' : ''}
           `}
-          data-testid="video-card"
-        >
-          {/* Header */}
-          <div className="video-card-header flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-2">
-              {/* Drag Handle */}
-              <div 
-                className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                title="Drag to reorder"
-              >
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z"/>
-                </svg>
+            data-testid="video-card"
+            style={isVerticalVideo && isInfoExpanded ? {
+              position: 'relative',
+              zIndex: 1
+            } : {}}
+          >
+            {/* Header */}
+            <div className="video-card-header flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 cursor-grab">
+              <div className="flex items-center space-x-2">
+                {/* Drag Handle */}
+                <div
+                  className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  title="Drag to reorder"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z" />
+                  </svg>
+                </div>
+
+                <Link
+                  href={`/profile/${video.user.id}`}
+                  className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  {displayName}
+                </Link>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatDate(video.createdAt)}
+                </span>
               </div>
-              
-              <Link 
-                href={`/profile/${video.user.id}`}
-                className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                {displayName}
-              </Link>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {formatDate(video.createdAt)}
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-1">
-              {canDelete && (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  disabled={isDeleting}
-                  className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 
+
+              <div className="flex items-center space-x-1">
+                {canDelete && (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={isDeleting}
+                    className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 
                            hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors
                            disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isAdmin && !isOwner ? 'Delete video (Admin)' : 'Delete your video'}
-                  aria-label="Delete video"
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              )}
-              
-              <button
-                onClick={openModal}
-                className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
-                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                title="Expand to fullscreen"
-                aria-label="Expand video to fullscreen"
-              >
-                <ArrowsPointingOutIcon className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Video Section */}
-          <div id={`video-section-${video.id}`} className="p-4">
-            {video.originalUrl?.includes('redgifs.com') ? (
-              <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: '189px' }}>
-                <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
-                  {shouldBlur ? (
-                    <NSFWBlurOverlay 
-                      isNSFW={video.isNsfw}
-                      onReveal={() => revealVideo(video.id)}
-                    >
-                      <video
-                        ref={iframeRef}
-                        src={video.embedUrl}
-                        className="w-full h-full rounded-md object-contain"
-                        controls
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                    </NSFWBlurOverlay>
-                  ) : (
-                    <video
-                      ref={iframeRef}
-                      src={video.embedUrl}
-                      className="w-full h-full rounded-md object-contain"
-                      controls
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                    />
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: videoHeight }}>
-                {shouldBlur ? (
-                  <NSFWBlurOverlay 
-                    isNSFW={video.isNsfw}
-                    onReveal={() => revealVideo(video.id)}
+                    title={isAdmin && !isOwner ? 'Delete video (Admin)' : 'Delete your video'}
+                    aria-label="Delete video"
                   >
-                    <iframe
-                      ref={iframeRef}
-                      src={video.embedUrl}
-                      title={video.title}
-                      className="w-full h-full rounded-md"
-                      style={{ width: videoWidth, height: videoHeight, margin: '0 auto', display: 'block' }}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </NSFWBlurOverlay>
-                ) : (
-                  <iframe
-                    ref={iframeRef}
-                    src={video.embedUrl}
-                    title={video.title}
-                    className="w-full h-full rounded-md"
-                    style={{ width: videoWidth, height: videoHeight, margin: '0 auto', display: 'block' }}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                )}
-              </div>
-            )}
-
-            {/* Title */}
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1 pr-2">
-                {video.title}
-              </h3>
-              
-              {/* NSFW Status and Controls */}
-              <div className="flex items-center space-x-2 flex-shrink-0">
-                {video.isNsfw && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                    NSFW
-                  </span>
-                )}
-                
-                {session?.user && (
-                  <button
-                    onClick={handleNSFWToggle}
-                    className={`p-1 rounded-full transition-colors ${
-                      video.isNsfw 
-                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20' 
-                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                    title={video.isNsfw ? 'Mark as Safe' : 'Mark as NSFW'}
-                  >
-                    <svg 
-                      className="w-4 h-4" 
-                      fill="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z"/>
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
                 )}
-              </div>
-            </div>
 
-            {/* NSFW Video Control */}
-            {video.isNsfw && (
-              <div id={`nsfw-warning-${video.id}`} className="mb-2 flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                <div id={`nsfw-text-${video.id}`} className="text-xs text-amber-700 dark:text-amber-300">
-                  <span className="font-medium">This content is marked as NSFW</span>
-                </div>
                 <button
-                  id={`nsfw-toggle-${video.id}`}
-                  onClick={() => toggleVideoReveal(video.id)}
-                  className="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 rounded hover:bg-amber-300 dark:hover:bg-amber-700 transition-colors"
+                  onClick={openModal}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
+                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                  title="Expand to fullscreen"
+                  aria-label="Expand video to fullscreen"
                 >
-                  {isVideoRevealed(video.id) ? 'Hide NSFW' : 'Show NSFW'}
+                  <ArrowsPointingOutIcon className="h-4 w-4" />
                 </button>
               </div>
-            )}
+            </div>
 
-            {/* Description */}
-            {video.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-                {video.description}
-              </p>
-            )}
-
-            {/* Tags Section - Scrollable */}
-            <div 
-              className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
-              style={{ height: `${Math.max(120, cardSize.height - videoHeight - 200)}px` }}
-            >
-              <div className="space-y-2 pr-2">
-                {localTags.map(({ tag }) => {
-                  const averageRating = getAverageRating(tag.id)
-                  const userRating = getUserRating(tag.id)
-                  const isPending = hasPendingRating(video.id, tag.id)
-
-                  return (
-                    <TagWithSlider
-                      key={tag.id}
-                      tag={tag}
-                      userRating={userRating}
-                      avgRating={averageRating}
-                      isPending={isPending}
-                      onRate={handleRate}
-                      disabled={isRating || !session}
-                      canRemove={false}
-                    />
-                  )
-                })}
-
-                {/* Add Tag Input */}
-                {session && (
-                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <AddTagInput onAddTag={handleAddTag} />
+            {/* Main Content Area - Only show normal card content when not expanded */}
+            {!(isVerticalVideo && isInfoExpanded) && (
+              <div className={`flex ${isVerticalVideo ? 'flex-row' : 'flex-col'} h-full`}>
+                {/* Video Section */}
+                <div className={`videoSection ${isVerticalVideo ? 'flex-grow' : 'flex-grow'} flex flex-col ${isVerticalVideo ? '' : 'mb-4'}`} style={{ minHeight: 0 }}>
+                  <div id={`video-section-${video.id}`} className={`flex-1 p-4 ${isVerticalVideo ? 'pb-8' : 'pb-6'}`} style={{ minHeight: 0 }}>
+                    {(video.originalUrl?.includes('redgifs.com') || video.embedUrl?.includes('redgifs.com')) && !video.embedUrl?.includes('/ifr/') ? (
+                      <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full" style={{ 
+                        minHeight: 200,
+                        height: isVerticalVideo ? `calc(100% - 2rem)` : '100%'
+                      }}>
+                        <div className="w-full h-full bg-white dark:bg-gray-800 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
+                          {shouldBlur ? (
+                            <NSFWBlurOverlay
+                              isNSFW={video.isNsfw}
+                              onReveal={() => revealVideo(video.id)}
+                            >
+                              <video
+                                ref={videoElementRef}
+                                src={video.embedUrl}
+                                className="w-full h-full rounded-md object-contain"
+                                controls
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="metadata"
+                              />
+                            </NSFWBlurOverlay>
+                          ) : (
+                            <video
+                              ref={videoElementRef}
+                              src={video.embedUrl}
+                              className="w-full h-full rounded-md object-contain"
+                              controls
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full" style={{ 
+                        minHeight: 200,
+                        height: isVerticalVideo ? `calc(100% - 2rem)` : '100%'
+                      }}>
+                        <div className="w-full h-full bg-white dark:bg-gray-800 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
+                          {shouldBlur ? (
+                            <NSFWBlurOverlay
+                              isNSFW={video.isNsfw}
+                              onReveal={() => revealVideo(video.id)}
+                            >
+                              <iframe
+                                ref={iframeElementRef}
+                                src={video.embedUrl}
+                                title={video.title}
+                                className="w-full h-full rounded-md"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </NSFWBlurOverlay>
+                          ) : (
+                            <iframe
+                              ref={iframeElementRef}
+                              src={video.embedUrl}
+                              title={video.title}
+                              className="w-full h-full rounded-md"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
 
-                {/* Comments Toggle */}
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <button
-                    onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
-                    className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 w-full"
-                  >
-                    <Bars3Icon className="h-4 w-4" />
-                    <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
-                    <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-auto">
-                      {commentCount}
-                    </span>
-                  </button>
+                {/* Info Section */}
+                <div 
+                  className={`infosection ${isVerticalVideo ? 'ml-2 flex-shrink-0 overflow-hidden' : 'flex-1 overflow-y-auto'}`}
+                  style={isVerticalVideo ? { 
+                    width: infoWidth,
+                    minWidth: infoWidth,
+                    maxWidth: infoWidth
+                  } : {}}
+                >
+                  {/* Expand Toggle for Vertical Videos - positioned within info section */}
+                  {isVerticalVideo && (
+                    <div className="flex justify-end p-2">
+                      <button
+                        onClick={() => setIsInfoExpanded(true)}
+                        className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                        title="Expand info"
+                        data-no-drag="true"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+
+                  <div className={`${isVerticalVideo ? 'px-2 pb-2' : 'px-4 pb-4'} ${isVerticalVideo ? 'flex-1' : 'h-full overflow-y-auto'}`}>
+                    {/* Collapsed vertical layout - only tags and notes */}
+                    {isVerticalVideo ? (
+                      <div className="h-full flex flex-col">
+                        {/* Tags Section - Full height scrollable */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                          <div className="space-y-1.5">
+                            {localTags.map(({ tag }) => {
+                              const averageRating = getAverageRating(tag.id)
+                              const userRating = getUserRating(tag.id)
+                              const isPending = hasPendingRating(video.id, tag.id)
+                              
+                              return (
+                                <div key={tag.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md p-1.5 shadow-sm">
+                                  {/* Tag name */}
+                                  <div className="mb-1">
+                                    <span 
+                                      className="text-xs font-semibold text-gray-800 dark:text-gray-200 leading-tight block text-center" 
+                                      title={tag.name}
+                                    >
+                                      {tag.name}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* User rating stars */}
+                                  <div className="flex justify-center mb-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <StarIcon
+                                        key={star}
+                                        className={`w-2.5 h-2.5 ${
+                                          star <= userRating
+                                            ? isPending 
+                                              ? 'text-orange-400' 
+                                              : 'text-yellow-400'
+                                            : 'text-gray-300 dark:text-gray-600'
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                  
+                                  {/* Community rating bar */}
+                                  <div className="space-y-0.5">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[9px] font-medium text-gray-500 dark:text-gray-400">
+                                        Community
+                                      </span>
+                                      <span className="text-[9px] font-bold text-gray-700 dark:text-gray-300">
+                                        {averageRating.toFixed(1)}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 overflow-hidden">
+                                      <div 
+                                        className={`h-1 rounded-full transition-all duration-300 ${
+                                          averageRating >= 4 ? 'bg-green-500' :
+                                          averageRating >= 3 ? 'bg-blue-500' :
+                                          averageRating >= 2 ? 'bg-yellow-500' :
+                                          averageRating >= 1 ? 'bg-orange-500' : 'bg-red-500'
+                                        }`}
+                                        style={{ width: `${(averageRating / 5) * 100}%` }}
+                                      />
+                                    </div>
+                                    
+                                    {userRating > 0 && (
+                                      <div className="text-[9px] text-blue-600 dark:text-blue-400 font-medium text-center">
+                                        Your rating: {userRating}/5
+                                        {isPending && <span className="text-orange-500 ml-0.5">●</span>}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                            
+                            {/* Notes section at the bottom */}
+                            {video.description && (
+                              <div className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-500 rounded-md p-2 mt-2">
+                                <div className="text-[9px] font-medium text-gray-600 dark:text-gray-400 mb-1 text-center">
+                                  Notes
+                                </div>
+                                <div className="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                  {video.description}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Title - Full width, more compact */}
+                        <div className="mb-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 text-xs leading-tight">
+                            {video.title}
+                          </h3>
+                        </div>
+
+                        {/* NSFW Status and Controls - Ultra compact */}
+                        <div className="mb-1 space-y-1">
+                          {video.isNsfw && (
+                            <div className="flex items-center justify-between">
+                              <span className="inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                NSFW
+                              </span>
+                              {session?.user && (
+                                <button
+                                  onClick={handleNSFWToggle}
+                                  className="p-0.5 rounded transition-colors text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                  title="Mark as Safe"
+                                >
+                                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          
+                          {!video.isNsfw && session?.user && (
+                            <div className="flex justify-end">
+                              <button
+                                onClick={handleNSFWToggle}
+                                className="p-0.5 rounded transition-colors text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                title="Mark as NSFW"
+                              >
+                                <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z" />
+                                </svg>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* NSFW Video Control - Compact vertical layout */}
+                        {video.isNsfw && (
+                          <div id={`nsfw-warning-${video.id}`} className="mb-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 p-2 space-y-1">
+                            <div id={`nsfw-text-${video.id}`} className="text-xs text-amber-700 dark:text-amber-300 text-center">
+                              <span className="font-medium">NSFW Content</span>
+                            </div>
+                            <button
+                              id={`nsfw-toggle-${video.id}`}
+                              onClick={() => toggleVideoReveal(video.id)}
+                              className="w-full text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 rounded hover:bg-amber-300 dark:hover:bg-amber-700 transition-colors"
+                            >
+                              {isVideoRevealed(video.id) ? 'Hide' : 'Show'}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Description */}
+                        {video.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                            {video.description}
+                          </p>
+                        )}
+
+                        {/* Tags Section - Scrollable */}
+                        <div
+                          className="overflow-y-auto custom-scrollbar"
+                          style={{ 
+                            height: `${Math.max(120, cardSize.height - videoHeight - 200)}px` 
+                          }}
+                        >
+                          <div className="space-y-2 pr-2">
+                            {localTags.map(({ tag }) => {
+                              const averageRating = getAverageRating(tag.id)
+                              const userRating = getUserRating(tag.id)
+                              const isPending = hasPendingRating(video.id, tag.id)
+
+                              return (
+                                <TagWithSlider
+                                  key={tag.id}
+                                  tag={tag}
+                                  userRating={userRating}
+                                  avgRating={averageRating}
+                                  isPending={isPending}
+                                  onRate={handleRate}
+                                  disabled={isRating || !session}
+                                  canRemove={false}
+                                />
+                              )
+                            })}
+
+                            {/* Add Tag Input */}
+                            {session && (
+                              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <AddTagInput videoId={video.id} onTagAdded={(tag) => {
+                                if (onVideoUpdate) onVideoUpdate()
+                              }} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Comments Toggle */}
+                        <div className="comment">
+                          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <button
+                              onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+                              className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 w-full"
+                            >
+                              <Bars3Icon className="h-4 w-4" />
+                              <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
+                              <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-auto">
+                                {commentCount}
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
           </div>
-        </div>
         </Resizable>
+        </div>
       </div>
+
+      {/* Portal-based expanded card overlay */}
+      <ExpandedCardPortal />
 
       {/* Enhanced Resizable Modal */}
       {isModalOpen && (
         <>
           {createPortal(
-            <div 
+            <div
               className="fixed inset-0 z-[9999] bg-black bg-opacity-90 flex items-center justify-center p-4"
               onClick={closeModal}
             >
@@ -774,27 +1407,26 @@ export function ResizableVideoCard({
                   topLeft: true
                 }}
                 handleStyles={{
-                  top: { height: '8px', top: '-4px', backgroundColor: '#3B82F6' },
-                  right: { width: '8px', right: '-4px', backgroundColor: '#3B82F6' },
-                  bottom: { height: '8px', bottom: '-4px', backgroundColor: '#3B82F6' },
-                  left: { width: '8px', left: '-4px', backgroundColor: '#3B82F6' },
-                  topRight: { width: '12px', height: '12px', top: '-6px', right: '-6px', backgroundColor: '#2563EB', borderRadius: '50%' },
-                  bottomRight: { width: '12px', height: '12px', bottom: '-6px', right: '-6px', backgroundColor: '#2563EB', borderRadius: '50%' },
-                  bottomLeft: { width: '12px', height: '12px', bottom: '-6px', left: '-6px', backgroundColor: '#2563EB', borderRadius: '50%' },
-                  topLeft: { width: '12px', height: '12px', top: '-6px', left: '-6px', backgroundColor: '#2563EB', borderRadius: '50%' }
+                  top: { height: '12px', top: '-6px', backgroundColor: '#3B82F6' },
+                  right: { width: '12px', right: '-6px', backgroundColor: '#3B82F6' },
+                  bottom: { height: '12px', bottom: '-6px', backgroundColor: '#3B82F6' },
+                  left: { width: '12px', left: '-6px', backgroundColor: '#3B82F6' },
+                  topRight: { width: '24px', height: '24px', top: '-12px', right: '-12px', backgroundColor: '#2563EB', borderRadius: '50%' },
+                  bottomRight: { width: '24px', height: '24px', bottom: '-12px', right: '-12px', backgroundColor: '#2563EB', borderRadius: '50%' },
+                  bottomLeft: { width: '24px', height: '24px', bottom: '-12px', left: '-12px', backgroundColor: '#2563EB', borderRadius: '50%' },
+                  topLeft: { width: '24px', height: '24px', top: '-12px', left: '-12px', backgroundColor: '#2563EB', borderRadius: '50%' }
                 }}
               >
-                <div 
-                  className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden h-full transition-all duration-200 ${
-                    isModalResizing ? 'ring-2 ring-blue-400 ring-opacity-50' : ''
-                  }`}
+                <div
+                  className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden h-full transition-all duration-200 ${isModalResizing ? 'ring-2 ring-blue-400 ring-opacity-50' : ''
+                    }`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Modal Header */}
                   <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center space-x-2">
-                        <Link 
+                        <Link
                           href={`/profile/${video.user.id}`}
                           className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                         >
@@ -804,7 +1436,7 @@ export function ResizableVideoCard({
                           {formatDate(video.createdAt)}
                         </span>
                       </div>
-                      
+
                       {/* NSFW Badge in header */}
                       {video.isNsfw && (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
@@ -812,29 +1444,28 @@ export function ResizableVideoCard({
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       {/* NSFW Toggle in header */}
                       {session?.user && (
                         <button
                           onClick={handleNSFWToggle}
-                          className={`p-1.5 rounded-full transition-colors ${
-                            video.isNsfw 
-                              ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20' 
-                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-                          }`}
+                          className={`p-1.5 rounded-full transition-colors ${video.isNsfw
+                            ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            }`}
                           title={video.isNsfw ? 'Mark as Safe' : 'Mark as NSFW'}
                         >
-                          <svg 
-                            className="w-5 h-5" 
-                            fill="currentColor" 
+                          <svg
+                            className="w-5 h-5"
+                            fill="currentColor"
                             viewBox="0 0 24 24"
                           >
-                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z"/>
+                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1.5L12 4.5L9 1.5L3 7V9H21ZM12 10C10.9 10 10 10.9 10 12S10.9 14 12 14S14 13.1 14 12S13.1 10 12 10ZM6 10V12H8V10H6ZM16 10V12H18V10H16ZM4 18V20H8V18H4ZM10 18V20H14V18H10ZM16 18V20H20V18H16Z" />
                           </svg>
                         </button>
                       )}
-                      
+
                       {/* Delete button in modal header */}
                       {canDelete && (
                         <button
@@ -846,12 +1477,12 @@ export function ResizableVideoCard({
                           title={isAdmin && !isOwner ? 'Delete video (Admin)' : 'Delete your video'}
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         </button>
                       )}
-                      
+
                       <button
                         onClick={closeModal}
                         className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
@@ -863,10 +1494,10 @@ export function ResizableVideoCard({
                     </div>
                   </div>
 
-                  {/* Modal Content - Two Column Layout */}
-                  <div className="flex h-full overflow-hidden">
-                    {/* Left Column - Video and Title */}
-                    <div className="flex-1 p-6 overflow-y-auto">
+                  {/* Modal Content - Adaptive Layout */}
+                  <div className={`flex ${isVerticalVideo ? 'flex-row' : 'flex-col lg:flex-row'} h-full overflow-hidden`}>
+                    {/* Video Column */}
+                    <div className={`${isVerticalVideo ? 'flex-shrink-0' : 'flex-1'} p-6 overflow-y-auto`}>
                       {/* Video Title */}
                       <div className="mb-4">
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -893,13 +1524,16 @@ export function ResizableVideoCard({
                           </button>
                         </div>
                       )}
-                      
+
                       {/* Video Player */}
-                      {video.originalUrl?.includes('redgifs.com') ? (
-                        <div className="relative mb-3" style={{ height: '189px' }}>
-                          <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
+                      {(video.originalUrl?.includes('redgifs.com') || video.embedUrl?.includes('redgifs.com')) && !video.embedUrl?.includes('/ifr/') ? (
+                        <div className="relative mb-3" style={{ 
+                          width: isVerticalVideo ? Math.min(450, modalSize.width * 0.5) : '100%',
+                          height: isVerticalVideo ? 'auto' : Math.min(400, modalSize.height * 0.6)
+                        }}>
+                          <div className={`${isVerticalVideo ? 'aspect-[9/16]' : 'aspect-video'} bg-gray-200 rounded-md flex items-center justify-center`}>
                             {shouldBlur ? (
-                              <NSFWBlurOverlay 
+                              <NSFWBlurOverlay
                                 isNSFW={video.isNsfw}
                                 onReveal={() => revealVideo(video.id)}
                               >
@@ -929,9 +1563,13 @@ export function ResizableVideoCard({
                           </div>
                         </div>
                       ) : (
-                        <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                        <div className="relative bg-black rounded-lg overflow-hidden" style={{ 
+                          aspectRatio: isVerticalVideo ? '9/16' : '16/9',
+                          width: isVerticalVideo ? Math.min(450, modalSize.width * 0.5) : '100%',
+                          height: isVerticalVideo ? 'auto' : Math.min(400, modalSize.height * 0.6)
+                        }}>
                           {shouldBlur ? (
-                            <NSFWBlurOverlay 
+                            <NSFWBlurOverlay
                               isNSFW={video.isNsfw}
                               onReveal={() => revealVideo(video.id)}
                             >
@@ -958,8 +1596,8 @@ export function ResizableVideoCard({
                       )}
                     </div>
 
-                    {/* Right Column - Tags, Ratings, and Comments */}
-                    <div className="w-80 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-y-auto">
+                    {/* Info Column - Tags, Ratings, and Comments */}
+                    <div className={`${isVerticalVideo ? 'flex-1' : 'w-80'} border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-y-auto`}>
                       <div className="p-6 space-y-6">
                         {/* Tags and Ratings */}
                         <div>
@@ -1009,7 +1647,9 @@ export function ResizableVideoCard({
                         {session && (
                           <div>
                             <h4 className="font-medium text-gray-900 dark:text-white mb-2">Add Tag</h4>
-                            <AddTagInput onAddTag={handleAddTag} />
+                            <AddTagInput videoId={video.id} onTagAdded={(tag) => {
+                              if (onVideoUpdate) onVideoUpdate()
+                            }} />
                           </div>
                         )}
 
@@ -1021,7 +1661,7 @@ export function ResizableVideoCard({
                               {commentCount}
                             </span>
                           </div>
-                          <CommentSection videoId={video.id} onCommentCountChange={setCommentCount} />
+                          <CommentSection videoId={video.id} onExpandedChange={(expanded, count) => setCommentCount(count)} />
                         </div>
                       </div>
                     </div>
