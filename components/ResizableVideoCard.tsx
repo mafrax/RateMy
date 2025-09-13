@@ -79,7 +79,6 @@ interface ResizableVideoCardProps {
   minWidth?: number
   minHeight?: number
   maxWidth?: number
-  maxHeight?: number
   gridPosition?: { row: number; col: number }
   isDragging?: boolean
   isDropTarget?: boolean
@@ -101,7 +100,6 @@ export function ResizableVideoCard({
   minWidth = 300,
   minHeight = 350,
   maxWidth = 1200,
-  maxHeight = 1200,
   gridPosition,
   isDragging = false,
   isDropTarget = false
@@ -114,6 +112,7 @@ export function ResizableVideoCard({
   const [tagsExpanded, setTagsExpanded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
+  const [isAddingComment, setIsAddingComment] = useState(false)
   const [commentCount, setCommentCount] = useState(0)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -132,6 +131,10 @@ export function ResizableVideoCard({
   const iframeElementRef = useRef<HTMLIFrameElement>(null)
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
   const videoContainerRef = useRef<HTMLDivElement>(null)
+
+  // Resizable divider state for horizontal videos
+  const [videoSectionHeight, setVideoSectionHeight] = useState(0.4) // Default to 40%
+  const [isDraggingDivider, setIsDraggingDivider] = useState(false)
 
 
   const [isNoDrag, setIsNoDrag] = useState(false)
@@ -516,6 +519,40 @@ export function ResizableVideoCard({
     }
   }
 
+  // Handle add comment button click
+  const handleAddComment = () => {
+    if (!isCommentsExpanded) {
+      setIsCommentsExpanded(true)
+    }
+    setIsAddingComment(true)
+  }
+
+  // Handle divider dragging for horizontal videos
+  const handleDividerMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDraggingDivider(true)
+    
+    const startY = e.clientY
+    const startRatio = videoSectionHeight
+    const cardHeight = cardSize.height
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - startY
+      const ratioChange = deltaY / cardHeight
+      const newRatio = Math.min(0.8, Math.max(0.2, startRatio + ratioChange)) // Constrain between 20% and 80%
+      setVideoSectionHeight(newRatio)
+    }
+    
+    const handleMouseUp = () => {
+      setIsDraggingDivider(false)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
 
 
   // Calculate video dimensions based on card size and video orientation with fixed info width
@@ -573,7 +610,7 @@ export function ResizableVideoCard({
       // For horizontal videos in vertical layout - maximize video area
       const aspectRatio = videoAspectRatio || (16 / 9)
       const maxVideoWidth = cardSize.width - 40 // Account for padding
-      const maxVideoHeight = (cardSize.height * 0.75) // Use 75% of card height for video (increased from 60%)
+      const maxVideoHeight = (cardSize.height * videoSectionHeight) // Use dynamic height ratio for video section
 
       // Try to use maximum width first
       let videoWidth = maxVideoWidth
@@ -640,7 +677,6 @@ export function ResizableVideoCard({
           minWidth={minWidth}
           minHeight={minHeight}
           maxWidth={maxWidth}
-          maxHeight={maxHeight}
           enable={{
             top: true,
             right: true,
@@ -684,10 +720,10 @@ export function ResizableVideoCard({
           >
             {/* Header */}
             <div className="video-card-header flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 cursor-grab">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
                 {/* Drag Handle */}
                 <div
-                  className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0"
                   title="Drag to reorder"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -695,15 +731,23 @@ export function ResizableVideoCard({
                   </svg>
                 </div>
 
-                <Link
-                  href={`/profile/${video.user.id}`}
-                  className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  {displayName}
-                </Link>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatDate(video.createdAt)}
-                </span>
+                {/* Video Title */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-tight truncate" title={video.title}>
+                    {video.title}
+                  </h3>
+                  <div className="flex items-center space-x-2 mt-0.5">
+                    <Link
+                      href={`/profile/${video.user.id}`}
+                      className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+                    >
+                      {displayName}
+                    </Link>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {formatDate(video.createdAt)}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center space-x-1">
@@ -739,12 +783,12 @@ export function ResizableVideoCard({
             {/* Main Content Area */}
             <div className={`flex ${isVerticalVideo ? 'flex-row' : 'flex-col'} h-full`}>
                 {/* Video Section */}
-                <div className={`videoSection ${isVerticalVideo ? 'flex-grow' : 'flex-grow'} flex flex-col ${isVerticalVideo ? '' : 'mb-4'}`} style={{ minHeight: 0 }}>
+                <div className={`videoSection ${isVerticalVideo ? 'flex-grow' : ''} flex flex-col ${isVerticalVideo ? '' : 'mb-4'}`} style={{ minHeight: 0, height: isVerticalVideo ? 'auto' : `${videoHeight + 60}px` }}>
                   <div id={`video-section-${video.id}`} className={`flex-1 p-4 ${isVerticalVideo ? 'pb-8' : 'pb-6'}`} style={{ minHeight: 0 }}>
                     {(video.originalUrl?.includes('redgifs.com') || video.embedUrl?.includes('redgifs.com')) && !video.embedUrl?.includes('/ifr/') ? (
                       <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full" style={{ 
                         minHeight: 200,
-                        height: isVerticalVideo ? `calc(100% - 2rem)` : '100%'
+                        height: isVerticalVideo ? `calc(100% - 2rem)` : `${videoHeight}px`
                       }}>
                         <div className="w-full h-full bg-white dark:bg-gray-800 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
                           {shouldBlur ? (
@@ -782,7 +826,7 @@ export function ResizableVideoCard({
                     ) : (
                       <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full" style={{ 
                         minHeight: 200,
-                        height: isVerticalVideo ? `calc(100% - 2rem)` : '100%'
+                        height: isVerticalVideo ? `calc(100% - 2rem)` : `${videoHeight}px`
                       }}>
                         <div className="w-full h-full bg-white dark:bg-gray-800 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
                           {shouldBlur ? (
@@ -817,29 +861,58 @@ export function ResizableVideoCard({
                   </div>
                 </div>
 
+                {/* Resizable Divider for horizontal videos */}
+                {!isVerticalVideo && (
+                  <div 
+                    className={`divider-handle w-full h-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-row-resize transition-colors flex items-center justify-center relative ${isDraggingDivider ? 'bg-blue-400 dark:bg-blue-500' : ''}`}
+                    onMouseDown={handleDividerMouseDown}
+                    title="Drag to resize video/info sections"
+                  >
+                    <div className="w-8 h-1 bg-white dark:bg-gray-300 rounded-full opacity-60"></div>
+                  </div>
+                )}
+
                 {/* Info Section */}
                 <div 
-                  className={`infosection ${isVerticalVideo ? 'ml-2 flex-shrink-0 flex flex-col' : 'flex-1 overflow-y-auto'}`}
+                  className={`infosection ${isVerticalVideo ? 'ml-2 flex-shrink-0 flex flex-col' : 'flex-1'}`}
                   style={isVerticalVideo ? { 
                     width: infoWidth,
                     minWidth: infoWidth,
                     maxWidth: infoWidth,
                     minHeight: 0
-                  } : {}}
+                  } : {
+                    height: `${cardSize.height * (1 - videoSectionHeight) - 8}px`, // Remaining height minus divider
+                    maxHeight: `${cardSize.height * (1 - videoSectionHeight) - 8}px`,
+                    overflow: 'hidden'
+                  }}
                 >
 
                   <div 
-                    className={`${isVerticalVideo ? 'px-2 pb-2 flex-1 flex flex-col' : 'px-4 pb-4 h-full overflow-y-auto'}`}
-                    style={isVerticalVideo ? { minHeight: 0 } : {}}
+                    className={`${isVerticalVideo ? 'px-2 pb-2 flex-1 flex flex-col' : 'px-4 pb-4 h-full flex flex-col'}`}
+                    style={isVerticalVideo ? { minHeight: 0, height: '100%' } : { minHeight: 0 }}
                   >
                     {/* Collapsed vertical layout - only tags and notes */}
                     {isVerticalVideo ? (
                       <div className="verticalTagSection flex flex-col h-full" style={{ minHeight: 0 }}>
                         {/* Tags Section - Full height scrollable */}
-                        <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ 
-                          minHeight: 0 
+                        <div className="overflow-y-auto custom-scrollbar" style={{ 
+                          height: `${Math.max(200, cardSize.height - 150)}px`,
+                          minHeight: 0
                         }}>
-                          <div className="space-y-1.5">
+                          <div className="space-y-1.5 pb-8">
+
+                       {/* Notes section at the bottom */}
+                            {video.description && (
+                              <div className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-500 rounded-md p-2 mt-2">
+                                <div className="text-[9px] font-medium text-gray-600 dark:text-gray-400 mb-1 text-center">
+                                  Description
+                                </div>
+                                <div className="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                  {video.description}
+                                </div>
+                              </div>
+                            )}
+
                             {localTags.map(({ tag }) => {
                               const averageRating = getAverageRating(tag.id)
                               const userRating = getUserRating(tag.id)
@@ -885,28 +958,25 @@ export function ResizableVideoCard({
                               )
                             })}
                             
-                            {/* Notes section at the bottom */}
-                            {video.description && (
-                              <div className="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-500 rounded-md p-2 mt-2">
-                                <div className="text-[9px] font-medium text-gray-600 dark:text-gray-400 mb-1 text-center">
-                                  Notes
-                                </div>
-                                <div className="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                                  {video.description}
-                                </div>
+                            {/* Add Tag Button for vertical layout */}
+                            {session && (
+                              <div className="mt-2">
+                                <AddTagInput 
+                                  videoId={video.id} 
+                                  onTagAdded={(tag) => {
+                                    if (onVideoUpdate) onVideoUpdate()
+                                  }}
+                                  compact={true}
+                                />
                               </div>
                             )}
+                            
+     
                           </div>
                         </div>
                       </div>
                     ) : (
                       <>
-                        {/* Title - Full width, more compact */}
-                        <div className="mb-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 text-xs leading-tight">
-                            {video.title}
-                          </h3>
-                        </div>
 
                         {/* NSFW Status and Controls - Ultra compact */}
                         <div className="mb-1 space-y-1">
@@ -944,7 +1014,7 @@ export function ResizableVideoCard({
                           )}
                         </div>
 
-                        {/* NSFW Video Control - Compact vertical layout */}
+                        {/* NSFW Video Control - Compact vertical layout
                         {video.isNsfw && (
                           <div id={`nsfw-warning-${video.id}`} className="mb-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 p-2 space-y-1">
                             <div id={`nsfw-text-${video.id}`} className="text-xs text-amber-700 dark:text-amber-300 text-center">
@@ -958,7 +1028,7 @@ export function ResizableVideoCard({
                               {isVideoRevealed(video.id) ? 'Hide' : 'Show'}
                             </button>
                           </div>
-                        )}
+                        )} */}
 
                         {/* Description */}
                         {video.description && (
@@ -969,12 +1039,10 @@ export function ResizableVideoCard({
 
                         {/* Tags Section - Scrollable */}
                         <div
-                          className="overflow-y-auto custom-scrollbar"
-                          style={{ 
-                            height: `${Math.max(120, cardSize.height - videoHeight - 200)}px` 
-                          }}
+                          className="overflow-y-auto custom-scrollbar flex-1"
+                          style={{ minHeight: 0 }}
                         >
-                          <div className="space-y-2 pr-2">
+                          <div className="space-y-2 pr-2 pb-8">
                             {localTags.map(({ tag }) => {
                               const averageRating = getAverageRating(tag.id)
                               const userRating = getUserRating(tag.id)
@@ -1005,19 +1073,38 @@ export function ResizableVideoCard({
                           </div>
                         </div>
 
-                        {/* Comments Toggle */}
-                        <div className="comment">
+                        {/* Comments Section */}
+                        <div className="commentSection">
                           <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <button
-                              onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
-                              className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 w-full"
-                            >
-                              <Bars3Icon className="h-4 w-4" />
-                              <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
-                              <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-auto">
-                                {commentCount}
-                              </span>
-                            </button>
+                            <div className="flex items-center justify-between mb-2">
+                              <button
+                                onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+                                className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                              >
+                                <Bars3Icon className="h-4 w-4" />
+                                <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
+                                <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-2">
+                                  {commentCount}
+                                </span>
+                              </button>
+                              
+                              <button
+                                onClick={handleAddComment}
+                                className="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                title="Add comment"
+                              >
+                                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Add</span>
+                              </button>
+                            </div>
+                            <CommentSection 
+                              videoId={video.id} 
+                              onExpandedChange={(expanded, count) => setCommentCount(count)}
+                              isAddingComment={isAddingComment}
+                              onCommentAdded={() => setIsAddingComment(false)}
+                            />
                           </div>
                         </div>
                       </>

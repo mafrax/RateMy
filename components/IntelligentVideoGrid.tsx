@@ -132,7 +132,7 @@ export function IntelligentVideoGrid({
   const availableWidthForCards = containerWidth - ((currentCardsPerRow - 1) * cardGap)
   const expectedCardWidth = availableWidthForCards / currentCardsPerRow
   const dynamicMinCardWidth = Math.min(expectedCardWidth * 0.8, Math.max(200, containerWidth * 0.12)) // Reduced from 90% to 80% for narrower cards
-  const dynamicMaxCardHeight = Math.max(450, containerWidth * 0.35) // Slightly increased height for better proportions
+  // Removed height limit to allow unlimited vertical resizing
   const dynamicMinCardHeight = Math.max(280, containerWidth * 0.15) // Increased minimum height for better video proportions
   
   const containerRef = useRef<HTMLDivElement>(null)
@@ -516,7 +516,7 @@ export function IntelligentVideoGrid({
       const previewCard: VideoCardData = {
         ...resizedCard,
         cellSpan: newCellSpan,
-        height: Math.max(dynamicMinCardHeight, Math.min(height, dynamicMaxCardHeight)),
+        height: Math.max(dynamicMinCardHeight, height),
         width: width,
         isResizing: true
       }
@@ -536,13 +536,13 @@ export function IntelligentVideoGrid({
           ? { 
               ...card,
               width: width,
-              height: Math.max(dynamicMinCardHeight, Math.min(height, dynamicMaxCardHeight)), 
+              height: Math.max(dynamicMinCardHeight, height), 
               isResizing: true 
             }
           : card
       )
     })
-  }, [calculateCellSpan, containerWidth, dynamicMinCardHeight, dynamicMaxCardHeight, organizeCardsIntoRows])
+  }, [calculateCellSpan, containerWidth, dynamicMinCardHeight, organizeCardsIntoRows])
 
   // Handle card resize stop (apply changes)
   const handleCardResizeStop = useCallback((width: number, height: number, videoId: string) => {
@@ -567,7 +567,7 @@ export function IntelligentVideoGrid({
               ...card, 
               cellSpan: newCellSpan,
               width: width,
-              height: Math.max(dynamicMinCardHeight, Math.min(height, dynamicMaxCardHeight)), 
+              height: Math.max(dynamicMinCardHeight, height), 
               isResizing: false 
             }
           : { ...card, isResizing: false }
@@ -582,7 +582,7 @@ export function IntelligentVideoGrid({
 
       return reorganizedCards
     })
-  }, [calculateCellSpan, containerWidth, dynamicMinCardHeight, dynamicMaxCardHeight, organizeCardsIntoRows, cleanupOrphanedSubCards])
+  }, [calculateCellSpan, containerWidth, dynamicMinCardHeight, organizeCardsIntoRows, cleanupOrphanedSubCards])
 
   // Drag and drop handlers
   const handleDragStart = useCallback((e: React.DragEvent, videoId: string) => {
@@ -1207,7 +1207,6 @@ export function IntelligentVideoGrid({
                     minWidth={dynamicMinCardWidth}
                     minHeight={dynamicMinCardHeight}
                     maxWidth={dynamicMaxCardWidth}
-                    maxHeight={dynamicMaxCardHeight}
                     gridPosition={cardData.gridPosition}
                     isDragging={draggedCardId === cardData.video.id}
                     isDropTarget={dropTargetCardId === cardData.video.id}
@@ -1283,8 +1282,7 @@ export function IntelligentVideoGrid({
                           minWidth={dynamicMinCardWidth * 0.7} // Allow smaller in sub-spaces
                           minHeight={dynamicMinCardHeight * 0.7}
                           maxWidth={dynamicMaxCardWidth}
-                          maxHeight={dynamicMaxCardHeight}
-                          gridPosition={subCard.gridPosition}
+                                gridPosition={subCard.gridPosition}
                           isDragging={draggedCardId === subCard.video.id}
                           isDropTarget={dropTargetCardId === subCard.video.id}
                         />
