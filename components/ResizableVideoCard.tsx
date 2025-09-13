@@ -112,6 +112,7 @@ export function ResizableVideoCard({
   const [tagsExpanded, setTagsExpanded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
+  const [isAddingComment, setIsAddingComment] = useState(false)
   const [commentCount, setCommentCount] = useState(0)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -516,6 +517,14 @@ export function ResizableVideoCard({
       setIsDeleting(false)
       setShowDeleteConfirm(false)
     }
+  }
+
+  // Handle add comment button click
+  const handleAddComment = () => {
+    if (!isCommentsExpanded) {
+      setIsCommentsExpanded(true)
+    }
+    setIsAddingComment(true)
   }
 
   // Handle divider dragging for horizontal videos
@@ -1064,19 +1073,38 @@ export function ResizableVideoCard({
                           </div>
                         </div>
 
-                        {/* Comments Toggle */}
-                        <div className="comment">
+                        {/* Comments Section */}
+                        <div className="commentSection">
                           <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <button
-                              onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
-                              className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 w-full"
-                            >
-                              <Bars3Icon className="h-4 w-4" />
-                              <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
-                              <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-auto">
-                                {commentCount}
-                              </span>
-                            </button>
+                            <div className="flex items-center justify-between mb-2">
+                              <button
+                                onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+                                className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                              >
+                                <Bars3Icon className="h-4 w-4" />
+                                <span>{isCommentsExpanded ? 'Hide' : 'Show'} Comments</span>
+                                <span className="bg-gray-200 dark:bg-gray-600 text-xs px-2 py-0.5 rounded-full ml-2">
+                                  {commentCount}
+                                </span>
+                              </button>
+                              
+                              <button
+                                onClick={handleAddComment}
+                                className="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                title="Add comment"
+                              >
+                                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Add</span>
+                              </button>
+                            </div>
+                            <CommentSection 
+                              videoId={video.id} 
+                              onExpandedChange={(expanded, count) => setCommentCount(count)}
+                              isAddingComment={isAddingComment}
+                              onCommentAdded={() => setIsAddingComment(false)}
+                            />
                           </div>
                         </div>
                       </>
