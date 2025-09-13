@@ -173,25 +173,60 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
       // Note: Removed automatic callback execution to prevent unwanted page refreshes
       // Components can manually check for rating updates or use server-side caching instead
 
-      // Clear pending ratings after successful save
-      setPendingRatings(new Map())
+      const { successful, failed, results, errors } = result.data
       
-      // Clear storage
-      clearStorage()
+      // Only clear successfully saved ratings from cache
+      const successfulKeys = new Set<string>()
+      const failedKeys = new Set<string>()
       
-      // Clear debounce timer
-      if (debounceTimer) {
+      // Process successful results
+      if (results && Array.isArray(results)) {
+        results.forEach((result: any) => {
+          const key = getCacheKey(result.videoId, result.tagId)
+          successfulKeys.add(key)
+        })
+      }
+      
+      // Process failed results  
+      if (errors && Array.isArray(errors)) {
+        errors.forEach((error: any) => {
+          const key = getCacheKey(error.videoId, error.tagId)
+          failedKeys.add(key)
+        })
+      }
+      
+      // Update pending ratings - keep only failed ones
+      const newPendingRatings = new Map<string, PendingRating>()
+      
+      pendingRatings.forEach((rating, key) => {
+        if (failedKeys.has(key)) {
+          // Keep ratings that failed to save
+          newPendingRatings.set(key, rating)
+        }
+        // Successful ratings are automatically removed by not being added to newPendingRatings
+      })
+      
+      setPendingRatings(newPendingRatings)
+      
+      // Update localStorage storage
+      if (newPendingRatings.size === 0) {
+        clearStorage()
+      } else {
+        saveToStorage(newPendingRatings)
+      }
+      
+      // Clear debounce timer only if all ratings were processed
+      if (failed === 0 && debounceTimer) {
         clearTimeout(debounceTimer)
         setDebounceTimer(null)
       }
 
       // Log success with detailed info
-      const { successful, failed } = result.data
       console.log(`Bulk rating flush completed: ${successful} successful, ${failed} failed out of ${ratingsToSave.length} total`)
       
       if (failed > 0) {
-        console.warn('Some ratings failed to save:', result.data.errors)
-        toast.error(`${failed} ratings could not be saved. Please try again.`)
+        console.warn('Some ratings failed to save:', errors)
+        toast.error(`${failed} ratings could not be saved. They will be retried automatically.`)
       }
       
     } catch (error) {
