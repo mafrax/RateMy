@@ -83,12 +83,12 @@ export function IntelligentVideoGrid({
   error,
   onRetry,
   onVideoUpdate,
-  defaultCardsPerRow = 3,
-  minCardWidth = 300,
-  maxCardWidth = 1200,
+  defaultCardsPerRow = 3, // Reverted back to 3 cards per row
+  minCardWidth = 280, // Reduced from 400 to 280 for narrower cards
+  maxCardWidth = 1200, // This will be overridden dynamically
   minCardHeight = 350,
   maxCardHeight = 1200,
-  containerPadding = 24,
+  containerPadding = 16,
   cardGap = 24
 }: IntelligentVideoGridProps) {
   const [videoCards, setVideoCards] = useState<VideoCardData[]>([])
@@ -112,27 +112,101 @@ export function IntelligentVideoGrid({
   const [availableSubSpaces, setAvailableSubSpaces] = useState<SubSpace[]>([])
   const [dropTargetSubSpace, setDropTargetSubSpace] = useState<SubSpace | null>(null)
   
-  // Grid system constants
+  // Grid system constants - responsive
   const totalGridCells = 12 // Total cells available per row
-  const defaultCellSpan = totalGridCells / defaultCardsPerRow // 4 cells per card for 3-card layout
+  
+  // Responsive cards per row based on container width
+  const getResponsiveCardsPerRow = useCallback(() => {
+    if (containerWidth < 600) return 1 // Mobile: 1 card per row
+    if (containerWidth < 900) return 2 // Small tablet: 2 cards per row
+    return defaultCardsPerRow // Desktop: 3 cards per row (or user preference)
+  }, [containerWidth, defaultCardsPerRow])
+  
+  const currentCardsPerRow = getResponsiveCardsPerRow()
+  const defaultCellSpan = totalGridCells / currentCardsPerRow
+  
+  // Dynamic sizing based on container width
+  const totalHorizontalPadding = containerPadding + (containerPadding + 24) // left + right padding
+  const dynamicMaxCardWidth = containerWidth
+  // Calculate what the card width should be for default layout
+  const availableWidthForCards = containerWidth - ((currentCardsPerRow - 1) * cardGap)
+  const expectedCardWidth = availableWidthForCards / currentCardsPerRow
+  const dynamicMinCardWidth = Math.min(expectedCardWidth * 0.8, Math.max(200, containerWidth * 0.12)) // Reduced from 90% to 80% for narrower cards
+  const dynamicMaxCardHeight = Math.max(450, containerWidth * 0.35) // Slightly increased height for better proportions
+  const dynamicMinCardHeight = Math.max(280, containerWidth * 0.15) // Increased minimum height for better video proportions
   
   const containerRef = useRef<HTMLDivElement>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
 
-  // Calculate card width based on cell span
+  // Calculate natural video card dimensions based on original video aspect ratio
+  const calculateNaturalCardSize = useCallback((video: Video) => {
+    // Detect video aspect ratio from URL patterns
+    const getVideoAspectRatio = (video: Video): number => {
+      const url = video.originalUrl?.toLowerCase() || ''
+      const embedUrl = video.embedUrl?.toLowerCase() || ''
+      
+      // Common vertical video platforms (9:16 aspect ratio)
+      if (url.includes('tiktok') || 
+          url.includes('instagram') || 
+          url.includes('shorts') ||
+          (url.includes('youtube') && url.includes('shorts')) ||
+          (embedUrl.includes('redgifs.com') && embedUrl.includes('/ifr/'))) {
+        return 9 / 16 // Vertical video
+      }
+      
+      // Standard horizontal videos (16:9 aspect ratio)
+      return 16 / 9 // Horizontal video
+    }
+    
+    const videoAspectRatio = getVideoAspectRatio(video)
+    const isVertical = videoAspectRatio < 1
+    
+    // Natural sizing - let videos display at bigger, more immersive dimensions
+    if (isVertical) {
+      // For vertical videos: much taller portrait dimensions
+      const naturalWidth = 450 // Bigger mobile video width
+      const naturalHeight = naturalWidth / videoAspectRatio + 250 // More UI space for taller cards
+      return { 
+        width: Math.max(400, Math.min(naturalWidth, 500)), 
+        height: Math.max(750, Math.min(naturalHeight, 1100)) // Much taller: 750-1100px
+      }
+    } else {
+      // For horizontal videos: larger landscape dimensions  
+      const naturalWidth = 640 // Bigger video width (HD standard)
+      const naturalHeight = naturalWidth / videoAspectRatio + 180 // Video height + UI space
+      return { 
+        width: Math.max(580, Math.min(naturalWidth, 720)), 
+        height: Math.max(400, Math.min(naturalHeight, 600)) 
+      }
+    }
+  }, [])
+
+  // Calculate card width - for default layout, fill available space; for resized cards, use cell system
   const calculateCardWidth = useCallback((cellSpan: number, containerW: number, cardsInRow: number) => {
-    const availableWidth = containerW - (containerPadding * 2) - (cardGap * (cardsInRow - 1))
+    if (!containerW || containerW <= 0) {
+      console.warn('Invalid containerWidth in calculateCardWidth:', containerW)
+      return 400 // Fallback width
+    }
+    
+    const availableWidth = containerW - (containerPadding * 2) - ((cardsInRow - 1) * cardGap)
+    
+    // For default layout (equal cell spans), distribute width evenly among cards to fill entire width
+    if (cellSpan === defaultCellSpan && cardsInRow === currentCardsPerRow) {
+      return availableWidth / cardsInRow
+    }
+    
+    // For resized cards, use the cell system
     const cellWidth = availableWidth / totalGridCells
     return cellWidth * cellSpan
-  }, [containerPadding, cardGap, totalGridCells])
+  }, [containerPadding, totalGridCells, cardGap, defaultCellSpan, currentCardsPerRow])
   
   // Calculate cell span based on desired width
   const calculateCellSpan = useCallback((desiredWidth: number, containerW: number, cardsInRow: number) => {
-    const availableWidth = containerW - (containerPadding * 2) - (cardGap * (cardsInRow - 1))
+    const availableWidth = containerW - (containerPadding * 2)
     const cellWidth = availableWidth / totalGridCells
     const span = Math.round(desiredWidth / cellWidth)
     return Math.max(2, Math.min(span, totalGridCells)) // Min 2 cells, max 12 cells (full row)
-  }, [containerPadding, cardGap, totalGridCells])
+  }, [containerPadding, totalGridCells])
 
   // Detect available sub-spaces where cards can be positioned below shorter cards
   const detectAvailableSubSpaces = useCallback((cards: VideoCardData[]): SubSpace[] => {
@@ -184,49 +258,53 @@ export function IntelligentVideoGrid({
     return subSpaces
   }, [])
 
-  // Initialize video cards with default sizing
+  // Initialize video cards with natural sizing based on video aspect ratios
   useEffect(() => {
     if (videos.length > 0 && containerWidth > 0) {
-      const defaultWidth = calculateCardWidth(defaultCellSpan, containerWidth, defaultCardsPerRow)
-      const defaultHeight = Math.max(minCardHeight, defaultWidth * 1.2) // 1.2 aspect ratio for cards
-      
-      const initialCards: VideoCardData[] = videos.map((video, index) => ({
-        video,
-        width: defaultWidth,
-        height: defaultHeight,
-        cellSpan: defaultCellSpan,
-        gridPosition: {
-          row: Math.floor(index / defaultCardsPerRow),
-          col: index % defaultCardsPerRow
+      const initialCards: VideoCardData[] = videos.map((video, index) => {
+        // Calculate natural dimensions for each video individually
+        const naturalSize = calculateNaturalCardSize(video)
+        
+        // Calculate appropriate cell span based on natural width
+        const calculatedCellSpan = calculateCellSpan(naturalSize.width, containerWidth, 1) // Use 1 for natural flow
+        
+        return {
+          video,
+          width: naturalSize.width,
+          height: naturalSize.height,
+          cellSpan: calculatedCellSpan,
+          gridPosition: {
+            row: 0, // Start all cards in row 0, let organizeCardsIntoRows handle natural flow
+            col: index
+          }
         }
-      }))
+      })
 
       setVideoCards(initialCards)
       setOriginalVideoCards(initialCards) // Store the original state
       
       // Initialize grid rows
-      const { rows } = organizeCardsIntoRows(initialCards)
+      const { rows } = organizeCardsIntoRows(initialCards, containerWidth)
       setGridRows(rows)
       setIsInitialized(true)
     }
-  }, [videos, containerWidth, calculateCardWidth, defaultCardsPerRow, minCardHeight, defaultCellSpan])
+  }, [videos, containerWidth, calculateNaturalCardSize, calculateCellSpan])
 
   // Set up container width observer
   useEffect(() => {
-    if (containerRef.current) {
-      setContainerWidth(containerRef.current.offsetWidth)
-
-      // Create ResizeObserver to watch container size changes
-      resizeObserverRef.current = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          setContainerWidth(entry.contentRect.width)
-        }
-      })
-
-      resizeObserverRef.current.observe(containerRef.current)
+    const updateContainerWidth = () => {
+      // Use full viewport width - the grid container handles its own padding internally
+      setContainerWidth(window.innerWidth)
     }
 
+    // Set initial width
+    updateContainerWidth()
+
+    // Listen for window resize
+    window.addEventListener('resize', updateContainerWidth)
+
     return () => {
+      window.removeEventListener('resize', updateContainerWidth)
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect()
       }
@@ -234,7 +312,7 @@ export function IntelligentVideoGrid({
   }, [])
 
   // Organize cards into cell-based grid rows
-  const organizeCardsIntoRows = useCallback((cards: VideoCardData[]) => {
+  const organizeCardsIntoRows = useCallback((cards: VideoCardData[], currentContainerWidth: number) => {
     const rows: VideoCardData[][] = []
     let currentRow: VideoCardData[] = []
     let currentRowCells = 0
@@ -251,7 +329,7 @@ export function IntelligentVideoGrid({
         // Start new row if current row has cards
         if (currentRow.length > 0) {
           // Recalculate widths for cards in completed row
-          const updatedRow = recalculateRowWidths(currentRow)
+          const updatedRow = recalculateRowWidths(currentRow, currentContainerWidth)
           rows.push(updatedRow)
         }
         // Start new row with current card
@@ -262,7 +340,7 @@ export function IntelligentVideoGrid({
 
     // Add remaining cards in current row
     if (currentRow.length > 0) {
-      const updatedRow = recalculateRowWidths(currentRow)
+      const updatedRow = recalculateRowWidths(currentRow, currentContainerWidth)
       rows.push(updatedRow)
     }
 
@@ -285,20 +363,30 @@ export function IntelligentVideoGrid({
   }, [totalGridCells])
 
   // Recalculate actual widths based on cell spans for cards in a row
-  const recalculateRowWidths = useCallback((rowCards: VideoCardData[]) => {
+  const recalculateRowWidths = useCallback((rowCards: VideoCardData[], currentContainerWidth: number) => {
+    if (!currentContainerWidth || currentContainerWidth <= 0) {
+      console.error('Invalid currentContainerWidth in recalculateRowWidths:', currentContainerWidth, 'Stack:', new Error().stack)
+      return rowCards // Return unchanged if invalid width
+    }
+    
     const cardsInRow = rowCards.length
-    return rowCards.map(card => ({
-      ...card,
-      width: calculateCardWidth(card.cellSpan, containerWidth, cardsInRow)
-    }))
-  }, [calculateCardWidth, containerWidth])
+    return rowCards.map(card => {
+      const width = calculateCardWidth(card.cellSpan, currentContainerWidth, cardsInRow)
+      return {
+        ...card,
+        width: width
+      }
+    })
+  }, [calculateCardWidth])
   
   // Calculate available cells in a row
   const getRowAvailableCells = useCallback((rowIndex: number) => {
-    if (!gridRows[rowIndex]) return 0
+    if (!gridRows[rowIndex]) return totalGridCells // Empty row has all cells available
     const row = gridRows[rowIndex]
     const usedCells = row.reduce((sum, card) => sum + card.cellSpan, 0)
-    return totalGridCells - usedCells
+    const availableCells = Math.max(0, totalGridCells - usedCells) // Ensure non-negative
+    
+    return availableCells
   }, [gridRows, totalGridCells])
 
   // Auto-cleanup function to move orphaned sub-positioned cards back to main grid
@@ -332,15 +420,44 @@ export function IntelligentVideoGrid({
           ...card,
           subPosition: undefined,
           // Reset to reasonable main-grid dimensions
-          width: Math.max(card.width, minCardWidth),
-          height: Math.max(card.height, minCardHeight),
+          width: Math.max(card.width, dynamicMinCardWidth),
+          height: Math.max(card.height, dynamicMinCardHeight),
         }
       }
       return card
     })
-  }, [detectAvailableSubSpaces, minCardWidth, minCardHeight])
+  }, [detectAvailableSubSpaces, dynamicMinCardWidth, dynamicMinCardHeight])
 
-  // Update grid organization when container width changes
+  // Update card cell spans when container width changes (but keep natural sizes)
+  useEffect(() => {
+    if (videoCards.length > 0 && containerWidth > 0 && !draggedCardId) {
+      // Skip if we're in the middle of a drag operation
+      // Only recalculate cell spans for natural sizing, keep natural widths
+      const updatedCards = videoCards.map(card => {
+        if (!card.subPosition && !card.isResizing) {
+          // Recalculate cell span based on current card width
+          const newCellSpan = calculateCellSpan(card.width, containerWidth, 1)
+          if (newCellSpan !== card.cellSpan) {
+            return { ...card, cellSpan: newCellSpan }
+          }
+        }
+        return card
+      })
+      
+      // Only update if cell spans actually changed
+      const cellSpansChanged = updatedCards.some((card, index) => 
+        card.cellSpan !== videoCards[index].cellSpan
+      )
+      
+      if (cellSpansChanged) {
+        console.log('Container width changed, updating cell spans')
+        setVideoCards(updatedCards)
+        return // Exit early, other useEffect will handle grid organization
+      }
+    }
+  }, [containerWidth, calculateCellSpan, draggedCardId])
+
+  // Update grid organization when cards change
   useEffect(() => {
     if (videoCards.length > 0 && containerWidth > 0) {
       // Skip cleanup during drag operations to avoid interfering
@@ -361,14 +478,14 @@ export function IntelligentVideoGrid({
         }
       }
       
-      const { rows } = organizeCardsIntoRows(videoCards)
+      const { rows } = organizeCardsIntoRows(videoCards, containerWidth)
       setGridRows(rows)
       
       // Update available sub-spaces when grid changes
       const subSpaces = detectAvailableSubSpaces(videoCards)
       setAvailableSubSpaces(subSpaces)
     }
-  }, [containerWidth, organizeCardsIntoRows, detectAvailableSubSpaces, videoCards, cleanupOrphanedSubCards, draggedCardId])
+  }, [organizeCardsIntoRows, detectAvailableSubSpaces, videoCards, cleanupOrphanedSubCards, draggedCardId, containerWidth])
 
   // Handle card resize start
   const handleCardResizeStart = useCallback((videoId: string) => {
@@ -399,7 +516,7 @@ export function IntelligentVideoGrid({
       const previewCard: VideoCardData = {
         ...resizedCard,
         cellSpan: newCellSpan,
-        height: Math.max(minCardHeight, Math.min(height, maxCardHeight)),
+        height: Math.max(dynamicMinCardHeight, Math.min(height, dynamicMaxCardHeight)),
         width: width,
         isResizing: true
       }
@@ -409,7 +526,7 @@ export function IntelligentVideoGrid({
         card.video.id === videoId ? previewCard : card
       )
       
-      const { rows: newRows } = organizeCardsIntoRows(previewCards)
+      const { rows: newRows } = organizeCardsIntoRows(previewCards, containerWidth)
       setPreviewGridRows(newRows)
       setResizePreviewCard(previewCard)
 
@@ -419,13 +536,13 @@ export function IntelligentVideoGrid({
           ? { 
               ...card,
               width: width,
-              height: Math.max(minCardHeight, Math.min(height, maxCardHeight)), 
+              height: Math.max(dynamicMinCardHeight, Math.min(height, dynamicMaxCardHeight)), 
               isResizing: true 
             }
           : card
       )
     })
-  }, [calculateCellSpan, containerWidth, minCardHeight, maxCardHeight, organizeCardsIntoRows])
+  }, [calculateCellSpan, containerWidth, dynamicMinCardHeight, dynamicMaxCardHeight, organizeCardsIntoRows])
 
   // Handle card resize stop (apply changes)
   const handleCardResizeStop = useCallback((width: number, height: number, videoId: string) => {
@@ -450,7 +567,7 @@ export function IntelligentVideoGrid({
               ...card, 
               cellSpan: newCellSpan,
               width: width,
-              height: Math.max(minCardHeight, Math.min(height, maxCardHeight)), 
+              height: Math.max(dynamicMinCardHeight, Math.min(height, dynamicMaxCardHeight)), 
               isResizing: false 
             }
           : { ...card, isResizing: false }
@@ -460,12 +577,12 @@ export function IntelligentVideoGrid({
       const cleanedCards = cleanupOrphanedSubCards(updatedCards)
 
       // Now reorganize grid with final dimensions
-      const { rows: newRows, updatedCards: reorganizedCards } = organizeCardsIntoRows(cleanedCards)
+      const { rows: newRows, updatedCards: reorganizedCards } = organizeCardsIntoRows(cleanedCards, containerWidth)
       setGridRows(newRows)
 
       return reorganizedCards
     })
-  }, [calculateCellSpan, containerWidth, minCardHeight, maxCardHeight, organizeCardsIntoRows, cleanupOrphanedSubCards])
+  }, [calculateCellSpan, containerWidth, dynamicMinCardHeight, dynamicMaxCardHeight, organizeCardsIntoRows, cleanupOrphanedSubCards])
 
   // Drag and drop handlers
   const handleDragStart = useCallback((e: React.DragEvent, videoId: string) => {
@@ -519,7 +636,7 @@ export function IntelligentVideoGrid({
       console.log('Cards swapped successfully') // Debug log
       
       // Reorganize grid after swap
-      const { rows, updatedCards } = organizeCardsIntoRows(newCards)
+      const { rows, updatedCards } = organizeCardsIntoRows(newCards, containerWidth)
       setGridRows(rows)
       return updatedCards
     })
@@ -556,12 +673,14 @@ export function IntelligentVideoGrid({
     if (!draggedCard) return
     
     const availableCells = getRowAvailableCells(rowIndex)
-    // Only show as drop target if the card can fit
-    if (draggedCard.cellSpan <= availableCells) {
+    // Only show as drop target if the card can fit AND it's not the card's current row
+    const currentRow = gridRows.findIndex(row => row.some(card => card.video.id === draggedCardId))
+    
+    if (draggedCard.cellSpan <= availableCells && rowIndex !== currentRow) {
       setDropTargetRowIndex(rowIndex)
       setDropTargetCardId(null) // Clear card drop target
     }
-  }, [draggedCardId, videoCards, getRowAvailableCells])
+  }, [draggedCardId, videoCards, getRowAvailableCells, gridRows])
 
   const handleRowDrop = useCallback((e: React.DragEvent, targetRowIndex: number) => {
     e.preventDefault()
@@ -584,38 +703,39 @@ export function IntelligentVideoGrid({
     setVideoCards(prevCards => {
       console.log('Moving card to row:', targetRowIndex) // Debug log
       
-      // Manual placement - don't reorganize, just move the card to the specific row
-      const updatedCards = prevCards.map(card => {
-        if (card.video.id === draggedCardId) {
-          // Find the next available column position in the target row
-          const targetRowCards = prevCards.filter(c => c.gridPosition.row === targetRowIndex && c.video.id !== draggedCardId)
-          return {
-            ...card,
-            gridPosition: { row: targetRowIndex, col: targetRowCards.length }
-          }
-        }
-        return card
-      })
+      // Move the dragged card to the target row and update grid positions manually
+      const updatedCards = [...prevCards]
       
-      // Only recalculate widths for the rows that were affected, don't reorganize positions
-      const affectedRows = new Set([draggedCard.gridPosition.row, targetRowIndex])
-      const updatedCardsWithWidths = updatedCards.map(card => {
-        if (affectedRows.has(card.gridPosition.row)) {
-          const rowCards = updatedCards.filter(c => c.gridPosition.row === card.gridPosition.row)
-          return {
-            ...card,
-            width: calculateCardWidth(card.cellSpan, containerWidth, rowCards.length)
-          }
-        }
-        return card
-      })
+      // Find the dragged card and update its position
+      const draggedIndex = updatedCards.findIndex(card => card.video.id === draggedCardId)
+      const draggedCardData = updatedCards[draggedIndex]
       
-      // Manually rebuild grid rows without reorganization
-      const maxRow = Math.max(...updatedCardsWithWidths.map(card => card.gridPosition.row))
+      // Remove from current position
+      updatedCards.splice(draggedIndex, 1)
+      
+      // Find insertion point in target row
+      const targetRowCards = updatedCards.filter(c => c.gridPosition.row === targetRowIndex)
+      const insertionPoint = updatedCards.findIndex(c => c.gridPosition.row > targetRowIndex)
+      
+      // Update the dragged card's position
+      const updatedDraggedCard = {
+        ...draggedCardData,
+        gridPosition: { row: targetRowIndex, col: targetRowCards.length }
+      }
+      
+      // Insert at the correct position
+      if (insertionPoint === -1) {
+        updatedCards.push(updatedDraggedCard)
+      } else {
+        updatedCards.splice(insertionPoint, 0, updatedDraggedCard)
+      }
+      
+      // Rebuild grid rows manually to preserve manual placement
+      const maxRow = Math.max(...updatedCards.map(card => card.gridPosition.row))
       const newRows: VideoCardData[][] = []
       
       for (let rowIndex = 0; rowIndex <= maxRow; rowIndex++) {
-        const rowCards = updatedCardsWithWidths
+        const rowCards = updatedCards
           .filter(card => card.gridPosition.row === rowIndex)
           .sort((a, b) => a.gridPosition.col - b.gridPosition.col)
         
@@ -625,13 +745,15 @@ export function IntelligentVideoGrid({
       }
       
       setGridRows(newRows)
-      return updatedCardsWithWidths
+      console.log('Drop completed, new grid structure:', newRows.map(row => row.length)) // Debug log
+      
+      return updatedCards
     })
     
     setDraggedCardId(null)
     setDropTargetCardId(null)
     setDropTargetRowIndex(null)
-  }, [draggedCardId, videoCards, getRowAvailableCells, calculateCardWidth, containerWidth])
+  }, [draggedCardId, videoCards, getRowAvailableCells])
 
   const handleRowDragLeave = useCallback((e: React.DragEvent) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -695,8 +817,8 @@ export function IntelligentVideoGrid({
           }
           
           // Ensure minimum dimensions
-          newWidth = Math.max(newWidth, minCardWidth * 0.7) // Allow smaller in sub-spaces
-          newHeight = Math.max(newHeight, minCardHeight * 0.7)
+          newWidth = Math.max(newWidth, dynamicMinCardWidth * 0.7) // Allow smaller in sub-spaces
+          newHeight = Math.max(newHeight, dynamicMinCardHeight * 0.7)
           
           return {
             ...card,
@@ -719,35 +841,40 @@ export function IntelligentVideoGrid({
     
     setDraggedCardId(null)
     setDropTargetSubSpace(null)
-  }, [draggedCardId, detectAvailableSubSpaces, minCardWidth, minCardHeight])
+  }, [draggedCardId, detectAvailableSubSpaces, dynamicMinCardWidth, dynamicMinCardHeight])
 
   // Reset to original layout and sizes
   const resetLayout = useCallback(() => {
-    if (originalVideoCards.length > 0) {
-      // Reset all cards to 4-cell size and clear sub-positioning
-      const resetCards = originalVideoCards.map((card, index) => ({
-        ...card,
-        cellSpan: 4, // Set all cards to 4-cell size
-        width: calculateCardWidth(4, containerWidth, defaultCardsPerRow),
-        height: Math.max(minCardHeight, calculateCardWidth(4, containerWidth, defaultCardsPerRow) * 1.2),
-        gridPosition: {
-          row: Math.floor(index / defaultCardsPerRow),
-          col: index % defaultCardsPerRow
-        },
-        subPosition: undefined, // Clear any sub-positioning
-        isResizing: false // Ensure clean state
-      }))
+    if (videos.length > 0) {
+      // Reset all cards with natural dimensions and clear sub-positioning
+      const resetCards = videos.map((video, index) => {
+        const naturalSize = calculateNaturalCardSize(video)
+        const calculatedCellSpan = calculateCellSpan(naturalSize.width, containerWidth, 1)
+        
+        return {
+          video,
+          width: naturalSize.width,
+          height: naturalSize.height,
+          cellSpan: calculatedCellSpan,
+          gridPosition: {
+            row: 0, // Start in row 0, let organization handle natural flow
+            col: index
+          },
+          subPosition: undefined, // Clear any sub-positioning
+          isResizing: false // Ensure clean state
+        }
+      })
       
       setVideoCards(resetCards)
       
       // Reorganize grid rows with reset cards
-      const { rows } = organizeCardsIntoRows(resetCards)
+      const { rows } = organizeCardsIntoRows(resetCards, containerWidth)
       setGridRows(rows)
       
       // Clear sub-spaces since all cards are back in main grid
       setAvailableSubSpaces([])
     }
-  }, [originalVideoCards, organizeCardsIntoRows, calculateCardWidth, containerWidth, defaultCardsPerRow, minCardHeight])
+  }, [videos, calculateNaturalCardSize, calculateCellSpan, containerWidth])
 
   if (loading) {
     return (
@@ -845,14 +972,14 @@ export function IntelligentVideoGrid({
       <div 
         ref={containerRef}
         className="relative"
-        style={{ padding: `0 ${containerPadding}px` }}
+        style={{ padding: `0 ${containerPadding + 24}px 0 ${containerPadding}px` }}
       >
         {/* Grid Overlay for Development */}
         {showGrid && (
-          <div className="absolute inset-0 pointer-events-none z-0" style={{ padding: `0 ${containerPadding}px` }}>
+          <div className="absolute inset-0 pointer-events-none z-0" style={{ padding: `0 ${containerPadding + 24}px 0 ${containerPadding}px` }}>
             {/* Cell guides - 12 cells per row */}
             {Array.from({ length: totalGridCells + 1 }).map((_, i) => {
-              const x = (i * (containerWidth - containerPadding * 2)) / totalGridCells
+              const x = (i * containerWidth) / totalGridCells
               return (
                 <div
                   key={`cell-${i}`}
@@ -864,7 +991,7 @@ export function IntelligentVideoGrid({
             
             {/* Major column guides - default cards positions */}
             {Array.from({ length: defaultCardsPerRow + 1 }).map((_, i) => {
-              const x = (i * (containerWidth - containerPadding * 2)) / defaultCardsPerRow
+              const x = (i * containerWidth) / defaultCardsPerRow
               return (
                 <div
                   key={`major-col-${i}`}
@@ -893,7 +1020,7 @@ export function IntelligentVideoGrid({
               if (!row) return null
               
               const startCell = row.slice(0, card.gridPosition.col).reduce((sum, c) => sum + c.cellSpan, 0)
-              const cellWidth = (containerWidth - containerPadding * 2) / totalGridCells
+              const cellWidth = containerWidth / totalGridCells
               const x = startCell * cellWidth
               const width = card.cellSpan * cellWidth
               
@@ -927,48 +1054,101 @@ export function IntelligentVideoGrid({
           </div>
         )}
 
-        {/* Render centered preview grid during resize */}
+        {/* Render full-width preview grid during resize */}
         {isResizing && previewGridRows.length > 0 && (
-          <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-white bg-opacity-20">
-            <div className="space-y-4 max-w-6xl max-h-[80vh] overflow-auto">
-              <div className="bg-blue-100 border border-blue-300 rounded-lg p-2 text-center">
-                <span className="text-blue-700 font-medium text-sm">Preview: Release mouse to apply</span>
+          <div className="fixed inset-0 z-[9999] pointer-events-none bg-white bg-opacity-5">
+            <div className="h-full overflow-auto p-4">
+              <div className="bg-blue-100 border border-blue-300 rounded-lg p-3 text-center mb-4 max-w-md mx-auto">
+                <span className="text-blue-700 font-medium text-sm">Preview: Release mouse to apply changes</span>
               </div>
-              {previewGridRows.slice(0, 5).map((row, rowIndex) => (
-                <div 
-                  key={`preview-row-${rowIndex}`}
-                  className="flex items-start opacity-60"
-                  style={{ gap: `${cardGap}px`, paddingLeft: `${containerPadding}px`, paddingRight: `${containerPadding}px` }}
-                >
-                  {row.map((cardData) => (
-                    <div
-                      key={`preview-${cardData.video.id}`}
-                      className={`flex-shrink-0 border-2 border-dashed rounded-lg flex items-center justify-center ${
-                        resizePreviewCard?.video.id === cardData.video.id 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-300 bg-gray-50'
-                      }`}
-                      style={{ 
-                        width: cardData.width, 
-                        height: Math.min(cardData.height, 100),
-                        minHeight: '80px'
-                      }}
-                    >
-                      <div className="text-center text-xs">
-                        <div className="font-medium">{cardData.cellSpan} cells</div>
-                        {resizePreviewCard?.video.id === cardData.video.id && (
-                          <div className="text-blue-600 font-bold">New Position</div>
-                        )}
+              
+              {/* Full-width grid preview */}
+              <div 
+                className="w-full"
+                style={{ 
+                  maxWidth: `${containerWidth}px`,
+                  margin: '0 auto',
+                  padding: `0 ${containerPadding}px`
+                }}
+              >
+                {previewGridRows.map((row, rowIndex) => (
+                  <div 
+                    key={`preview-row-${rowIndex}`}
+                    className="flex items-start mb-4 last:mb-0"
+                    style={{ 
+                      display: 'flex', 
+                      gap: `${cardGap}px`,
+                      justifyContent: 'flex-start'
+                    }}
+                  >
+                    {row.map((cardData, cardIndex) => (
+                      <div
+                        key={`preview-${cardData.video.id}`}
+                        className={`flex-shrink-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center relative ${
+                          resizePreviewCard?.video.id === cardData.video.id 
+                            ? 'border-blue-500 bg-blue-50 shadow-lg' 
+                            : 'border-gray-300 bg-gray-50'
+                        }`}
+                        style={{ 
+                          width: cardData.width, 
+                          height: Math.min(cardData.height * 0.4, 120), // Scale down height for preview
+                          minHeight: '60px'
+                        }}
+                      >
+                        {/* Video title */}
+                        <div className="text-center text-xs px-2 mb-1">
+                          <div className="font-medium text-gray-700 truncate" style={{ maxWidth: cardData.width - 20 }}>
+                            {cardData.video.title}
+                          </div>
+                        </div>
+                        
+                        {/* Cell span info */}
+                        <div className="text-center text-xs">
+                          <div className={`font-bold ${resizePreviewCard?.video.id === cardData.video.id ? 'text-blue-600' : 'text-gray-500'}`}>
+                            {cardData.cellSpan} cells ({Math.round(cardData.width)}px)
+                          </div>
+                          {resizePreviewCard?.video.id === cardData.video.id && (
+                            <div className="text-blue-600 font-bold mt-1">RESIZING</div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    
+                    {/* Show available space in row */}
+                    {(() => {
+                      const usedCells = row.reduce((sum, card) => sum + card.cellSpan, 0)
+                      const availableCells = totalGridCells - usedCells
+                      if (availableCells > 0) {
+                        const availableWidth = (availableCells / totalGridCells) * (containerWidth - (row.length * cardGap))
+                        return (
+                          <div 
+                            className="flex-shrink-0 border-2 border-dashed border-green-300 bg-green-50 flex items-center justify-center rounded-lg"
+                            style={{ 
+                              width: availableWidth,
+                              height: '60px'
+                            }}
+                          >
+                            <div className="text-center text-xs text-green-600 font-medium">
+                              <div>{availableCells} cells available</div>
+                              <div>({Math.round(availableWidth)}px)</div>
+                            </div>
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
+                  </div>
+                ))}
+                
+                {/* Grid statistics */}
+                <div className="mt-6 bg-gray-100 border border-gray-300 rounded-lg p-3 text-center">
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium">Container Width:</span> {containerWidth}px • 
+                    <span className="font-medium"> Total Cells:</span> {totalGridCells} • 
+                    <span className="font-medium"> Rows:</span> {previewGridRows.length}
+                  </div>
                 </div>
-              ))}
-              {previewGridRows.length > 5 && (
-                <div className="text-center text-gray-500 text-sm py-2">
-                  ... and {previewGridRows.length - 5} more rows
-                </div>
-              )}
+              </div>
             </div>
           </div>
         )}
@@ -977,7 +1157,8 @@ export function IntelligentVideoGrid({
         {gridRows.map((row, rowIndex) => {
           const availableCells = getRowAvailableCells(rowIndex)
           const draggedCard = draggedCardId ? videoCards.find(card => card.video.id === draggedCardId) : null
-          const canDropInRow = draggedCard ? draggedCard.cellSpan <= availableCells : false
+          const currentDraggedCardRow = draggedCardId ? gridRows.findIndex(r => r.some(card => card.video.id === draggedCardId)) : -1
+          const canDropInRow = draggedCard ? (draggedCard.cellSpan <= availableCells && rowIndex !== currentDraggedCardRow) : false
           const isRowDropTarget = dropTargetRowIndex === rowIndex
           
           return (
@@ -990,17 +1171,22 @@ export function IntelligentVideoGrid({
                     ? 'border-2 border-transparent hover:border-green-200 hover:bg-green-25 rounded-lg p-2'
                     : ''
               }`}
-              style={{ gap: `${cardGap}px` }}
+              style={{ display: 'flex', gap: `${cardGap}px` }}
               onDragOver={(e) => handleRowDragOver(e, rowIndex)}
               onDragLeave={handleRowDragLeave}
               onDrop={(e) => handleRowDrop(e, rowIndex)}
             >
-              {row.map((cardData) => (
+              {row.map((cardData, cardIndex) => (
                 <div
                   key={cardData.video.id}
                   className={`flex-shrink-0 transition-all duration-300 relative ${
                     cardData.isResizing ? 'z-50' : 'z-10'
                   }`}
+                  style={{ 
+                    flexShrink: 0, // Prevent cards from shrinking which could cause overlap
+                    minWidth: 0, // Prevent flex item from overflowing
+                    width: cardData.width // Force the calculated width
+                  }}
                 >
                   <ResizableVideoCard
                     video={cardData.video}
@@ -1018,10 +1204,10 @@ export function IntelligentVideoGrid({
                     onDrop={handleDrop}
                     defaultWidth={cardData.width}
                     defaultHeight={cardData.height}
-                    minWidth={minCardWidth}
-                    minHeight={minCardHeight}
-                    maxWidth={maxCardWidth}
-                    maxHeight={maxCardHeight}
+                    minWidth={dynamicMinCardWidth}
+                    minHeight={dynamicMinCardHeight}
+                    maxWidth={dynamicMaxCardWidth}
+                    maxHeight={dynamicMaxCardHeight}
                     gridPosition={cardData.gridPosition}
                     isDragging={draggedCardId === cardData.video.id}
                     isDropTarget={dropTargetCardId === cardData.video.id}
@@ -1094,10 +1280,10 @@ export function IntelligentVideoGrid({
                           onDrop={handleDrop}
                           defaultWidth={subCard.width}
                           defaultHeight={subCard.height}
-                          minWidth={minCardWidth * 0.7} // Allow smaller in sub-spaces
-                          minHeight={minCardHeight * 0.7}
-                          maxWidth={maxCardWidth}
-                          maxHeight={maxCardHeight}
+                          minWidth={dynamicMinCardWidth * 0.7} // Allow smaller in sub-spaces
+                          minHeight={dynamicMinCardHeight * 0.7}
+                          maxWidth={dynamicMaxCardWidth}
+                          maxHeight={dynamicMaxCardHeight}
                           gridPosition={subCard.gridPosition}
                           isDragging={draggedCardId === subCard.video.id}
                           isDropTarget={dropTargetCardId === subCard.video.id}
@@ -1140,7 +1326,7 @@ export function IntelligentVideoGrid({
           <div>
             <span className="text-gray-600 dark:text-gray-400">Cards Per Row:</span>
             <span className="ml-2 font-medium text-gray-900 dark:text-white">
-              {gridRows.length > 0 ? `${Math.min(...gridRows.map(row => row.length))}-${Math.max(...gridRows.map(row => row.length))}` : '0'}
+              {currentCardsPerRow} (responsive: {containerWidth < 768 ? 'mobile' : containerWidth < 1200 ? 'tablet' : 'desktop'})
             </span>
           </div>
           <div>
