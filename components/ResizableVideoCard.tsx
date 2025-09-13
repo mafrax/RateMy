@@ -106,7 +106,7 @@ export function ResizableVideoCard({
 }: ResizableVideoCardProps) {
   const { data: session } = useSession()
   const { globalBlurEnabled, isVideoRevealed, revealVideo, toggleVideoReveal } = useNSFW()
-  const { setCachedRating, getCachedRating, hasPendingRating, addRatingSavedCallback, removeRatingSavedCallback } = useRatingCache()
+  const { setCachedRating, getCachedRating, hasPendingRating } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
   const [localTags, setLocalTags] = useState(video.tags)
   const [tagsExpanded, setTagsExpanded] = useState(false)
@@ -278,20 +278,8 @@ export function ResizableVideoCard({
     setCardSize({ width: defaultWidth, height: defaultHeight })
   }, [defaultWidth, defaultHeight])
 
-  // Set up rating saved callback to trigger video refresh
-  useEffect(() => {
-    const handleRatingSaved = () => {
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
-    }
-
-    addRatingSavedCallback(video.id, handleRatingSaved)
-
-    return () => {
-      removeRatingSavedCallback(video.id)
-    }
-  }, [video.id, onVideoUpdate, addRatingSavedCallback, removeRatingSavedCallback])
+  // Removed automatic rating saved callback to prevent unwanted page refreshes
+  // Ratings are now handled seamlessly through the cache without full page reloads
 
   // Detect video orientation and aspect ratio
   useEffect(() => {
@@ -396,9 +384,7 @@ export function ResizableVideoCard({
 
       if (response.ok && data.success) {
         toast.success('Tag added!')
-        if (onVideoUpdate) {
-          onVideoUpdate()
-        }
+        // Removed onVideoUpdate call to prevent page refresh
       } else {
         toast.error(data.message || 'Failed to add tag')
       }
@@ -505,10 +491,7 @@ export function ResizableVideoCard({
         closeModal()
       }
 
-      // Trigger refresh of video list
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
+      // Removed video refresh to prevent page reload
 
     } catch (error) {
       console.error('Error deleting video:', error)
@@ -964,7 +947,7 @@ export function ResizableVideoCard({
                                 <AddTagInput 
                                   videoId={video.id} 
                                   onTagAdded={(tag) => {
-                                    if (onVideoUpdate) onVideoUpdate()
+                                    // Removed onVideoUpdate to prevent page refresh
                                   }}
                                   compact={true}
                                 />
@@ -1066,7 +1049,7 @@ export function ResizableVideoCard({
                             {session && (
                               <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                                 <AddTagInput videoId={video.id} onTagAdded={(tag) => {
-                                if (onVideoUpdate) onVideoUpdate()
+                                // Removed onVideoUpdate to prevent page refresh
                               }} />
                               </div>
                             )}
@@ -1390,7 +1373,7 @@ export function ResizableVideoCard({
                           <div>
                             <h4 className="font-medium text-gray-900 dark:text-white mb-2">Add Tag</h4>
                             <AddTagInput videoId={video.id} onTagAdded={(tag) => {
-                              if (onVideoUpdate) onVideoUpdate()
+                              // Removed onVideoUpdate to prevent page refresh
                             }} />
                           </div>
                         )}

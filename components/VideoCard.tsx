@@ -56,7 +56,7 @@ interface VideoCardProps {
 
 export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   const { data: session } = useSession()
-  const { setCachedRating, getCachedRating, hasPendingRating, addRatingSavedCallback, removeRatingSavedCallback } = useRatingCache()
+  const { setCachedRating, getCachedRating, hasPendingRating } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
   const [localTags, setLocalTags] = useState(video.tags)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -73,20 +73,8 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
     setLocalTags(video.tags)
   }, [video.tags])
 
-  // Set up rating saved callback to trigger video refresh
-  useEffect(() => {
-    const handleRatingSaved = () => {
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
-    }
-    
-    addRatingSavedCallback(video.id, handleRatingSaved)
-    
-    return () => {
-      removeRatingSavedCallback(video.id)
-    }
-  }, [video.id, onVideoUpdate, addRatingSavedCallback, removeRatingSavedCallback])
+  // Removed automatic rating saved callback to prevent unwanted page refreshes
+  // Ratings are now handled seamlessly through the cache without full page reloads
 
 
   const getAverageRating = (tagId: string) => {
@@ -143,10 +131,7 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
       
       toast.success('Tag removed successfully!')
       
-      // Call parent update if provided
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
+      // Removed onVideoUpdate call to prevent page refresh
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to remove tag')
     }
@@ -156,10 +141,7 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
     // Add tag to local state immediately
     setLocalTags(prev => [...prev, { tag: newTag }])
     
-    // Call parent update if provided
-    if (onVideoUpdate) {
-      onVideoUpdate()
-    }
+    // Removed onVideoUpdate call to prevent page refresh
   }
 
   const handleCommentsExpandedChange = (expanded: boolean, count: number) => {
@@ -298,6 +280,7 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
       <div 
         className="card hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow relative group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         ref={cardRef}
+        style={{border : '2px solid red'}}
       >
         {/* Control buttons */}
         <div className="absolute top-2 right-2 z-10 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -17,8 +17,6 @@ interface RatingCacheContextType {
   getCachedRating: (videoId: string, tagId: string) => number | null
   hasPendingRating: (videoId: string, tagId: string) => boolean
   flushPendingRatings: () => Promise<void>
-  addRatingSavedCallback: (videoId: string, callback: () => void) => void
-  removeRatingSavedCallback: (videoId: string) => void
   setDebounceDelay: (delay: number) => void
   getDebounceDelay: () => number
   getCacheStats: () => { pendingCount: number; oldestTimestamp: number | null }
@@ -37,7 +35,6 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null)
   const [debounceDelay, setDebounceDelayState] = useState<number>(DEFAULT_DEBOUNCE_DELAY)
   const [isInitialized, setIsInitialized] = useState(false)
-  const [ratingSavedCallbacks, setRatingSavedCallbacks] = useState<Map<string, () => void>>(new Map())
 
   // Generate cache key for a rating
   const getCacheKey = (videoId: string, tagId: string) => `${videoId}:${tagId}`
@@ -173,13 +170,8 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
       }
 
       // Notify components that ratings were saved before clearing the cache
-      const uniqueVideoIds = new Set(ratingsToSave.map(rating => rating.videoId))
-      uniqueVideoIds.forEach(videoId => {
-        const callback = ratingSavedCallbacks.get(videoId)
-        if (callback) {
-          callback()
-        }
-      })
+      // Note: Removed automatic callback execution to prevent unwanted page refreshes
+      // Components can manually check for rating updates or use server-side caching instead
 
       // Clear pending ratings after successful save
       setPendingRatings(new Map())
@@ -208,7 +200,7 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
       
       // Don't clear cache on error - allow retry
     }
-  }, [pendingRatings, session, debounceTimer, clearStorage, ratingSavedCallbacks])
+  }, [pendingRatings, session, debounceTimer, clearStorage])
 
   // Initialize from localStorage on mount
   useEffect(() => {
@@ -291,19 +283,7 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
     }
   }, [debounceTimer])
 
-  // Add callback for a specific video
-  const addRatingSavedCallback = useCallback((videoId: string, callback: () => void) => {
-    setRatingSavedCallbacks(prev => new Map(prev).set(videoId, callback))
-  }, [])
-
-  // Remove callback for a specific video
-  const removeRatingSavedCallback = useCallback((videoId: string) => {
-    setRatingSavedCallbacks(prev => {
-      const newMap = new Map(prev)
-      newMap.delete(videoId)
-      return newMap
-    })
-  }, [])
+  // Removed rating saved callback functions to prevent unwanted page refreshes
 
   // Set custom debounce delay
   const setDebounceDelay = useCallback((delay: number) => {
@@ -359,8 +339,6 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
     getCachedRating,
     hasPendingRating,
     flushPendingRatings,
-    addRatingSavedCallback,
-    removeRatingSavedCallback,
     setDebounceDelay,
     getDebounceDelay,
     getCacheStats
