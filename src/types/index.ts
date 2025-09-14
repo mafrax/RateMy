@@ -23,6 +23,7 @@ export interface Video {
   originalUrl: string
   embedUrl: string
   thumbnail: string | null
+  previewUrl: string | null
   description: string | null
   isNsfw: boolean
   createdAt: Date

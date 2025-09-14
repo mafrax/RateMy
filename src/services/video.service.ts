@@ -12,6 +12,8 @@ import { userRepository } from '../repositories/user.repository'
 import { videoMetadataService } from './video-metadata.service'
 import { nsfwService } from './nsfw.service'
 import { redGifsService } from './redgifs.service'
+import { redditService } from './reddit.service'
+import { xHamsterService } from './xhamster.service'
 import { 
   validateSchema, 
   createVideoSchema, 
@@ -84,8 +86,8 @@ export class VideoServiceImpl {
         throw createNotFoundError('User', userId)
       }
 
-      // Check if this is a RedGifs URL and handle it specially
-      let extractedMetadata, embedUrl, finalThumbnail
+      // Check if this is a special URL and handle it accordingly
+      let extractedMetadata, embedUrl, finalThumbnail, previewUrl
 
       if (redGifsService.isRedGifsUrl(validatedData.originalUrl)) {
         try {
@@ -100,6 +102,41 @@ export class VideoServiceImpl {
           finalThumbnail = redGifsData.thumbnail
         } catch (error) {
           logger.error('Failed to process RedGifs URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = extractedMetadata.thumbnail || null
+        }
+      } else if (redditService.isRedditUrl(validatedData.originalUrl)) {
+        try {
+          const redditData = await redditService.processRedditUrl(validatedData.originalUrl)
+          extractedMetadata = {
+            title: redditData.metadata.title,
+            description: redditData.metadata.description || '',
+            tags: redditData.tags,
+            thumbnail: redditData.thumbnail
+          }
+          embedUrl = redditData.embedUrl
+          finalThumbnail = redditData.thumbnail
+        } catch (error) {
+          logger.error('Failed to process Reddit URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = extractedMetadata.thumbnail || null
+        }
+      } else if (xHamsterService.isXHamsterUrl(validatedData.originalUrl)) {
+        try {
+          const xHamsterData = await xHamsterService.processXHamsterUrl(validatedData.originalUrl)
+          extractedMetadata = {
+            title: xHamsterData.title || '',
+            description: xHamsterData.description || '',
+            tags: xHamsterData.tags || [],
+            thumbnail: xHamsterData.thumbnail
+          }
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = xHamsterData.thumbnail || null
+          previewUrl = xHamsterData.previewUrl || null
+        } catch (error) {
+          logger.error('Failed to process XHamster URL, falling back to standard processing', { error })
           extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
           embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
           finalThumbnail = extractedMetadata.thumbnail || null
@@ -144,7 +181,18 @@ export class VideoServiceImpl {
       })
 
       // Detect NSFW content automatically
-      const isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)
+      // RedGifs URLs are automatically marked as NSFW
+      const isRedGifs = redGifsService.isRedGifsUrl(validatedData.originalUrl)
+      const isReddit = redditService.isRedditUrl(validatedData.originalUrl)
+      
+      let isNSFW: boolean
+      if (isRedGifs) {
+        isNSFW = true // All RedGifs are NSFW
+      } else if (isReddit && extractedMetadata.tags?.includes('nsfw')) {
+        isNSFW = true // Reddit marked as NSFW
+      } else {
+        isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)
+      }
 
       // Create video with tags
       let video
@@ -154,6 +202,7 @@ export class VideoServiceImpl {
           originalUrl: validatedData.originalUrl,
           embedUrl,
           thumbnail: finalThumbnail,
+          previewUrl: previewUrl || null,
           description: finalDescription,
           isNsfw: isNSFW,
           userId,
@@ -443,6 +492,13 @@ export class VideoServiceImpl {
     const dailymotionMatch = originalUrl.match(dailymotionRegex)
     if (dailymotionMatch) {
       return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`
+    }
+
+    // Reddit URLs
+    const redditRegex = /(?:https?:\/\/)?(?:www\.|old\.|m\.|np\.)?reddit\.com\/r\/(\w+)\/comments\/([a-zA-Z0-9]+)(?:\/([^/]+))?/i
+    const redditMatch = originalUrl.match(redditRegex)
+    if (redditMatch) {
+      return `https://www.reddit.com/r/${redditMatch[1]}/comments/${redditMatch[2]}/`
     }
 
     // Twitch URLs

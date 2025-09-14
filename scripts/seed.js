@@ -112,6 +112,18 @@ async function main() {
         userId: user2.id,
         thumbnail: 'https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg'
       }
+    }),
+    prisma.video.create({
+      data: {
+        title: 'From Fleshlights to Fresh Loads - BFFs Viral Cum Smoothie Quest',
+        originalUrl: 'https://fra.xhamster.com/videos/from-fleshlights-to-fresh-loads-bffs-viral-cum-smoothie-quest-xhtBSv6',
+        embedUrl: 'https://fra.xhamster.com/videos/from-fleshlights-to-fresh-loads-bffs-viral-cum-smoothie-quest-xhtBSv6',
+        description: 'XHamster video with preview functionality',
+        userId: user1.id,
+        isNsfw: true,
+        thumbnail: 'https://thumb-v9.xhpingcdn.com/a/LzAVW-7-axsurn_YwPGVWg/027/166/569/320x320.50.s.webp',
+        previewUrl: 'https://thumb-v9.xhpingcdn.com/a/ftmHjmQZL30Ve0lwQE08rw/027/166/569/526x298.78.t.mp4'
+      }
     })
   ])
 
@@ -141,6 +153,10 @@ async function main() {
     // Despacito - Music
     prisma.videoTag.create({
       data: { videoId: videos[3].id, tagId: tags[2].id }
+    }),
+    // XHamster video - Funny (assign at least one tag)
+    prisma.videoTag.create({
+      data: { videoId: videos[4].id, tagId: tags[0].id }
     })
   ])
 

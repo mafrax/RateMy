@@ -85,6 +85,7 @@ model Video {
   originalUrl String
   embedUrl    String
   thumbnail   String?
+  previewUrl  String?
   description String?
   isNsfw      Boolean  @default(false)
   createdAt   DateTime @default(now())
