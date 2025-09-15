@@ -14,7 +14,7 @@ export class XHamsterServiceImpl {
   }
 
   private isValidContentTag(tag: string): boolean {
-    if (!tag || tag.length < 2 || tag.length > 30) return false
+    if (!tag || tag.length < 2 || tag.length > 50) return false
     
     // Technical/platform terms to exclude
     const blacklist = [
@@ -28,13 +28,13 @@ export class XHamsterServiceImpl {
       'isbrand', 'ischannel', 'isverified', 'nameen', 'channel', 'channels', 'model', 'models',
       'category', 'categories', 'premium', 'vip', 'verified', 'official',
       
-      // Quality/format terms
-      'hd', '4k', '720p', '1080p', 'uhd', 'fhd', 'mp4', 'avi', 'wmv', 'flv', 'mov', 'webm',
+      // Low-level quality/format terms (but allow some descriptive quality terms)
+      '720p', '1080p', 'uhd', 'fhd', 'mp4', 'avi', 'wmv', 'flv', 'mov', 'webm',
       'duration', 'length', 'size', 'quality', 'format', 'resolution',
       
       // Social/interaction terms
       'views', 'likes', 'dislikes', 'comments', 'share', 'subscribe', 'follow', 'favorite',
-      'bookmark', 'playlist', 'collection', 'gallery',
+      'bookmark', 'playlist', 'collection', 'gallery', 'abonnement',
       
       // Technical UI/web terms
       'embed', 'iframe', 'player', 'thumb', 'thumbnail', 'preview', 'poster',
@@ -60,7 +60,10 @@ export class XHamsterServiceImpl {
       // Meaningless terms
       'content', 'stuff', 'things', 'item', 'object', 'element', 'component',
       'section', 'part', 'piece', 'bit', 'data', 'info', 'information',
-      'details', 'description', 'title', 'text', 'caption', 'label'
+      'details', 'description', 'title', 'text', 'caption', 'label',
+      
+      // UI interaction terms
+      'modifier les mots clés', 'edit keywords', 'modifier', 'edit'
     ]
     
     const lowerTag = tag.toLowerCase()
@@ -71,14 +74,17 @@ export class XHamsterServiceImpl {
     // Skip if contains URLs or technical patterns
     if (lowerTag.includes('http') || lowerTag.includes('www') || lowerTag.includes('.com')) return false
     
-    // Skip pure numbers
-    if (/^\d+$/.test(lowerTag)) return false
+    // Skip pure numbers (but allow year tags like 1980s)
+    if (/^\d+$/.test(lowerTag) && lowerTag.length < 4) return false
     
     // Skip hex strings (likely IDs)
     if (/^[a-f0-9]{8,}$/i.test(lowerTag)) return false
     
     // Skip technical values
     if (/^(true|false|null|undefined|nan|infinity)$/i.test(lowerTag)) return false
+    
+    // Skip subscriber counts and numeric social media patterns
+    if (/^\d+[km]?$/.test(lowerTag)) return false
     
     return true
   }
@@ -101,7 +107,7 @@ export class XHamsterServiceImpl {
     // Remove leading/trailing hyphens
     normalized = normalized.replace(/^-+|-+$/g, '')
     
-    // Tag mappings for common variations including French translations
+    // Tag mappings for common variations including French translations from XHamster
     const tagMappings: Record<string, string> = {
       // English variations
       'big-boobs': 'big-tits',
@@ -127,77 +133,76 @@ export class XHamsterServiceImpl {
       'boy-boy': 'gay',
       'mm': 'gay',
       'girl-boy': 'straight',
-      'gf': 'girlfriend',
-      'bf': 'boyfriend',
-      'hubby': 'husband',
-      'wifey': 'wife',
-      'teen18': 'teen',
-      'teen-18': 'teen',
-      'eighteen': 'teen',
-      '18yo': 'teen',
-      '18-year-old': 'teen',
-      '18-ans': 'teen',
       'milfs': 'milf',
       'moms': 'milf',
       'mothers': 'milf',
-      'cougars': 'milf',
+      'cougars': 'cougar',
       'grannies': 'granny',
       'grandmas': 'granny',
       'gilf': 'granny',
-      // French to English mappings
-      'bombasse': 'babe',
-      'jeune': 'teen',
-      'pipe': 'blowjob',
-      'blonde': 'blonde',
-      'petits-seins': 'small-tits',
-      'grosse-bite': 'big-cock',
-      'big-cock': 'big-cock',
-      'massive-cock': 'big-cock',
-      'enormous': 'big-cock',
-      'irrumation': 'face-fuck',
-      'face-fuck': 'deepthroat',
-      'sexe-brutal': 'rough-sex',
-      'rough-sex': 'rough-sex',
-      'videos-hd': 'hd',
+      
+      // French to English mappings (based on your provided HTML)
+      'françaises': 'french',
+      'francaises': 'french',
+      'européennes': 'european',
+      'europeennes': 'european',
+      'fête': 'party',
+      'fete': 'party',
+      'fêtes': 'party',
+      'fetes': 'party',
+      'rétro': 'retro',
+      'retro': 'retro',
       'vidéos-hd': 'hd',
+      'videos-hd': 'hd',
+      'cougar': 'cougar',
+      'hardcore': 'hardcore',
+      'milf': 'milf',
+      'mature': 'mature',
+      'vintage': 'vintage',
+      'film': 'movie',
+      'hardcore-français': 'french-hardcore',
+      'hardcore-francais': 'french-hardcore',
+      'vintage-des-années-1970': 'vintage-1970s',
+      'vintage-des-annees-1970': 'vintage-1970s',
+      'classique-français': 'french-classic',
+      'classique-francais': 'french-classic',
+      'années-80': '1980s',
+      'annees-80': '1980s',
+      'milf-françaises': 'french-milf',
+      'milf-francaises': 'french-milf',
+      'hardcore-classique': 'classic-hardcore',
+      'milfed': 'milf',
+      'hardcore-milfs': 'hardcore-milf',
+      'at-the-party': 'party',
+      'european-milfs': 'european-milf',
+      'before-the-party': 'party',
+      'hardcore-party': 'hardcore-party',
+      'full-hd': 'hd',
+      'my-party': 'party',
+      'in-party': 'party',
+      'partying': 'party',
+      'vintage-classic-full': 'vintage-classic',
+      
+      // Common variations
       'amateur': 'amateur',
-      'excitee': 'horny',
-      'excitée': 'horny',
-      'horny': 'horny',
-      'adolescents': 'teen',
-      'doigtage-de-chatte': 'fingering',
-      'fingering-pussy': 'fingering',
-      'doigtee': 'fingered',
-      'fingered': 'fingering',
-      'beautes': 'babe',
-      'beautés': 'babe',
-      'gemissements-bruyants': 'moaning',
-      'loud-moaning': 'moaning',
-      'petite-chatte': 'small-pussy',
-      'little-pussy': 'small-pussy',
-      'jouet': 'toys',
-      'toy': 'toys',
-      'seins-naturels': 'natural-tits',
-      'natural-boobs': 'natural-tits',
-      'natural-tits': 'natural-tits',
-      'utilise-moi': 'freeuse',
-      'use-me': 'freeuse',
-      'utilisation-gratuite': 'freeuse',
-      'ascenseur': 'elevator',
-      'bande-annonce': 'trailer',
-      'etourdissant': 'stunning',
-      'stunner': 'stunning',
-      'arracher': 'rough',
-      'snatch': 'rough',
-      'banging': 'hardcore',
-      'beginner': 'amateur',
+      'blonde': 'blonde',
+      'brunette': 'brunette',
+      'redhead': 'redhead',
+      'teen': 'teen',
+      'young': 'teen',
+      'old': 'mature',
+      'ebony': 'ebony',
+      'asian': 'asian',
+      'latina': 'latina',
+      'bbw': 'bbw',
       'titties': 'tits',
-      'my-little': 'petite',
-      'trap': 'stuck',
-      'tights': 'pantyhose',
-      'fingers': 'fingering',
-      'pounds': 'pounding',
-      'sex': 'hardcore'
+      'boobs': 'tits',
+      'breasts': 'tits',
+      'sex': 'hardcore',
+      'fucking': 'hardcore',
+      'parties': 'party',
+      '1980s': '1980s',
+      '1970s': '1970s'
     }
     
     // Apply mappings
@@ -312,166 +317,92 @@ export class XHamsterServiceImpl {
         }
       }
 
-      // Enhanced tags extraction from multiple sources
+      // Enhanced tags extraction - focus on video-tags-list-container
       const tags = new Set<string>()
 
-      // 1. Extract from keywords meta tag
-      const keywordsMatch = html.match(/<meta[^>]*name="keywords"[^>]*content="([^"]*)"[^>]*>/i)
-      if (keywordsMatch) {
-        keywordsMatch[1].split(',').forEach(tag => {
-          const cleanTag = tag.trim().toLowerCase()
-          if (cleanTag && cleanTag.length > 2) {
-            tags.add(cleanTag)
+      // First, try to extract from the specific video-tags-list-container section
+      const videoTagsContainerRegex = /<nav[^>]*id="video-tags-list-container"[^>]*>([\s\S]*?)<\/nav>/i
+      const videoTagsContainerMatch = html.match(videoTagsContainerRegex)
+      
+      if (videoTagsContainerMatch) {
+        const containerHtml = videoTagsContainerMatch[1]
+        
+        // Extract tag text from spans with class "body-8643e label-5984a label-96c3e" or "body-bold-8643e label-5984a label-96c3e"
+        // This targets the actual tag labels in the video tags list
+        const tagLabelRegex = /<span[^>]*class="[^"]*(?:body-8643e|body-bold-8643e)[^"]*label-5984a[^"]*label-96c3e[^"]*"[^>]*>([^<]+)<\/span>/g
+        let tagLabelMatch
+        
+        while ((tagLabelMatch = tagLabelRegex.exec(containerHtml)) !== null) {
+          const tagText = tagLabelMatch[1]?.trim()
+          if (tagText && this.isValidContentTag(tagText)) {
+            const normalized = this.normalizeTag(tagText)
+            if (normalized) {
+              tags.add(normalized)
+            }
           }
-        })
-      }
-
-      // 2. Extract from visible category and tag links in HTML (more reliable approach)
-      // Extract category links like: href="https://fra.xhamster.com/categories/teen"
-      const categoryLinksRegex = /href="[^"]*\/categories\/([^"]+)"[^>]*>\s*<[^>]*>\s*([^<]+)</g
-      let categoryMatch
-      while ((categoryMatch = categoryLinksRegex.exec(html)) !== null) {
-        const categorySlug = categoryMatch[1]?.trim()
-        const categoryText = categoryMatch[2]?.trim()
+        }
         
-        if (categorySlug && this.isValidContentTag(categorySlug)) {
-          tags.add(categorySlug.toLowerCase())
+        // Also extract from href patterns within the container for categories and tags
+        const categoryLinksRegex = /href="[^"]*\/categories\/([^"\/]+)"[^>]*>/g
+        let categoryMatch
+        while ((categoryMatch = categoryLinksRegex.exec(containerHtml)) !== null) {
+          const categorySlug = categoryMatch[1]?.trim()
+          if (categorySlug && this.isValidContentTag(categorySlug)) {
+            const normalized = this.normalizeTag(categorySlug)
+            if (normalized) {
+              tags.add(normalized)
+            }
+          }
         }
-        if (categoryText && categoryText !== categorySlug && this.isValidContentTag(categoryText)) {
-          const normalized = this.normalizeTag(categoryText)
-          if (normalized) tags.add(normalized)
-        }
-      }
-
-      // Extract tag links like: href="https://fra.xhamster.com/tags/freeuse"
-      const tagLinksRegex = /href="[^"]*\/tags\/([^"]+)"[^>]*>\s*<[^>]*>\s*([^<]+)</g
-      let tagMatch
-      while ((tagMatch = tagLinksRegex.exec(html)) !== null) {
-        const tagSlug = tagMatch[1]?.trim()
-        const tagText = tagMatch[2]?.trim()
         
-        if (tagSlug && this.isValidContentTag(tagSlug)) {
-          tags.add(tagSlug.toLowerCase())
-        }
-        if (tagText && tagText !== tagSlug && this.isValidContentTag(tagText)) {
-          const normalized = this.normalizeTag(tagText)
-          if (normalized) tags.add(normalized)
-        }
-      }
-
-      // 3. Extract channel/pornstar names from links
-      const pornstarLinksRegex = /href="[^"]*\/pornstars\/([^"]+)"[^>]*>[\s\S]*?alt="([^"]*)"[^>]*>/g
-      let pornstarMatch
-      while ((pornstarMatch = pornstarLinksRegex.exec(html)) !== null) {
-        const pornstarName = pornstarMatch[2]?.trim()
-        
-        if (pornstarName && this.isValidContentTag(pornstarName)) {
-          const normalized = this.normalizeTag(pornstarName)
-          if (normalized && normalized !== 'image' && normalized !== 'avatar') {
-            tags.add(normalized)
+        const tagLinksRegex = /href="[^"]*\/tags\/([^"\/]+)"[^>]*>/g
+        let tagMatch
+        while ((tagMatch = tagLinksRegex.exec(containerHtml)) !== null) {
+          const tagSlug = tagMatch[1]?.trim()
+          if (tagSlug && this.isValidContentTag(tagSlug)) {
+            const normalized = this.normalizeTag(tagSlug)
+            if (normalized) {
+              tags.add(normalized)
+            }
           }
         }
       }
-
-      // 4. Extract from JSON data (more targeted approach)
-      if (scriptContent) {
-        try {
-          // Look for specific tag arrays that contain actual content tags
-          const tagArrayPattern = /"tags"\s*:\s*\[([^\]]*"[^"]*"[^\]]*)\]/g
-          const tagArrayMatches = scriptContent.match(tagArrayPattern)
+      
+      // If no tags found from container, fallback to broader extraction
+      if (tags.size === 0) {
+        // Extract from visible category and tag links in HTML (broader fallback)
+        const categoryLinksRegex = /href="[^"]*\/categories\/([^"\/]+)"[^>]*>\s*<[^>]*>\s*<span[^>]*>([^<]+)<\/span>/g
+        let categoryMatch
+        while ((categoryMatch = categoryLinksRegex.exec(html)) !== null) {
+          const categorySlug = categoryMatch[1]?.trim()
+          const categoryText = categoryMatch[2]?.trim()
           
-          if (tagArrayMatches) {
-            tagArrayMatches.forEach(match => {
-              const tagStringArray = match.match(/"([^"]{2,30})"/g)
-              if (tagStringArray) {
-                tagStringArray.forEach(tagStr => {
-                  const tag = tagStr.replace(/"/g, '').trim()
-                  if (this.isValidContentTag(tag)) {
-                    const normalized = this.normalizeTag(tag)
-                    if (normalized) tags.add(normalized)
-                  }
-                })
-              }
-            })
+          if (categorySlug && this.isValidContentTag(categorySlug)) {
+            const normalized = this.normalizeTag(categorySlug)
+            if (normalized) tags.add(normalized)
           }
+          if (categoryText && categoryText !== categorySlug && this.isValidContentTag(categoryText)) {
+            const normalized = this.normalizeTag(categoryText)
+            if (normalized) tags.add(normalized)
+          }
+        }
 
-          // Look for category objects with names
-          const categoryPattern = /"categories"\s*:\s*\[[^\]]*"name"\s*:\s*"([^"]+)"[^\]]*\]/g
-          const categoryMatches = scriptContent.match(categoryPattern)
-          if (categoryMatches) {
-            categoryMatches.forEach(match => {
-              const nameMatch = match.match(/"name"\s*:\s*"([^"]+)"/g)
-              if (nameMatch) {
-                nameMatch.forEach(name => {
-                  const categoryName = name.match(/"name"\s*:\s*"([^"]+)"/)?.[1]
-                  if (categoryName && this.isValidContentTag(categoryName)) {
-                    const normalized = this.normalizeTag(categoryName)
-                    if (normalized) tags.add(normalized)
-                  }
-                })
-              }
-            })
+        const tagLinksRegex = /href="[^"]*\/tags\/([^"\/]+)"[^>]*>\s*<[^>]*>\s*<span[^>]*>([^<]+)<\/span>/g
+        let tagMatch
+        while ((tagMatch = tagLinksRegex.exec(html)) !== null) {
+          const tagSlug = tagMatch[1]?.trim()
+          const tagText = tagMatch[2]?.trim()
+          
+          if (tagSlug && this.isValidContentTag(tagSlug)) {
+            const normalized = this.normalizeTag(tagSlug)
+            if (normalized) tags.add(normalized)
           }
-        } catch (error) {
-          logger.warn('Error parsing JSON content for tags', { error })
+          if (tagText && tagText !== tagSlug && this.isValidContentTag(tagText)) {
+            const normalized = this.normalizeTag(tagText)
+            if (normalized) tags.add(normalized)
+          }
         }
       }
-
-      // 5. Extract from video-specific metadata patterns and other HTML elements
-      const videoTagsPattern = /<span[^>]*class="[^"]*tag[^"]*"[^>]*>([^<]+)<\/span>/gi
-      let videoTagMatch
-      while ((videoTagMatch = videoTagsPattern.exec(html)) !== null) {
-        const tagName = videoTagMatch[1].trim()
-        if (tagName && this.isValidContentTag(tagName)) {
-          const normalized = this.normalizeTag(tagName)
-          if (normalized) tags.add(normalized)
-        }
-      }
-
-      // 6. Extract quality indicators and content type from title/description
-      const titleLower = (metadata.title || '').toLowerCase()
-      const descLower = (metadata.description || '').toLowerCase()
-      const combinedText = `${titleLower} ${descLower}`
-
-      // Quality tags
-      if (combinedText.includes('4k') || combinedText.includes('ultra hd')) tags.add('4k')
-      if (combinedText.includes('hd') && !tags.has('4k')) tags.add('hd')
-      if (combinedText.includes('60fps')) tags.add('60fps')
-      if (combinedText.includes('vr')) tags.add('vr')
-
-      // Content type tags
-      if (combinedText.includes('amateur')) tags.add('amateur')
-      if (combinedText.includes('professional')) tags.add('professional')
-      if (combinedText.includes('webcam')) tags.add('webcam')
-      if (combinedText.includes('homemade')) tags.add('homemade')
-      
-      // Activity tags (common ones)
-      const activityTags = [
-        'solo', 'couple', 'threesome', 'group', 'lesbian', 'gay', 'straight',
-        'anal', 'oral', 'masturbation', 'blowjob', 'handjob', 'footjob',
-        'massage', 'stripteasing', 'dancing', 'shower', 'bath', 'outdoor',
-        'public', 'car', 'office', 'bedroom', 'kitchen', 'bathroom'
-      ]
-      
-      activityTags.forEach(activityTag => {
-        if (combinedText.includes(activityTag)) {
-          tags.add(activityTag)
-        }
-      })
-
-      // Demographic tags
-      const demographicTags = [
-        'teen', 'milf', 'mature', 'granny', 'young', 'old',
-        'blonde', 'brunette', 'redhead', 'black hair', 'asian', 'latina',
-        'ebony', 'white', 'bbw', 'thin', 'curvy', 'big tits', 'small tits',
-        'big ass', 'small ass', 'tattoo', 'piercing', 'hairy', 'shaved'
-      ]
-      
-      demographicTags.forEach(demoTag => {
-        if (combinedText.includes(demoTag)) {
-          tags.add(demoTag.replace(' ', '-'))
-        }
-      })
 
       // Convert Set to Array and apply tag normalization
       let finalTags = Array.from(tags)
@@ -479,9 +410,9 @@ export class XHamsterServiceImpl {
       // Normalize and clean up tags
       finalTags = finalTags
         .map(tag => this.normalizeTag(tag))
-        .filter(tag => tag && tag.length >= 2 && tag.length <= 30)
+        .filter(tag => tag && tag.length >= 2 && tag.length <= 50) // Increased limit for longer compound tags
         .filter((tag, index, array) => array.indexOf(tag) === index) // Remove duplicates
-        // Removed tag limit - allow all relevant tags
+        .sort() // Sort alphabetically for consistent output
 
       metadata.tags = finalTags.length > 0 ? finalTags : undefined
 
