@@ -22,6 +22,7 @@ import { NSFWBlurOverlay } from './NSFWBlurOverlay'
 import { useNSFW } from '@/contexts/NSFWContext'
 import { ConfirmDialog } from './ConfirmDialog'
 import { useRatingCache } from '@/contexts/RatingCacheContext'
+import { extractXHamsterPreview, VideoPreviewData } from '@/src/services/video-preview.service'
 
 interface Video {
   id: string
@@ -29,6 +30,7 @@ interface Video {
   embedUrl: string
   originalUrl: string
   thumbnail?: string
+  previewUrl?: string
   description?: string
   isNsfw: boolean
   createdAt: string
@@ -106,7 +108,7 @@ export function ResizableVideoCard({
 }: ResizableVideoCardProps) {
   const { data: session } = useSession()
   const { globalBlurEnabled, isVideoRevealed, revealVideo, toggleVideoReveal } = useNSFW()
-  const { setCachedRating, getCachedRating, hasPendingRating, addRatingSavedCallback, removeRatingSavedCallback } = useRatingCache()
+  const { setCachedRating, getCachedRating, hasPendingRating } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
   const [localTags, setLocalTags] = useState(video.tags)
   const [tagsExpanded, setTagsExpanded] = useState(false)
@@ -136,6 +138,15 @@ export function ResizableVideoCard({
   const [videoSectionHeight, setVideoSectionHeight] = useState(0.4) // Default to 40%
   const [isDraggingDivider, setIsDraggingDivider] = useState(false)
 
+  // Hover preview state for horizontal videos
+  const [isHovering, setIsHovering] = useState(false)
+  const [previewData, setPreviewData] = useState<VideoPreviewData | null>(() => ({
+    previewUrl: video.previewUrl || undefined,
+    thumbnailUrl: video.thumbnail || undefined
+  }))
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false)
+  const [showIframe, setShowIframe] = useState(false) // Controls if iframe is revealed
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [isNoDrag, setIsNoDrag] = useState(false)
 
@@ -268,30 +279,23 @@ export function ResizableVideoCard({
 
   const cardRef = useRef<HTMLDivElement>(null)
 
-  // Sync local tags when video prop changes
+  // Sync local tags when video prop changes and sort by average rating
   useEffect(() => {
-    setLocalTags(video.tags)
-  }, [video.tags])
+    const sortedTags = [...video.tags].sort((a, b) => {
+      const avgRatingA = getAverageRating(a.tag.id)
+      const avgRatingB = getAverageRating(b.tag.id)
+      return avgRatingB - avgRatingA // Highest to lowest
+    })
+    setLocalTags(sortedTags)
+  }, [video.tags, video.ratings])
 
   // Sync card size when default dimensions change
   useEffect(() => {
     setCardSize({ width: defaultWidth, height: defaultHeight })
   }, [defaultWidth, defaultHeight])
 
-  // Set up rating saved callback to trigger video refresh
-  useEffect(() => {
-    const handleRatingSaved = () => {
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
-    }
-
-    addRatingSavedCallback(video.id, handleRatingSaved)
-
-    return () => {
-      removeRatingSavedCallback(video.id)
-    }
-  }, [video.id, onVideoUpdate, addRatingSavedCallback, removeRatingSavedCallback])
+  // Removed automatic rating saved callback to prevent unwanted page refreshes
+  // Ratings are now handled seamlessly through the cache without full page reloads
 
   // Detect video orientation and aspect ratio
   useEffect(() => {
@@ -396,9 +400,7 @@ export function ResizableVideoCard({
 
       if (response.ok && data.success) {
         toast.success('Tag added!')
-        if (onVideoUpdate) {
-          onVideoUpdate()
-        }
+        // Removed onVideoUpdate call to prevent page refresh
       } else {
         toast.error(data.message || 'Failed to add tag')
       }
@@ -505,10 +507,7 @@ export function ResizableVideoCard({
         closeModal()
       }
 
-      // Trigger refresh of video list
-      if (onVideoUpdate) {
-        onVideoUpdate()
-      }
+      // Removed video refresh to prevent page reload
 
     } catch (error) {
       console.error('Error deleting video:', error)
@@ -552,6 +551,71 @@ export function ResizableVideoCard({
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
   }
+
+  // Handle hover preview for horizontal videos (video-card-type-2)
+  const handleVideoHoverEnter = async () => {
+    console.log('🎯 Hover enter triggered')
+    console.log('🎯 isVerticalVideo:', isVerticalVideo)
+    console.log('🎯 originalUrl:', video.originalUrl)
+    console.log('🎯 includes xhamster:', video.originalUrl?.includes('xhamster.com'))
+    
+    // Only for horizontal videos (video-card-type-2) and XHamster videos
+    if (isVerticalVideo || !video.originalUrl?.includes('xhamster.com')) {
+      console.log('🎯 Skipping preview - not horizontal XHamster video')
+      return
+    }
+
+    console.log('🎯 Setting hovering to true')
+    setIsHovering(true)
+
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+    }
+
+    // Delay preview loading to avoid loading on quick hovers - only if we don't have previewUrl yet
+    if (!previewData?.previewUrl && !isLoadingPreview) {
+      hoverTimeoutRef.current = setTimeout(async () => {
+        console.log('🎯 Starting preview load after timeout')
+        setIsLoadingPreview(true)
+        try {
+          const data = await extractXHamsterPreview(video.originalUrl, video.id)
+          console.log('🎯 Preview data received:', data)
+          setPreviewData(data)
+        } catch (error) {
+          console.error('🎯 Failed to load preview:', error)
+        } finally {
+          setIsLoadingPreview(false)
+        }
+      }, 300) // 300ms delay before loading preview
+    } else {
+      console.log('🎯 Preview data already exists, skipping API call')
+    }
+  }
+
+  const handleVideoHoverLeave = () => {
+    setIsHovering(false)
+    
+    // Clear timeout if user leaves before preview loads
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+  }
+
+  const handleVideoClick = () => {
+    // Clicking reveals the iframe and hides the thumbnail/preview
+    setShowIframe(true)
+  }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current)
+      }
+    }
+  }, [])
 
 
 
@@ -784,7 +848,13 @@ export function ResizableVideoCard({
             <div className={`flex ${isVerticalVideo ? 'flex-row' : 'flex-col'} h-full`}>
                 {/* Video Section */}
                 <div className={`videoSection ${isVerticalVideo ? 'flex-grow' : ''} flex flex-col ${isVerticalVideo ? '' : 'mb-4'}`} style={{ minHeight: 0, height: isVerticalVideo ? 'auto' : `${videoHeight + 60}px` }}>
-                  <div id={`video-section-${video.id}`} className={`flex-1 p-4 ${isVerticalVideo ? 'pb-8' : 'pb-6'}`} style={{ minHeight: 0 }}>
+                  <div 
+                    id={`video-section-${video.id}`} 
+                    className={`flex-1 p-4 ${isVerticalVideo ? 'pb-8' : 'pb-6'} relative`} 
+                    style={{ minHeight: 0 }}
+                    onMouseEnter={handleVideoHoverEnter}
+                    onMouseLeave={handleVideoHoverLeave}
+                  >
                     {(video.originalUrl?.includes('redgifs.com') || video.embedUrl?.includes('redgifs.com')) && !video.embedUrl?.includes('/ifr/') ? (
                       <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full" style={{ 
                         minHeight: 200,
@@ -824,16 +894,29 @@ export function ResizableVideoCard({
                         </div>
                       </div>
                     ) : (
-                      <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full" style={{ 
+                      <div ref={videoContainerRef} id={`video-container-${video.id}`} className="w-full relative" style={{ 
                         minHeight: 200,
                         height: isVerticalVideo ? `calc(100% - 2rem)` : `${videoHeight}px`
                       }}>
-                        <div className="w-full h-full bg-white dark:bg-gray-800 rounded-md overflow-hidden" style={{ minHeight: 200 }}>
-                          {shouldBlur ? (
-                            <NSFWBlurOverlay
-                              isNSFW={video.isNsfw}
-                              onReveal={() => revealVideo(video.id)}
-                            >
+                        <div className="w-full h-full bg-white dark:bg-gray-800 rounded-md overflow-hidden relative" style={{ minHeight: 200 }}>
+                          {showIframe ? (
+                            // Show iframe when clicked
+                            shouldBlur ? (
+                              <NSFWBlurOverlay
+                                isNSFW={video.isNsfw}
+                                onReveal={() => revealVideo(video.id)}
+                              >
+                                <iframe
+                                  ref={iframeElementRef}
+                                  src={video.embedUrl}
+                                  title={video.title}
+                                  className="w-full h-full rounded-md"
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </NSFWBlurOverlay>
+                            ) : (
                               <iframe
                                 ref={iframeElementRef}
                                 src={video.embedUrl}
@@ -843,17 +926,110 @@ export function ResizableVideoCard({
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                               />
-                            </NSFWBlurOverlay>
+                            )
                           ) : (
-                            <iframe
-                              ref={iframeElementRef}
-                              src={video.embedUrl}
-                              title={video.title}
-                              className="w-full h-full rounded-md"
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
+                            // Show thumbnail/preview overlay by default
+                            shouldBlur ? (
+                              <NSFWBlurOverlay
+                                isNSFW={video.isNsfw}
+                                onReveal={() => revealVideo(video.id)}
+                                className="w-full h-full"
+                              >
+                                <div 
+                                  className="w-full h-full bg-gray-900 rounded-md flex items-center justify-center cursor-pointer relative"
+                                  onClick={handleVideoClick}
+                                >
+                                  {/* Thumbnail Image */}
+                                  {previewData?.thumbnailUrl ? (
+                                    <img
+                                      src={previewData.thumbnailUrl}
+                                      alt={video.title}
+                                      className="w-full h-full object-cover rounded-md"
+                                    />
+                                  ) : (
+                                    <div className="text-white text-sm opacity-75">Click to load video</div>
+                                  )}
+                                  
+                                  {/* Play Button Overlay */}
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="bg-black bg-opacity-50 rounded-full p-4 transition-opacity hover:bg-opacity-70">
+                                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Hover Preview Video Overlay - Only for horizontal XHamster videos */}
+                                  {!isVerticalVideo && isHovering && previewData?.previewUrl && (
+                                    <div className="absolute inset-0 z-10 bg-black bg-opacity-80 flex items-center justify-center rounded-md">
+                                      <video
+                                        src={previewData.previewUrl}
+                                        className="max-w-full max-h-full object-contain rounded"
+                                        autoPlay
+                                        loop
+                                        muted
+                                        playsInline
+                                        style={{ maxWidth: '90%', maxHeight: '90%' }}
+                                      />
+                                    </div>
+                                  )}
+                                  
+                                  {/* Loading indicator for preview */}
+                                  {!isVerticalVideo && isHovering && isLoadingPreview && (
+                                    <div className="absolute inset-0 z-10 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
+                                      <div className="text-white text-sm">Loading preview...</div>
+                                    </div>
+                                  )}
+                                </div>
+                              </NSFWBlurOverlay>
+                            ) : (
+                              <div 
+                                className="w-full h-full bg-gray-900 rounded-md flex items-center justify-center cursor-pointer relative"
+                                onClick={handleVideoClick}
+                              >
+                                {/* Thumbnail Image */}
+                                {previewData?.thumbnailUrl ? (
+                                  <img
+                                    src={previewData.thumbnailUrl}
+                                    alt={video.title}
+                                    className="w-full h-full object-cover rounded-md"
+                                  />
+                                ) : (
+                                  <div className="text-white text-sm opacity-75">Click to load video</div>
+                                )}
+                                
+                                {/* Play Button Overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="bg-black bg-opacity-50 rounded-full p-4 transition-opacity hover:bg-opacity-70">
+                                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                  </div>
+                                </div>
+                                
+                                {/* Hover Preview Video Overlay - Only for horizontal XHamster videos */}
+                                {!isVerticalVideo && isHovering && previewData?.previewUrl && (
+                                  <div className="absolute inset-0 z-10 bg-black bg-opacity-80 flex items-center justify-center rounded-md">
+                                    <video
+                                      src={previewData.previewUrl}
+                                      className="max-w-full max-h-full object-contain rounded"
+                                      autoPlay
+                                      loop
+                                      muted
+                                      playsInline
+                                      style={{ maxWidth: '90%', maxHeight: '90%' }}
+                                    />
+                                  </div>
+                                )}
+                                
+                                {/* Loading indicator for preview */}
+                                {!isVerticalVideo && isHovering && isLoadingPreview && (
+                                  <div className="absolute inset-0 z-10 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
+                                    <div className="text-white text-sm">Loading preview...</div>
+                                  </div>
+                                )}
+                              </div>
+                            )
                           )}
                         </div>
                       </div>
@@ -964,7 +1140,7 @@ export function ResizableVideoCard({
                                 <AddTagInput 
                                   videoId={video.id} 
                                   onTagAdded={(tag) => {
-                                    if (onVideoUpdate) onVideoUpdate()
+                                    // Removed onVideoUpdate to prevent page refresh
                                   }}
                                   compact={true}
                                 />
@@ -1066,7 +1242,7 @@ export function ResizableVideoCard({
                             {session && (
                               <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                                 <AddTagInput videoId={video.id} onTagAdded={(tag) => {
-                                if (onVideoUpdate) onVideoUpdate()
+                                // Removed onVideoUpdate to prevent page refresh
                               }} />
                               </div>
                             )}
@@ -1390,7 +1566,7 @@ export function ResizableVideoCard({
                           <div>
                             <h4 className="font-medium text-gray-900 dark:text-white mb-2">Add Tag</h4>
                             <AddTagInput videoId={video.id} onTagAdded={(tag) => {
-                              if (onVideoUpdate) onVideoUpdate()
+                              // Removed onVideoUpdate to prevent page refresh
                             }} />
                           </div>
                         )}

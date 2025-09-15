@@ -51,7 +51,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     search: '',
     tags: [],
     tagRatings: [],
-    includeNsfw: true,
+    includeNsfw: false,
     sortBy: 'createdAt',
     sortOrder: 'desc',
     page: 1,
@@ -59,7 +59,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   })
   
   const [tagInput, setTagInput] = useState('')
-  const [showFilters, setShowFilters] = useState(true)
+  const [showFilters, setShowFilters] = useState(false)
   const [showSortDropdown, setShowSortDropdown] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [availableTags, setAvailableTags] = useState<Array<{ id: string; name: string; _count?: { videos: number } }>>([])
@@ -85,33 +85,46 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Function to load/refresh available tags
+  const loadTags = async () => {
+    try {
+      const response = await fetch('/api/tags')
+      if (response.ok) {
+        const result = await response.json()
+        setAvailableTags(result.data || [])
+      }
+    } catch (error) {
+      console.error('Error loading tags:', error)
+    }
+  }
+
   // Load available tags on component mount
   useEffect(() => {
-    const loadTags = async () => {
-      try {
-        const response = await fetch('/api/tags')
-        if (response.ok) {
-          const result = await response.json()
-          setAvailableTags(result.data || [])
-        }
-      } catch (error) {
-        console.error('Error loading tags:', error)
-      }
-    }
     loadTags()
+  }, [])
+
+  // Listen for tag updates from other parts of the app
+  useEffect(() => {
+    const handleTagsUpdated = () => {
+      loadTags()
+    }
+
+    // Listen for custom event when tags are updated
+    window.addEventListener('tagsUpdated', handleTagsUpdated)
+    return () => window.removeEventListener('tagsUpdated', handleTagsUpdated)
   }, [])
 
   // Filter tags based on input
   useEffect(() => {
     if (!tagInput.trim()) {
-      setFilteredTags(availableTags.slice(0, 10)) // Show top 10 tags when no input
+      setFilteredTags(availableTags) // Show all tags when no input
     } else {
       const filtered = availableTags
         .filter(tag => 
           tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
           !filters.tags.includes(tag.name)
         )
-        .slice(0, 10)
+        .slice(0, 50) // Show up to 50 matching tags when searching
       setFilteredTags(filtered)
     }
   }, [tagInput, availableTags, filters.tags])
@@ -212,7 +225,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       search: '',
       tags: [],
       tagRatings: [],
-      includeNsfw: true,
+      includeNsfw: false,
       sortBy: 'createdAt',
       sortOrder: 'desc',
       page: 1,

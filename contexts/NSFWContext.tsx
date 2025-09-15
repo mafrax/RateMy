@@ -41,7 +41,7 @@ export function NSFWProvider({ children }: NSFWProviderProps) {
   }
 
   const revealVideo = (videoId: string) => {
-    setRevealedVideos(prev => new Set([...prev, videoId]))
+    setRevealedVideos(prev => new Set(Array.from(prev).concat([videoId])))
   }
 
   const hideVideo = (videoId: string) => {

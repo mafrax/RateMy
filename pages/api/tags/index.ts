@@ -10,8 +10,8 @@ export default createApiRoute({
       const result = await tagService.searchTags(query)
       return result
     } else {
-      // Get all popular tags
-      const result = await tagService.getPopularTags(50)
+      // Get all tags
+      const result = await tagService.getAllTags()
       return result
     }
   }

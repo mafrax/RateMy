@@ -12,6 +12,8 @@ import { userRepository } from '../repositories/user.repository'
 import { videoMetadataService } from './video-metadata.service'
 import { nsfwService } from './nsfw.service'
 import { redGifsService } from './redgifs.service'
+import { redditService } from './reddit.service'
+import { xHamsterService } from './xhamster.service'
 import { 
   validateSchema, 
   createVideoSchema, 
@@ -66,7 +68,7 @@ export class VideoServiceImpl {
   }
 
   async createVideo(
-    data: Omit<Video, 'id' | 'createdAt' | 'updatedAt'>,
+    data: Omit<Video, 'id' | 'createdAt' | 'updatedAt'> & { tagRatings?: Array<{name: string, rating: number}> },
     userId: string
   ): Promise<ApiResponse<Video>> {
     return asyncWrapper(async () => {
@@ -84,10 +86,21 @@ export class VideoServiceImpl {
         throw createNotFoundError('User', userId)
       }
 
-      // Check if this is a RedGifs URL and handle it specially
-      let extractedMetadata, embedUrl, finalThumbnail
-
-      if (redGifsService.isRedGifsUrl(validatedData.originalUrl)) {
+      // Check if metadata was already provided from extract-metadata step
+      let extractedMetadata, embedUrl, finalThumbnail, previewUrl
+      
+      if (data.embedUrl && data.thumbnail !== undefined) {
+        // Use provided metadata from extract-metadata flow
+        extractedMetadata = {
+          title: data.title || '',
+          description: data.description || '',
+          tags: [],
+          thumbnail: data.thumbnail
+        }
+        embedUrl = data.embedUrl
+        finalThumbnail = data.thumbnail
+        previewUrl = data.previewUrl || null
+      } else if (redGifsService.isRedGifsUrl(validatedData.originalUrl)) {
         try {
           const redGifsData = await redGifsService.processRedGifsUrl(validatedData.originalUrl)
           extractedMetadata = {
@@ -98,8 +111,49 @@ export class VideoServiceImpl {
           }
           embedUrl = redGifsData.embedUrl // This will be the direct video URL
           finalThumbnail = redGifsData.thumbnail
+          logger.info('RedGifs processing successful for video creation', {
+            url: validatedData.originalUrl,
+            tagsExtracted: redGifsData.tags?.length || 0,
+            hasTagRatings: !!data.tagRatings,
+            tagRatingsCount: data.tagRatings?.length || 0
+          })
         } catch (error) {
           logger.error('Failed to process RedGifs URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = extractedMetadata.thumbnail || null
+        }
+      } else if (redditService.isRedditUrl(validatedData.originalUrl)) {
+        try {
+          const redditData = await redditService.processRedditUrl(validatedData.originalUrl)
+          extractedMetadata = {
+            title: redditData.metadata.title,
+            description: redditData.metadata.description || '',
+            tags: redditData.tags,
+            thumbnail: redditData.thumbnail
+          }
+          embedUrl = redditData.embedUrl
+          finalThumbnail = redditData.thumbnail
+        } catch (error) {
+          logger.error('Failed to process Reddit URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = extractedMetadata.thumbnail || null
+        }
+      } else if (xHamsterService.isXHamsterUrl(validatedData.originalUrl)) {
+        try {
+          const xHamsterData = await xHamsterService.processXHamsterUrl(validatedData.originalUrl)
+          extractedMetadata = {
+            title: xHamsterData.title || '',
+            description: xHamsterData.description || '',
+            tags: xHamsterData.tags || [],
+            thumbnail: xHamsterData.thumbnail
+          }
+          embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
+          finalThumbnail = xHamsterData.thumbnail || null
+          previewUrl = xHamsterData.previewUrl || null
+        } catch (error) {
+          logger.error('Failed to process XHamster URL, falling back to standard processing', { error })
           extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
           embedUrl = this.convertToEmbedUrl(validatedData.originalUrl)
           finalThumbnail = extractedMetadata.thumbnail || null
@@ -129,22 +183,42 @@ export class VideoServiceImpl {
       
       const finalDescription = data.description?.trim() || extractedMetadata.description || null
 
-      // Combine provided tags with extracted tags
+      // Combine provided tags with extracted tags and rated tags
       const providedTags = data.tags ? this.extractTagsFromVideo(data) : []
       const extractedTags = Array.isArray(extractedMetadata.tags) ? extractedMetadata.tags : []
-      const combinedTags = Array.from(new Set([...providedTags, ...extractedTags]))
+      const ratedTags = data.tagRatings ? data.tagRatings.map(tr => tr.name) : [] // Include all rated tags, even rating 0
+      
+      const combinedTags = Array.from(new Set([...providedTags, ...extractedTags, ...ratedTags]))
       const sanitizedTags = sanitizeTags(combinedTags)
       
       logger.info('Processing tags for video creation', {
         providedTags: providedTags.length,
         extractedTags: extractedTags.length,
+        ratedTags: ratedTags.length,
         combinedTags: combinedTags.length,
         sanitizedTags: sanitizedTags.length,
         finalTags: sanitizedTags
       })
 
-      // Detect NSFW content automatically
-      const isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)
+      // Detect NSFW content automatically or use provided value
+      let isNSFW: boolean
+      if (data.isNsfw !== undefined) {
+        // Use provided NSFW status from extract-metadata flow
+        isNSFW = data.isNsfw
+      } else {
+        // Fallback to automatic detection
+        const isRedGifs = redGifsService.isRedGifsUrl(validatedData.originalUrl)
+        const isReddit = redditService.isRedditUrl(validatedData.originalUrl)
+        const isXHamster = xHamsterService.isXHamsterUrl(validatedData.originalUrl)
+        
+        if (isRedGifs || isXHamster) {
+          isNSFW = true // RedGifs and XHamster are automatically NSFW
+        } else if (isReddit && Array.isArray(extractedMetadata.tags) && extractedMetadata.tags.includes('nsfw')) {
+          isNSFW = true // Reddit marked as NSFW
+        } else {
+          isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)
+        }
+      }
 
       // Create video with tags
       let video
@@ -153,7 +227,8 @@ export class VideoServiceImpl {
           title: finalTitle,
           originalUrl: validatedData.originalUrl,
           embedUrl,
-          thumbnail: finalThumbnail,
+          thumbnail: finalThumbnail || null,
+          previewUrl: previewUrl || null,
           description: finalDescription,
           isNsfw: isNSFW,
           userId,
@@ -164,6 +239,61 @@ export class VideoServiceImpl {
           title: finalTitle,
           tagsCount: sanitizedTags.length 
         })
+
+        // Handle tag ratings if provided
+        if (data.tagRatings && data.tagRatings.length > 0) {
+          try {
+            let ratingsCreated = 0
+            logger.info('Creating tag ratings for video', {
+              videoId: video.id,
+              totalTagRatings: data.tagRatings.length
+            })
+            
+            for (const tagRating of data.tagRatings) {
+              if (tagRating.rating >= 0) { // Allow rating 0 (not relevant)
+                // Sanitize tag name to ensure consistency with video tags
+                const sanitizedTagName = sanitizeTags([tagRating.name])[0]
+                if (!sanitizedTagName) continue
+                
+                // Find or create the tag (ensure it exists)
+                const tag = await tagRepository.findOrCreate(sanitizedTagName)
+                
+                // Check if this tag is actually associated with the video
+                const videoHasTag = sanitizedTags.includes(sanitizedTagName)
+                
+                if (videoHasTag) {
+                  // Create a rating for this tag using the upsert method
+                  await ratingRepository.upsertRating(
+                    video.id,
+                    userId,
+                    tag.id,
+                    tagRating.rating
+                  )
+                  ratingsCreated++
+                } else {
+                  logger.warn('Skipping rating for tag not associated with video', {
+                    originalTagName: tagRating.name,
+                    sanitizedTagName,
+                    videoId: video.id
+                  })
+                }
+              }
+            }
+            
+            logger.info('Tag ratings creation completed', {
+              videoId: video.id,
+              ratingsCreated,
+              totalProcessed: data.tagRatings.length
+            })
+          } catch (ratingError) {
+            logger.error('Failed to create tag ratings', {
+              error: ratingError,
+              videoId: video.id,
+              tagRatings: data.tagRatings
+            })
+            // Don't throw here - video was created successfully, ratings are optional
+          }
+        }
       } catch (createError) {
         logger.error('Failed to create video in database', {
           error: createError,
@@ -187,9 +317,12 @@ export class VideoServiceImpl {
         autoExtracted: !data.title || !data.description 
       })
 
+      // Refetch the video with all ratings to ensure fresh data
+      const videoWithRatings = await videoRepository.findWithRatings(video.id)
+
       return {
         success: true,
-        data: video,
+        data: videoWithRatings || video,
       }
     })()
   }
@@ -443,6 +576,13 @@ export class VideoServiceImpl {
     const dailymotionMatch = originalUrl.match(dailymotionRegex)
     if (dailymotionMatch) {
       return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`
+    }
+
+    // Reddit URLs
+    const redditRegex = /(?:https?:\/\/)?(?:www\.|old\.|m\.|np\.)?reddit\.com\/r\/(\w+)\/comments\/([a-zA-Z0-9]+)(?:\/([^/]+))?/i
+    const redditMatch = originalUrl.match(redditRegex)
+    if (redditMatch) {
+      return `https://www.reddit.com/r/${redditMatch[1]}/comments/${redditMatch[2]}/`
     }
 
     // Twitch URLs

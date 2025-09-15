@@ -65,9 +65,18 @@ export const createVideoSchema = z.object({
   isNsfw: z.boolean().optional(), // Auto-detected, but can be manually set
   tags: z
     .array(z.string().min(1).max(50))
-    .max(VIDEO_LIMITS.MAX_TAGS, `Maximum ${VIDEO_LIMITS.MAX_TAGS} tags allowed`)
     .optional()
     .default([]),
+  tagRatings: z
+    .array(z.object({
+      name: z.string().min(1).max(50),
+      rating: z.number().min(0).max(5)
+    }))
+    .optional()
+    .default([]),
+  embedUrl: z.string().optional(), // For provided embed URLs
+  thumbnail: z.string().url().optional().nullable(), // For provided thumbnails
+  previewUrl: z.string().url().optional().nullable(), // For provided preview URLs
 })
 
 export const updateVideoSchema = createVideoSchema.partial()
@@ -277,5 +286,5 @@ export function sanitizeTags(tags: string[]): string[] {
     .map(tag => tag.toLowerCase().trim())
     .filter(tag => tag.length >= 2 && tag.length <= 50) // Reasonable tag length limits
     .filter(tag => /^[a-z0-9\s-_]+$/i.test(tag)) // Only allow alphanumeric, spaces, hyphens, underscores
-    .slice(0, VIDEO_LIMITS.MAX_TAGS)
+    // Removed tag limit - allow unlimited tags
 }

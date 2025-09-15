@@ -1,5 +1,5 @@
-import { createApiRoute, requireAuth, validateBody } from '@/lib/api-handler'
-import { nsfwService } from '@/services/nsfw.service'
+import { createApiRoute, requireAuth, validateBody } from '@/src/lib/api-handler'
+import { nsfwService } from '@/src/services/nsfw.service'
 import { z } from 'zod'
 
 const updateNSFWSchema = z.object({

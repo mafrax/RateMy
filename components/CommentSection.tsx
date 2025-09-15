@@ -22,9 +22,17 @@ interface CommentSectionProps {
   videoId: string
   className?: string
   onExpandedChange?: (expanded: boolean, commentCount: number) => void
+  isAddingComment?: boolean
+  onCommentAdded?: () => void
 }
 
-export function CommentSection({ videoId, className = '', onExpandedChange }: CommentSectionProps) {
+export function CommentSection({ 
+  videoId, 
+  className = '', 
+  onExpandedChange, 
+  isAddingComment = false,
+  onCommentAdded
+}: CommentSectionProps) {
   const { data: session } = useSession()
   const [isExpanded, setIsExpanded] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
@@ -32,6 +40,16 @@ export function CommentSection({ videoId, className = '', onExpandedChange }: Co
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [commentsLoaded, setCommentsLoaded] = useState(false)
+
+  // Handle isAddingComment prop changes
+  useEffect(() => {
+    if (isAddingComment && !isExpanded) {
+      setIsExpanded(true)
+      if (!commentsLoaded) {
+        loadComments()
+      }
+    }
+  }, [isAddingComment, isExpanded, commentsLoaded])
 
   const loadComments = async () => {
     if (commentsLoaded) return
@@ -110,6 +128,11 @@ export function CommentSection({ videoId, className = '', onExpandedChange }: Co
       })
       setNewComment('')
       toast.success('Comment added successfully!')
+      
+      // Call the callback if provided
+      if (onCommentAdded) {
+        onCommentAdded()
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to add comment')
     } finally {
