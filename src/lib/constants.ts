@@ -31,7 +31,7 @@ export const PAGINATION = {
 export const VIDEO_LIMITS = {
   MAX_TITLE_LENGTH: 200,
   MAX_DESCRIPTION_LENGTH: 1000,
-  MAX_TAGS: 10,
+  // Removed MAX_TAGS limit to allow unlimited tags
 } as const
 
 export const USER_LIMITS = {

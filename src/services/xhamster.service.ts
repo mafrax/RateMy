@@ -13,6 +13,76 @@ export class XHamsterServiceImpl {
     return url.includes('xhamster.com')
   }
 
+  private isValidContentTag(tag: string): boolean {
+    if (!tag || tag.length < 2 || tag.length > 30) return false
+    
+    // Technical/platform terms to exclude
+    const blacklist = [
+      // Site/platform names
+      'xhamster', 'pornhub', 'redtube', 'tube', 'xvideos', 'youjizz', 'spankbang',
+      'chaturbate', 'cam4', 'bongacams', 'stripchat', 'livejasmin', 'flirt4free', 'camsoda',
+      'onlyfans', 'manyvids', 'clips4sale', 'iwantclips', 'niteflirt',
+      
+      // Technical metadata
+      'video', 'watch', 'page', 'link', 'site', 'url', 'slug', 'uid', 'id', 'name', 'tags',
+      'isbrand', 'ischannel', 'isverified', 'nameen', 'channel', 'channels', 'model', 'models',
+      'category', 'categories', 'premium', 'vip', 'verified', 'official',
+      
+      // Quality/format terms
+      'hd', '4k', '720p', '1080p', 'uhd', 'fhd', 'mp4', 'avi', 'wmv', 'flv', 'mov', 'webm',
+      'duration', 'length', 'size', 'quality', 'format', 'resolution',
+      
+      // Social/interaction terms
+      'views', 'likes', 'dislikes', 'comments', 'share', 'subscribe', 'follow', 'favorite',
+      'bookmark', 'playlist', 'collection', 'gallery',
+      
+      // Technical UI/web terms
+      'embed', 'iframe', 'player', 'thumb', 'thumbnail', 'preview', 'poster',
+      'image', 'img', 'pic', 'photo', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+      'icon', 'logo', 'banner', 'button', 'click', 'href', 'redirect',
+      
+      // Advertising/tracking
+      'ad', 'ads', 'advertisement', 'promo', 'promotion', 'sponsored', 'affiliate',
+      'referrer', 'utm', 'tracking', 'analytics', 'pixel',
+      
+      // Admin/system terms
+      'admin', 'administrator', 'moderator', 'mod', 'user', 'guest', 'member',
+      'subscriber', 'account', 'profile', 'settings', 'preferences', 'dashboard',
+      'panel', 'control', 'manage', 'edit', 'delete', 'create', 'update',
+      
+      // General web/tech terms
+      'website', 'homepage', 'contact', 'about', 'help', 'faq', 'terms', 'privacy',
+      'policy', 'legal', 'dmca', 'copyright', 'trademark', 'disclaimer',
+      'search', 'filter', 'sort', 'browse', 'explore', 'discover', 'trending',
+      'popular', 'featured', 'recommended', 'related', 'similar', 'more', 'all',
+      'new', 'latest', 'recent', 'today', 'week', 'month', 'year', 'date', 'time',
+      
+      // Meaningless terms
+      'content', 'stuff', 'things', 'item', 'object', 'element', 'component',
+      'section', 'part', 'piece', 'bit', 'data', 'info', 'information',
+      'details', 'description', 'title', 'text', 'caption', 'label'
+    ]
+    
+    const lowerTag = tag.toLowerCase()
+    
+    // Check against blacklist
+    if (blacklist.includes(lowerTag)) return false
+    
+    // Skip if contains URLs or technical patterns
+    if (lowerTag.includes('http') || lowerTag.includes('www') || lowerTag.includes('.com')) return false
+    
+    // Skip pure numbers
+    if (/^\d+$/.test(lowerTag)) return false
+    
+    // Skip hex strings (likely IDs)
+    if (/^[a-f0-9]{8,}$/i.test(lowerTag)) return false
+    
+    // Skip technical values
+    if (/^(true|false|null|undefined|nan|infinity)$/i.test(lowerTag)) return false
+    
+    return true
+  }
+
   private normalizeTag(tag: string): string {
     if (!tag) return ''
     
@@ -264,11 +334,10 @@ export class XHamsterServiceImpl {
         const categorySlug = categoryMatch[1]?.trim()
         const categoryText = categoryMatch[2]?.trim()
         
-        if (categorySlug && categorySlug.length > 1) {
+        if (categorySlug && this.isValidContentTag(categorySlug)) {
           tags.add(categorySlug.toLowerCase())
         }
-        if (categoryText && categoryText.length > 2 && categoryText !== categorySlug) {
-          // Also add the display text if it's different
+        if (categoryText && categoryText !== categorySlug && this.isValidContentTag(categoryText)) {
           const normalized = this.normalizeTag(categoryText)
           if (normalized) tags.add(normalized)
         }
@@ -281,10 +350,10 @@ export class XHamsterServiceImpl {
         const tagSlug = tagMatch[1]?.trim()
         const tagText = tagMatch[2]?.trim()
         
-        if (tagSlug && tagSlug.length > 1) {
+        if (tagSlug && this.isValidContentTag(tagSlug)) {
           tags.add(tagSlug.toLowerCase())
         }
-        if (tagText && tagText.length > 2 && tagText !== tagSlug) {
+        if (tagText && tagText !== tagSlug && this.isValidContentTag(tagText)) {
           const normalized = this.normalizeTag(tagText)
           if (normalized) tags.add(normalized)
         }
@@ -296,7 +365,7 @@ export class XHamsterServiceImpl {
       while ((pornstarMatch = pornstarLinksRegex.exec(html)) !== null) {
         const pornstarName = pornstarMatch[2]?.trim()
         
-        if (pornstarName && pornstarName.length > 2) {
+        if (pornstarName && this.isValidContentTag(pornstarName)) {
           const normalized = this.normalizeTag(pornstarName)
           if (normalized && normalized !== 'image' && normalized !== 'avatar') {
             tags.add(normalized)
@@ -317,16 +386,7 @@ export class XHamsterServiceImpl {
               if (tagStringArray) {
                 tagStringArray.forEach(tagStr => {
                   const tag = tagStr.replace(/"/g, '').trim()
-                  // Only add tags that look like real content tags, not technical fields
-                  if (tag && 
-                      tag.length >= 2 && 
-                      tag.length <= 30 &&
-                      !tag.includes('http') &&
-                      !tag.includes('www') &&
-                      !tag.includes('.com') &&
-                      !tag.match(/^(id|url|slug|uid|name|tags|isbrand|ischannel|isverified|nameen)$/i) &&
-                      !tag.match(/^\d+$/) // Skip pure numbers
-                  ) {
+                  if (this.isValidContentTag(tag)) {
                     const normalized = this.normalizeTag(tag)
                     if (normalized) tags.add(normalized)
                   }
@@ -344,7 +404,7 @@ export class XHamsterServiceImpl {
               if (nameMatch) {
                 nameMatch.forEach(name => {
                   const categoryName = name.match(/"name"\s*:\s*"([^"]+)"/)?.[1]
-                  if (categoryName && categoryName.length > 2) {
+                  if (categoryName && this.isValidContentTag(categoryName)) {
                     const normalized = this.normalizeTag(categoryName)
                     if (normalized) tags.add(normalized)
                   }
@@ -362,7 +422,7 @@ export class XHamsterServiceImpl {
       let videoTagMatch
       while ((videoTagMatch = videoTagsPattern.exec(html)) !== null) {
         const tagName = videoTagMatch[1].trim()
-        if (tagName && tagName.length > 2) {
+        if (tagName && this.isValidContentTag(tagName)) {
           const normalized = this.normalizeTag(tagName)
           if (normalized) tags.add(normalized)
         }
@@ -421,7 +481,7 @@ export class XHamsterServiceImpl {
         .map(tag => this.normalizeTag(tag))
         .filter(tag => tag && tag.length >= 2 && tag.length <= 30)
         .filter((tag, index, array) => array.indexOf(tag) === index) // Remove duplicates
-        .slice(0, 15) // Limit to 15 tags max
+        // Removed tag limit - allow all relevant tags
 
       metadata.tags = finalTags.length > 0 ? finalTags : undefined
 

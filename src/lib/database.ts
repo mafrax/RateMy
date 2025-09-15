@@ -81,3 +81,6 @@ export async function seedDatabase(): Promise<void> {
     throw error
   }
 }
+
+// Export prisma client instance for compatibility
+export { db as prisma }

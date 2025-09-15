@@ -56,6 +56,9 @@ export function AddTagInput({ videoId, onTagAdded, className = '', compact = fal
       setTagName('')
       setIsOpen(false)
       
+      // Notify SearchBar to refresh its tag list since a new tag may have been created
+      window.dispatchEvent(new CustomEvent('tagsUpdated'))
+      
       // Pass the created/found tag back to parent
       onTagAdded({ 
         id: result.data?.tag?.id || result.tagId, 

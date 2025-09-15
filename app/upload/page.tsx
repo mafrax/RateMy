@@ -247,6 +247,8 @@ export default function UploadPage() {
 
       if (response.ok) {
         toast.success('Video uploaded successfully!')
+        // Notify SearchBar to refresh its tag list since new tags may have been created
+        window.dispatchEvent(new CustomEvent('tagsUpdated'))
         router.push('/')
       } else {
         const error = await response.json()
