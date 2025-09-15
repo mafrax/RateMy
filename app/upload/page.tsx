@@ -1,19 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import { TagRatingStep } from '../../components/TagRatingStep'
 
 export default function UploadPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentStep, setCurrentStep] = useState<'metadata' | 'rating'>('metadata')
+  const [extractedMetadata, setExtractedMetadata] = useState<any>(null)
   const [formData, setFormData] = useState({
     title: '',
     originalUrl: '',
     description: '',
     tags: ''
+  })
+  const [isDetectingMetadata, setIsDetectingMetadata] = useState(false)
+  const [autoDetectedData, setAutoDetectedData] = useState({
+    title: '',
+    description: '',
+    tags: [] as string[]
   })
 
   // Convert various video URLs to embed URLs
@@ -60,6 +69,13 @@ export default function UploadPage() {
       return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`
     }
 
+    // RedGifs URLs
+    const redgifsRegex = /(?:https?:\/\/)?(?:www\.)?redgifs\.com\/watch\/([a-zA-Z0-9]+)/
+    const redgifsMatch = url.match(redgifsRegex)
+    if (redgifsMatch) {
+      return `https://www.redgifs.com/ifr/${redgifsMatch[1]}`
+    }
+
     // Twitch URLs
     const twitchVideoRegex = /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/videos\/(\d+)/
     const twitchVideoMatch = url.match(twitchVideoRegex)
@@ -84,7 +100,61 @@ export default function UploadPage() {
     return url
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Detect if URL is RedGifs and auto-fetch metadata
+  const detectRedGifsMetadata = async (url: string) => {
+    if (!url.includes('redgifs.com')) return
+
+    setIsDetectingMetadata(true)
+    try {
+      const response = await fetch('/api/redgifs/metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.metadata) {
+          setAutoDetectedData({
+            title: data.metadata.title || '',
+            description: data.metadata.description || '',
+            tags: data.metadata.tags || []
+          })
+          
+          // Auto-fill form if fields are empty
+          setFormData(prev => ({
+            ...prev,
+            title: prev.title || data.metadata.title || '',
+            description: prev.description || data.metadata.description || '',
+            tags: prev.tags || (data.metadata.tags || []).join(', ')
+          }))
+          
+          toast.success('RedGifs metadata detected and auto-filled!')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to detect RedGifs metadata:', error)
+      toast.error('Failed to auto-detect metadata, but you can still upload manually')
+    } finally {
+      setIsDetectingMetadata(false)
+    }
+  }
+
+  // Auto-detect metadata when URL changes
+  useEffect(() => {
+    if (formData.originalUrl && formData.originalUrl.includes('redgifs.com')) {
+      const timeoutId = setTimeout(() => {
+        detectRedGifsMetadata(formData.originalUrl)
+      }, 1000) // Debounce for 1 second
+
+      return () => clearTimeout(timeoutId)
+    } else {
+      // Clear auto-detected data if not RedGifs URL
+      setAutoDetectedData({ title: '', description: '', tags: [] })
+    }
+  }, [formData.originalUrl])
+
+  const handleExtractMetadata = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!session) {
@@ -101,11 +171,70 @@ export default function UploadPage() {
     setIsSubmitting(true)
 
     try {
+      const response = await fetch('/api/videos/extract-metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          originalUrl: formData.originalUrl
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.metadata) {
+          setExtractedMetadata({
+            ...result.metadata,
+            userTitle: formData.title,
+            userDescription: formData.description,
+            userTags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+          })
+          setCurrentStep('rating')
+          toast.success(`Extracted ${result.metadata.tags?.length || 0} tags for rating`)
+        } else {
+          toast.error('Failed to extract metadata')
+        }
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Failed to extract metadata')
+      }
+    } catch (error) {
+      toast.error('An error occurred while extracting metadata')
+      console.error('Metadata extraction error:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleCompleteUpload = async (ratedTags: Array<{name: string, rating: number}>) => {
+    if (!extractedMetadata) return
+
+    setIsSubmitting(true)
+
+    try {
       const embedUrl = convertToEmbedUrl(formData.originalUrl)
-      const tagsArray = formData.tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0)
+      
+      // Combine user tags with rated extracted tags
+      const allTags = [...extractedMetadata.userTags]
+      ratedTags.forEach(tag => {
+        if (tag.rating > 0 && !allTags.includes(tag.name)) {
+          allTags.push(tag.name)
+        }
+      })
+
+      const uploadPayload = {
+        title: extractedMetadata.userTitle || extractedMetadata.title,
+        originalUrl: formData.originalUrl,
+        embedUrl: extractedMetadata.embedUrl || embedUrl,
+        description: extractedMetadata.userDescription || extractedMetadata.description,
+        tags: allTags,
+        thumbnail: extractedMetadata.thumbnail,
+        previewUrl: extractedMetadata.previewUrl,
+        isNsfw: extractedMetadata.isNsfw,
+        tagRatings: ratedTags
+      }
 
       const response = await fetch('/api/videos', {
         method: 'POST',
@@ -113,13 +242,7 @@ export default function UploadPage() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({
-          title: formData.title,
-          originalUrl: formData.originalUrl,
-          embedUrl,
-          description: formData.description,
-          tags: tagsArray
-        }),
+        body: JSON.stringify(uploadPayload),
       })
 
       if (response.ok) {
@@ -135,6 +258,11 @@ export default function UploadPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleBackToEdit = () => {
+    setCurrentStep('metadata')
+    setExtractedMetadata(null)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -167,6 +295,20 @@ export default function UploadPage() {
     )
   }
 
+  // Show tag rating step if metadata has been extracted
+  if (currentStep === 'rating' && extractedMetadata) {
+    return (
+      <TagRatingStep
+        extractedTags={extractedMetadata.tags || []}
+        videoTitle={extractedMetadata.userTitle || extractedMetadata.title || 'Untitled Video'}
+        videoThumbnail={extractedMetadata.thumbnail}
+        onComplete={handleCompleteUpload}
+        onBack={handleBackToEdit}
+        isSubmitting={isSubmitting}
+      />
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
@@ -176,7 +318,7 @@ export default function UploadPage() {
               Upload Video
             </h1>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleExtractMetadata} className="space-y-6">
               {/* Title */}
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -209,8 +351,29 @@ export default function UploadPage() {
                   placeholder="https://www.youtube.com/watch?v=... or https://tiktok.com/@user/video/123... or direct video URL"
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Supported: YouTube, Vimeo, TikTok, Instagram, Twitter/X, Dailymotion, Twitch, and direct video files (.mp4, .mov, etc.)
+                  Supported: YouTube, Vimeo, TikTok, Instagram, Twitter/X, Dailymotion, Twitch, RedGifs, and direct video files (.mp4, .mov, etc.)
                 </p>
+                {isDetectingMetadata && (
+                  <div className="mt-2 flex items-center text-sm text-blue-600">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Detecting RedGifs metadata...
+                  </div>
+                )}
+                {autoDetectedData.title && (
+                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-sm text-green-700">
+                      ✓ Metadata detected: <strong>{autoDetectedData.title}</strong>
+                      {autoDetectedData.tags.length > 0 && (
+                        <span className="ml-2 text-xs">
+                          ({autoDetectedData.tags.length} tags found)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -259,7 +422,7 @@ export default function UploadPage() {
                       <iframe
                         src={convertToEmbedUrl(formData.originalUrl)}
                         className="w-full h-full rounded-md"
-                        frameBorder="0"
+                        style={{border: 0}}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                         onError={(e) => {
@@ -289,7 +452,7 @@ export default function UploadPage() {
                   disabled={isSubmitting}
                   className="px-6 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Uploading...' : 'Upload Video'}
+                  {isSubmitting ? 'Extracting Tags...' : 'Next: Rate Tags'}
                 </button>
               </div>
             </form>
