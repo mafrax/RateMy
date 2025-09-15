@@ -30,6 +30,7 @@ interface Video {
   embedUrl: string
   originalUrl: string
   thumbnail?: string
+  previewUrl?: string
   description?: string
   isNsfw: boolean
   createdAt: string
@@ -278,10 +279,15 @@ export function ResizableVideoCard({
 
   const cardRef = useRef<HTMLDivElement>(null)
 
-  // Sync local tags when video prop changes
+  // Sync local tags when video prop changes and sort by average rating
   useEffect(() => {
-    setLocalTags(video.tags)
-  }, [video.tags])
+    const sortedTags = [...video.tags].sort((a, b) => {
+      const avgRatingA = getAverageRating(a.tag.id)
+      const avgRatingB = getAverageRating(b.tag.id)
+      return avgRatingB - avgRatingA // Highest to lowest
+    })
+    setLocalTags(sortedTags)
+  }, [video.tags, video.ratings])
 
   // Sync card size when default dimensions change
   useEffect(() => {

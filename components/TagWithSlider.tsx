@@ -31,19 +31,37 @@ export function TagWithSlider({
 }: TagWithSliderProps) {
   const [tempRating, setTempRating] = useState(userRating)
   const [isDragging, setIsDragging] = useState(false)
+  
+  // Track when props change
+  useEffect(() => {
+    console.log(`🏷️ TagWithSlider ${tag.name} (${tag.id}): userRating=${userRating}, avgRating=${avgRating.toFixed(1)}, pending=${isPending}`)
+  }, [tag.id, tag.name, userRating, avgRating, isPending])
+  
+  // Update tempRating when userRating changes (important for tracking visual reverts)
+  useEffect(() => {
+    if (!isDragging && tempRating !== userRating) {
+      console.log(`🔄 TagWithSlider ${tag.name}: updating tempRating from ${tempRating} to ${userRating} (userRating prop changed)`)
+      setTempRating(userRating)
+    }
+  }, [userRating, isDragging, tempRating, tag.name])
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRating = parseFloat(e.target.value)
+    console.log(`🎚️ TagWithSlider ${tag.name}: tempRating changed from ${tempRating} to ${newRating}`)
     setTempRating(newRating)
   }
 
   const handleMouseDown = () => {
+    console.log(`👇 TagWithSlider ${tag.name}: drag started`)
     setIsDragging(true)
   }
 
   const handleMouseUp = () => {
     if (isDragging && tempRating !== userRating) {
+      console.log(`👆 TagWithSlider ${tag.name}: submitting rating ${tempRating} (was ${userRating})`)
       onRate(tag.id, tempRating)
+    } else {
+      console.log(`👆 TagWithSlider ${tag.name}: no rating change (${tempRating} === ${userRating})`)
     }
     setIsDragging(false)
   }
@@ -58,13 +76,6 @@ export function TagWithSlider({
     }
     setIsDragging(false)
   }
-
-  // Update temp rating when user rating changes from external source
-  useEffect(() => {
-    if (!isDragging) {
-      setTempRating(userRating)
-    }
-  }, [userRating, isDragging])
 
   const handleRemoveClick = () => {
     if (onRemoveTag) {
@@ -102,18 +113,23 @@ export function TagWithSlider({
       {/* Slider Container */}
       <div className="flex-1 min-w-0">
         <div className={`relative ${compact ? 'px-1 py-1.5' : 'px-2 py-3'}`}>
-          {/* Background Track - centered */}
-          <div className={`absolute top-1/2 -translate-y-1/2 bg-gray-200 dark:bg-gray-700 rounded-full ${
+          {/* Background Track with Gradient - centered */}
+          <div className={`absolute top-1/2 -translate-y-1/2 rounded-full ${
             compact ? 'left-1 right-1 h-1.5' : 'left-2 right-2 h-2'
-          }`}>
-            {/* User Rating Bar */}
+          }`}
+            style={{
+              background: 'linear-gradient(to right, #dc2626 0%, #ea580c 25%, #d97706 50%, #65a30d 75%, #16a34a 100%)',
+              filter: 'brightness(1.1) contrast(1.1)'
+            }}
+          >
+            {/* User Rating Overlay */}
             {(isDragging ? tempRating : userRating) > 0 && (
               <div 
                 className={`absolute top-0 left-0 h-full rounded-full transition-all duration-300 ${
                   isPending 
-                    ? 'bg-blue-400' 
-                    : 'bg-blue-500'
-                }`}
+                    ? 'bg-white/40 dark:bg-black/40' 
+                    : 'bg-white/30 dark:bg-black/30'
+                } border-r-2 ${isPending ? 'border-blue-400' : 'border-blue-500'}`}
                 style={{ width: `${((isDragging ? tempRating : userRating) / 5) * 100}%` }}
                 title={`Your rating: ${(isDragging ? tempRating : userRating).toFixed(1)}${isPending ? ' (pending)' : ''}`}
               />
@@ -122,10 +138,14 @@ export function TagWithSlider({
             {/* Average Rating Vertical Marker */}
             {avgRating > 0 && (
               <div 
-                className={`absolute w-0.5 bg-red-500 rounded-full ${
-                  compact ? '-top-1 h-4' : '-top-2 h-6'
+                className={`absolute rounded-full border-2 border-white shadow-md ${
+                  compact ? 'w-1 -top-1.5 h-5' : 'w-1.5 -top-2.5 h-7'
                 }`}
-                style={{ left: `calc(${(avgRating / 5) * 100}% - 1px)` }}
+                style={{ 
+                  left: `calc(${(avgRating / 5) * 100}% - ${compact ? '2px' : '3px'})`,
+                  background: '#000000',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2)'
+                }}
                 title={`Average rating: ${avgRating.toFixed(1)}`}
               />
             )}
@@ -182,34 +202,40 @@ export function TagWithSlider({
         
         .slider-thumb::-webkit-slider-thumb {
           appearance: none;
-          width: ${compact ? '12px' : '16px'};
-          height: ${compact ? '12px' : '16px'};
+          width: ${compact ? '14px' : '18px'};
+          height: ${compact ? '14px' : '18px'};
           border-radius: 50%;
-          background: #3b82f6;
-          border: 2px solid white;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          background: #ffffff;
+          border: 3px solid #3b82f6;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 0 1px rgba(59,130,246,0.2);
           cursor: pointer;
           pointer-events: auto;
+          transition: all 0.2s ease;
         }
         
         .slider-thumb::-webkit-slider-thumb:hover {
-          background: #2563eb;
+          border-color: #2563eb;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.4), 0 0 0 2px rgba(37,99,235,0.3);
+          transform: scale(1.1);
         }
         
         .slider-thumb::-moz-range-thumb {
           appearance: none;
-          width: ${compact ? '12px' : '16px'};
-          height: ${compact ? '12px' : '16px'};
+          width: ${compact ? '14px' : '18px'};
+          height: ${compact ? '14px' : '18px'};
           border-radius: 50%;
-          background: #3b82f6;
-          border: 2px solid white;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          background: #ffffff;
+          border: 3px solid #3b82f6;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 0 1px rgba(59,130,246,0.2);
           cursor: pointer;
           pointer-events: auto;
+          transition: all 0.2s ease;
         }
         
         .slider-thumb::-moz-range-thumb:hover {
-          background: #2563eb;
+          border-color: #2563eb;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.4), 0 0 0 2px rgba(37,99,235,0.3);
+          transform: scale(1.1);
         }
         
         .slider-thumb::-moz-range-track {

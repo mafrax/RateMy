@@ -111,6 +111,12 @@ export class VideoServiceImpl {
           }
           embedUrl = redGifsData.embedUrl // This will be the direct video URL
           finalThumbnail = redGifsData.thumbnail
+          logger.info('RedGifs processing successful for video creation', {
+            url: validatedData.originalUrl,
+            tagsExtracted: redGifsData.tags?.length || 0,
+            hasTagRatings: !!data.tagRatings,
+            tagRatingsCount: data.tagRatings?.length || 0
+          })
         } catch (error) {
           logger.error('Failed to process RedGifs URL, falling back to standard processing', { error })
           extractedMetadata = await videoMetadataService.extractMetadata(validatedData.originalUrl)
@@ -245,13 +251,15 @@ export class VideoServiceImpl {
             
             for (const tagRating of data.tagRatings) {
               if (tagRating.rating >= 0) { // Allow rating 0 (not relevant)
+                // Sanitize tag name to ensure consistency with video tags
+                const sanitizedTagName = sanitizeTags([tagRating.name])[0]
+                if (!sanitizedTagName) continue
+                
                 // Find or create the tag (ensure it exists)
-                const tag = await tagRepository.findOrCreate(tagRating.name)
+                const tag = await tagRepository.findOrCreate(sanitizedTagName)
                 
                 // Check if this tag is actually associated with the video
-                // Use sanitized version of the tag name for comparison
-                const sanitizedTagName = sanitizeTags([tagRating.name])[0]
-                const videoHasTag = sanitizedTagName && sanitizedTags.includes(sanitizedTagName)
+                const videoHasTag = sanitizedTags.includes(sanitizedTagName)
                 
                 if (videoHasTag) {
                   // Create a rating for this tag using the upsert method
@@ -264,7 +272,7 @@ export class VideoServiceImpl {
                   ratingsCreated++
                 } else {
                   logger.warn('Skipping rating for tag not associated with video', {
-                    tagName: tagRating.name,
+                    originalTagName: tagRating.name,
                     sanitizedTagName,
                     videoId: video.id
                   })

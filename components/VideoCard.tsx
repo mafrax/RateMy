@@ -68,10 +68,15 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Sync local tags when video prop changes
+  // Sync local tags when video prop changes and sort by average rating
   useEffect(() => {
-    setLocalTags(video.tags)
-  }, [video.tags])
+    const sortedTags = [...video.tags].sort((a, b) => {
+      const avgRatingA = getAverageRating(a.tag.id)
+      const avgRatingB = getAverageRating(b.tag.id)
+      return avgRatingB - avgRatingA // Highest to lowest
+    })
+    setLocalTags(sortedTags)
+  }, [video.tags, video.ratings])
 
   // Removed automatic rating saved callback to prevent unwanted page refreshes
   // Ratings are now handled seamlessly through the cache without full page reloads
