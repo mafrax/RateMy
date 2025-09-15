@@ -112,6 +112,11 @@ export interface VideoUploadForm {
   originalUrl: string
   description: string
   tags: string
+  embedUrl?: string
+  thumbnail?: string | null
+  previewUrl?: string | null
+  isNsfw?: boolean
+  tagRatings?: Array<{name: string, rating: number}>
 }
 
 export interface VideoRatingForm {

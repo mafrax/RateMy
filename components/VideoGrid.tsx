@@ -26,6 +26,7 @@ interface Video {
   embedUrl: string
   originalUrl: string
   thumbnail?: string
+  previewUrl?: string
   description?: string
   isNsfw: boolean
   createdAt: string
@@ -74,6 +75,7 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
   }, [searchFilters])
 
   const fetchVideos = async () => {
+    // console.log('🔍 FETCHVIDEOS CALLED - This will override cached ratings!', new Error().stack)
     try {
       setLoading(true)
       setError(null)
@@ -107,7 +109,7 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
         }
       } else {
         // Default to including NSFW when no filters are applied
-        params.append('includeNsfw', 'true')
+        params.append('includeNsfw', 'false')
       }
       
       const url = `/api/videos${params.toString() ? `?${params.toString()}` : ''}`
@@ -144,7 +146,7 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
       loading={loading}
       error={error}
       onRetry={fetchVideos}
-      onVideoUpdate={fetchVideos}
+      onVideoUpdate={undefined} // Removed to prevent ratings from being overwritten
     />
   )
 }

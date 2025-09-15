@@ -23,10 +23,13 @@ export default async (req: any, res: any) => {
           title: body.title,
           originalUrl: body.originalUrl,
           description: body.description,
-          embedUrl: '', // Will be generated in service
-          thumbnail: null,
+          embedUrl: body.embedUrl || '', // Use provided or generate in service
+          thumbnail: body.thumbnail || null,
+          previewUrl: body.previewUrl || null,
+          isNsfw: body.isNsfw || false,
           userId: ctx.user!.id,
-          tags: body.tags as any // Service will handle string to tags conversion
+          tags: body.tags as any, // Service will handle string to tags conversion
+          tagRatings: body.tagRatings || [] // Tag ratings from upload flow
         }, ctx.user!.id)
         return result
       })

@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 interface TagRatingSliderProps {
   tagId: string
   userRating: number
@@ -17,8 +19,14 @@ export function TagRatingSlider({
   onRate, 
   disabled = false 
 }: TagRatingSliderProps) {
+  // Log when visual rating value changes
+  React.useEffect(() => {
+    console.log(`📊 TagRatingSlider VISUAL UPDATE: ${tagId} = ${userRating} (pending: ${isPending})`)
+  }, [tagId, userRating, isPending])
+
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRating = parseFloat(e.target.value)
+    console.log(`🎚️ SLIDER CHANGED: ${tagId} from ${userRating} to ${newRating}`)
     onRate(tagId, newRating)
   }
 

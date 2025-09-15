@@ -94,6 +94,14 @@ export default createApiRoute({
       const videoIds = Array.from(new Set(validRatings.map(r => r.videoId)))
       const tagIds = Array.from(new Set(validRatings.map(r => r.tagId)))
 
+      logger.info('Validating IDs for bulk rating flush', {
+        userId: user?.id,
+        videoIds: videoIds.length,
+        tagIds: tagIds.length,
+        videoIdList: videoIds.slice(0, 5), // Log first 5 for debugging
+        tagIdList: tagIds.slice(0, 5)      // Log first 5 for debugging
+      })
+
       // Validate videos and tags exist (batch validation)
       const [existingVideos, existingTags] = await Promise.all([
         Promise.all(videoIds.map(id => videoRepository.findById(id))),
@@ -102,6 +110,14 @@ export default createApiRoute({
 
       const validVideoIds = new Set(existingVideos.filter(v => v).map(v => v!.id))
       const validTagIds = new Set(existingTags.filter(t => t).map(t => t!.id))
+
+      logger.info('ID validation results', {
+        userId: user?.id,
+        validVideoIds: Array.from(validVideoIds).slice(0, 5),
+        validTagIds: Array.from(validTagIds).slice(0, 5),
+        invalidVideoIds: videoIds.filter(id => !validVideoIds.has(id)),
+        invalidTagIds: tagIds.filter(id => !validTagIds.has(id))
+      })
 
       // Filter ratings to only include valid ones
       const finalValidRatings = validRatings.filter(rating => 
@@ -137,12 +153,26 @@ export default createApiRoute({
         try {
           const upsertedRatings = await ratingRepository.bulkUpsertRatings(finalValidRatings)
           
-          results = finalValidRatings.map(rating => ({
+          // Use actual database results instead of creating fake success responses
+          results = upsertedRatings.map(rating => ({
             videoId: rating.videoId,
-            tagId: rating.tagId,
+            tagId: rating.tag.id,
             level: rating.level,
             success: true
           }))
+          
+          // Check for partial failures - ratings that were expected but not returned
+          const upsertedIds = new Set(upsertedRatings.map(r => `${r.videoId}:${r.tag.id}`))
+          finalValidRatings.forEach(expected => {
+            const expectedId = `${expected.videoId}:${expected.tagId}`
+            if (!upsertedIds.has(expectedId)) {
+              errors.push({
+                videoId: expected.videoId,
+                tagId: expected.tagId,
+                error: 'Database upsert failed - no result returned'
+              })
+            }
+          })
 
           // Invalidate cache for affected videos and user
           const uniqueVideoIds = Array.from(new Set(finalValidRatings.map(r => r.videoId)))
@@ -184,8 +214,15 @@ export default createApiRoute({
         total: ratingsData.length
       })
 
+      // Report success only if we processed some ratings successfully AND have no errors
+      const overallSuccess = results.length > 0 && errors.length === 0
+      
+      // If we have no successful results but have errors, it's a failure
+      const hasFailures = errors.length > 0
+      const noSuccessfulResults = results.length === 0
+      
       return {
-        success: true,
+        success: overallSuccess,
         data: {
           processed: ratingsData.length,
           successful: results.length,
@@ -193,7 +230,16 @@ export default createApiRoute({
           results,
           errors: errors.length > 0 ? errors : undefined
         },
-        message: `Successfully processed ${results.length}/${ratingsData.length} ratings`
+        message: overallSuccess 
+          ? `Successfully processed ${results.length}/${ratingsData.length} ratings`
+          : noSuccessfulResults && hasFailures
+            ? `Failed to process all ratings: ${errors.map(e => e.error).join(', ')}`
+            : hasFailures
+              ? `Partially failed: ${results.length} successful, ${errors.length} failed`
+              : 'No ratings were processed',
+        error: hasFailures && noSuccessfulResults 
+          ? `Invalid data: ${errors.slice(0, 3).map(e => `${e.videoId}:${e.tagId} - ${e.error}`).join('; ')}`
+          : undefined
       }
 
     } catch (error) {
