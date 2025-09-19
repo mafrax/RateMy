@@ -76,6 +76,13 @@ export default function UploadPage() {
       return `https://www.redgifs.com/ifr/${redgifsMatch[1]}`
     }
 
+    // Pornhub URLs
+    const pornhubRegex = /(?:https?:\/\/)?(?:www\.)?(?:[\w]+\.)?pornhub\.com\/view_video\.php\?viewkey=([a-zA-Z0-9]+)/
+    const pornhubMatch = url.match(pornhubRegex)
+    if (pornhubMatch) {
+      return `https://www.pornhub.com/embed/${pornhubMatch[1]}`
+    }
+
     // Twitch URLs
     const twitchVideoRegex = /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/videos\/(\d+)/
     const twitchVideoMatch = url.match(twitchVideoRegex)
@@ -353,7 +360,7 @@ export default function UploadPage() {
                   placeholder="https://www.youtube.com/watch?v=... or https://tiktok.com/@user/video/123... or direct video URL"
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Supported: YouTube, Vimeo, TikTok, Instagram, Twitter/X, Dailymotion, Twitch, RedGifs, and direct video files (.mp4, .mov, etc.)
+                  Supported: YouTube, Vimeo, TikTok, Instagram, Twitter/X, Dailymotion, Twitch, RedGifs, Pornhub, and direct video files (.mp4, .mov, etc.)
                 </p>
                 {isDetectingMetadata && (
                   <div className="mt-2 flex items-center text-sm text-blue-600">

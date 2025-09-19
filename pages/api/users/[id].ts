@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../../../../src/lib/auth'
-import { videoService } from '../../../../src/services/video.service'
+import { authOptions } from '../../../src/lib/auth'
+import { userService } from '../../../src/services/user.service'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -9,11 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Get session to verify authentication
+    // Get session to verify authentication (optional for viewing public profiles)
     const session = await getServerSession(req, res, authOptions)
-    if (!session) {
-      return res.status(401).json({ success: false, message: 'Not authenticated' })
-    }
 
     const { id: userId } = req.query
 
@@ -21,23 +18,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ success: false, message: 'Invalid user ID' })
     }
 
-    // Allow viewing any user's videos (public)
-    // const sessionUserId = (session.user as any)?.id
-
-    // Get videos by user
-    const result = await videoService.getVideosByUser(userId)
+    // Get user profile
+    const result = await userService.getUserById(userId)
     
     if (!result.success) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
-        message: result.message || 'Failed to fetch videos'
+        message: result.message || 'User not found'
       })
+    }
+
+    // Return basic user profile information (safe for public viewing)
+    const userProfile = {
+      id: result.data.id,
+      username: result.data.username,
+      firstName: result.data.firstName,
+      lastName: result.data.lastName,
+      avatar: result.data.avatar,
+      createdAt: result.data.createdAt
     }
 
     return res.status(200).json({
       success: true,
-      data: result.data,
-      message: 'Videos retrieved successfully'
+      data: userProfile,
+      message: 'User profile retrieved successfully'
     })
 
   } catch (error) {

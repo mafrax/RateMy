@@ -147,6 +147,13 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
       error={error}
       onRetry={fetchVideos}
       onVideoUpdate={undefined} // Removed to prevent ratings from being overwritten
+      defaultCardsPerRow={3}
+      minCardWidth={300}
+      maxCardWidth={450}
+      minCardHeight={300}
+      maxCardHeight={400}
+      containerPadding={16}
+      cardGap={16}
     />
   )
 }
