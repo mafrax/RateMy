@@ -65,6 +65,24 @@ export class RatingRepositoryImpl extends BaseRepository<Rating> {
     }
   }
 
+  async findRatingsByUser(userId: string): Promise<any[]> {
+    try {
+      const ratings = await db.rating.findMany({
+        where: { userId },
+        include: {
+          tag: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      })
+      return ratings
+    } catch (error) {
+      logger.error('Error finding ratings by user', { userId, error })
+      throw error
+    }
+  }
+
   async findByUserAndVideo(userId: string, videoId: string): Promise<any[]> {
     try {
       const ratings = await db.rating.findMany({

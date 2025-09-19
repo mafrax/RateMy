@@ -1282,7 +1282,7 @@ export function IntelligentVideoGrid({
                           minWidth={dynamicMinCardWidth * 0.7} // Allow smaller in sub-spaces
                           minHeight={dynamicMinCardHeight * 0.7}
                           maxWidth={dynamicMaxCardWidth}
-                                gridPosition={subCard.gridPosition}
+                          gridPosition={subCard.gridPosition}
                           isDragging={draggedCardId === subCard.video.id}
                           isDropTarget={dropTargetCardId === subCard.video.id}
                         />

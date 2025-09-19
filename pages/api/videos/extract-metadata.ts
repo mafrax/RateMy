@@ -5,6 +5,7 @@ import { videoMetadataService } from '@/src/services/video-metadata.service'
 import { xHamsterService } from '@/src/services/xhamster.service'
 import { redGifsService } from '@/src/services/redgifs.service'
 import { redditService } from '@/src/services/reddit.service'
+import { pornhubService } from '@/src/services/pornhub.service'
 import { logger } from '@/src/lib/logger'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -40,6 +41,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         previewUrl = xHamsterData.previewUrl || null
       } catch (error) {
         logger.error('Failed to process XHamster URL, falling back to standard processing', { error })
+        extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
+      }
+    } else if (pornhubService.isUrl(originalUrl)) {
+      try {
+        console.log('\n=== PROCESSING PORNHUB URL ===')
+        console.log('URL:', originalUrl)
+        
+        const pornhubData = await pornhubService.processUrl(originalUrl)
+        
+        console.log('PORNHUB RESULT:', {
+          title: pornhubData.metadata.title,
+          hasPreview: !!pornhubData.previewUrl,
+          previewUrl: pornhubData.previewUrl,
+          hasThumbnail: !!pornhubData.thumbnail
+        })
+        
+        extractedMetadata = {
+          title: pornhubData.metadata.title,
+          description: pornhubData.metadata.description || '',
+          tags: pornhubData.tags,
+          thumbnail: pornhubData.thumbnail
+        }
+        embedUrl = pornhubData.embedUrl
+        previewUrl = pornhubData.previewUrl || null
+        
+        console.log('FINAL PREVIEW URL:', previewUrl)
+        console.log('=== END PORNHUB PROCESSING ===\n')
+      } catch (error) {
+        console.error('PORNHUB ERROR:', error)
+        logger.error('Failed to process Pornhub URL, falling back to standard processing', { error })
         extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
       }
     } else if (redGifsService.isRedGifsUrl(originalUrl)) {
@@ -96,10 +127,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const isRedGifs = redGifsService.isRedGifsUrl(originalUrl)
     const isReddit = redditService.isRedditUrl(originalUrl)
     const isXHamster = xHamsterService.isXHamsterUrl(originalUrl)
+    const isPornhub = originalUrl.includes('pornhub.com')
     
     let isNSFW = false
-    if (isRedGifs || isXHamster) {
-      isNSFW = true // RedGifs and XHamster are automatically NSFW
+    if (isRedGifs || isXHamster || isPornhub) {
+      isNSFW = true // RedGifs, XHamster and Pornhub are automatically NSFW
     } else if (isReddit && extractedMetadata.tags?.includes('nsfw')) {
       isNSFW = true // Reddit marked as NSFW
     }
@@ -121,7 +153,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       url: originalUrl,
       tagsCount: response.metadata.tags.length,
       hasTitle: !!response.metadata.title,
-      hasPreview: !!response.metadata.previewUrl
+      hasPreview: !!response.metadata.previewUrl,
+      title: response.metadata.title,
+      previewUrl: response.metadata.previewUrl,
+      isPornhub: originalUrl.includes('pornhub.com')
     })
 
     res.status(200).json(response)
@@ -155,6 +190,13 @@ function convertToEmbedUrl(originalUrl: string): string {
   const redgifsMatch = originalUrl.match(redgifsRegex)
   if (redgifsMatch) {
     return `https://www.redgifs.com/ifr/${redgifsMatch[1]}`
+  }
+
+  // Pornhub URLs
+  const pornhubRegex = /(?:https?:\/\/)?(?:www\.)?(?:[\w]+\.)?pornhub\.com\/view_video\.php\?viewkey=([a-zA-Z0-9]+)/
+  const pornhubMatch = originalUrl.match(pornhubRegex)
+  if (pornhubMatch) {
+    return `https://www.pornhub.com/embed/${pornhubMatch[1]}`
   }
 
   // TikTok URLs

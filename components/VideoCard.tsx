@@ -65,6 +65,8 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
   const [commentCount, setCommentCount] = useState(0)
   const [tagsExpanded, setTagsExpanded] = useState(false)
+  const [isDraggingDivider, setIsDraggingDivider] = useState(false)
+  const [videoSectionWidth, setVideoSectionWidth] = useState(0.6) // 60% for video, 40% for info by default
   const cardRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -152,6 +154,32 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   const handleCommentsExpandedChange = (expanded: boolean, count: number) => {
     setIsCommentsExpanded(expanded)
     setCommentCount(count)
+  }
+
+  // Handle vertical divider dragging between video and info sections
+  const handleDividerMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDraggingDivider(true)
+    
+    const startX = e.clientX
+    const startRatio = videoSectionWidth
+    const cardWidth = cardRef.current?.offsetWidth || 400
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - startX
+      const ratioChange = deltaX / cardWidth
+      const newRatio = Math.min(0.8, Math.max(0.3, startRatio + ratioChange)) // Constrain between 30% and 80%
+      setVideoSectionWidth(newRatio)
+    }
+    
+    const handleMouseUp = () => {
+      setIsDraggingDivider(false)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
   }
 
   const calculateModalHeight = () => {
@@ -283,9 +311,9 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   return (
     <>
       <div 
-        className="card hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow relative group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+        className="card hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow relative group flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         ref={cardRef}
-        style={{border : '2px solid red'}}
+        style={{border : '2px solid red', height: '400px'}} // Fixed height for consistent layout
       >
         {/* Control buttons */}
         <div className="absolute top-2 right-2 z-10 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -307,37 +335,51 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
           </button>
         </div>
 
-        {/* Video Area */}
-        {video.originalUrl?.includes('redgifs.com') ? (
-          <div id={`video-container-${video.id}`} className="relative mb-3" style={{ height: '189px' }}>
-            <div className="aspect-video bg-gray-200 rounded-md flex items-center justify-center">
-              <video
+        {/* Video Section - Left side */}
+        <div 
+          className="video-section flex-shrink-0 p-4"
+          style={{ width: `${videoSectionWidth * 100}%` }}
+        >
+          {video.originalUrl?.includes('redgifs.com') ? (
+            <div id={`video-container-${video.id}`} className="relative h-full">
+              <div className="h-full bg-gray-200 rounded-md flex items-center justify-center">
+                <video
+                  src={video.embedUrl}
+                  className="w-full h-full rounded-md object-contain"
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="h-full">
+              <iframe
+                ref={iframeRef}
                 src={video.embedUrl}
-                className="w-full h-full rounded-md object-contain"
-                controls
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
+                title={video.title}
+                className="w-full h-full rounded-lg"
+                allowFullScreen
               />
             </div>
-          </div>
-        ) : (
-          <div className="aspect-video mb-4 flex-shrink-0">
-            <iframe
-              ref={iframeRef}
-              src={video.embedUrl}
-              title={video.title}
-              className="w-full h-full rounded-lg"
-              allowFullScreen
-            />
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Vertical Divider */}
+        <div 
+          className={`w-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-col-resize transition-colors flex items-center justify-center ${isDraggingDivider ? 'bg-blue-400 dark:bg-blue-500' : ''}`}
+          onMouseDown={handleDividerMouseDown}
+          title="Drag to resize video/info sections"
+        >
+          <div className="h-8 w-1 bg-white dark:bg-gray-300 rounded-full opacity-60"></div>
+        </div>
       
-      {/* Scrollable Info Panel */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="space-y-3 pr-1">
+        {/* Info Section - Right side */}
+        <div className="info-section flex-1 overflow-y-auto p-4">
+          <div className="space-y-3">
           <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             <Link href={`/videos/${video.id}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
@@ -345,7 +387,12 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
             </Link>
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            by {video.user.firstName || video.user.username}
+            by <Link 
+              href={`/user/${video.user.id}`}
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              {video.user.firstName || video.user.username}
+            </Link>
           </p>
         </div>
 
@@ -422,9 +469,8 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
 
           {/* Comment Section */}
           <CommentSection videoId={video.id} />
+          </div>
         </div>
-      </div>
-
       </div>
 
       {/* Modal Backdrop and Card Container */}
@@ -487,7 +533,12 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
                 <div className="flex-1 space-y-4 overflow-y-auto">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      by {video.user.firstName || video.user.username}
+                      by <Link 
+                        href={`/user/${video.user.id}`}
+                        className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        {video.user.firstName || video.user.username}
+                      </Link>
                     </p>
                   </div>
 

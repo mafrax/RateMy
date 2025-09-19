@@ -137,6 +137,10 @@ export function ResizableVideoCard({
   // Resizable divider state for horizontal videos
   const [videoSectionHeight, setVideoSectionHeight] = useState(0.4) // Default to 40%
   const [isDraggingDivider, setIsDraggingDivider] = useState(false)
+  
+  // Resizable divider state for vertical videos (info section width)
+  const [infoSectionWidthRatio, setInfoSectionWidthRatio] = useState(0.35) // 35% of card width for info section
+  const [isDraggingVerticalDivider, setIsDraggingVerticalDivider] = useState(false)
 
   // Hover preview state for horizontal videos
   const [isHovering, setIsHovering] = useState(false)
@@ -552,16 +556,45 @@ export function ResizableVideoCard({
     document.addEventListener('mouseup', handleMouseUp)
   }
 
+  // Handle vertical divider dragging for vertical videos (info section width)
+  const handleVerticalDividerMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDraggingVerticalDivider(true)
+    
+    const startX = e.clientX
+    const startRatio = infoSectionWidthRatio
+    const cardWidth = cardSize.width
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = startX - e.clientX // Reversed: dragging left increases info section width
+      const ratioChange = deltaX / cardWidth
+      const newRatio = Math.min(0.6, Math.max(0.2, startRatio + ratioChange)) // Constrain between 20% and 60%
+      setInfoSectionWidthRatio(newRatio)
+    }
+    
+    const handleMouseUp = () => {
+      setIsDraggingVerticalDivider(false)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
   // Handle hover preview for horizontal videos (video-card-type-2)
   const handleVideoHoverEnter = async () => {
     console.log('🎯 Hover enter triggered')
     console.log('🎯 isVerticalVideo:', isVerticalVideo)
     console.log('🎯 originalUrl:', video.originalUrl)
     console.log('🎯 includes xhamster:', video.originalUrl?.includes('xhamster.com'))
+    console.log('🎯 includes pornhub:', video.originalUrl?.includes('pornhub.com'))
     
-    // Only for horizontal videos (video-card-type-2) and XHamster videos
-    if (isVerticalVideo || !video.originalUrl?.includes('xhamster.com')) {
-      console.log('🎯 Skipping preview - not horizontal XHamster video')
+    // Only for horizontal videos (video-card-type-2) and videos with preview support
+    const hasPreviewSupport = video.originalUrl?.includes('xhamster.com') || video.originalUrl?.includes('pornhub.com')
+    console.log('🎯 hasPreviewSupport:', hasPreviewSupport)
+    if (isVerticalVideo || !hasPreviewSupport) {
+      console.log('🎯 Skipping preview - not horizontal video with preview support')
       return
     }
 
@@ -579,9 +612,22 @@ export function ResizableVideoCard({
         console.log('🎯 Starting preview load after timeout')
         setIsLoadingPreview(true)
         try {
-          const data = await extractXHamsterPreview(video.originalUrl, video.id)
+          let data
+          if (video.originalUrl?.includes('xhamster.com')) {
+            data = await extractXHamsterPreview(video.originalUrl, video.id)
+          } else if (video.originalUrl?.includes('pornhub.com')) {
+            // For Pornhub, we should already have the previewUrl from metadata extraction
+            // If not, we could add a similar service for dynamic extraction
+            console.log('🎯 Pornhub preview should be available from upload metadata')
+            data = {
+              previewUrl: video.previewUrl,
+              thumbnailUrl: video.thumbnail
+            }
+          }
           console.log('🎯 Preview data received:', data)
-          setPreviewData(data)
+          if (data) {
+            setPreviewData(data)
+          }
         } catch (error) {
           console.error('🎯 Failed to load preview:', error)
         } finally {
@@ -627,11 +673,11 @@ export function ResizableVideoCard({
       const padding = 32 // Total padding
       const availableHeight = cardSize.height - headerHeight - padding
       
-      // Fixed info section width (doesn't change with resize)
-      const fixedInfoWidth = 200 // Further increased width for info section to prevent overlap
+      // Dynamic info section width based on ratio
+      const dynamicInfoWidth = cardSize.width * infoSectionWidthRatio
       
       // Available width for video section
-      const availableVideoWidth = cardSize.width - fixedInfoWidth - 24 // Reduced padding for tighter layout
+      const availableVideoWidth = cardSize.width - dynamicInfoWidth - 24 // Reduced padding for tighter layout
       
       // Use actual aspect ratio if available, fallback to 9:16
       const aspectRatio = videoAspectRatio || (9 / 16)
@@ -668,7 +714,7 @@ export function ResizableVideoCard({
       return { 
         width: videoWidth, 
         height: videoHeight,
-        infoWidth: fixedInfoWidth // Fixed width for info section
+        infoWidth: dynamicInfoWidth // Dynamic width for info section
       }
     } else {
       // For horizontal videos in vertical layout - maximize video area
@@ -802,7 +848,7 @@ export function ResizableVideoCard({
                   </h3>
                   <div className="flex items-center space-x-2 mt-0.5">
                     <Link
-                      href={`/profile/${video.user.id}`}
+                      href={`/user/${video.user.id}`}
                       className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
                     >
                       {displayName}
@@ -1048,9 +1094,20 @@ export function ResizableVideoCard({
                   </div>
                 )}
 
+                {/* Vertical Resizable Divider for vertical videos */}
+                {isVerticalVideo && (
+                  <div 
+                    className={`vertical-divider-handle h-full w-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-col-resize transition-colors flex items-center justify-center ${isDraggingVerticalDivider ? 'bg-blue-400 dark:bg-blue-500' : ''}`}
+                    onMouseDown={handleVerticalDividerMouseDown}
+                    title="Drag to resize video/info sections"
+                  >
+                    <div className="h-8 w-1 bg-white dark:bg-gray-300 rounded-full opacity-60"></div>
+                  </div>
+                )}
+
                 {/* Info Section */}
                 <div 
-                  className={`infosection ${isVerticalVideo ? 'ml-2 flex-shrink-0 flex flex-col' : 'flex-1'}`}
+                  className={`infosection ${isVerticalVideo ? 'flex-shrink-0 flex flex-col' : 'flex-1'}`}
                   style={isVerticalVideo ? { 
                     width: infoWidth,
                     minWidth: infoWidth,
@@ -1345,7 +1402,7 @@ export function ResizableVideoCard({
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center space-x-2">
                         <Link
-                          href={`/profile/${video.user.id}`}
+                          href={`/user/${video.user.id}`}
                           className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                         >
                           {displayName}
