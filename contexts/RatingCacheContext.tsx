@@ -171,9 +171,9 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
       return false
     }
     
-    // Check if this is an expired "saved" rating
+    // Check if this is a "saved" rating (has future timestamp)
     const now = Date.now()
-    if (rating.timestamp > now && rating.timestamp - now < 6000) {
+    if (rating.timestamp > now) {
       // This is a saved rating that's temporarily kept to prevent visual revert
       // Don't show it as pending since it's already saved
       return false
@@ -302,7 +302,7 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
           console.log(`✅ Keeping successful rating temporarily: ${rating.videoId}:${rating.tagId}`)
           newPendingRatings.set(key, {
             ...rating,
-            timestamp: Date.now() + 5000 // Mark as saved, will auto-expire in 5 seconds (longer to handle component re-renders)
+            timestamp: Date.now() + 10000 // Mark as saved, will auto-expire in 10 seconds (longer to handle component re-renders and DB propagation)
           })
         } else if (!wasInFlushBatch) {
           // This rating wasn't in the flush batch, so keep it as-is
@@ -382,7 +382,7 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
       
       // Check for expired "saved" ratings (those with future timestamps that have passed)
       for (const rating of Array.from(pendingRatings.values())) {
-        if (rating.timestamp > now - 8000 && rating.timestamp <= now + 6000) {
+        if (rating.timestamp > now - 12000 && rating.timestamp <= now) {
           // This might be a saved rating that should be cleaned up
           hasExpiredRatings = true
           break
@@ -396,9 +396,9 @@ export function RatingCacheProvider({ children }: { children: React.ReactNode })
           
           prev.forEach((rating, key) => {
             // Keep ratings that are either:
-            // 1. Normal pending ratings (timestamp in the past)
-            // 2. Saved ratings that haven't expired yet (timestamp > now + buffer)
-            if (rating.timestamp <= currentTime || rating.timestamp > currentTime + 6000) {
+            // 1. Normal pending ratings (timestamp in the past or now)
+            // 2. Saved ratings that haven't expired yet (future timestamp still valid)
+            if (rating.timestamp <= currentTime || rating.timestamp > currentTime + 1000) {
               cleaned.set(key, rating)
             } else {
               console.log(`🧹 Cleaning up expired saved rating: ${rating.videoId}:${rating.tagId}`)

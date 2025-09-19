@@ -83,7 +83,7 @@ interface UserProfile {
 export default function UserProfilePage() {
   const { data: session, status } = useSession()
   const params = useParams()
-  const userId = params.id as string
+  const userId = params?.id as string
   
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [videos, setVideos] = useState<Video[]>([])
