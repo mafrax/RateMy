@@ -34,7 +34,7 @@ export function TagWithSlider({
   
   // Track when props change
   useEffect(() => {
-    console.log(`🏷️ TagWithSlider ${tag.name} (${tag.id}): userRating=${userRating}, avgRating=${avgRating.toFixed(1)}, pending=${isPending}`)
+    // Removed console.log for cleaner output
   }, [tag.id, tag.name, userRating, avgRating, isPending])
   
   // Update tempRating when userRating changes (important for tracking visual reverts)

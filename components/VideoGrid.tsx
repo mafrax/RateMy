@@ -18,6 +18,7 @@ interface SearchFilters {
   sortOrder: 'desc' | 'asc'
   page: number
   limit: number
+  userId?: string
 }
 
 interface Video {
@@ -63,9 +64,11 @@ interface Video {
 
 interface VideoGridProps {
   searchFilters?: SearchFilters | null
+  includeNsfw?: boolean
+  onIncludeNsfwChange?: (includeNsfw: boolean) => void
 }
 
-export function VideoGrid({ searchFilters }: VideoGridProps) {
+export function VideoGrid({ searchFilters, includeNsfw, onIncludeNsfwChange }: VideoGridProps) {
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -106,6 +109,9 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
         }
         if (searchFilters.limit) {
           params.append('limit', searchFilters.limit.toString())
+        }
+        if (searchFilters.userId) {
+          params.append('userId', searchFilters.userId)
         }
       } else {
         // Default to including NSFW when no filters are applied
@@ -154,6 +160,8 @@ export function VideoGrid({ searchFilters }: VideoGridProps) {
       maxCardHeight={400}
       containerPadding={16}
       cardGap={16}
+      includeNsfw={includeNsfw}
+      onIncludeNsfwChange={onIncludeNsfwChange}
     />
   )
 }

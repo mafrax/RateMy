@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../auth/[...nextauth]'
+import { authOptions } from '@/src/lib/auth'
 import { videoMetadataService } from '@/src/services/video-metadata.service'
 import { xHamsterService } from '@/src/services/xhamster.service'
 import { redGifsService } from '@/src/services/redgifs.service'
@@ -127,7 +127,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const isRedGifs = redGifsService.isRedGifsUrl(originalUrl)
     const isReddit = redditService.isRedditUrl(originalUrl)
     const isXHamster = xHamsterService.isXHamsterUrl(originalUrl)
-    const isPornhub = originalUrl.includes('pornhub.com')
+    const isPornhub = originalUrl.includes('pornhub.com') || originalUrl.includes('pornhub.org')
     
     let isNSFW = false
     if (isRedGifs || isXHamster || isPornhub) {
@@ -156,7 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       hasPreview: !!response.metadata.previewUrl,
       title: response.metadata.title,
       previewUrl: response.metadata.previewUrl,
-      isPornhub: originalUrl.includes('pornhub.com')
+      isPornhub: originalUrl.includes('pornhub.com') || originalUrl.includes('pornhub.org')
     })
 
     res.status(200).json(response)
@@ -192,10 +192,11 @@ function convertToEmbedUrl(originalUrl: string): string {
     return `https://www.redgifs.com/ifr/${redgifsMatch[1]}`
   }
 
-  // Pornhub URLs
-  const pornhubRegex = /(?:https?:\/\/)?(?:www\.)?(?:[\w]+\.)?pornhub\.com\/view_video\.php\?viewkey=([a-zA-Z0-9]+)/
+  // Pornhub URLs (matches both .com and .org domains)
+  const pornhubRegex = /(?:https?:\/\/)?(?:www\.)?(?:[\w]+\.)?pornhub\.(?:com|org)\/view_video\.php\?viewkey=([a-zA-Z0-9]+)/
   const pornhubMatch = originalUrl.match(pornhubRegex)
   if (pornhubMatch) {
+    // Always use www.pornhub.com for embeds to avoid X-Frame-Options issues with localized domains
     return `https://www.pornhub.com/embed/${pornhubMatch[1]}`
   }
 

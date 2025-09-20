@@ -588,10 +588,10 @@ export function ResizableVideoCard({
     console.log('🎯 isVerticalVideo:', isVerticalVideo)
     console.log('🎯 originalUrl:', video.originalUrl)
     console.log('🎯 includes xhamster:', video.originalUrl?.includes('xhamster.com'))
-    console.log('🎯 includes pornhub:', video.originalUrl?.includes('pornhub.com'))
+    console.log('🎯 includes pornhub:', video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org'))
     
     // Only for horizontal videos (video-card-type-2) and videos with preview support
-    const hasPreviewSupport = video.originalUrl?.includes('xhamster.com') || video.originalUrl?.includes('pornhub.com')
+    const hasPreviewSupport = video.originalUrl?.includes('xhamster.com') || video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')
     console.log('🎯 hasPreviewSupport:', hasPreviewSupport)
     if (isVerticalVideo || !hasPreviewSupport) {
       console.log('🎯 Skipping preview - not horizontal video with preview support')
@@ -615,7 +615,7 @@ export function ResizableVideoCard({
           let data
           if (video.originalUrl?.includes('xhamster.com')) {
             data = await extractXHamsterPreview(video.originalUrl, video.id)
-          } else if (video.originalUrl?.includes('pornhub.com')) {
+          } else if (video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')) {
             // For Pornhub, we should already have the previewUrl from metadata extraction
             // If not, we could add a similar service for dynamic extraction
             console.log('🎯 Pornhub preview should be available from upload metadata')
@@ -1016,6 +1016,34 @@ export function ResizableVideoCard({
                                         muted
                                         playsInline
                                         style={{ maxWidth: '90%', maxHeight: '90%' }}
+                                        onError={async () => {
+                                          console.log('🎯 Preview video failed to load, attempting re-fetch...')
+                                          setIsLoadingPreview(true)
+                                          try {
+                                            if (video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')) {
+                                              // For Pornhub, we need to re-extract the preview
+                                              const response = await fetch('/api/videos/extract-metadata', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ originalUrl: video.originalUrl })
+                                              })
+                                              if (response.ok) {
+                                                const result = await response.json()
+                                                if (result.success && result.metadata?.previewUrl) {
+                                                  setPreviewData({
+                                                    previewUrl: result.metadata.previewUrl,
+                                                    thumbnailUrl: result.metadata.thumbnail || previewData?.thumbnailUrl
+                                                  })
+                                                  console.log('🎯 Preview re-fetched successfully:', result.metadata.previewUrl)
+                                                }
+                                              }
+                                            }
+                                          } catch (error) {
+                                            console.error('🎯 Failed to re-fetch preview:', error)
+                                          } finally {
+                                            setIsLoadingPreview(false)
+                                          }
+                                        }}
                                       />
                                     </div>
                                   )}
@@ -1064,6 +1092,34 @@ export function ResizableVideoCard({
                                       muted
                                       playsInline
                                       style={{ maxWidth: '90%', maxHeight: '90%' }}
+                                      onError={async () => {
+                                        console.log('🎯 Preview video failed to load, attempting re-fetch...')
+                                        setIsLoadingPreview(true)
+                                        try {
+                                          if (video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')) {
+                                            // For Pornhub, we need to re-extract the preview
+                                            const response = await fetch('/api/videos/extract-metadata', {
+                                              method: 'POST',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ originalUrl: video.originalUrl })
+                                            })
+                                            if (response.ok) {
+                                              const result = await response.json()
+                                              if (result.success && result.metadata?.previewUrl) {
+                                                setPreviewData({
+                                                  previewUrl: result.metadata.previewUrl,
+                                                  thumbnailUrl: result.metadata.thumbnail || previewData?.thumbnailUrl
+                                                })
+                                                console.log('🎯 Preview re-fetched successfully:', result.metadata.previewUrl)
+                                              }
+                                            }
+                                          }
+                                        } catch (error) {
+                                          console.error('🎯 Failed to re-fetch preview:', error)
+                                        } finally {
+                                          setIsLoadingPreview(false)
+                                        }
+                                      }}
                                     />
                                   </div>
                                 )}

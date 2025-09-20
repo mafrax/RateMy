@@ -3,45 +3,25 @@
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { FlexibleVideoGrid } from '../../../components/FlexibleVideoGrid'
+import { VideoGrid } from '@/components/VideoGrid'
+import { SearchBar } from '@/components/SearchBar'
 
-interface Video {
-  id: string
-  title: string
-  embedUrl: string
-  originalUrl: string
-  thumbnail?: string
-  description?: string
-  createdAt: string
-  user: {
-    id: string
-    username: string
-    firstName?: string
-    lastName?: string
-  }
-  tags: Array<{
-    tag: {
-      id: string
-      name: string
-    }
-  }>
-  ratings: Array<{
-    level: number
-    user: {
-      id: string
-      username: string
-      firstName?: string
-      lastName?: string
-      avatar?: string
-    }
-    tag: {
-      id: string
-      name: string
-    }
-  }>
-  _count: {
-    ratings: number
-  }
+interface TagRatingFilter {
+  tagName: string
+  minRating: number
+  maxRating: number
+}
+
+interface SearchFilters {
+  search: string
+  tags: string[]
+  tagRatings: TagRatingFilter[]
+  includeNsfw: boolean
+  sortBy: 'createdAt' | 'title' | 'ratings'
+  sortOrder: 'desc' | 'asc'
+  page: number
+  limit: number
+  userId?: string
 }
 
 interface UserStats {
@@ -86,12 +66,12 @@ export default function UserProfilePage() {
   const userId = params?.id as string
   
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-  const [videos, setVideos] = useState<Video[]>([])
   const [stats, setStats] = useState<UserStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [statsLoading, setStatsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOwnProfile, setIsOwnProfile] = useState(false)
+  const [searchFilters, setSearchFilters] = useState<SearchFilters | null>(null)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -103,13 +83,14 @@ export default function UserProfilePage() {
       }
       
       fetchUserProfile()
-      fetchUserVideos()
+      setUserVideoFilters()
       fetchUserStats()
     }
   }, [userId, session, status])
 
   const fetchUserProfile = async () => {
     try {
+      setLoading(true)
       const response = await fetch(`/api/users/${userId}`, {
         credentials: 'include'
       })
@@ -129,34 +110,52 @@ export default function UserProfilePage() {
     } catch (err) {
       console.error('Error fetching user profile:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
-    }
-  }
-
-  const fetchUserVideos = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/users/${userId}/videos`, {
-        credentials: 'include'
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user videos')
-      }
-
-      const data = await response.json()
-      console.log('User videos response:', data)
-
-      if (data.success && data.data) {
-        setVideos(data.data)
-      } else {
-        setVideos([])
-      }
-    } catch (err) {
-      console.error('Error fetching user videos:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
+  }
+
+  const setUserVideoFilters = () => {
+    if (!userId) return
+    
+    // Set search filters to show only this user's videos
+    setSearchFilters({
+      search: '',
+      tags: [],
+      tagRatings: [],
+      includeNsfw: true, // Show all content in user profile
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      page: 1,
+      limit: 20,
+      userId: userId
+    })
+  }
+
+  const handleSearch = (filters: SearchFilters) => {
+    if (!userId) return
+    
+    const userFilters = {
+      ...filters,
+      userId: userId // Always filter by the specific user
+    }
+    setSearchFilters(userFilters)
+  }
+
+  const handleIncludeNsfwChange = (includeNsfw: boolean) => {
+    if (!userId) return
+    
+    setSearchFilters(prev => prev ? { ...prev, includeNsfw } : {
+      search: '',
+      tags: [],
+      tagRatings: [],
+      includeNsfw,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      page: 1,
+      limit: 20,
+      userId: userId
+    })
   }
 
   const fetchUserStats = async () => {
@@ -191,12 +190,10 @@ export default function UserProfilePage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-8"></div>
         </div>
       </div>
     )
@@ -204,12 +201,10 @@ export default function UserProfilePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
-            <p className="text-gray-600">{error}</p>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Error</h1>
+          <p className="text-gray-600 dark:text-gray-300">{error}</p>
         </div>
       </div>
     )
@@ -217,12 +212,10 @@ export default function UserProfilePage() {
 
   if (!userProfile) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">User Not Found</h1>
-            <p className="text-gray-600">The user profile you're looking for doesn't exist.</p>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">User Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-300">The user profile you're looking for doesn't exist.</p>
         </div>
       </div>
     )
@@ -231,27 +224,27 @@ export default function UserProfilePage() {
   const displayName = userProfile.firstName || userProfile.username || 'User'
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="space-y-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center space-x-4 mb-6">
             <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-semibold">
               {displayName.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {displayName}'s Profile
-                {isOwnProfile && <span className="text-sm text-gray-500 ml-2">(Your Profile)</span>}
+                {isOwnProfile && <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">(Your Profile)</span>}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 {userProfile.firstName && userProfile.lastName 
                   ? `${userProfile.firstName} ${userProfile.lastName}` 
                   : `@${userProfile.username}`
                 }
               </p>
               {stats && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Member since {new Date(stats.basic.joinDate).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'long', 
@@ -394,30 +387,32 @@ export default function UserProfilePage() {
           )}
         </div>
 
-        {/* Videos Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              {isOwnProfile ? 'My Videos' : `${displayName}'s Videos`}
-            </h2>
-            {isOwnProfile && (
-              <a 
-                href="/upload"
-                className="btn-primary"
-              >
-                Upload New Video
-              </a>
-            )}
-          </div>
-
-          <FlexibleVideoGrid 
-            videos={videos}
-            loading={loading}
-            error={error}
-            onRetry={fetchUserVideos}
-            onVideoUpdate={fetchUserVideos}
-          />
+        {/* Search and Videos Section */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isOwnProfile ? 'My Videos' : `${displayName}'s Videos`}
+          </h2>
+          {isOwnProfile && (
+            <a 
+              href="/upload"
+              className="btn-primary"
+            >
+              Upload New Video
+            </a>
+          )}
         </div>
+      </div>
+
+      {/* Full Width Videos Section */}
+      <div className="space-y-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SearchBar onSearch={handleSearch} />
+        </div>
+        <VideoGrid 
+          searchFilters={searchFilters} 
+          includeNsfw={searchFilters?.includeNsfw ?? true}
+          onIncludeNsfwChange={handleIncludeNsfwChange}
+        />
       </div>
     </div>
   )

@@ -122,6 +122,18 @@ export class RateLimitError extends AppError {
   }
 }
 
+export class APIError extends AppError {
+  constructor(message: string, context?: any) {
+    super(
+      message,
+      ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+      HTTP_STATUS.BAD_GATEWAY,
+      true,
+      context
+    )
+  }
+}
+
 // Error factory functions
 export function createValidationError(field: string, message: string, value?: any): ValidationError {
   return new ValidationError(message, field, { value })
