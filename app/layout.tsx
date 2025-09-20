@@ -4,6 +4,7 @@ import './globals.css'
 import { Providers } from './providers'
 import { ClientThemeProvider } from '@/components/ClientThemeProvider'
 import { Navbar } from '@/components/Navbar'
+import { FeedbackButton } from '@/components/FeedbackButton'
 import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -35,6 +36,7 @@ export default function RootLayout({
                 className: 'dark:bg-gray-800 dark:text-white',
               }}
             />
+            <FeedbackButton />
           </Providers>
         </ClientThemeProvider>
       </body>
