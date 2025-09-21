@@ -30,12 +30,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Return basic user profile information (safe for public viewing)
     const userProfile = {
-      id: result.data.id,
-      username: result.data.username,
-      firstName: result.data.firstName,
-      lastName: result.data.lastName,
-      avatar: result.data.avatar,
-      createdAt: result.data.createdAt
+      id: result.data?.id,
+      username: result.data?.username,
+      firstName: result.data?.firstName,
+      lastName: result.data?.lastName,
+      avatar: result.data?.avatar,
+      createdAt: result.data?.createdAt
     }
 
     return res.status(200).json({

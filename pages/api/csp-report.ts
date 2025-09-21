@@ -84,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(204).end() // CSP reports expect 204 No Content
   } catch (error) {
-    logger.error('Error processing CSP report', error)
+    logger.error('Error processing CSP report', { error: error instanceof Error ? error.message : String(error) })
     
     monitoring.trackError(error as Error, {
       endpoint: '/api/csp-report',

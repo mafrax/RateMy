@@ -50,7 +50,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   const csp = ENHANCED_CSP[environment]
 
   // Security headers configuration
-  const securityHeaders = {
+  const securityHeaders: Record<string, string> = {
     'Content-Security-Policy': csp,
     'X-Frame-Options': 'SAMEORIGIN',
     'X-Content-Type-Options': 'nosniff',

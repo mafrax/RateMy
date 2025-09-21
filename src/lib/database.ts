@@ -84,3 +84,6 @@ export async function seedDatabase(): Promise<void> {
 
 // Export prisma client instance for compatibility
 export { db as prisma }
+
+// Export database instance for backwards compatibility
+export { db as database }
