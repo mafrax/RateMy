@@ -205,6 +205,9 @@ export function isValidPassword(password: string): boolean {
 
 export function isValidVideoUrl(url: string): boolean {
   try {
+    if (!url || url.trim() === '') {
+      return false
+    }
     new URL(url) // Check if it's a valid URL
     return true // Accept any valid URL now that we support multiple platforms
   } catch {

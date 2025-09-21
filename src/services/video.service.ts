@@ -600,9 +600,15 @@ export class VideoServiceImpl {
 
     // Direct video files
     const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v']
-    const urlPath = new URL(originalUrl).pathname.toLowerCase()
-    if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
-      return originalUrl // Return original URL for direct video files
+    try {
+      if (!originalUrl || originalUrl.trim() === '') return originalUrl
+      const urlPath = new URL(originalUrl).pathname.toLowerCase()
+      if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
+        return originalUrl // Return original URL for direct video files
+      }
+    } catch {
+      // If URL parsing fails, return original URL
+      return originalUrl
     }
 
     // If it's already an embed URL or unsupported, return as is

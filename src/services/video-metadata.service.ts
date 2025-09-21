@@ -1,5 +1,6 @@
 import { logger } from '../lib/logger'
 import { VALIDATION_PATTERNS } from '../lib/constants'
+import { ValidationError } from '../lib/errors'
 
 export interface VideoMetadata {
   title: string
@@ -96,11 +97,19 @@ export class VideoMetadataService {
 
   private isDirectVideoFile(url: string): boolean {
     const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v']
-    const urlPath = new URL(url).pathname.toLowerCase()
-    return videoExtensions.some(ext => urlPath.endsWith(ext))
+    try {
+      if (!url || url.trim() === '') return false
+      const urlPath = new URL(url).pathname.toLowerCase()
+      return videoExtensions.some(ext => urlPath.endsWith(ext))
+    } catch {
+      return false
+    }
   }
 
   private extractDirectVideoMetadata(originalUrl: string): VideoMetadata {
+    if (!originalUrl || originalUrl.trim() === '') {
+      throw new ValidationError('URL cannot be empty')
+    }
     const url = new URL(originalUrl)
     const filename = url.pathname.split('/').pop() || 'video'
     const title = filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')
@@ -375,6 +384,9 @@ export class VideoMetadataService {
   private extractFallbackMetadata(originalUrl: string): VideoMetadata {
     // Extract domain and basic info from URL
     try {
+      if (!originalUrl || originalUrl.trim() === '') {
+        throw new ValidationError('URL cannot be empty')
+      }
       const url = new URL(originalUrl)
       const domain = url.hostname.replace('www.', '')
       const pathSegments = url.pathname.split('/').filter(Boolean)
