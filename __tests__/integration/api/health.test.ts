@@ -15,6 +15,7 @@ describe('/api/health', () => {
     expect(data).toEqual({
       success: true,
       status: 'healthy',
+      environment: 'test',
       timestamp: expect.any(String),
       uptime: expect.any(Number),
       version: expect.any(String)

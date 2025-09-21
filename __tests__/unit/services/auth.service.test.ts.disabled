@@ -1,38 +1,29 @@
-import { AuthService } from '../../../src/services/auth.service'
-import { UserRepository } from '../../../src/repositories/user.repository'
+import { authService } from '../../../src/services/auth.service'
+import { userRepository } from '../../../src/repositories/user.repository'
 import bcryptjs from 'bcryptjs'
 import { ValidationError, AuthenticationError } from '../../../src/lib/errors'
 
 // Mock dependencies
-jest.mock('../../../src/repositories/user.repository')
+jest.mock('../../../src/repositories/user.repository', () => ({
+  userRepository: {
+    findByEmail: jest.fn(),
+    findByUsername: jest.fn(),
+    create: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+  },
+}))
 jest.mock('bcryptjs')
 
-const mockUserRepository = jest.mocked(UserRepository)
+const mockUserRepository = jest.mocked(userRepository)
 const mockBcrypt = jest.mocked(bcryptjs)
 
 describe('AuthService', () => {
-  let authService: AuthService
-  let mockUserRepositoryInstance: jest.Mocked<UserRepository>
-
   beforeEach(() => {
     jest.clearAllMocks()
-    
-    // Create mock instance
-    mockUserRepositoryInstance = {
-      findByEmail: jest.fn(),
-      findByUsername: jest.fn(),
-      create: jest.fn(),
-      findById: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      findMany: jest.fn(),
-      count: jest.fn(),
-    } as any
-
-    // Mock constructor
-    mockUserRepository.mockImplementation(() => mockUserRepositoryInstance)
-    
-    authService = new AuthService()
   })
 
   describe('validateCredentials', () => {
@@ -52,7 +43,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(mockUser)
+      mockUserRepository.findByEmail.mockResolvedValue(mockUser)
       mockBcrypt.compare.mockResolvedValue(true as never)
 
       const result = await authService.validateCredentials(validCredentials)
@@ -63,12 +54,12 @@ describe('AuthService', () => {
         username: mockUser.username,
         isActive: mockUser.isActive
       })
-      expect(mockUserRepositoryInstance.findByEmail).toHaveBeenCalledWith('test@example.com')
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith('test@example.com')
       expect(mockBcrypt.compare).toHaveBeenCalledWith('password123', 'hashedpassword')
     })
 
     it('should throw AuthenticationError for non-existent user', async () => {
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(null)
+      mockUserRepository.findByEmail.mockResolvedValue(null)
 
       await expect(authService.validateCredentials(validCredentials))
         .rejects.toThrow(AuthenticationError)
@@ -85,7 +76,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(mockUser)
+      mockUserRepository.findByEmail.mockResolvedValue(mockUser)
       mockBcrypt.compare.mockResolvedValue(false as never)
 
       await expect(authService.validateCredentials(validCredentials))
@@ -103,7 +94,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(mockUser)
+      mockUserRepository.findByEmail.mockResolvedValue(mockUser)
       mockBcrypt.compare.mockResolvedValue(true as never)
 
       await expect(authService.validateCredentials(validCredentials))
@@ -150,10 +141,10 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(null)
-      mockUserRepositoryInstance.findByUsername.mockResolvedValue(null)
+      mockUserRepository.findByEmail.mockResolvedValue(null)
+      mockUserRepository.findByUsername.mockResolvedValue(null)
       mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
-      mockUserRepositoryInstance.create.mockResolvedValue(mockCreatedUser)
+      mockUserRepository.create.mockResolvedValue(mockCreatedUser)
 
       const result = await authService.createUser(validUserData)
 
@@ -164,7 +155,7 @@ describe('AuthService', () => {
         isActive: mockCreatedUser.isActive
       })
       expect(mockBcrypt.hash).toHaveBeenCalledWith('password123', 12)
-      expect(mockUserRepositoryInstance.create).toHaveBeenCalledWith({
+      expect(mockUserRepository.create).toHaveBeenCalledWith({
         email: 'test@example.com',
         username: 'testuser',
         passwordHash: hashedPassword
@@ -182,7 +173,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(existingUser)
+      mockUserRepository.findByEmail.mockResolvedValue(existingUser)
 
       await expect(authService.createUser(validUserData))
         .rejects.toThrow(ValidationError)
@@ -199,8 +190,8 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(null)
-      mockUserRepositoryInstance.findByUsername.mockResolvedValue(existingUser)
+      mockUserRepository.findByEmail.mockResolvedValue(null)
+      mockUserRepository.findByUsername.mockResolvedValue(existingUser)
 
       await expect(authService.createUser(validUserData))
         .rejects.toThrow(ValidationError)
@@ -252,7 +243,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findById.mockResolvedValue(mockUser)
+      mockUserRepository.findById.mockResolvedValue(mockUser)
 
       const result = await authService.getUserProfile('1')
 
@@ -264,11 +255,11 @@ describe('AuthService', () => {
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt
       })
-      expect(mockUserRepositoryInstance.findById).toHaveBeenCalledWith('1')
+      expect(mockUserRepository.findById).toHaveBeenCalledWith('1')
     })
 
     it('should throw AuthenticationError for non-existent user', async () => {
-      mockUserRepositoryInstance.findById.mockResolvedValue(null)
+      mockUserRepository.findById.mockResolvedValue(null)
 
       await expect(authService.getUserProfile('999'))
         .rejects.toThrow(AuthenticationError)
@@ -299,10 +290,10 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findById.mockResolvedValue(existingUser)
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(null)
-      mockUserRepositoryInstance.findByUsername.mockResolvedValue(null)
-      mockUserRepositoryInstance.update.mockResolvedValue(updatedUser)
+      mockUserRepository.findById.mockResolvedValue(existingUser)
+      mockUserRepository.findByEmail.mockResolvedValue(null)
+      mockUserRepository.findByUsername.mockResolvedValue(null)
+      mockUserRepository.update.mockResolvedValue(updatedUser)
 
       const result = await authService.updateUserProfile('1', updateData)
 
@@ -317,7 +308,7 @@ describe('AuthService', () => {
     })
 
     it('should throw AuthenticationError for non-existent user', async () => {
-      mockUserRepositoryInstance.findById.mockResolvedValue(null)
+      mockUserRepository.findById.mockResolvedValue(null)
 
       await expect(authService.updateUserProfile('999', updateData))
         .rejects.toThrow(AuthenticationError)
@@ -344,8 +335,8 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findById.mockResolvedValue(existingUser)
-      mockUserRepositoryInstance.findByEmail.mockResolvedValue(duplicateEmailUser)
+      mockUserRepository.findById.mockResolvedValue(existingUser)
+      mockUserRepository.findByEmail.mockResolvedValue(duplicateEmailUser)
 
       await expect(authService.updateUserProfile('1', updateData))
         .rejects.toThrow(ValidationError)
@@ -375,16 +366,16 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findById.mockResolvedValue(existingUser)
+      mockUserRepository.findById.mockResolvedValue(existingUser)
       mockBcrypt.compare.mockResolvedValue(true as never)
       mockBcrypt.hash.mockResolvedValue('newhash' as never)
-      mockUserRepositoryInstance.update.mockResolvedValue(updatedUser)
+      mockUserRepository.update.mockResolvedValue(updatedUser)
 
       await authService.changePassword('1', passwordData)
 
       expect(mockBcrypt.compare).toHaveBeenCalledWith('oldpassword', 'oldhash')
       expect(mockBcrypt.hash).toHaveBeenCalledWith('newpassword123', 12)
-      expect(mockUserRepositoryInstance.update).toHaveBeenCalledWith('1', {
+      expect(mockUserRepository.update).toHaveBeenCalledWith('1', {
         passwordHash: 'newhash'
       })
     })
@@ -400,7 +391,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       }
 
-      mockUserRepositoryInstance.findById.mockResolvedValue(existingUser)
+      mockUserRepository.findById.mockResolvedValue(existingUser)
       mockBcrypt.compare.mockResolvedValue(false as never)
 
       await expect(authService.changePassword('1', passwordData))

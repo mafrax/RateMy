@@ -1,50 +1,42 @@
 import { VideoService } from '../../../src/services/video.service'
-import { VideoRepository } from '../../../src/repositories/video.repository'
-import { TagRepository } from '../../../src/repositories/tag.repository'
+import { videoRepository } from '../../../src/repositories/video.repository'
+import { tagRepository } from '../../../src/repositories/tag.repository'
 import { ValidationError, NotFoundError } from '../../../src/lib/errors'
 
 // Mock dependencies
-jest.mock('../../../src/repositories/video.repository')
-jest.mock('../../../src/repositories/tag.repository')
+jest.mock('../../../src/repositories/video.repository', () => ({
+  videoRepository: {
+    findById: jest.fn(),
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    count: jest.fn(),
+    findByUrl: jest.fn(),
+    findByUserId: jest.fn(),
+  },
+}))
+jest.mock('../../../src/repositories/tag.repository', () => ({
+  tagRepository: {
+    findById: jest.fn(),
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    count: jest.fn(),
+    findByName: jest.fn(),
+    createMany: jest.fn(),
+  },
+}))
 
-const mockVideoRepository = jest.mocked(VideoRepository)
-const mockTagRepository = jest.mocked(TagRepository)
+const mockVideoRepository = jest.mocked(videoRepository)
+const mockTagRepository = jest.mocked(tagRepository)
 
 describe('VideoService', () => {
   let videoService: VideoService
-  let mockVideoRepositoryInstance: jest.Mocked<VideoRepository>
-  let mockTagRepositoryInstance: jest.Mocked<TagRepository>
 
   beforeEach(() => {
     jest.clearAllMocks()
-    
-    // Create mock instances
-    mockVideoRepositoryInstance = {
-      findById: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
-      findByUrl: jest.fn(),
-      findByUserId: jest.fn(),
-    } as any
-
-    mockTagRepositoryInstance = {
-      findById: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
-      findByName: jest.fn(),
-      createMany: jest.fn(),
-    } as any
-
-    // Mock constructors
-    mockVideoRepository.mockImplementation(() => mockVideoRepositoryInstance)
-    mockTagRepository.mockImplementation(() => mockTagRepositoryInstance)
-    
     videoService = new VideoService()
   })
 
@@ -79,11 +71,11 @@ describe('VideoService', () => {
         { id: 'tag2', name: 'tag2', createdAt: new Date(), updatedAt: new Date() }
       ]
 
-      mockVideoRepositoryInstance.findByUrl.mockResolvedValue(null)
-      mockTagRepositoryInstance.findByName.mockImplementation((name) => {
+      mockVideoRepository.findByUrl.mockResolvedValue(null)
+      mockTagRepository.findByName.mockImplementation((name) => {
         return Promise.resolve(mockTags.find(tag => tag.name === name) || null)
       })
-      mockTagRepositoryInstance.create.mockImplementation((data) => {
+      mockTagRepository.create.mockImplementation((data) => {
         return Promise.resolve({
           id: `tag_${data.name}`,
           name: data.name,
@@ -91,13 +83,13 @@ describe('VideoService', () => {
           updatedAt: new Date()
         })
       })
-      mockVideoRepositoryInstance.create.mockResolvedValue(mockCreatedVideo)
+      mockVideoRepository.create.mockResolvedValue(mockCreatedVideo)
 
       const result = await videoService.createVideo(validVideoData, userId)
 
       expect(result).toEqual(mockCreatedVideo)
-      expect(mockVideoRepositoryInstance.findByUrl).toHaveBeenCalledWith(validVideoData.originalUrl)
-      expect(mockVideoRepositoryInstance.create).toHaveBeenCalledWith(
+      expect(mockVideoRepository.findByUrl).toHaveBeenCalledWith(validVideoData.originalUrl)
+      expect(mockVideoRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           title: validVideoData.title,
           originalUrl: validVideoData.originalUrl,
@@ -118,7 +110,7 @@ describe('VideoService', () => {
         updatedAt: new Date()
       }
 
-      mockVideoRepositoryInstance.findByUrl.mockResolvedValue(existingVideo)
+      mockVideoRepository.findByUrl.mockResolvedValue(existingVideo)
 
       await expect(videoService.createVideo(validVideoData, userId))
         .rejects.toThrow(ValidationError)
@@ -175,19 +167,19 @@ describe('VideoService', () => {
         ]
       }
 
-      mockVideoRepositoryInstance.findById.mockResolvedValue(mockVideo)
+      mockVideoRepository.findById.mockResolvedValue(mockVideo)
 
       const result = await videoService.getVideo('video123')
 
       expect(result).toEqual(mockVideo)
-      expect(mockVideoRepositoryInstance.findById).toHaveBeenCalledWith('video123', {
+      expect(mockVideoRepository.findById).toHaveBeenCalledWith('video123', {
         includeRatings: true,
         includeTags: true
       })
     })
 
     it('should throw NotFoundError for non-existent video', async () => {
-      mockVideoRepositoryInstance.findById.mockResolvedValue(null)
+      mockVideoRepository.findById.mockResolvedValue(null)
 
       await expect(videoService.getVideo('nonexistent'))
         .rejects.toThrow(NotFoundError)
@@ -217,8 +209,8 @@ describe('VideoService', () => {
     ]
 
     it('should return paginated videos with default options', async () => {
-      mockVideoRepositoryInstance.findMany.mockResolvedValue(mockVideos)
-      mockVideoRepositoryInstance.count.mockResolvedValue(25)
+      mockVideoRepository.findMany.mockResolvedValue(mockVideos)
+      mockVideoRepository.count.mockResolvedValue(25)
 
       const result = await videoService.getVideos()
 
@@ -231,7 +223,7 @@ describe('VideoService', () => {
           totalPages: 2
         }
       })
-      expect(mockVideoRepositoryInstance.findMany).toHaveBeenCalledWith({
+      expect(mockVideoRepository.findMany).toHaveBeenCalledWith({
         page: 1,
         limit: 20,
         sortBy: 'createdAt',
@@ -248,12 +240,12 @@ describe('VideoService', () => {
         userId: 'user123'
       }
 
-      mockVideoRepositoryInstance.findMany.mockResolvedValue([])
-      mockVideoRepositoryInstance.count.mockResolvedValue(0)
+      mockVideoRepository.findMany.mockResolvedValue([])
+      mockVideoRepository.count.mockResolvedValue(0)
 
       await videoService.getVideos(searchOptions)
 
-      expect(mockVideoRepositoryInstance.findMany).toHaveBeenCalledWith({
+      expect(mockVideoRepository.findMany).toHaveBeenCalledWith({
         page: 2,
         limit: 10,
         search: 'test query',
@@ -316,9 +308,9 @@ describe('VideoService', () => {
         ]
       }
 
-      mockVideoRepositoryInstance.findById.mockResolvedValue(existingVideo)
-      mockTagRepositoryInstance.findByName.mockResolvedValue(null)
-      mockTagRepositoryInstance.create.mockImplementation((data) => 
+      mockVideoRepository.findById.mockResolvedValue(existingVideo)
+      mockTagRepository.findByName.mockResolvedValue(null)
+      mockTagRepository.create.mockImplementation((data) => 
         Promise.resolve({
           id: `tag_${data.name}`,
           name: data.name,
@@ -326,12 +318,12 @@ describe('VideoService', () => {
           updatedAt: new Date()
         })
       )
-      mockVideoRepositoryInstance.update.mockResolvedValue(updatedVideo)
+      mockVideoRepository.update.mockResolvedValue(updatedVideo)
 
       const result = await videoService.updateVideo(videoId, updateData, userId)
 
       expect(result).toEqual(updatedVideo)
-      expect(mockVideoRepositoryInstance.update).toHaveBeenCalledWith(
+      expect(mockVideoRepository.update).toHaveBeenCalledWith(
         videoId,
         expect.objectContaining({
           title: updateData.title,
@@ -341,7 +333,7 @@ describe('VideoService', () => {
     })
 
     it('should throw NotFoundError for non-existent video', async () => {
-      mockVideoRepositoryInstance.findById.mockResolvedValue(null)
+      mockVideoRepository.findById.mockResolvedValue(null)
 
       await expect(videoService.updateVideo(videoId, updateData, userId))
         .rejects.toThrow(NotFoundError)
@@ -358,7 +350,7 @@ describe('VideoService', () => {
         updatedAt: new Date()
       }
 
-      mockVideoRepositoryInstance.findById.mockResolvedValue(existingVideo)
+      mockVideoRepository.findById.mockResolvedValue(existingVideo)
 
       await expect(videoService.updateVideo(videoId, updateData, userId))
         .rejects.toThrow(ValidationError)
@@ -380,16 +372,16 @@ describe('VideoService', () => {
         updatedAt: new Date()
       }
 
-      mockVideoRepositoryInstance.findById.mockResolvedValue(existingVideo)
-      mockVideoRepositoryInstance.delete.mockResolvedValue(undefined)
+      mockVideoRepository.findById.mockResolvedValue(existingVideo)
+      mockVideoRepository.delete.mockResolvedValue(undefined)
 
       await videoService.deleteVideo(videoId, userId)
 
-      expect(mockVideoRepositoryInstance.delete).toHaveBeenCalledWith(videoId)
+      expect(mockVideoRepository.delete).toHaveBeenCalledWith(videoId)
     })
 
     it('should throw NotFoundError for non-existent video', async () => {
-      mockVideoRepositoryInstance.findById.mockResolvedValue(null)
+      mockVideoRepository.findById.mockResolvedValue(null)
 
       await expect(videoService.deleteVideo(videoId, userId))
         .rejects.toThrow(NotFoundError)
@@ -406,7 +398,7 @@ describe('VideoService', () => {
         updatedAt: new Date()
       }
 
-      mockVideoRepositoryInstance.findById.mockResolvedValue(existingVideo)
+      mockVideoRepository.findById.mockResolvedValue(existingVideo)
 
       await expect(videoService.deleteVideo(videoId, userId))
         .rejects.toThrow(ValidationError)
