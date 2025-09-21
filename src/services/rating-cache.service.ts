@@ -32,25 +32,25 @@ export class RatingCacheService {
     const now = Date.now()
     
     // Clean up video average cache
-    for (const [key, entry] of this.videoAverageCache.entries()) {
+    this.videoAverageCache.forEach((entry, key) => {
       if (now - entry.timestamp > entry.ttl) {
         this.videoAverageCache.delete(key)
       }
-    }
+    })
     
     // Clean up video aggregate cache
-    for (const [key, entry] of this.videoAggregateCache.entries()) {
+    this.videoAggregateCache.forEach((entry, key) => {
       if (now - entry.timestamp > entry.ttl) {
         this.videoAggregateCache.delete(key)
       }
-    }
+    })
     
     // Clean up user rating cache
-    for (const [key, entry] of this.userRatingCache.entries()) {
+    this.userRatingCache.forEach((entry, key) => {
       if (now - entry.timestamp > entry.ttl) {
         this.userRatingCache.delete(key)
       }
-    }
+    })
   }
 
   async getVideoAverageRatings(videoId: string, tagId?: string): Promise<Map<string, number>> {
@@ -193,20 +193,20 @@ export class RatingCacheService {
   }
 
   invalidateVideoCache(videoId: string) {
-    const keysToDelete = []
+    const keysToDelete: string[] = []
     
     // Find all cache keys related to this video
-    for (const [key] of this.videoAverageCache.entries()) {
+    this.videoAverageCache.forEach((entry, key) => {
       if (key.startsWith(`${videoId}:`)) {
         keysToDelete.push(key)
       }
-    }
+    })
     
-    for (const [key] of this.videoAggregateCache.entries()) {
+    this.videoAggregateCache.forEach((entry, key) => {
       if (key === videoId) {
         keysToDelete.push(key)
       }
-    }
+    })
     
     // Delete the keys
     keysToDelete.forEach(key => {
@@ -218,14 +218,14 @@ export class RatingCacheService {
   }
 
   invalidateUserCache(userId: string) {
-    const keysToDelete = []
+    const keysToDelete: string[] = []
     
     // Find all cache keys related to this user
-    for (const [key] of this.userRatingCache.entries()) {
+    this.userRatingCache.forEach((entry, key) => {
       if (key.startsWith(`${userId}:`)) {
         keysToDelete.push(key)
       }
-    }
+    })
     
     // Delete the keys
     keysToDelete.forEach(key => {
