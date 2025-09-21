@@ -154,7 +154,7 @@ export class NSFWService {
     try {
       const allVideos = await videoRepository.findAll()
       const total = allVideos.length
-      const nsfwCount = allVideos.filter(v => v.isNsfw).length
+      const nsfwCount = allVideos.filter((v: any) => v.isNsfw).length
       const safeCount = total - nsfwCount
       const percentage = total > 0 ? (nsfwCount / total) * 100 : 0
 

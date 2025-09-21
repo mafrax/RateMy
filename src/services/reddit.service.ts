@@ -279,6 +279,11 @@ class RedditService {
       throw error
     }
   }
+
+  private capitalizeGifId(gifId: string): string {
+    // RedGifs URLs are case-sensitive, this helper ensures proper casing
+    return gifId.charAt(0).toUpperCase() + gifId.slice(1)
+  }
 }
 
 export const redditService = new RedditService()

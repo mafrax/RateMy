@@ -213,7 +213,7 @@ export class VideoServiceImpl {
         
         if (isRedGifs || isXHamster) {
           isNSFW = true // RedGifs and XHamster are automatically NSFW
-        } else if (isReddit && Array.isArray(extractedMetadata.tags) && extractedMetadata.tags.includes('nsfw')) {
+        } else if (isReddit && Array.isArray(extractedMetadata.tags) && (extractedMetadata.tags as string[]).includes('nsfw')) {
           isNSFW = true // Reddit marked as NSFW
         } else {
           isNSFW = await nsfwService.detectNSFW(finalTitle, finalDescription || undefined)

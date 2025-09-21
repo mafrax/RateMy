@@ -253,8 +253,8 @@ export class RateLimiter {
 export function createRateLimiter(config: RateLimitConfig): RateLimiter {
   let store: RateLimitStore
 
-  if (process.env.NODE_ENV === 'production' && global.redisClient) {
-    store = new RedisRateLimitStore(global.redisClient)
+  if (process.env.NODE_ENV === 'production' && (global as any).redisClient) {
+    store = new RedisRateLimitStore((global as any).redisClient)
     logger.info('Using Redis rate limit store')
   } else {
     store = new MemoryRateLimitStore()

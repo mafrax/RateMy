@@ -62,7 +62,7 @@ class RedGifsService {
         throw new APIError('No token returned from RedGifs API')
       }
 
-      this.token = data.token
+      this.token = data.token || null
       // Set expiry to 1 hour from now (tokens typically last 24h but we refresh early)
       this.tokenExpiry = Date.now() + (60 * 60 * 1000)
       

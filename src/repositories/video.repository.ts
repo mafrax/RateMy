@@ -602,6 +602,55 @@ export class VideoRepositoryImpl extends BaseRepository<Video> implements VideoR
       throw error
     }
   }
+
+  async findAll(): Promise<Video[]> {
+    try {
+      const videos = await db.video.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            }
+          },
+          tags: {
+            include: {
+              tag: true
+            }
+          },
+          ratings: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                }
+              },
+              tag: true
+            }
+          },
+          _count: {
+            select: {
+              ratings: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      })
+      return videos as Video[]
+    } catch (error) {
+      logger.error('Error finding all videos', { error })
+      throw error
+    }
+  }
 }
 
 // Export singleton instance
