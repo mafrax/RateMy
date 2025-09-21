@@ -112,9 +112,15 @@ export function middleware(request: NextRequest) {
       request.headers.get('x-forwarded-proto') !== 'https' &&
       !request.headers.get('x-forwarded-proto')?.includes('https')) {
     
-    const httpsUrl = new URL(request.url)
-    httpsUrl.protocol = 'https:'
-    return NextResponse.redirect(httpsUrl, 301)
+    try {
+      if (!request.url || request.url.trim() === '') return
+      const httpsUrl = new URL(request.url)
+      httpsUrl.protocol = 'https:'
+      return NextResponse.redirect(httpsUrl, 301)
+    } catch (error) {
+      // Invalid URL, skip HTTPS redirect
+      console.warn('Invalid URL for HTTPS redirect:', request.url)
+    }
   }
 
   // Create response and apply security headers

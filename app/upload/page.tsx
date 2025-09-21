@@ -99,6 +99,7 @@ export default function UploadPage() {
     // Direct video files
     const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v']
     try {
+      if (!url || url.trim() === '') return url
       const urlPath = new URL(url).pathname.toLowerCase()
       if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
         return url // Return original URL for direct video files
