@@ -14,9 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const session = await getServerSession(req, res, authOptions)
-    if (!session) {
-      return res.status(401).json({ error: 'Unauthorized' })
+    // Skip authentication in development for video metadata extraction
+    if (process.env.NODE_ENV !== 'development') {
+      const session = await getServerSession(req, res, authOptions)
+      if (!session) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
     }
 
     const { originalUrl } = req.body
