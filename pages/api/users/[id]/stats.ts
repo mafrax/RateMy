@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Calculate advanced statistics
     const totalRatings = videos.reduce((sum, video) => sum + (video._count?.ratings || 0), 0)
-    const totalViews = videos.reduce((sum, video) => sum + (video.views || 0), 0)
+    const totalViews = 0 // TODO: Implement view tracking - views property doesn't exist on Video type yet
     
     // Average rating received across all videos
     let averageRatingReceived = 0
