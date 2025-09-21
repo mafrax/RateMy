@@ -39,7 +39,7 @@ class RedGifsService {
   private async getToken(): Promise<string> {
     // Check if current token is still valid
     if (this.token && Date.now() < this.tokenExpiry) {
-      return this.token
+      return this.token!
     }
 
     try {
@@ -67,7 +67,7 @@ class RedGifsService {
       this.tokenExpiry = Date.now() + (60 * 60 * 1000)
       
       logger.info('Successfully obtained RedGifs API token')
-      return this.token
+      return this.token!
     } catch (error) {
       logger.error('Failed to get RedGifs token', { error })
       throw new APIError('Failed to authenticate with RedGifs API')
