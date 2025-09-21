@@ -128,7 +128,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Calculate join date
-    const joinDate = userWithStats.data.createdAt
+    const joinDate = userWithStats.data?.createdAt
 
     // Create stats object based on profile visibility
     const stats = {
