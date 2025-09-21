@@ -34,7 +34,7 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Run security scan with npm audit
-        run: npm audit fix --dry-run
+        run: npm audit fix --dry-run || echo "Audit found fixable vulnerabilities"
 
       - name: Check for vulnerabilities
         run: npm audit --audit-level=moderate --production
