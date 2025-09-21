@@ -18,11 +18,12 @@ export default createApiRoute({
       })
     }
 
-    await nsfwService.markVideo(videoId, body.isNSFW, ctx.user!.id)
+    const validatedBody = body as z.infer<typeof updateNSFWSchema>
+    await nsfwService.markVideo(videoId, validatedBody.isNSFW, ctx.user!.id)
     
     return ctx.res.status(200).json({
       success: true,
-      message: `Video marked as ${body.isNSFW ? 'NSFW' : 'safe'}`
+      message: `Video marked as ${validatedBody.isNSFW ? 'NSFW' : 'safe'}`
     })
   }))
 }, {
