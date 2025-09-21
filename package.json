@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "ci-check": "./scripts/ci-check.sh",
+    "security-scan": "./scripts/zap-security-scan.sh",
     "startup": "node scripts/startup.js",
     "dev:safe": "node scripts/startup.js",
     "health": "curl -f http://localhost:3000/api/health || exit 1",

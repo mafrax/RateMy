@@ -28,6 +28,9 @@ pids/
 coverage/
 *.lcov
 
+# Security scan reports (local testing artifacts)
+zap-reports/
+
 # OS generated files
 .DS_Store
 .DS_Store?

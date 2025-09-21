@@ -68,12 +68,28 @@ else
     print_warning "Security audit found issues - review npm audit output"
 fi
 
+# Optional OWASP ZAP security scan
+if [ "$1" = "--security-scan" ] || [ "$1" = "-s" ]; then
+    echo ""
+    echo "🔒 Running OWASP ZAP security scan..."
+    echo "This will take several additional minutes..."
+    ./scripts/zap-security-scan.sh
+    print_status $? "OWASP ZAP security scan"
+fi
+
 echo ""
 echo "======================================="
 echo -e "${GREEN}🎉 All CI/CD checks passed!${NC}"
 echo "✅ Safe to push to repository"
 echo ""
+if [ "$1" = "--security-scan" ] || [ "$1" = "-s" ]; then
+    echo "📊 Security scan reports available in zap-reports/ directory"
+    echo ""
+fi
 echo "Next steps:"
 echo "  git add ."
 echo "  git commit -m 'Your commit message'"
 echo "  git push"
+echo ""
+echo "💡 Run with --security-scan flag for OWASP ZAP security testing:"
+echo "   npm run ci-check -- --security-scan"
