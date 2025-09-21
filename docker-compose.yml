@@ -1,3 +1,10 @@
+# ===========================================
+# RateMe Production Docker Compose
+# ===========================================
+# 1. Copy .env.docker.example to .env.docker
+# 2. Fill in secure values in .env.docker
+# 3. Run: docker-compose --env-file .env.docker up
+
 services:
   # PostgreSQL Database
   postgres:
@@ -5,10 +12,10 @@ services:
     container_name: ratemy-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ratemy_db
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: ${POSTGRES_DB:-ratemy_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ratemy_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: ${POSTGRES_HOST_AUTH_METHOD:-md5}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     ports:
       - "5433:5432"
@@ -18,7 +25,7 @@ services:
     networks:
       - ratemy-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U username -d ratemy_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ratemy_user} -d ${POSTGRES_DB:-ratemy_db}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -35,12 +42,12 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://username:password@postgres:5432/ratemy_db
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=your-super-secret-jwt-secret-change-in-production
-      - LOG_LEVEL=info
-      - HOST=0.0.0.0
-      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-3000}
     depends_on:
       postgres:
         condition: service_healthy
@@ -64,9 +71,9 @@ services:
       - "3001:3000"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://username:password@postgres:5432/ratemy_db
-      - NEXTAUTH_URL=http://localhost:3001
-      - NEXTAUTH_SECRET=your-super-secret-jwt-secret-change-in-production
+      - DATABASE_URL=${DATABASE_URL_DEV:-${DATABASE_URL}}
+      - NEXTAUTH_URL=${NEXTAUTH_URL_DEV:-http://localhost:3001}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
     depends_on:
       postgres:
         condition: service_healthy

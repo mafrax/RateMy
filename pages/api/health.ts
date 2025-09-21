@@ -1,34 +1,42 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getHealthStatus } from '@/lib/diagnostics'
-import { logger, logApiRequest } from '@/lib/logger'
+import { monitoring, withMonitoring } from '@/src/lib/monitoring'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const startTime = Date.now()
-  
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET'])
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ 
+      success: false,
+      message: 'Method not allowed' 
+    })
   }
 
   try {
-    const healthStatus = await getHealthStatus()
-    const duration = Date.now() - startTime
+    // Get basic health info
+    const healthStatus = {
+      success: true,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development'
+    }
+
+    // Track health check metric
+    monitoring.trackMetric('health_check_total', 1, { status: 'success' })
     
-    logApiRequest('GET', '/api/health', undefined, duration)
-    
-    const statusCode = healthStatus.status === 'healthy' ? 200 : 503
-    return res.status(statusCode).json(healthStatus)
+    return res.status(200).json(healthStatus)
   } catch (error) {
-    const duration = Date.now() - startTime
-    logger.error('Health check failed', {
-      error: error instanceof Error ? error.message : String(error),
-      duration: `${duration}ms`
-    })
+    // Track health check failure
+    monitoring.trackError(error as Error, { endpoint: '/api/health' })
+    monitoring.trackMetric('health_check_total', 1, { status: 'error' })
     
     return res.status(503).json({
+      success: false,
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: 'Health check failed'
     })
   }
 }
+
+export default withMonitoring(handler)

@@ -1,0 +1,367 @@
+name: Security Scanning
+
+on:
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+
+jobs:
+  # Dependency vulnerability scanning
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          npm audit --audit-level=moderate --json > audit-report.json || true
+          cat audit-report.json
+
+      - name: Check for high/critical vulnerabilities
+        run: |
+          HIGH_VULNS=$(npm audit --audit-level=high --json | jq '.metadata.vulnerabilities.high // 0')
+          CRITICAL_VULNS=$(npm audit --audit-level=critical --json | jq '.metadata.vulnerabilities.critical // 0')
+          
+          echo "High vulnerabilities: $HIGH_VULNS"
+          echo "Critical vulnerabilities: $CRITICAL_VULNS"
+          
+          if [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found!"
+            exit 1
+          elif [ "$HIGH_VULNS" -gt 0 ]; then
+            echo "⚠️ High vulnerabilities found - review required"
+            exit 1
+          else
+            echo "✅ No high or critical vulnerabilities found"
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dependency-audit-report
+          path: audit-report.json
+
+  # CodeQL static analysis
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # OWASP ZAP security testing
+  zap-scan:
+    name: OWASP ZAP Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' # Skip on scheduled runs to avoid rate limits
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: zapuser
+          POSTGRES_PASSWORD: zappass
+          POSTGRES_DB: ratemy_zap
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5434:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test database
+        env:
+          DATABASE_URL: postgresql://zapuser:zappass@localhost:5434/ratemy_zap
+        run: |
+          npm run db:generate
+          npm run db:migrate || echo "ZAP Migration completed"
+
+      - name: Build and start application
+        env:
+          DATABASE_URL: postgresql://zapuser:zappass@localhost:5434/ratemy_zap
+          NODE_ENV: production
+          PORT: 3003
+        run: |
+          npm run build
+          npm start &
+          sleep 15
+          curl --fail http://localhost:3003/api/health || exit 1
+
+      - name: Run OWASP ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'http://localhost:3003'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Upload ZAP scan results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: zap-scan-results
+          path: report_html.html
+
+  # Secrets scanning
+  secrets-scan:
+    name: Secrets Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # License compliance check
+  license-scan:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install license checker
+        run: npm install -g license-checker
+
+      - name: Check licenses
+        run: |
+          license-checker --json --out licenses.json
+          license-checker --summary
+          
+          # Check for problematic licenses
+          license-checker --failOn 'GPL-2.0;GPL-3.0;AGPL-1.0;AGPL-3.0'
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: licenses.json
+
+  # Container security scanning
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t ratemy:security-scan .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ratemy:security-scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy for critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ratemy:security-scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+  # Security report aggregation
+  security-report:
+    name: Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, codeql-analysis, secrets-scan, license-scan, container-scan]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate security summary
+        run: |
+          echo "# Security Scan Summary" > security-summary.md
+          echo "" >> security-summary.md
+          echo "**Scan Date:** $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)" >> security-summary.md
+          echo "**Commit:** ${{ github.sha }}" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          echo "## Scan Results" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          # Dependency scan results
+          if [ "${{ needs.dependency-scan.result }}" == "success" ]; then
+            echo "✅ **Dependency Scan:** PASSED" >> security-summary.md
+          else
+            echo "❌ **Dependency Scan:** FAILED" >> security-summary.md
+          fi
+          
+          # CodeQL results
+          if [ "${{ needs.codeql-analysis.result }}" == "success" ]; then
+            echo "✅ **CodeQL Analysis:** PASSED" >> security-summary.md
+          else
+            echo "❌ **CodeQL Analysis:** FAILED" >> security-summary.md
+          fi
+          
+          # Secrets scan results
+          if [ "${{ needs.secrets-scan.result }}" == "success" ]; then
+            echo "✅ **Secrets Detection:** PASSED" >> security-summary.md
+          else
+            echo "❌ **Secrets Detection:** FAILED" >> security-summary.md
+          fi
+          
+          # License scan results
+          if [ "${{ needs.license-scan.result }}" == "success" ]; then
+            echo "✅ **License Compliance:** PASSED" >> security-summary.md
+          else
+            echo "❌ **License Compliance:** FAILED" >> security-summary.md
+          fi
+          
+          # Container scan results
+          if [ "${{ needs.container-scan.result }}" == "success" ]; then
+            echo "✅ **Container Security:** PASSED" >> security-summary.md
+          else
+            echo "❌ **Container Security:** FAILED" >> security-summary.md
+          fi
+          
+          echo "" >> security-summary.md
+          echo "## Next Steps" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          # Check for any failures
+          if [ "${{ needs.dependency-scan.result }}" != "success" ] || 
+             [ "${{ needs.codeql-analysis.result }}" != "success" ] || 
+             [ "${{ needs.secrets-scan.result }}" != "success" ] || 
+             [ "${{ needs.license-scan.result }}" != "success" ] || 
+             [ "${{ needs.container-scan.result }}" != "success" ]; then
+            echo "🚨 **Action Required:** Some security scans failed. Review the failed scans and address issues before deployment." >> security-summary.md
+            echo "" >> security-summary.md
+            echo "1. Check individual scan results in the Actions tab" >> security-summary.md
+            echo "2. Review and fix identified vulnerabilities" >> security-summary.md
+            echo "3. Update dependencies if needed" >> security-summary.md
+            echo "4. Re-run security scans after fixes" >> security-summary.md
+          else
+            echo "🎉 **All Clear:** All security scans passed successfully!" >> security-summary.md
+          fi
+          
+          cat security-summary.md
+
+      - name: Upload security summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-summary
+          path: security-summary.md
+
+      - name: Comment on PR with security results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('security-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+      - name: Fail if critical security issues found
+        if: |
+          needs.dependency-scan.result == 'failure' ||
+          needs.secrets-scan.result == 'failure' ||
+          needs.container-scan.result == 'failure'
+        run: |
+          echo "❌ Critical security issues found!"
+          exit 1

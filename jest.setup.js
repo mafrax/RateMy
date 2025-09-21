@@ -56,6 +56,46 @@ jest.mock('react-hot-toast', () => ({
   Toaster: () => null,
 }))
 
+// Mock secrets manager
+jest.mock('./src/lib/secrets', () => ({
+  secretsManager: {
+    get: jest.fn((key) => {
+      const mockSecrets = {
+        'DATABASE_URL': 'postgresql://test:test@localhost:5432/testdb',
+        'NEXTAUTH_SECRET': 'test-secret-32-characters-long-12345',
+        'NEXTAUTH_URL': 'http://localhost:3000'
+      }
+      return mockSecrets[key]
+    }),
+    getRequired: jest.fn((key) => {
+      const mockSecrets = {
+        'DATABASE_URL': 'postgresql://test:test@localhost:5432/testdb',
+        'NEXTAUTH_SECRET': 'test-secret-32-characters-long-12345',
+        'NEXTAUTH_URL': 'http://localhost:3000'
+      }
+      return mockSecrets[key] || 'mock-value'
+    }),
+    has: jest.fn(() => true),
+    initialize: jest.fn().mockResolvedValue(undefined)
+  },
+  getSecret: jest.fn((key) => {
+    const mockSecrets = {
+      'REDIS_URL': null,
+      'SENTRY_DSN': null
+    }
+    return mockSecrets[key]
+  }),
+  getRequiredSecret: jest.fn((key) => {
+    const mockSecrets = {
+      'DATABASE_URL': 'postgresql://test:test@localhost:5432/testdb',
+      'NEXTAUTH_SECRET': 'test-secret-32-characters-long-12345',
+      'NEXTAUTH_URL': 'http://localhost:3000'
+    }
+    return mockSecrets[key] || 'mock-value'
+  }),
+  initializeSecrets: jest.fn().mockResolvedValue(undefined)
+}))
+
 // Global test utilities
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),

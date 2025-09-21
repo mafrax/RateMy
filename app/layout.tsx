@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         <ClientThemeProvider>
           <Providers>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -39,6 +39,37 @@ export default function RootLayout({
             <FeedbackButton />
           </Providers>
         </ClientThemeProvider>
+        
+        {/* Handle browser extension attributes to prevent hydration warnings */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Handle Grammarly and other browser extension attributes
+              if (typeof window !== 'undefined') {
+                // Remove extension attributes that cause hydration mismatches
+                const removeExtensionAttributes = () => {
+                  const body = document.body;
+                  if (body) {
+                    // Grammarly attributes
+                    body.removeAttribute('data-new-gr-c-s-check-loaded');
+                    body.removeAttribute('data-gr-ext-installed');
+                    // Other common extension attributes
+                    body.removeAttribute('data-lastpass-icon-root');
+                    body.removeAttribute('data-1p-extension');
+                    body.removeAttribute('cz-shortcut-listen');
+                  }
+                };
+                
+                // Run after DOM is loaded
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', removeExtensionAttributes);
+                } else {
+                  removeExtensionAttributes();
+                }
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   )

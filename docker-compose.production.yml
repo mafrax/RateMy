@@ -1,0 +1,299 @@
+version: '3.8'
+
+services:
+  app:
+    image: ${DOCKER_REGISTRY}/ratemy:${IMAGE_TAG:-latest}
+    container_name: ratemy-production
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      APP_NAME: RateMe
+      DATABASE_URL: postgresql://prod_user:${POSTGRES_PASSWORD}@postgres:5432/ratemy_production
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: https://ratemy.app
+      REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - production-uploads:/app/uploads
+    networks:
+      - production-network
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ratemy-prod.rule=Host(`ratemy.app`,`www.ratemy.app`)"
+      - "traefik.http.routers.ratemy-prod.tls=true"
+      - "traefik.http.routers.ratemy-prod.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirect-www.redirectregex.regex=^https://www.ratemy.app/(.*)"
+      - "traefik.http.middlewares.redirect-www.redirectregex.replacement=https://ratemy.app/$${1}"
+      - "traefik.http.routers.ratemy-prod.middlewares=redirect-www"
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: ratemy-production-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ratemy_production
+      POSTGRES_USER: prod_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - production-postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./backup:/backup
+    networks:
+      - production-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prod_user -d ratemy_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      postgres
+      -c max_connections=100
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+
+  redis:
+    image: redis:7-alpine
+    container_name: ratemy-production-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - production-redis-data:/data
+    networks:
+      - production-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Load balancer and SSL termination
+  traefik:
+    image: traefik:v2.10
+    container_name: ratemy-production-traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@ratemy.app"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--global.sendanonymoususage=false"
+      - "--metrics.prometheus=true"
+      - "--accesslog=true"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - production-letsencrypt:/letsencrypt
+    networks:
+      - production-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Database backup service
+  backup:
+    image: postgres:14-alpine
+    container_name: ratemy-production-backup
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ratemy_production
+      POSTGRES_USER: prod_user
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - production-postgres-data:/var/lib/postgresql/data:ro
+      - ./backup:/backup
+      - ./scripts/backup.sh:/backup.sh:ro
+    networks:
+      - production-network
+    command: >
+      sh -c "
+        echo '0 2 * * * /backup.sh' | crontab - &&
+        crond -f
+      "
+    depends_on:
+      - postgres
+
+  # Monitoring stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ratemy-production-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.production.yml:/etc/prometheus/prometheus.yml:ro
+      - production-prometheus-data:/prometheus
+    networks:
+      - production-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.external-url=https://prometheus.ratemy.app'
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ratemy-production-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - production-grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - production-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Log aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: ratemy-production-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/local-config.yaml:ro
+      - production-loki-data:/tmp/loki
+    networks:
+      - production-network
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: ratemy-production-promtail
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/promtail.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - production-network
+    command: -config.file=/etc/promtail/config.yml
+
+  # Error tracking
+  sentry-relay:
+    image: getsentry/relay:latest
+    container_name: ratemy-production-sentry-relay
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      RELAY_UPSTREAM_DSN: ${SENTRY_DSN}
+    volumes:
+      - ./monitoring/sentry-relay:/work/.relay
+    networks:
+      - production-network
+
+volumes:
+  production-postgres-data:
+    driver: local
+  production-redis-data:
+    driver: local
+  production-uploads:
+    driver: local
+  production-letsencrypt:
+    driver: local
+  production-prometheus-data:
+    driver: local
+  production-grafana-data:
+    driver: local
+  production-loki-data:
+    driver: local
+
+networks:
+  production-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

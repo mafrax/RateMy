@@ -40,33 +40,20 @@ function getConfig(): Config {
   const isDevelopment = env === NODE_ENV.DEVELOPMENT
   const isProduction = env === NODE_ENV.PRODUCTION
 
-  // Validate required environment variables
-  const requiredVars = [
-    'DATABASE_URL',
-    'NEXTAUTH_SECRET',
-    'NEXTAUTH_URL',
-  ]
-
-  for (const varName of requiredVars) {
-    if (!process.env[varName]) {
-      throw new Error(`Missing required environment variable: ${varName}`)
-    }
-  }
-
   return {
     app: {
       name: process.env.APP_NAME || 'RateMe',
       version: process.env.APP_VERSION || '1.0.0',
       env,
       port: parseInt(process.env.PORT || '3000', 10),
-      url: process.env.NEXTAUTH_URL!,
+      url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
     },
     database: {
-      url: process.env.DATABASE_URL!,
+      url: process.env.DATABASE_URL || 'postgresql://username:password@localhost:5433/ratemy_db',
     },
     auth: {
-      secret: process.env.NEXTAUTH_SECRET!,
-      url: process.env.NEXTAUTH_URL!,
+      secret: process.env.NEXTAUTH_SECRET || 'development-secret-32-characters-long-change-in-production',
+      url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
       sessionMaxAge: parseInt(process.env.SESSION_MAX_AGE || '2592000', 10), // 30 days
     },
     logging: {

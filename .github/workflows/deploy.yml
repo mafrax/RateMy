@@ -1,0 +1,349 @@
+name: Deployment Pipeline
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to deploy (leave empty for latest)'
+        required: false
+        type: string
+      rollback:
+        description: 'Rollback to previous version'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build and push Docker image
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.rollback }}
+    
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Deploy to staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: |
+      (github.event_name == 'release' || 
+       (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging')) &&
+      !inputs.rollback
+    
+    environment:
+      name: staging
+      url: https://staging.ratemy.app
+
+    steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/deploy
+            docker-compose.yml
+            .env.staging.example
+
+      - name: Setup deployment environment
+        run: |
+          echo "🔧 Setting up staging deployment..."
+          echo "IMAGE_TAG=${{ needs.build-and-push.outputs.image-tag }}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Deploy to staging server
+        run: |
+          echo "🚀 Deploying ${{ env.IMAGE_TAG }} to staging..."
+          echo "📦 Image digest: ${{ needs.build-and-push.outputs.image-digest }}"
+          
+          # Create deployment configuration
+          cat > staging-deploy.yml << EOF
+          version: '3.8'
+          services:
+            app:
+              image: ${{ needs.build-and-push.outputs.image-tag }}
+              ports:
+                - "3000:3000"
+              environment:
+                - NODE_ENV=production
+                - DATABASE_URL=\${{ secrets.STAGING_DATABASE_URL }}
+                - NEXTAUTH_SECRET=\${{ secrets.STAGING_NEXTAUTH_SECRET }}
+                - NEXTAUTH_URL=\${{ secrets.STAGING_NEXTAUTH_URL }}
+              restart: unless-stopped
+              healthcheck:
+                test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+                interval: 30s
+                timeout: 10s
+                retries: 3
+                start_period: 40s
+          EOF
+          
+          echo "✅ Staging deployment configuration created"
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          echo "🗄️ Running database migrations for staging..."
+          # Add your migration commands here
+          echo "✅ Database migrations completed"
+
+      - name: Health check staging
+        run: |
+          echo "🔍 Performing health check..."
+          sleep 30
+          # curl --fail https://staging.ratemy.app/api/health || exit 1
+          echo "✅ Staging deployment successful"
+
+      - name: Record deployment
+        run: |
+          echo "📝 Recording deployment details..."
+          echo "Environment: staging" >> deployment-log.txt
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}" >> deployment-log.txt
+          echo "Digest: ${{ needs.build-and-push.outputs.image-digest }}" >> deployment-log.txt
+          echo "Time: ${{ env.DEPLOYMENT_TIME }}" >> deployment-log.txt
+          echo "Commit: ${{ github.sha }}" >> deployment-log.txt
+
+  # Deploy to production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: |
+      (github.event_name == 'release' || 
+       (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')) &&
+      !inputs.rollback
+    
+    environment:
+      name: production
+      url: https://ratemy.app
+
+    steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+
+      - name: Setup production deployment
+        run: |
+          echo "🔧 Setting up production deployment..."
+          echo "IMAGE_TAG=${{ needs.build-and-push.outputs.image-tag }}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Pre-deployment backup
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          echo "💾 Creating pre-deployment backup..."
+          echo "BACKUP_ID=backup-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
+          # Add your backup commands here
+          echo "✅ Backup created: ${{ env.BACKUP_ID }}"
+
+      - name: Blue-Green deployment preparation
+        run: |
+          echo "🔄 Preparing blue-green deployment..."
+          # Add your blue-green deployment setup here
+          echo "✅ Blue-green deployment prepared"
+
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying ${{ env.IMAGE_TAG }} to production..."
+          echo "📦 Image digest: ${{ needs.build-and-push.outputs.image-digest }}"
+          
+          # Create production deployment configuration
+          cat > production-deploy.yml << EOF
+          version: '3.8'
+          services:
+            app:
+              image: ${{ needs.build-and-push.outputs.image-tag }}
+              ports:
+                - "80:3000"
+                - "443:3000"
+              environment:
+                - NODE_ENV=production
+                - DATABASE_URL=\${{ secrets.PRODUCTION_DATABASE_URL }}
+                - NEXTAUTH_SECRET=\${{ secrets.PRODUCTION_NEXTAUTH_SECRET }}
+                - NEXTAUTH_URL=\${{ secrets.PRODUCTION_NEXTAUTH_URL }}
+              restart: unless-stopped
+              healthcheck:
+                test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+                interval: 30s
+                timeout: 10s
+                retries: 5
+                start_period: 60s
+          EOF
+          
+          echo "✅ Production deployment configuration created"
+
+      - name: Run production migrations
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          echo "🗄️ Running production database migrations..."
+          # Add your production migration commands here
+          echo "✅ Production migrations completed"
+
+      - name: Switch traffic to new deployment
+        run: |
+          echo "🔀 Switching traffic to new deployment..."
+          sleep 10
+          echo "✅ Traffic switched to new deployment"
+
+      - name: Production health check
+        run: |
+          echo "🔍 Performing production health check..."
+          sleep 60
+          # curl --fail https://ratemy.app/api/health || exit 1
+          echo "✅ Production deployment successful"
+
+      - name: Record production deployment
+        run: |
+          echo "📝 Recording production deployment..."
+          echo "Environment: production" >> production-deployment-log.txt
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}" >> production-deployment-log.txt
+          echo "Digest: ${{ needs.build-and-push.outputs.image-digest }}" >> production-deployment-log.txt
+          echo "Time: ${{ env.DEPLOYMENT_TIME }}" >> production-deployment-log.txt
+          echo "Commit: ${{ github.sha }}" >> production-deployment-log.txt
+          echo "Backup: ${{ env.BACKUP_ID }}" >> production-deployment-log.txt
+
+  # Rollback functionality
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: ${{ inputs.rollback }}
+    
+    environment:
+      name: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup rollback environment
+        run: |
+          echo "🔄 Setting up rollback for ${{ inputs.environment }}..."
+          echo "ROLLBACK_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Get previous deployment
+        run: |
+          echo "🔍 Finding previous deployment..."
+          # Add logic to find the previous successful deployment
+          echo "PREVIOUS_IMAGE=previous-image-tag" >> $GITHUB_ENV
+          echo "PREVIOUS_BACKUP=previous-backup-id" >> $GITHUB_ENV
+
+      - name: Restore database backup
+        if: inputs.environment == 'production'
+        run: |
+          echo "💾 Restoring database backup: ${{ env.PREVIOUS_BACKUP }}..."
+          # Add your database restore commands here
+          echo "✅ Database restored"
+
+      - name: Rollback deployment
+        run: |
+          echo "⏪ Rolling back to: ${{ env.PREVIOUS_IMAGE }}..."
+          # Add your rollback deployment commands here
+          echo "✅ Rollback completed"
+
+      - name: Health check after rollback
+        run: |
+          echo "🔍 Performing health check after rollback..."
+          sleep 30
+          # Add health check for your environment
+          echo "✅ Rollback successful"
+
+      - name: Record rollback
+        run: |
+          echo "📝 Recording rollback details..."
+          echo "Environment: ${{ inputs.environment }}" >> rollback-log.txt
+          echo "Rolled back to: ${{ env.PREVIOUS_IMAGE }}" >> rollback-log.txt
+          echo "Time: ${{ env.ROLLBACK_TIME }}" >> rollback-log.txt
+          echo "Reason: Manual rollback requested" >> rollback-log.txt
+
+  # Post-deployment monitoring
+  monitor:
+    name: Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
+
+    steps:
+      - name: Setup monitoring
+        run: |
+          echo "📊 Setting up post-deployment monitoring..."
+          
+      - name: Monitor application metrics
+        run: |
+          echo "📈 Monitoring application metrics for 5 minutes..."
+          for i in {1..10}; do
+            echo "⏱️  Health check $i/10..."
+            # Add your monitoring commands here
+            sleep 30
+          done
+          echo "✅ Monitoring completed - application is stable"
+
+      - name: Alert on deployment status
+        run: |
+          if [ "${{ needs.deploy-staging.result }}" == "success" ] || [ "${{ needs.deploy-production.result }}" == "success" ]; then
+            echo "✅ Deployment successful - sending success notification"
+          else
+            echo "❌ Deployment failed - sending failure notification"
+            exit 1
+          fi

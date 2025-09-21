@@ -63,6 +63,40 @@ const customJestConfig = {
     '!**/.next/**',
     '!**/coverage/**',
     '!**/prisma/**',
+    '!**/__tests__/**',
+    '!**/__mocks__/**',
+    '!**/test-utils/**',
+  ],
+  
+  // Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+    './src/lib/': {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+    './src/services/': {
+      branches: 75,
+      functions: 75,
+      lines: 75,
+      statements: 75,
+    },
+  },
+  
+  // Coverage reporters
+  coverageReporters: [
+    'text',
+    'text-summary',
+    'html',
+    'lcov',
+    'json',
   ],
   
   
