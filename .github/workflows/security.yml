@@ -58,7 +58,7 @@ jobs:
           fi
 
       - name: Upload audit report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dependency-audit-report
@@ -160,7 +160,7 @@ jobs:
           cmd_options: '-a'
 
       - name: Upload ZAP scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-scan-results
@@ -215,7 +215,7 @@ jobs:
           license-checker --failOn 'GPL-2.0;GPL-3.0;AGPL-1.0;AGPL-3.0'
 
       - name: Upload license report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: license-report
           path: licenses.json
@@ -337,7 +337,7 @@ jobs:
           cat security-summary.md
 
       - name: Upload security summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-summary
           path: security-summary.md
