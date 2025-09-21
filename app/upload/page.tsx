@@ -76,8 +76,8 @@ export default function UploadPage() {
       return `https://www.redgifs.com/ifr/${redgifsMatch[1]}`
     }
 
-    // Pornhub URLs
-    const pornhubRegex = /(?:https?:\/\/)?(?:www\.)?(?:[\w]+\.)?pornhub\.com\/view_video\.php\?viewkey=([a-zA-Z0-9]+)/
+    // Pornhub URLs (matches both .com and .org domains)
+    const pornhubRegex = /(?:https?:\/\/)?(?:www\.)?(?:[\w]+\.)?pornhub\.(?:com|org)\/view_video\.php\?viewkey=([a-zA-Z0-9]+)/
     const pornhubMatch = url.match(pornhubRegex)
     if (pornhubMatch) {
       return `https://www.pornhub.com/embed/${pornhubMatch[1]}`
@@ -98,9 +98,14 @@ export default function UploadPage() {
 
     // Direct video files
     const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v']
-    const urlPath = new URL(url).pathname.toLowerCase()
-    if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
-      return url // Return original URL for direct video files
+    try {
+      const urlPath = new URL(url).pathname.toLowerCase()
+      if (videoExtensions.some(ext => urlPath.endsWith(ext))) {
+        return url // Return original URL for direct video files
+      }
+    } catch (error) {
+      // Invalid URL, skip direct video file check
+      console.warn('Invalid URL for direct video check:', url)
     }
 
     // If it's already an embed URL or unsupported, return as is
@@ -283,12 +288,12 @@ export default function UploadPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             Sign in required
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
             Please sign in to upload videos
           </p>
           <div className="mt-6 text-center">
@@ -319,11 +324,11 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
           <div className="px-6 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
               Upload Video
             </h1>
             

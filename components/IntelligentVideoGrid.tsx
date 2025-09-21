@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { ResizableVideoCard } from './ResizableVideoCard'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { useNSFW } from '@/contexts/NSFWContext'
 
 interface Video {
   id: string
@@ -75,6 +77,8 @@ interface IntelligentVideoGridProps {
   maxCardHeight?: number
   containerPadding?: number
   cardGap?: number
+  includeNsfw?: boolean
+  onIncludeNsfwChange?: (includeNsfw: boolean) => void
 }
 
 export function IntelligentVideoGrid({
@@ -89,8 +93,11 @@ export function IntelligentVideoGrid({
   minCardHeight = 350,
   maxCardHeight = 1200,
   containerPadding = 16,
-  cardGap = 24
+  cardGap = 24,
+  includeNsfw = true,
+  onIncludeNsfwChange
 }: IntelligentVideoGridProps) {
+  const { isNSFWBlurred, toggleNSFWBlur } = useNSFW()
   const [videoCards, setVideoCards] = useState<VideoCardData[]>([])
   const [originalVideoCards, setOriginalVideoCards] = useState<VideoCardData[]>([])
   const [containerWidth, setContainerWidth] = useState<number>(1200)
@@ -921,16 +928,68 @@ export function IntelligentVideoGrid({
     <div className="space-y-6">
       {/* Grid Controls */}
       <div className="flex justify-between items-center">
-        <button
-          onClick={resetLayout}
-          className="flex items-center space-x-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md transition-colors"
-          title="Reset to default layout"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>Reset Layout</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={resetLayout}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md transition-colors"
+            title="Reset to default layout"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Reset Layout</span>
+          </button>
+
+          {/* NSFW Controls */}
+          <div className="flex items-center space-x-2">
+            {/* Include NSFW Toggle */}
+            {onIncludeNsfwChange && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">NSFW:</span>
+                <button
+                  type="button"
+                  onClick={() => onIncludeNsfwChange(!includeNsfw)}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                    includeNsfw 
+                      ? 'bg-purple-600' 
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                  title={includeNsfw ? "Hide NSFW content" : "Show NSFW content"}
+                >
+                  <span
+                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                      includeNsfw ? 'translate-x-5' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            )}
+
+            {/* Global Blur Toggle */}
+            <button
+              type="button"
+              onClick={toggleNSFWBlur}
+              className={`flex items-center space-x-1 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                isNSFWBlurred
+                  ? 'bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 hover:bg-amber-300 dark:hover:bg-amber-700'
+                  : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 hover:bg-green-300 dark:hover:bg-green-700'
+              }`}
+              title={isNSFWBlurred ? "Show all NSFW content" : "Blur all NSFW content"}
+            >
+              {isNSFWBlurred ? (
+                <>
+                  <EyeIcon className="h-3 w-3" />
+                  <span>Show</span>
+                </>
+              ) : (
+                <>
+                  <EyeSlashIcon className="h-3 w-3" />
+                  <span>Blur</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
@@ -972,11 +1031,11 @@ export function IntelligentVideoGrid({
       <div 
         ref={containerRef}
         className="relative"
-        style={{ padding: `0 ${containerPadding + 24}px 0 ${containerPadding}px` }}
+        style={{ padding: `0 ${containerPadding}px` }}
       >
         {/* Grid Overlay for Development */}
         {showGrid && (
-          <div className="absolute inset-0 pointer-events-none z-0" style={{ padding: `0 ${containerPadding + 24}px 0 ${containerPadding}px` }}>
+          <div className="absolute inset-0 pointer-events-none z-0" style={{ padding: `0 ${containerPadding}px` }}>
             {/* Cell guides - 12 cells per row */}
             {Array.from({ length: totalGridCells + 1 }).map((_, i) => {
               const x = (i * containerWidth) / totalGridCells

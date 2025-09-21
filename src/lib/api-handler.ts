@@ -78,6 +78,19 @@ export function createApiRoute(
           })
         }
         user = session.user as any
+        
+        // Check if user ID is missing (can happen with old sessions after auth changes)
+        if (!user?.id) {
+          logger.warn('User ID missing from session, likely due to auth configuration changes', {
+            userEmail: user?.email,
+            sessionSub: (session as any)?.token?.sub
+          })
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            message: 'Session expired due to system updates. Please sign in again.',
+            error: 'SESSION_OUTDATED'
+          })
+        }
       }
 
       // Create API context

@@ -34,16 +34,28 @@ export function TagWithSlider({
   
   // Track when props change
   useEffect(() => {
-    console.log(`🏷️ TagWithSlider ${tag.name} (${tag.id}): userRating=${userRating}, avgRating=${avgRating.toFixed(1)}, pending=${isPending}`)
+    // Removed console.log for cleaner output
   }, [tag.id, tag.name, userRating, avgRating, isPending])
   
   // Update tempRating when userRating changes (important for tracking visual reverts)
+  // BUT: Don't update if user recently submitted a rating to prevent visual revert
+  const [lastSubmitTime, setLastSubmitTime] = useState(0)
+  
   useEffect(() => {
+    const timeSinceLastSubmit = Date.now() - lastSubmitTime
+    
     if (!isDragging && tempRating !== userRating) {
+      // If user recently submitted a rating (within 15 seconds), resist external changes
+      // to prevent the annoying thumb position reset
+      if (timeSinceLastSubmit < 15000 && lastSubmitTime > 0) {
+        console.log(`🛡️ TagWithSlider ${tag.name}: RESISTING userRating change from ${userRating} to ${tempRating} (${(timeSinceLastSubmit/1000).toFixed(1)}s since submit)`)
+        return
+      }
+      
       console.log(`🔄 TagWithSlider ${tag.name}: updating tempRating from ${tempRating} to ${userRating} (userRating prop changed)`)
       setTempRating(userRating)
     }
-  }, [userRating, isDragging, tempRating, tag.name])
+  }, [userRating, isDragging, tempRating, tag.name, lastSubmitTime])
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRating = parseFloat(e.target.value)
@@ -59,6 +71,7 @@ export function TagWithSlider({
   const handleMouseUp = () => {
     if (isDragging && tempRating !== userRating) {
       console.log(`👆 TagWithSlider ${tag.name}: submitting rating ${tempRating} (was ${userRating})`)
+      setLastSubmitTime(Date.now()) // Record when we submitted to resist external changes
       onRate(tag.id, tempRating)
     } else {
       console.log(`👆 TagWithSlider ${tag.name}: no rating change (${tempRating} === ${userRating})`)
@@ -72,6 +85,7 @@ export function TagWithSlider({
 
   const handleTouchEnd = () => {
     if (isDragging && tempRating !== userRating) {
+      setLastSubmitTime(Date.now()) // Record when we submitted to resist external changes
       onRate(tag.id, tempRating)
     }
     setIsDragging(false)

@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.userId = user.id // Store the actual database user ID
         token.username = (user as any).username
         token.firstName = (user as any).firstName
         token.lastName = (user as any).lastName
@@ -80,7 +81,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        (session.user as any).id = token.sub!
+        (session.user as any).id = token.userId as string // Use the database user ID
         ;(session.user as any).username = token.username as string
         ;(session.user as any).firstName = token.firstName as string
         ;(session.user as any).lastName = token.lastName as string

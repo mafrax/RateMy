@@ -105,7 +105,7 @@ export const videoFilterQuerySchema = z.object({
     }
   }),
   includeNsfw: z.string().optional().default('true').transform(val => val === 'true'),
-  userId: z.string().uuid().optional(),
+  userId: z.string().cuid().optional(),
   sortBy: z.enum(['createdAt', 'title', 'ratings']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
   page: z.string().optional().default('1').transform(val => parseInt(val, 10)).pipe(z.number().int().min(1)),
@@ -118,7 +118,7 @@ export const videoFilterSchema = z.object({
   tags: z.array(z.string()).default([]),
   tagRatings: z.array(tagRatingFilterSchema).default([]),
   includeNsfw: z.boolean().default(true),
-  userId: z.string().uuid().optional(),
+  userId: z.string().cuid().optional(),
   sortBy: z.enum(['createdAt', 'title', 'ratings']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
   page: z.number().int().min(1).default(1),
