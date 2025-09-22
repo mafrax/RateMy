@@ -203,6 +203,18 @@ export function isValidPassword(password: string): boolean {
   )
 }
 
+// Safe URL constructor that handles empty strings and invalid URLs
+export function safeURL(url: string, base?: string | URL): URL | null {
+  try {
+    if (!url || url.trim() === '') {
+      return null
+    }
+    return new URL(url, base)
+  } catch {
+    return null
+  }
+}
+
 export function isValidVideoUrl(url: string): boolean {
   try {
     if (!url || url.trim() === '') {

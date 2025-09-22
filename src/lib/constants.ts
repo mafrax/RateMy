@@ -169,7 +169,7 @@ export const SEO = {
   TITLE_TEMPLATE: `%s | ${APP_NAME}`,
   DEFAULT_DESCRIPTION: APP_DESCRIPTION,
   TWITTER_HANDLE: '@rateme',
-  SITE_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  SITE_URL: (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.trim() !== '') ? process.env.NEXTAUTH_URL : 'http://localhost:3000',
 } as const
 
 // Social sharing

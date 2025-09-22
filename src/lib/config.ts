@@ -46,14 +46,14 @@ function getConfig(): Config {
       version: process.env.APP_VERSION || '1.0.0',
       env,
       port: parseInt(process.env.PORT || '3000', 10),
-      url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+      url: (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.trim() !== '') ? process.env.NEXTAUTH_URL : 'http://localhost:3000',
     },
     database: {
       url: process.env.DATABASE_URL || 'postgresql://username:password@localhost:5433/ratemy_db',
     },
     auth: {
       secret: process.env.NEXTAUTH_SECRET || 'development-secret-32-characters-long-change-in-production',
-      url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+      url: (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.trim() !== '') ? process.env.NEXTAUTH_URL : 'http://localhost:3000',
       sessionMaxAge: parseInt(process.env.SESSION_MAX_AGE || '2592000', 10), // 30 days
     },
     logging: {
