@@ -47,7 +47,12 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   const environment = (process.env.NODE_ENV as 'development' | 'production') || 'development'
   
   // Get CSP for environment
-  const csp = ENHANCED_CSP[environment]
+  let csp = ENHANCED_CSP[environment]
+  
+  // Remove upgrade-insecure-requests in CI/localhost environments
+  if (process.env.CI || process.env.NODE_ENV === 'test') {
+    csp = csp.replace('; upgrade-insecure-requests', '')
+  }
 
   // Security headers configuration
   const securityHeaders: Record<string, string> = {
@@ -107,9 +112,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // HTTPS enforcement in production (bypass for health checks)
+  // HTTPS enforcement in production (bypass for health checks and localhost/CI)
   if (process.env.NODE_ENV === 'production' && 
       !pathname.startsWith('/api/health') &&
+      !request.nextUrl.hostname.includes('localhost') &&
+      !request.nextUrl.hostname.includes('127.0.0.1') &&
+      !process.env.CI &&
       request.headers.get('x-forwarded-proto') !== 'https' &&
       !request.headers.get('x-forwarded-proto')?.includes('https')) {
     
