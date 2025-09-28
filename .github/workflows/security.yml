@@ -168,6 +168,7 @@ jobs:
           issue_title: 'ZAP Scan Baseline Report'
           fail_action: false
           allow_issue_writing: false
+          artifact_name: ''  # Disable automatic artifact creation
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
