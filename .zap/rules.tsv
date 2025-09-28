@@ -1,21 +1,24 @@
-# ZAP Baseline Rules Configuration
+# ZAP Baseline Rules Configuration  
 # Format: RULE_ID	THRESHOLD	ACTION
-# THRESHOLD: LOW, MEDIUM, HIGH  
+# THRESHOLD: LOW, MEDIUM, HIGH
 # ACTION: IGNORE, WARN, FAIL
-#
-# Common baseline security rules
-10021	MEDIUM	WARN
-10023	MEDIUM	WARN
-10024	LOW	IGNORE
-10025	LOW	IGNORE
-10026	MEDIUM	WARN
-10027	MEDIUM	WARN
-10028	MEDIUM	WARN
-10029	MEDIUM	WARN
-10030	MEDIUM	WARN
-10031	MEDIUM	WARN
-10032	MEDIUM	WARN
-10033	MEDIUM	WARN
-10034	MEDIUM	WARN
-10035	MEDIUM	WARN
-EOF < /dev/null
+
+# Content Security Policy rules
+10038	MEDIUM	WARN	Content Security Policy (CSP) Header Not Set
+10055	LOW	WARN	CSP: script-src unsafe-inline
+
+# Content type and security headers
+10021	MEDIUM	WARN	X-Content-Type-Options Header Missing
+10063	MEDIUM	WARN	Permissions Policy Header Not Set
+
+# Information disclosure (lower priority)
+10027	LOW	WARN	Information Disclosure - Suspicious Comments
+10049	LOW	IGNORE	Non-Storable Content
+
+# Site isolation (informational)
+90004	LOW	WARN	Insufficient Site Isolation Against Spectre Vulnerability
+90005	LOW	IGNORE	Sec-Fetch-Dest Header is Missing
+
+# Standard security rules
+10020	MEDIUM	WARN	Anti-clickjacking Header
+10035	MEDIUM	WARN	Strict-Transport-Security Header

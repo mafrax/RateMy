@@ -42,7 +42,7 @@ const ENHANCED_CSP = {
 /**
  * Apply security headers to response based on environment
  */
-function applySecurityHeaders(response: NextResponse): NextResponse {
+function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = false): NextResponse {
   // Determine environment
   const environment = (process.env.NODE_ENV as 'development' | 'production') || 'development'
   
@@ -72,11 +72,28 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
       'gyroscope=()',
       'autoplay=(self)',
       'fullscreen=(self)',
-      'picture-in-picture=(self)'
+      'picture-in-picture=(self)',
+      'browsing-topics=()',
+      'interest-cohort=()',
+      'document-domain=()',
+      'unload=()'
     ].join(', '),
-    'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-    'Cross-Origin-Resource-Policy': 'cross-origin'
+    'Cross-Origin-Embedder-Policy': 'require-corp',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Resource-Policy': 'same-site'
+  }
+
+  // Enhanced headers for static assets to prevent content-type sniffing
+  if (isStaticAsset) {
+    securityHeaders['Cache-Control'] = 'public, max-age=31536000, immutable'
+    securityHeaders['Cross-Origin-Resource-Policy'] = 'cross-origin'
+    // More permissive COEP for static assets
+    securityHeaders['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
+  } else {
+    // Stricter caching for dynamic content
+    securityHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    securityHeaders['Pragma'] = 'no-cache'
+    securityHeaders['Expires'] = '0'
   }
 
   // Add HSTS only for production
@@ -102,14 +119,17 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip middleware for static assets and Next.js internals
-  if (
+  // Apply security headers to static assets too, but skip HTTPS redirect
+  const isStaticAsset = (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/manifest.json') ||
-    pathname.includes('.')
-  ) {
-    return NextResponse.next()
+    (pathname.includes('.') && !pathname.startsWith('/api/'))
+  )
+  
+  if (isStaticAsset) {
+    const response = NextResponse.next()
+    return applySecurityHeaders(response, true) // Mark as static asset
   }
 
   // HTTPS enforcement in production (bypass for health checks and localhost/CI)
@@ -134,7 +154,7 @@ export function middleware(request: NextRequest) {
 
   // Create response and apply security headers
   const response = NextResponse.next()
-  return applySecurityHeaders(response)
+  return applySecurityHeaders(response, false)
 }
 
 /**
@@ -144,13 +164,10 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files
+     * Match all request paths to ensure security headers on all responses
+     * Including 404 pages like robots.txt and sitemap.xml
      */
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json|robots.txt|sitemap.xml).*)',
+    '/(.*)',
   ],
 }
 
