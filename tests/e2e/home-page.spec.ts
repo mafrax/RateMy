@@ -2,6 +2,34 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Home Page', () => {
   test.beforeEach(async ({ page }) => {
+    // Default video mock for tests that don't specify their own
+    await page.route('/api/videos*', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: [
+            {
+              id: '1',
+              title: 'Default Test Video',
+              embedUrl: 'https://www.youtube.com/embed/default',
+              originalUrl: 'https://www.youtube.com/watch?v=default',
+              averageRating: 4.0,
+              totalRatings: 1,
+              createdAt: new Date().toISOString()
+            }
+          ],
+          pagination: {
+            page: 1,
+            limit: 20,
+            total: 1,
+            totalPages: 1
+          }
+        })
+      })
+    })
+    
     await page.goto('/')
   })
 
@@ -17,12 +45,54 @@ test.describe('Home Page', () => {
   })
 
   test('should display video grid', async ({ page }) => {
+    // Mock videos API to provide test data
+    await page.route('/api/videos*', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: [
+            {
+              id: '1',
+              title: 'Test Video 1',
+              embedUrl: 'https://www.youtube.com/embed/test1',
+              originalUrl: 'https://www.youtube.com/watch?v=test1',
+              averageRating: 4.5,
+              totalRatings: 10,
+              createdAt: new Date().toISOString()
+            },
+            {
+              id: '2', 
+              title: 'Test Video 2',
+              embedUrl: 'https://www.youtube.com/embed/test2',
+              originalUrl: 'https://www.youtube.com/watch?v=test2',
+              averageRating: 3.8,
+              totalRatings: 5,
+              createdAt: new Date().toISOString()
+            }
+          ],
+          pagination: {
+            page: 1,
+            limit: 20,
+            total: 2,
+            totalPages: 1
+          }
+        })
+      })
+    })
+
+    await page.goto('/')
+    
     // Wait for video grid to load
     await page.waitForSelector('[data-testid="video-grid"]', { timeout: 10000 })
     
     // Check if videos are displayed
     const videoCards = page.locator('[data-testid="video-card"]')
     await expect(videoCards.first()).toBeVisible()
+    
+    // Verify we have the expected number of videos
+    await expect(videoCards).toHaveCount(2)
   })
 
   test('should have working navigation links', async ({ page }) => {
@@ -105,6 +175,42 @@ test.describe('Home Page', () => {
   })
 
   test('should load more videos on scroll', async ({ page }) => {
+    // Mock initial videos API call
+    await page.route('/api/videos*', (route, request) => {
+      const url = new URL(request.url())
+      const page = parseInt(url.searchParams.get('page') || '1')
+      
+      if (page === 1) {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: [
+              { id: '1', title: 'Video 1', embedUrl: 'https://youtube.com/embed/1' },
+              { id: '2', title: 'Video 2', embedUrl: 'https://youtube.com/embed/2' }
+            ],
+            pagination: { page: 1, limit: 20, total: 4, totalPages: 2 }
+          })
+        })
+      } else {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: [
+              { id: '3', title: 'Video 3', embedUrl: 'https://youtube.com/embed/3' },
+              { id: '4', title: 'Video 4', embedUrl: 'https://youtube.com/embed/4' }
+            ],
+            pagination: { page: 2, limit: 20, total: 4, totalPages: 2 }
+          })
+        })
+      }
+    })
+
+    await page.goto('/')
+    
     // Get initial video count
     const initialVideoCards = await page.locator('[data-testid="video-card"]').count()
     
