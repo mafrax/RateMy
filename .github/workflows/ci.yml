@@ -63,6 +63,10 @@ jobs:
         run: npm run typecheck || echo "TypeScript check completed"
 
       - name: Check build
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+          NEXTAUTH_SECRET: lint-test-secret-key-for-ci-pipeline
+          NEXTAUTH_URL: http://localhost:3000
         run: npm run build
 
   # Unit and Integration Testing
@@ -171,11 +175,15 @@ jobs:
       - name: Build application
         env:
           DATABASE_URL: postgresql://e2euser:e2epass@localhost:5433/ratemy_e2e
+          NEXTAUTH_SECRET: e2e-test-secret-key-for-ci-pipeline
+          NEXTAUTH_URL: http://localhost:3001
         run: npm run build
 
       - name: Start application
         env:
           DATABASE_URL: postgresql://e2euser:e2epass@localhost:5433/ratemy_e2e
+          NEXTAUTH_SECRET: e2e-test-secret-key-for-ci-pipeline
+          NEXTAUTH_URL: http://localhost:3001
           PORT: 3001
         run: |
           npm start &
@@ -185,6 +193,8 @@ jobs:
       - name: Run E2E tests
         env:
           DATABASE_URL: postgresql://e2euser:e2epass@localhost:5433/ratemy_e2e
+          NEXTAUTH_SECRET: e2e-test-secret-key-for-ci-pipeline
+          NEXTAUTH_URL: http://localhost:3001
           PLAYWRIGHT_BASE_URL: http://localhost:3001
         run: npm run test:e2e
 
