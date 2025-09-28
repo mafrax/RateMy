@@ -159,16 +159,19 @@ jobs:
           curl --fail http://localhost:3003/api/health || exit 1
 
       - name: Run OWASP ZAP baseline scan
-        uses: zaproxy/action-baseline@v0.12.0
-        with:
-          target: 'http://localhost:3003'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j -m 5 -x report_xml.xml'
-          token: ${{ github.token }}
-          issue_title: 'ZAP Scan Baseline Report'
-          fail_action: false
-          allow_issue_writing: false
-          artifact_name: ''  # Disable automatic artifact creation
+        run: |
+          # Run ZAP directly with Docker to avoid artifact naming issues
+          docker pull ghcr.io/zaproxy/zaproxy:stable -q
+          docker run -v ${{ github.workspace }}:/zap/wrk/:rw \
+            --network=host \
+            -t ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t http://localhost:3003 \
+            -J report_json.json \
+            -w report_md.md \
+            -r report_html.html \
+            -x report_xml.xml \
+            -a -j -m 5 || true
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
