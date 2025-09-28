@@ -164,6 +164,9 @@ jobs:
           target: 'http://localhost:3003'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -j -m 5'
+          create_issue: true
+          token: ${{ github.token }}
+          artifact: false
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
