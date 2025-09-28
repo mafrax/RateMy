@@ -196,7 +196,7 @@ jobs:
           NEXTAUTH_SECRET: e2e-test-secret-key-for-ci-pipeline
           NEXTAUTH_URL: http://localhost:3001
           PLAYWRIGHT_BASE_URL: http://localhost:3001
-        run: npm run test:e2e
+        run: npm run test:ui
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@v4
