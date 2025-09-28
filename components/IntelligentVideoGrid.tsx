@@ -904,7 +904,7 @@ export function IntelligentVideoGrid({
 
   if (error) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" data-testid="error-message">
         <p className="text-red-600 mb-4">Error: {error}</p>
         <button
           onClick={onRetry}
@@ -925,7 +925,7 @@ export function IntelligentVideoGrid({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="video-grid">
       {/* Grid Controls */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-3">

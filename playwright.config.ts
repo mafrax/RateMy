@@ -49,10 +49,11 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
+    // Disable WebKit in CI environments due to system dependency issues
+    ...(process.env.CI ? [] : [{
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
-    },
+    }]),
 
     /* Test against mobile viewports. */
     // {
