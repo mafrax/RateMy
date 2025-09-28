@@ -164,9 +164,11 @@ jobs:
           target: 'http://localhost:3003'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -j -m 5'
-          create_issue: true
           token: ${{ github.token }}
-          artifact: false
+          issue_title: 'ZAP Scan Baseline Report'
+          fail_action: false
+          allow_issue_writing: true
+          artifact_name: 'zap-scan-results'
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
