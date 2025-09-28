@@ -107,8 +107,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // HTTPS enforcement in production
+  // HTTPS enforcement in production (bypass for health checks)
   if (process.env.NODE_ENV === 'production' && 
+      !pathname.startsWith('/api/health') &&
       request.headers.get('x-forwarded-proto') !== 'https' &&
       !request.headers.get('x-forwarded-proto')?.includes('https')) {
     

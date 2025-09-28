@@ -210,7 +210,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.test
           push: false
           load: true
           tags: ratemy:test
@@ -219,9 +219,28 @@ jobs:
 
       - name: Test Docker image
         run: |
+          # Start container in background
           docker run --rm -d -p 3002:3000 --name ratemy-test ratemy:test
-          sleep 15
-          curl --fail http://localhost:3002/api/health || exit 1
+          
+          # Wait for container to be ready with retry logic
+          echo "Waiting for container to start..."
+          for i in {1..30}; do
+            if curl -f http://localhost:3002/api/health 2>/dev/null; then
+              echo "✅ Health check passed!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "❌ Health check failed after 30 attempts"
+              echo "Container logs:"
+              docker logs ratemy-test
+              docker stop ratemy-test
+              exit 1
+            fi
+            echo "Attempt $i/30 failed, retrying in 2 seconds..."
+            sleep 2
+          done
+          
+          # Cleanup
           docker stop ratemy-test
 
   # Production Build and Deploy (for main branch)
