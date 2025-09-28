@@ -163,16 +163,17 @@ jobs:
         with:
           target: 'http://localhost:3003'
           rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j'
-          artifact_name: 'zap-scan'
-          fail_action: false
+          cmd_options: '-a -j -m 5'
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-scan-results
-          path: report_html.html
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
 
   # Secrets scanning
   secrets-scan:
