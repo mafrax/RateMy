@@ -2,7 +2,7 @@
 FROM node:18-alpine AS base
 
 # Update npm to latest version to fix security vulnerabilities
-RUN npm install -g npm@latest
+RUN npm install -g npm@10
 
 # Install dependencies only when needed
 FROM base AS deps
