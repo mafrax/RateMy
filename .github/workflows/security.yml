@@ -163,22 +163,22 @@ jobs:
         with:
           target: 'http://localhost:3003'
           rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j -m 5'
+          cmd_options: '-a -j -m 5 -x report_xml.xml'
           token: ${{ github.token }}
           issue_title: 'ZAP Scan Baseline Report'
           fail_action: false
-          allow_issue_writing: true
-          artifact_name: 'zap-scan-results'
+          allow_issue_writing: false
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: zap-scan-results
+          name: zap-baseline-scan
           path: |
             report_html.html
             report_json.json
             report_md.md
+            report_xml.xml
 
   # Secrets scanning
   secrets-scan:

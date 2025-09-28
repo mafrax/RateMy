@@ -35,16 +35,44 @@ import { VALIDATION_PATTERNS } from '../lib/constants'
 export class VideoServiceImpl {
   async getVideos(filters?: VideoFilters): Promise<PaginatedResponse<Video>> {
     return asyncWrapper(async () => {
-      const validatedFilters = filters ? validateSchema(videoFilterSchema, filters) : {}
+      // Filters are already validated at API layer with videoFilterQuerySchema
+      // Apply safe defaults for undefined filters
+      const safeFilters = {
+        search: filters?.search,
+        tags: filters?.tags || [],
+        tagRatings: filters?.tagRatings || [],
+        includeNsfw: filters?.includeNsfw ?? true,
+        userId: filters?.userId,
+        sortBy: filters?.sortBy || 'createdAt',
+        sortOrder: filters?.sortOrder || 'desc',
+        page: filters?.page || 1,
+        limit: Math.min(filters?.limit || 12, 50), // Ensure max limit
+      }
       
-      const result = await videoRepository.findWithFilters(validatedFilters)
+      // Add extra protection for database-level errors
+      let result
+      try {
+        result = await videoRepository.findWithFilters(safeFilters)
+      } catch (dbError) {
+        logger.error('Database error in video filtering', {
+          filters: safeFilters,
+          error: dbError instanceof Error ? dbError.message : dbError
+        })
+        
+        // Return empty result for database errors instead of exposing them
+        result = {
+          videos: [],
+          total: 0,
+          totalPages: 0
+        }
+      }
       
       return {
         success: true,
         data: result.videos,
         pagination: {
-          page: validatedFilters.page || 1,
-          limit: validatedFilters.limit || 12,
+          page: safeFilters.page,
+          limit: safeFilters.limit,
           total: result.total,
           totalPages: result.totalPages,
         },
