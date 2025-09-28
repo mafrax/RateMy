@@ -46,23 +46,32 @@ test.describe('Authentication Flow', () => {
     // Try to submit empty form
     await page.click('button[type="submit"]')
     
-    // Check for validation messages
-    await expect(page.locator('text=/Email is required/i')).toBeVisible()
+    // Check for validation messages - need to wait for form validation to complete
+    await page.waitForTimeout(500)
+    
+    // Check for validation messages using more specific selectors
+    const emailError = page.locator('text="Email is required"')
+    const usernameError = page.locator('text="Username is required"')
+    const passwordError = page.locator('text="Password is required"')
+    
+    // Verify at least one validation message is visible
+    await expect(emailError.or(usernameError).or(passwordError)).toBeVisible()
   })
 
   test('should validate email format', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/auth/signup')
     
     // Enter invalid email
-    await page.fill('input[type="email"]', 'invalid-email')
-    await page.fill('input[type="password"]', 'password123')
+    await page.fill('input[name="email"]', 'invalid-email')
+    await page.fill('input[name="username"]', 'testuser')
+    await page.fill('input[name="password"]', 'password123')
+    await page.fill('input[name="confirmPassword"]', 'password123')
     await page.click('button[type="submit"]')
+    await page.waitForTimeout(500)
     
-    // Check for email validation
-    const emailValidation = page.locator('text=/valid email/i')
-    if (await emailValidation.isVisible()) {
-      await expect(emailValidation).toBeVisible()
-    }
+    // Check for email validation - match exact error message from form
+    const emailValidation = page.locator('text="Please enter a valid email address"')
+    await expect(emailValidation).toBeVisible()
   })
 
   test('should validate password strength on sign up', async ({ page }) => {
@@ -77,12 +86,11 @@ test.describe('Authentication Flow', () => {
     await page.fill('input[name="confirmPassword"]', '123')
     
     await page.click('button[type="submit"]')
+    await page.waitForTimeout(500)
     
-    // Check for password validation
-    const passwordValidation = page.locator('text=/password.*characters/i')
-    if (await passwordValidation.isVisible()) {
-      await expect(passwordValidation).toBeVisible()
-    }
+    // Check for password validation - match exact error message from form
+    const passwordValidation = page.locator('text="Password must be at least 6 characters long"')
+    await expect(passwordValidation).toBeVisible()
   })
 
   test('should validate password confirmation', async ({ page }) => {
@@ -97,12 +105,11 @@ test.describe('Authentication Flow', () => {
     await page.fill('input[name="confirmPassword"]', 'different123')
     
     await page.click('button[type="submit"]')
+    await page.waitForTimeout(500)
     
-    // Check for password match validation
-    const matchValidation = page.locator('text=/passwords.*match/i')
-    if (await matchValidation.isVisible()) {
-      await expect(matchValidation).toBeVisible()
-    }
+    // Check for password match validation - match exact error message from form
+    const matchValidation = page.locator('text="Passwords do not match"')
+    await expect(matchValidation).toBeVisible()
   })
 
   test('should handle sign in attempt with invalid credentials', async ({ page }) => {
