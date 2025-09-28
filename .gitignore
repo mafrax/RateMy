@@ -30,6 +30,9 @@ coverage/
 
 # Security scan reports (local testing artifacts)
 zap-reports/
+report_*.html
+report_*.json
+report_*.md
 
 # OS generated files
 .DS_Store

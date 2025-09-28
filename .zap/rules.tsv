@@ -1,9 +1,21 @@
-10021	IGNORE	(Information Disclosure - Suspicious Comments)
-10027	IGNORE	(Information Disclosure - Suspicious Comments)
-10109	IGNORE	(Modern Web Application)
-10202	IGNORE	(Absence of Anti-CSRF Tokens)
-10049	IGNORE	(Content Cacheability)
-10063	IGNORE	(Feature Policy Header Not Set)
-10096	IGNORE	(Timestamp Disclosure)
-90022	IGNORE	(Application Error Disclosure)
+# ZAP Baseline Rules Configuration
+# Format: RULE_ID	THRESHOLD	ACTION
+# THRESHOLD: LOW, MEDIUM, HIGH  
+# ACTION: IGNORE, WARN, FAIL
+#
+# Common baseline security rules
+10021	MEDIUM	WARN
+10023	MEDIUM	WARN
+10024	LOW	IGNORE
+10025	LOW	IGNORE
+10026	MEDIUM	WARN
+10027	MEDIUM	WARN
+10028	MEDIUM	WARN
+10029	MEDIUM	WARN
+10030	MEDIUM	WARN
+10031	MEDIUM	WARN
+10032	MEDIUM	WARN
+10033	MEDIUM	WARN
+10034	MEDIUM	WARN
+10035	MEDIUM	WARN
 EOF < /dev/null
