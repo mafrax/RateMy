@@ -43,19 +43,30 @@ const ENHANCED_CSP = {
  * Apply security headers to response based on environment
  */
 function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = false): NextResponse {
-  // Determine environment
-  const environment = (process.env.NODE_ENV as 'development' | 'production') || 'development'
+  // Determine environment - prioritize test environment detection
+  let environment: 'development' | 'production' = 'development'
+  
+  if (process.env.NODE_ENV === 'test' || process.env.CI === 'true') {
+    environment = 'development' // Use development CSP for test environments
+  } else if (process.env.NODE_ENV === 'production') {
+    environment = 'production'
+  }
   
   // Get CSP for environment
   let csp = ENHANCED_CSP[environment]
   
-  // Remove upgrade-insecure-requests in CI/localhost environments
+  // Remove upgrade-insecure-requests in CI/localhost/test environments
   if (process.env.CI || process.env.NODE_ENV === 'test') {
     csp = csp.replace('; upgrade-insecure-requests', '')
   }
 
   // Determine if we're in test environment (E2E tests)
-  const isTestEnv = process.env.NODE_ENV === 'test' || process.env.CI || process.env.PLAYWRIGHT_BASE_URL
+  const isTestEnv = process.env.NODE_ENV === 'test' || 
+                   process.env.CI === 'true' || 
+                   !!process.env.PLAYWRIGHT_BASE_URL ||
+                   request.nextUrl.hostname === 'localhost' ||
+                   request.nextUrl.hostname === '127.0.0.1' ||
+                   request.nextUrl.port === '3001'
 
   // Security headers configuration - completely minimal for E2E tests
   const securityHeaders: Record<string, string> = {}
@@ -87,21 +98,20 @@ function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = f
     securityHeaders['Cross-Origin-Embedder-Policy'] = 'require-corp'
     securityHeaders['Cross-Origin-Opener-Policy'] = 'same-origin'
     securityHeaders['Cross-Origin-Resource-Policy'] = 'same-site'
-  } else {
-    // Minimal headers for E2E tests to prevent blocking
-    securityHeaders['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
-    securityHeaders['Cross-Origin-Opener-Policy'] = 'unsafe-none'
-    securityHeaders['Cross-Origin-Resource-Policy'] = 'cross-origin'
   }
 
   // Enhanced headers for static assets to prevent content-type sniffing
   if (isStaticAsset) {
-    securityHeaders['Cache-Control'] = 'public, max-age=31536000, immutable'
+    if (isTestEnv) {
+      securityHeaders['Cache-Control'] = 'no-cache'
+    } else {
+      securityHeaders['Cache-Control'] = 'public, max-age=31536000, immutable'
+    }
     securityHeaders['Cross-Origin-Resource-Policy'] = 'cross-origin'
     // More permissive COEP for static assets
     securityHeaders['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
-  } else {
-    // Stricter caching for dynamic content
+  } else if (!isTestEnv) {
+    // Stricter caching for dynamic content (only in non-test environments)
     securityHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     securityHeaders['Pragma'] = 'no-cache'
     securityHeaders['Expires'] = '0'

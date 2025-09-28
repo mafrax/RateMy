@@ -177,6 +177,7 @@ jobs:
           DATABASE_URL: postgresql://e2euser:e2epass@localhost:5433/ratemy_e2e
           NEXTAUTH_SECRET: e2e-test-secret-key-for-ci-pipeline
           NEXTAUTH_URL: http://localhost:3001
+          NODE_ENV: test
         run: npm run build
 
       - name: Start application
@@ -184,6 +185,7 @@ jobs:
           DATABASE_URL: postgresql://e2euser:e2epass@localhost:5433/ratemy_e2e
           NEXTAUTH_SECRET: e2e-test-secret-key-for-ci-pipeline
           NEXTAUTH_URL: http://localhost:3001
+          NODE_ENV: test
           PORT: 3001
         run: |
           npm start &
