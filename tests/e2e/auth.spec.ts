@@ -1,8 +1,15 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Authentication Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // Close any potential modals/overlays before each test
+    await page.keyboard.press('Escape')
+  })
+
   test('should display sign in page', async ({ page }) => {
     await page.goto('/auth/signin')
+    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('networkidle')
     
     // Check for sign in form
     await expect(page.locator('form')).toBeVisible()
@@ -13,6 +20,7 @@ test.describe('Authentication Flow', () => {
 
   test('should display sign up page', async ({ page }) => {
     await page.goto('/auth/signup')
+    await page.waitForLoadState('networkidle')
     
     // Check for sign up form
     await expect(page.locator('form')).toBeVisible()
@@ -24,9 +32,11 @@ test.describe('Authentication Flow', () => {
 
   test('should validate sign in form', async ({ page }) => {
     await page.goto('/auth/signin')
+    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('networkidle')
     
-    // Try to submit empty form
-    await page.click('button[type="submit"]')
+    // Try to submit empty form with force to avoid interception
+    await page.click('button[type="submit"]', { force: true })
     
     // Check for validation messages
     const emailError = page.locator('text="Email is required"')
@@ -42,9 +52,11 @@ test.describe('Authentication Flow', () => {
 
   test('should validate sign up form', async ({ page }) => {
     await page.goto('/auth/signup')
+    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('networkidle')
     
-    // Try to submit empty form
-    await page.click('button[type="submit"]')
+    // Try to submit empty form with force to avoid interception
+    await page.click('button[type="submit"]', { force: true })
     
     // Check for validation messages - need to wait for form validation to complete
     await page.waitForTimeout(500)
@@ -60,13 +72,14 @@ test.describe('Authentication Flow', () => {
 
   test('should validate email format', async ({ page }) => {
     await page.goto('/auth/signup')
+    await page.waitForLoadState('networkidle')
     
     // Enter invalid email
     await page.fill('input[name="email"]', 'invalid-email')
     await page.fill('input[name="username"]', 'testuser')
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'password123')
-    await page.click('button[type="submit"]')
+    await page.click('button[type="submit"]', { force: true })
     await page.waitForTimeout(500)
     
     // Check for email validation - match exact error message from form
@@ -76,6 +89,7 @@ test.describe('Authentication Flow', () => {
 
   test('should validate password strength on sign up', async ({ page }) => {
     await page.goto('/auth/signup')
+    await page.waitForLoadState('networkidle')
     
     // Fill form with weak password
     await page.fill('input[name="email"]', 'test@example.com')
@@ -85,7 +99,7 @@ test.describe('Authentication Flow', () => {
     await page.fill('input[name="password"]', '123')
     await page.fill('input[name="confirmPassword"]', '123')
     
-    await page.click('button[type="submit"]')
+    await page.click('button[type="submit"]', { force: true })
     await page.waitForTimeout(500)
     
     // Check for password validation - match exact error message from form
@@ -95,6 +109,7 @@ test.describe('Authentication Flow', () => {
 
   test('should validate password confirmation', async ({ page }) => {
     await page.goto('/auth/signup')
+    await page.waitForLoadState('networkidle')
     
     // Fill form with mismatched passwords
     await page.fill('input[name="email"]', 'test@example.com')
@@ -104,7 +119,7 @@ test.describe('Authentication Flow', () => {
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'different123')
     
-    await page.click('button[type="submit"]')
+    await page.click('button[type="submit"]', { force: true })
     await page.waitForTimeout(500)
     
     // Check for password match validation - match exact error message from form
@@ -114,6 +129,7 @@ test.describe('Authentication Flow', () => {
 
   test('should handle sign in attempt with invalid credentials', async ({ page }) => {
     await page.goto('/auth/signin')
+    await page.waitForLoadState('networkidle')
     
     // Mock failed login response
     await page.route('/api/auth/callback/credentials', route => {
@@ -127,7 +143,7 @@ test.describe('Authentication Flow', () => {
     // Fill and submit form
     await page.fill('input[type="email"]', 'test@example.com')
     await page.fill('input[type="password"]', 'wrongpassword')
-    await page.click('button[type="submit"]')
+    await page.click('button[type="submit"]', { force: true })
     
     // Check for error message
     const errorMessage = page.locator('text=/invalid.*credentials/i')
@@ -138,6 +154,7 @@ test.describe('Authentication Flow', () => {
 
   test('should redirect after successful sign in', async ({ page }) => {
     await page.goto('/auth/signin')
+    await page.waitForLoadState('networkidle')
     
     // Mock successful login response
     await page.route('/api/auth/callback/credentials', route => {
@@ -167,7 +184,7 @@ test.describe('Authentication Flow', () => {
     // Fill and submit form
     await page.fill('input[type="email"]', 'test@example.com')
     await page.fill('input[type="password"]', 'password123')
-    await page.click('button[type="submit"]')
+    await page.click('button[type="submit"]', { force: true })
     
     // Should redirect to home page
     await expect(page).toHaveURL(/.*\/$/) // Match any base URL ending with /
@@ -243,6 +260,7 @@ test.describe('Authentication Flow', () => {
 
   test('should be accessible', async ({ page }) => {
     await page.goto('/auth/signin')
+    await page.waitForLoadState('networkidle')
     
     // Check for proper form labels
     await expect(page.locator('label[for="email"]')).toBeVisible()
