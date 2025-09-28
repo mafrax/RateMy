@@ -84,15 +84,15 @@ test.describe('Home Page', () => {
 
     await page.goto('/')
     
-    // Wait for video grid to load
-    await page.waitForSelector('[data-testid="video-grid"]', { timeout: 10000 })
+    // Wait for video grid to load with shorter timeout
+    await page.waitForSelector('[data-testid="video-grid"]', { timeout: 5000 })
     
     // Check if videos are displayed
     const videoCards = page.locator('[data-testid="video-card"]')
-    await expect(videoCards.first()).toBeVisible()
+    await expect(videoCards.first()).toBeVisible({ timeout: 5000 })
     
     // Verify we have the expected number of videos
-    await expect(videoCards).toHaveCount(2)
+    await expect(videoCards).toHaveCount(2, { timeout: 5000 })
   })
 
   test('should have working navigation links', async ({ page }) => {

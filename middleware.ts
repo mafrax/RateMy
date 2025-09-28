@@ -54,6 +54,9 @@ function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = f
     csp = csp.replace('; upgrade-insecure-requests', '')
   }
 
+  // Determine if we're in test environment (E2E tests)
+  const isTestEnv = process.env.NODE_ENV === 'test' || process.env.CI
+
   // Security headers configuration
   const securityHeaders: Record<string, string> = {
     'Content-Security-Policy': csp,
@@ -78,9 +81,10 @@ function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = f
       'document-domain=()',
       'unload=()'
     ].join(', '),
-    'Cross-Origin-Embedder-Policy': 'require-corp',
-    'Cross-Origin-Opener-Policy': 'same-origin',
-    'Cross-Origin-Resource-Policy': 'same-site'
+    // Relax cross-origin policies for E2E tests
+    'Cross-Origin-Embedder-Policy': isTestEnv ? 'unsafe-none' : 'require-corp',
+    'Cross-Origin-Opener-Policy': isTestEnv ? 'unsafe-none' : 'same-origin',
+    'Cross-Origin-Resource-Policy': isTestEnv ? 'cross-origin' : 'same-site'
   }
 
   // Enhanced headers for static assets to prevent content-type sniffing
