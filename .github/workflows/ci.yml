@@ -163,7 +163,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install chromium
+        run: npx playwright install
 
       - name: Setup E2E database
         env:
