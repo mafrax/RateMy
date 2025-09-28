@@ -47,7 +47,7 @@ test.describe('Authentication Flow', () => {
     await page.click('button[type="submit"]')
     
     // Check for validation messages
-    await expect(page.locator('text=/required/i').first()).toBeVisible()
+    await expect(page.locator('text=/Email is required/i')).toBeVisible()
   })
 
   test('should validate email format', async ({ page }) => {
@@ -163,7 +163,7 @@ test.describe('Authentication Flow', () => {
     await page.click('button[type="submit"]')
     
     // Should redirect to home page
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL(/.*\/$/) // Match any base URL ending with /
   })
 
   test('should show sign out option when authenticated', async ({ page }) => {
