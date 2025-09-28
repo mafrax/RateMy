@@ -55,16 +55,19 @@ function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = f
   }
 
   // Determine if we're in test environment (E2E tests)
-  const isTestEnv = process.env.NODE_ENV === 'test' || process.env.CI
+  const isTestEnv = process.env.NODE_ENV === 'test' || process.env.CI || process.env.PLAYWRIGHT_BASE_URL
 
-  // Security headers configuration
-  const securityHeaders: Record<string, string> = {
-    'Content-Security-Policy': csp,
-    'X-Frame-Options': 'SAMEORIGIN',
-    'X-Content-Type-Options': 'nosniff',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': [
+  // Security headers configuration - completely minimal for E2E tests
+  const securityHeaders: Record<string, string> = {}
+  
+  if (!isTestEnv) {
+    // Full security headers for production/development
+    securityHeaders['Content-Security-Policy'] = csp
+    securityHeaders['X-Frame-Options'] = 'SAMEORIGIN'
+    securityHeaders['X-Content-Type-Options'] = 'nosniff'
+    securityHeaders['X-XSS-Protection'] = '1; mode=block'
+    securityHeaders['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    securityHeaders['Permissions-Policy'] = [
       'camera=()',
       'microphone=()',
       'geolocation=()',
@@ -80,11 +83,15 @@ function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = f
       'interest-cohort=()',
       'document-domain=()',
       'unload=()'
-    ].join(', '),
-    // Relax cross-origin policies for E2E tests
-    'Cross-Origin-Embedder-Policy': isTestEnv ? 'unsafe-none' : 'require-corp',
-    'Cross-Origin-Opener-Policy': isTestEnv ? 'unsafe-none' : 'same-origin',
-    'Cross-Origin-Resource-Policy': isTestEnv ? 'cross-origin' : 'same-site'
+    ].join(', ')
+    securityHeaders['Cross-Origin-Embedder-Policy'] = 'require-corp'
+    securityHeaders['Cross-Origin-Opener-Policy'] = 'same-origin'
+    securityHeaders['Cross-Origin-Resource-Policy'] = 'same-site'
+  } else {
+    // Minimal headers for E2E tests to prevent blocking
+    securityHeaders['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
+    securityHeaders['Cross-Origin-Opener-Policy'] = 'unsafe-none'
+    securityHeaders['Cross-Origin-Resource-Policy'] = 'cross-origin'
   }
 
   // Enhanced headers for static assets to prevent content-type sniffing

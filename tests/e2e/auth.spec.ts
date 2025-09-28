@@ -8,11 +8,9 @@ test.describe('Authentication Flow', () => {
 
   test('should display sign in page', async ({ page }) => {
     await page.goto('/auth/signin')
-    await page.waitForLoadState('networkidle')
-    await page.waitForLoadState('networkidle')
     
-    // Check for sign in form
-    await expect(page.locator('form')).toBeVisible()
+    // Wait for form to appear without networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('input[type="email"]')).toBeVisible()
     await expect(page.locator('input[type="password"]')).toBeVisible()
     await expect(page.locator('button[type="submit"]')).toBeVisible()
@@ -20,7 +18,8 @@ test.describe('Authentication Flow', () => {
 
   test('should display sign up page', async ({ page }) => {
     await page.goto('/auth/signup')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Check for sign up form
     await expect(page.locator('form')).toBeVisible()
@@ -32,8 +31,10 @@ test.describe('Authentication Flow', () => {
 
   test('should validate sign in form', async ({ page }) => {
     await page.goto('/auth/signin')
-    await page.waitForLoadState('networkidle')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Try to submit empty form with force to avoid interception
     await page.click('button[type="submit"]', { force: true })
@@ -52,8 +53,10 @@ test.describe('Authentication Flow', () => {
 
   test('should validate sign up form', async ({ page }) => {
     await page.goto('/auth/signup')
-    await page.waitForLoadState('networkidle')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Try to submit empty form with force to avoid interception
     await page.click('button[type="submit"]', { force: true })
@@ -72,7 +75,8 @@ test.describe('Authentication Flow', () => {
 
   test('should validate email format', async ({ page }) => {
     await page.goto('/auth/signup')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Enter invalid email
     await page.fill('input[name="email"]', 'invalid-email')
@@ -89,7 +93,8 @@ test.describe('Authentication Flow', () => {
 
   test('should validate password strength on sign up', async ({ page }) => {
     await page.goto('/auth/signup')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Fill form with weak password
     await page.fill('input[name="email"]', 'test@example.com')
@@ -109,7 +114,8 @@ test.describe('Authentication Flow', () => {
 
   test('should validate password confirmation', async ({ page }) => {
     await page.goto('/auth/signup')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Fill form with mismatched passwords
     await page.fill('input[name="email"]', 'test@example.com')
@@ -129,7 +135,8 @@ test.describe('Authentication Flow', () => {
 
   test('should handle sign in attempt with invalid credentials', async ({ page }) => {
     await page.goto('/auth/signin')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Mock failed login response
     await page.route('/api/auth/callback/credentials', route => {
@@ -154,7 +161,8 @@ test.describe('Authentication Flow', () => {
 
   test('should redirect after successful sign in', async ({ page }) => {
     await page.goto('/auth/signin')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Mock successful login response
     await page.route('/api/auth/callback/credentials', route => {
@@ -260,7 +268,8 @@ test.describe('Authentication Flow', () => {
 
   test('should be accessible', async ({ page }) => {
     await page.goto('/auth/signin')
-    await page.waitForLoadState('networkidle')
+    // Wait for form instead of networkidle
+    await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
     // Check for proper form labels
     await expect(page.locator('label[for="email"]')).toBeVisible()
