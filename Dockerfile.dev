@@ -1,6 +1,9 @@
 # Development Dockerfile for Next.js Application
 FROM node:18-alpine
 
+# Update npm to latest version to fix security vulnerabilities
+RUN npm install -g npm@latest
+
 # Install libc6-compat for compatibility
 RUN apk add --no-cache libc6-compat
 
