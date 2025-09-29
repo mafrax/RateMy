@@ -144,10 +144,18 @@ export function ResizableVideoCard({
 
   // Hover preview state for horizontal videos
   const [isHovering, setIsHovering] = useState(false)
-  const [previewData, setPreviewData] = useState<VideoPreviewData | null>(() => ({
-    previewUrl: video.previewUrl || undefined,
-    thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
-  }))
+  const [previewData, setPreviewData] = useState<VideoPreviewData | null>(() => {
+    console.log(`🎯 Initializing previewData for video ${video.id}:`, {
+      title: video.title,
+      thumbnail: video.thumbnail,
+      previewUrl: video.previewUrl,
+      proxiedThumbnail: getProxiedThumbnailUrl(video.thumbnail)
+    })
+    return {
+      previewUrl: video.previewUrl || undefined,
+      thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
+    }
+  })
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
 
   // Helper function to get proxied thumbnail URL for RedGifs
@@ -999,15 +1007,27 @@ export function ResizableVideoCard({
                                   onClick={handleVideoClick}
                                 >
                                   {/* Thumbnail Image */}
-                                  {(previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)) ? (
-                                    <img
-                                      src={previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)}
-                                      alt={video.title}
-                                      className="w-full h-full object-cover rounded-md"
-                                    />
-                                  ) : (
-                                    <div className="text-white text-sm opacity-75">Click to load video</div>
-                                  )}
+                                  {(() => {
+                                    const thumbnailSrc = previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)
+                                    console.log(`🎯 Thumbnail display logic for ${video.id}:`, {
+                                      previewDataThumbnail: previewData?.thumbnailUrl,
+                                      videoThumbnail: video.thumbnail,
+                                      proxiedThumbnail: getProxiedThumbnailUrl(video.thumbnail),
+                                      finalSrc: thumbnailSrc
+                                    })
+                                    return thumbnailSrc ? (
+                                      <img
+                                        src={thumbnailSrc}
+                                        alt={video.title}
+                                        className="w-full h-full object-cover rounded-md"
+                                        onError={(e) => {
+                                          console.log(`🎯 Thumbnail failed to load for ${video.id}:`, thumbnailSrc)
+                                        }}
+                                      />
+                                    ) : (
+                                      <div className="text-white text-sm opacity-75">Click to load video</div>
+                                    )
+                                  })()}
                                   
                                   {/* Play Button Overlay */}
                                   <div className="absolute inset-0 flex items-center justify-center">
@@ -1075,15 +1095,27 @@ export function ResizableVideoCard({
                                 onClick={handleVideoClick}
                               >
                                 {/* Thumbnail Image */}
-                                {(previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)) ? (
-                                  <img
-                                    src={previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)}
-                                    alt={video.title}
-                                    className="w-full h-full object-cover rounded-md"
-                                  />
-                                ) : (
-                                  <div className="text-white text-sm opacity-75">Click to load video</div>
-                                )}
+                                {(() => {
+                                  const thumbnailSrc = previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)
+                                  console.log(`🎯 NSFW Thumbnail display logic for ${video.id}:`, {
+                                    previewDataThumbnail: previewData?.thumbnailUrl,
+                                    videoThumbnail: video.thumbnail,
+                                    proxiedThumbnail: getProxiedThumbnailUrl(video.thumbnail),
+                                    finalSrc: thumbnailSrc
+                                  })
+                                  return thumbnailSrc ? (
+                                    <img
+                                      src={thumbnailSrc}
+                                      alt={video.title}
+                                      className="w-full h-full object-cover rounded-md"
+                                      onError={(e) => {
+                                        console.log(`🎯 NSFW Thumbnail failed to load for ${video.id}:`, thumbnailSrc)
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="text-white text-sm opacity-75">Click to load video</div>
+                                  )
+                                })()}
                                 
                                 {/* Play Button Overlay */}
                                 <div className="absolute inset-0 flex items-center justify-center">
