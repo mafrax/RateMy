@@ -176,6 +176,10 @@ export default function UploadPage() {
       return
     }
 
+    // Debug: Log session info
+    console.log('Current session:', session)
+    console.log('Session user:', session?.user)
+
     if (!formData.originalUrl) {
       toast.error('Please provide a video URL')
       return
@@ -265,7 +269,8 @@ export default function UploadPage() {
         router.push('/')
       } else {
         const error = await response.json()
-        toast.error(error.message || 'Failed to upload video')
+        console.error('Upload failed with status:', response.status, 'Error:', error)
+        toast.error(error.message || `Failed to upload video (${response.status})`)
       }
     } catch (error) {
       toast.error('An error occurred while uploading')
@@ -441,10 +446,15 @@ export default function UploadPage() {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                          const parent = e.currentTarget.parentElement
-                          if (parent) {
-                            parent.innerHTML = '<p class="text-gray-500">Preview not available</p>'
+                          try {
+                            e.currentTarget.style.display = 'none'
+                            const parent = e.currentTarget.parentElement
+                            if (parent) {
+                              parent.innerHTML = '<p class="text-gray-500">Preview not available</p>'
+                            }
+                          } catch (crossOriginError) {
+                            // Handle cross-origin access errors gracefully
+                            console.warn('Cross-origin iframe access error:', crossOriginError)
                           }
                         }}
                       />

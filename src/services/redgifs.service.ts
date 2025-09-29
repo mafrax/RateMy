@@ -189,7 +189,28 @@ class RedGifsService {
    * Get thumbnail URL for a gif
    */
   public getThumbnailUrl(gifId: string): string {
-    return `https://thumbs4.redgifs.com/${gifId}-poster.jpg`
+    // Try multiple thumbnail URL patterns as RedGifs CDN structure may vary
+    const possibleUrls = [
+      `https://thumbs4.redgifs.com/${gifId}-poster.jpg`,
+      `https://thumbs2.redgifs.com/${gifId}-poster.jpg`,
+      `https://thumbs.redgifs.com/${gifId}-poster.jpg`,
+      `https://i.redgifs.com/${gifId}-poster.jpg`
+    ]
+    
+    // Return the first URL - client should implement fallback logic
+    return possibleUrls[0]
+  }
+
+  /**
+   * Get all possible thumbnail URLs for client-side fallback
+   */
+  public getThumbnailUrls(gifId: string): string[] {
+    return [
+      `https://thumbs4.redgifs.com/${gifId}-poster.jpg`,
+      `https://thumbs2.redgifs.com/${gifId}-poster.jpg`,
+      `https://thumbs.redgifs.com/${gifId}-poster.jpg`,
+      `https://i.redgifs.com/${gifId}-poster.jpg`
+    ]
   }
 
   /**
