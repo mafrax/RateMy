@@ -104,8 +104,8 @@ test.describe('Home Page', () => {
     // Set larger viewport to ensure desktop navigation is visible
     await page.setViewportSize({ width: 1280, height: 720 })
     
-    // Wait for page to be fully loaded before interacting
-    await page.waitForLoadState('networkidle')
+    // Wait for navigation to be visible instead of networkidle
+    await expect(page.locator('nav')).toBeVisible({ timeout: 10000 })
     
     // Close any potential modals or overlays that might be blocking clicks
     await page.keyboard.press('Escape')
@@ -126,7 +126,7 @@ test.describe('Home Page', () => {
   test('should have responsive design', async ({ page }) => {
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('nav')).toBeVisible({ timeout: 5000 })
     
     // Check if mobile navigation is working
     const mobileMenu = page.locator('[data-testid="mobile-menu"]')
@@ -137,13 +137,11 @@ test.describe('Home Page', () => {
     
     // Test tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 })
-    await page.waitForLoadState('networkidle')
-    await expect(page.locator('nav')).toBeVisible()
+    await expect(page.locator('nav')).toBeVisible({ timeout: 5000 })
     
     // Test desktop viewport
     await page.setViewportSize({ width: 1200, height: 800 })
-    await page.waitForLoadState('networkidle')
-    await expect(page.locator('nav')).toBeVisible()
+    await expect(page.locator('nav')).toBeVisible({ timeout: 5000 })
   })
 
   test('should handle search functionality', async ({ page }) => {
@@ -259,8 +257,8 @@ test.describe('Home Page', () => {
   })
 
   test('should handle keyboard navigation', async ({ page }) => {
-    // Wait for page to be fully loaded
-    await page.waitForLoadState('networkidle')
+    // Wait for navigation to be visible instead of networkidle
+    await expect(page.locator('nav')).toBeVisible({ timeout: 10000 })
     
     // Close any potential modals that might interfere
     await page.keyboard.press('Escape')
