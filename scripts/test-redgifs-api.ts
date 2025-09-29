@@ -23,8 +23,8 @@ async function testRedGifsAPI() {
       console.log(`  - SD: ${metadata.urls.sd}`)
     }
     
-    if (metadata.thumbnail) {
-      console.log(`- API Thumbnail: ${metadata.thumbnail}`)
+    if (metadata.urls?.poster) {
+      console.log(`- API Thumbnail: ${metadata.urls.poster}`)
     }
     
     console.log('\n🛠️ Service methods:')
