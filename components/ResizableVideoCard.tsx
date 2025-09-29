@@ -110,7 +110,7 @@ export function ResizableVideoCard({
   const { globalBlurEnabled, isVideoRevealed, revealVideo, toggleVideoReveal } = useNSFW()
   const { setCachedRating, getCachedRating, hasPendingRating } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
-  const [localTags, setLocalTags] = useState(video.tags)
+  const [localTags, setLocalTags] = useState(video.tags || [])
   const [tagsExpanded, setTagsExpanded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false)
@@ -285,7 +285,7 @@ export function ResizableVideoCard({
 
   // Sync local tags when video prop changes and sort by average rating
   useEffect(() => {
-    const sortedTags = [...video.tags].sort((a, b) => {
+    const sortedTags = [...(video.tags || [])].sort((a, b) => {
       const avgRatingA = getAverageRating(a.tag.id)
       const avgRatingB = getAverageRating(b.tag.id)
       return avgRatingB - avgRatingA // Highest to lowest
@@ -470,18 +470,18 @@ export function ResizableVideoCard({
     })
   }
 
-  const displayName = video.user.firstName && video.user.lastName
+  const displayName = video.user?.firstName && video.user?.lastName
     ? `${video.user.firstName} ${video.user.lastName}`
-    : video.user.username
+    : video.user?.username || 'Unknown User'
 
   // Check if current user can delete this video
   const canDelete = session?.user && (
-    (session.user as any).id === video.user.id || // Owner can delete
+    (session.user as any).id === video.user?.id || // Owner can delete
     (session.user as any).isAdmin === true // Admin can delete any video
   )
 
   const isAdmin = session?.user && (session.user as any).isAdmin === true
-  const isOwner = session?.user && (session.user as any).id === video.user.id
+  const isOwner = session?.user && (session.user as any).id === video.user?.id
 
   // Handle video deletion
   const handleDeleteVideo = async () => {
@@ -848,7 +848,7 @@ export function ResizableVideoCard({
                   </h3>
                   <div className="flex items-center space-x-2 mt-0.5">
                     <Link
-                      href={`/user/${video.user.id}`}
+                      href={`/user/${video.user?.id || ''}`}
                       className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
                     >
                       {displayName}
@@ -1458,7 +1458,7 @@ export function ResizableVideoCard({
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center space-x-2">
                         <Link
-                          href={`/user/${video.user.id}`}
+                          href={`/user/${video.user?.id || ''}`}
                           className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                         >
                           {displayName}

@@ -58,7 +58,7 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
   const { data: session } = useSession()
   const { setCachedRating, getCachedRating, hasPendingRating } = useRatingCache()
   const [isRating, setIsRating] = useState(false)
-  const [localTags, setLocalTags] = useState(video.tags)
+  const [localTags, setLocalTags] = useState(video.tags || [])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalVideoHeight, setModalVideoHeight] = useState(400)
   const [modalVideoPosition, setModalVideoPosition] = useState({ left: 0, top: 0, width: 0 })
@@ -72,7 +72,7 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
 
   // Sync local tags when video prop changes and sort by average rating
   useEffect(() => {
-    const sortedTags = [...video.tags].sort((a, b) => {
+    const sortedTags = [...(video.tags || [])].sort((a, b) => {
       const avgRatingA = getAverageRating(a.tag.id)
       const avgRatingB = getAverageRating(b.tag.id)
       return avgRatingB - avgRatingA // Highest to lowest
@@ -388,10 +388,10 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             by <Link 
-              href={`/user/${video.user.id}`}
+              href={`/user/${video.user?.id || ''}`}
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              {video.user.firstName || video.user.username}
+              {video.user?.firstName || video.user?.username || 'Unknown User'}
             </Link>
           </p>
         </div>
@@ -534,10 +534,10 @@ export function VideoCard({ video, onVideoUpdate }: VideoCardProps) {
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       by <Link 
-                        href={`/user/${video.user.id}`}
+                        href={`/user/${video.user?.id || ''}`}
                         className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
-                        {video.user.firstName || video.user.username}
+                        {video.user?.firstName || video.user?.username || 'Unknown User'}
                       </Link>
                     </p>
                   </div>
