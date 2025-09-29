@@ -146,9 +146,22 @@ export function ResizableVideoCard({
   const [isHovering, setIsHovering] = useState(false)
   const [previewData, setPreviewData] = useState<VideoPreviewData | null>(() => ({
     previewUrl: video.previewUrl || undefined,
-    thumbnailUrl: video.thumbnail || undefined
+    thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
   }))
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
+
+  // Helper function to get proxied thumbnail URL for RedGifs
+  function getProxiedThumbnailUrl(thumbnailUrl?: string): string | undefined {
+    if (!thumbnailUrl) return undefined
+    
+    // If it's a RedGifs thumbnail, route through our proxy
+    if (thumbnailUrl.includes('redgifs.com') && thumbnailUrl.includes('-poster.jpg')) {
+      return `/api/proxy/redgifs-thumbnail?url=${encodeURIComponent(thumbnailUrl)}`
+    }
+    
+    // Otherwise use the original URL
+    return thumbnailUrl
+  }
   const [showIframe, setShowIframe] = useState(false) // Controls if iframe is revealed
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -621,7 +634,7 @@ export function ResizableVideoCard({
             console.log('🎯 Pornhub preview should be available from upload metadata')
             data = {
               previewUrl: video.previewUrl,
-              thumbnailUrl: video.thumbnail
+              thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
             }
           }
           console.log('🎯 Preview data received:', data)
@@ -1032,7 +1045,7 @@ export function ResizableVideoCard({
                                                 if (result.success && result.metadata?.previewUrl) {
                                                   setPreviewData({
                                                     previewUrl: result.metadata.previewUrl,
-                                                    thumbnailUrl: result.metadata.thumbnail || previewData?.thumbnailUrl
+                                                    thumbnailUrl: getProxiedThumbnailUrl(result.metadata.thumbnail) || previewData?.thumbnailUrl
                                                   })
                                                   console.log('🎯 Preview re-fetched successfully:', result.metadata.previewUrl)
                                                 }
@@ -1108,7 +1121,7 @@ export function ResizableVideoCard({
                                               if (result.success && result.metadata?.previewUrl) {
                                                 setPreviewData({
                                                   previewUrl: result.metadata.previewUrl,
-                                                  thumbnailUrl: result.metadata.thumbnail || previewData?.thumbnailUrl
+                                                  thumbnailUrl: getProxiedThumbnailUrl(result.metadata.thumbnail) || previewData?.thumbnailUrl
                                                 })
                                                 console.log('🎯 Preview re-fetched successfully:', result.metadata.previewUrl)
                                               }
