@@ -87,6 +87,7 @@ const nextConfig = {
   env: {
     // Only expose public environment variables
     VERCEL_URL: process.env.VERCEL_URL,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
 
   // Webpack configuration for production optimization
