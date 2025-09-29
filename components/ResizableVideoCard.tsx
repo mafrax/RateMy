@@ -999,9 +999,9 @@ export function ResizableVideoCard({
                                   onClick={handleVideoClick}
                                 >
                                   {/* Thumbnail Image */}
-                                  {previewData?.thumbnailUrl ? (
+                                  {(previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)) ? (
                                     <img
-                                      src={previewData.thumbnailUrl}
+                                      src={previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)}
                                       alt={video.title}
                                       className="w-full h-full object-cover rounded-md"
                                     />
@@ -1075,9 +1075,9 @@ export function ResizableVideoCard({
                                 onClick={handleVideoClick}
                               >
                                 {/* Thumbnail Image */}
-                                {previewData?.thumbnailUrl ? (
+                                {(previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)) ? (
                                   <img
-                                    src={previewData.thumbnailUrl}
+                                    src={previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)}
                                     alt={video.title}
                                     className="w-full h-full object-cover rounded-md"
                                   />
