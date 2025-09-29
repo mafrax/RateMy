@@ -49,11 +49,12 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    // Disable WebKit in CI environments due to system dependency issues
-    ...(process.env.CI ? [] : [{
+    // Conditionally enable WebKit based on system compatibility
+    // WebKit is disabled due to Bus error: 10 on some macOS systems
+    ...(process.env.ENABLE_WEBKIT === 'true' ? [{
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
-    }]),
+    }] : []),
 
     /* Test against mobile viewports. */
     // {
