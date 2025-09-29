@@ -52,19 +52,27 @@ test.describe('Authentication Flow', () => {
     // Wait for form instead of networkidle
     await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
-    // Try to submit empty form with force to avoid interception
-    await page.click('button[type="submit"]', { force: true })
+    // Disable HTML5 validation to test custom validation
+    await page.evaluate(() => {
+      const form = document.querySelector('form')
+      if (form) form.setAttribute('novalidate', 'true')
+    })
+    
+    // Try to submit empty form
+    await page.click('button[type="submit"]')
     
     // Check for validation messages - signup form shows inline validation errors
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     
     // Check for validation messages using the actual error text from the component
-    const emailError = page.locator('text="Email is required"')
-    const usernameError = page.locator('text="Username is required"')
-    const passwordError = page.locator('text="Password is required"')
+    const emailError = page.locator('text="Email is required"').first()
+    const usernameError = page.locator('text="Username is required"').first()
+    const passwordError = page.locator('text="Password is required"').first()
     
-    // Verify at least one validation message is visible
-    await expect(emailError.or(usernameError).or(passwordError)).toBeVisible({ timeout: 5000 })
+    // Verify all validation messages are visible
+    await expect(emailError).toBeVisible({ timeout: 5000 })
+    await expect(usernameError).toBeVisible({ timeout: 5000 })
+    await expect(passwordError).toBeVisible({ timeout: 5000 })
   })
 
   test('should validate email format', async ({ page }) => {
@@ -72,13 +80,19 @@ test.describe('Authentication Flow', () => {
     // Wait for form instead of networkidle
     await expect(page.locator('form')).toBeVisible({ timeout: 10000 })
     
+    // Disable HTML5 validation to test custom validation
+    await page.evaluate(() => {
+      const form = document.querySelector('form')
+      if (form) form.setAttribute('novalidate', 'true')
+    })
+    
     // Enter invalid email
     await page.fill('input[name="email"]', 'invalid-email')
     await page.fill('input[name="username"]', 'testuser')
     await page.fill('input[name="password"]', 'password123')
     await page.fill('input[name="confirmPassword"]', 'password123')
-    await page.click('button[type="submit"]', { force: true })
-    await page.waitForTimeout(500)
+    await page.click('button[type="submit"]')
+    await page.waitForTimeout(1000)
     
     // Check for email validation - match exact error message from form
     const emailValidation = page.locator('text="Please enter a valid email address"')
