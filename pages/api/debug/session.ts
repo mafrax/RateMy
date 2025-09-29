@@ -8,10 +8,9 @@ const prisma = new PrismaClient()
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions)
   
-  // Add database info if requested
+  // Add database info always for debugging
   let databaseInfo = null
-  if (req.query.includeDb === 'true') {
-    try {
+  try {
       const sampleVideo = await prisma.video.findFirst({
         select: {
           id: true,
@@ -38,9 +37,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         sampleVideo: sampleVideo
       }
-    } catch (error) {
-      databaseInfo = { error: error instanceof Error ? error.message : 'Unknown error' }
-    }
+  } catch (error) {
+    databaseInfo = { error: error instanceof Error ? error.message : 'Unknown error' }
   }
   
   res.json({
