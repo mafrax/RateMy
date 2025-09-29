@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -27,15 +24,13 @@ model User {
   isAdmin       Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  // Relations
-  videos    Video[]
-  ratings   Rating[]
-  comments  Comment[]
-  followers Follow[] @relation("UserFollowers")
-  following Follow[] @relation("UserFollowing")
-  accounts  Account[]
-  sessions  Session[]
+  accounts      Account[]
+  comments      Comment[]
+  followers     Follow[]  @relation("UserFollowers")
+  following     Follow[]  @relation("UserFollowing")
+  ratings       Rating[]
+  sessions      Session[]
+  videos        Video[]
 
   @@map("users")
 }
@@ -46,15 +41,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -80,35 +74,31 @@ model VerificationToken {
 }
 
 model Video {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
   originalUrl String
   embedUrl    String
   thumbnail   String?
   previewUrl  String?
   description String?
-  isNsfw      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  userId   String
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tags     VideoTag[]
-  ratings  Rating[]
-  comments Comment[]
+  isNsfw      Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String
+  comments    Comment[]
+  ratings     Rating[]
+  tags        VideoTag[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("videos")
 }
 
 model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-
-  // Relations
-  videos  VideoTag[]
-  ratings Rating[]
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  ratings   Rating[]
+  videos    VideoTag[]
 
   @@map("tags")
 }
@@ -117,10 +107,8 @@ model VideoTag {
   id      String @id @default(cuid())
   videoId String
   tagId   String
-
-  // Relations
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([videoId, tagId])
   @@map("video_tags")
@@ -134,11 +122,9 @@ model Rating {
   tagId     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([videoId, userId, tagId])
   @@map("ratings")
@@ -149,10 +135,8 @@ model Follow {
   followerId  String
   followingId String
   createdAt   DateTime @default(now())
-
-  // Relations
-  follower  User @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
   @@map("follows")
@@ -165,10 +149,8 @@ model Comment {
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
