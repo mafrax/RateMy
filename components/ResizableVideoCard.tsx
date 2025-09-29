@@ -144,18 +144,10 @@ export function ResizableVideoCard({
 
   // Hover preview state for horizontal videos
   const [isHovering, setIsHovering] = useState(false)
-  const [previewData, setPreviewData] = useState<VideoPreviewData | null>(() => {
-    console.log(`🎯 Initializing previewData for video ${video.id}:`, {
-      title: video.title,
-      thumbnail: video.thumbnail,
-      previewUrl: video.previewUrl,
-      proxiedThumbnail: getProxiedThumbnailUrl(video.thumbnail)
-    })
-    return {
-      previewUrl: video.previewUrl || undefined,
-      thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
-    }
-  })
+  const [previewData, setPreviewData] = useState<VideoPreviewData | null>(() => ({
+    previewUrl: video.previewUrl || undefined,
+    thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
+  }))
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
 
   // Helper function to get proxied thumbnail URL for RedGifs
@@ -605,21 +597,11 @@ export function ResizableVideoCard({
 
   // Handle hover preview for horizontal videos (video-card-type-2)
   const handleVideoHoverEnter = async () => {
-    console.log('🎯 Hover enter triggered')
-    console.log('🎯 isVerticalVideo:', isVerticalVideo)
-    console.log('🎯 originalUrl:', video.originalUrl)
-    console.log('🎯 includes xhamster:', video.originalUrl?.includes('xhamster.com'))
-    console.log('🎯 includes pornhub:', video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org'))
-    
     // Only for horizontal videos (video-card-type-2) and videos with preview support
     const hasPreviewSupport = video.originalUrl?.includes('xhamster.com') || video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')
-    console.log('🎯 hasPreviewSupport:', hasPreviewSupport)
     if (isVerticalVideo || !hasPreviewSupport) {
-      console.log('🎯 Skipping preview - not horizontal video with preview support')
       return
     }
-
-    console.log('🎯 Setting hovering to true')
     setIsHovering(true)
 
     // Clear any existing timeout
@@ -630,7 +612,6 @@ export function ResizableVideoCard({
     // Delay preview loading to avoid loading on quick hovers - only if we don't have previewUrl yet
     if (!previewData?.previewUrl && !isLoadingPreview) {
       hoverTimeoutRef.current = setTimeout(async () => {
-        console.log('🎯 Starting preview load after timeout')
         setIsLoadingPreview(true)
         try {
           let data
@@ -639,24 +620,20 @@ export function ResizableVideoCard({
           } else if (video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')) {
             // For Pornhub, we should already have the previewUrl from metadata extraction
             // If not, we could add a similar service for dynamic extraction
-            console.log('🎯 Pornhub preview should be available from upload metadata')
             data = {
               previewUrl: video.previewUrl,
               thumbnailUrl: getProxiedThumbnailUrl(video.thumbnail)
             }
           }
-          console.log('🎯 Preview data received:', data)
           if (data) {
             setPreviewData(data)
           }
         } catch (error) {
-          console.error('🎯 Failed to load preview:', error)
+          console.error('Failed to load preview:', error)
         } finally {
           setIsLoadingPreview(false)
         }
       }, 300) // 300ms delay before loading preview
-    } else {
-      console.log('🎯 Preview data already exists, skipping API call')
     }
   }
 
@@ -1009,20 +986,11 @@ export function ResizableVideoCard({
                                   {/* Thumbnail Image */}
                                   {(() => {
                                     const thumbnailSrc = previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)
-                                    console.log(`🎯 Thumbnail display logic for ${video.id}:`, {
-                                      previewDataThumbnail: previewData?.thumbnailUrl,
-                                      videoThumbnail: video.thumbnail,
-                                      proxiedThumbnail: getProxiedThumbnailUrl(video.thumbnail),
-                                      finalSrc: thumbnailSrc
-                                    })
                                     return thumbnailSrc ? (
                                       <img
                                         src={thumbnailSrc}
                                         alt={video.title}
                                         className="w-full h-full object-cover rounded-md"
-                                        onError={(e) => {
-                                          console.log(`🎯 Thumbnail failed to load for ${video.id}:`, thumbnailSrc)
-                                        }}
                                       />
                                     ) : (
                                       <div className="text-white text-sm opacity-75">Click to load video</div>
@@ -1050,7 +1018,6 @@ export function ResizableVideoCard({
                                         playsInline
                                         style={{ maxWidth: '90%', maxHeight: '90%' }}
                                         onError={async () => {
-                                          console.log('🎯 Preview video failed to load, attempting re-fetch...')
                                           setIsLoadingPreview(true)
                                           try {
                                             if (video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')) {
@@ -1067,12 +1034,11 @@ export function ResizableVideoCard({
                                                     previewUrl: result.metadata.previewUrl,
                                                     thumbnailUrl: getProxiedThumbnailUrl(result.metadata.thumbnail) || previewData?.thumbnailUrl
                                                   })
-                                                  console.log('🎯 Preview re-fetched successfully:', result.metadata.previewUrl)
                                                 }
                                               }
                                             }
                                           } catch (error) {
-                                            console.error('🎯 Failed to re-fetch preview:', error)
+                                            console.error('Failed to re-fetch preview:', error)
                                           } finally {
                                             setIsLoadingPreview(false)
                                           }
@@ -1097,20 +1063,11 @@ export function ResizableVideoCard({
                                 {/* Thumbnail Image */}
                                 {(() => {
                                   const thumbnailSrc = previewData?.thumbnailUrl || getProxiedThumbnailUrl(video.thumbnail)
-                                  console.log(`🎯 NSFW Thumbnail display logic for ${video.id}:`, {
-                                    previewDataThumbnail: previewData?.thumbnailUrl,
-                                    videoThumbnail: video.thumbnail,
-                                    proxiedThumbnail: getProxiedThumbnailUrl(video.thumbnail),
-                                    finalSrc: thumbnailSrc
-                                  })
                                   return thumbnailSrc ? (
                                     <img
                                       src={thumbnailSrc}
                                       alt={video.title}
                                       className="w-full h-full object-cover rounded-md"
-                                      onError={(e) => {
-                                        console.log(`🎯 NSFW Thumbnail failed to load for ${video.id}:`, thumbnailSrc)
-                                      }}
                                     />
                                   ) : (
                                     <div className="text-white text-sm opacity-75">Click to load video</div>
@@ -1138,7 +1095,6 @@ export function ResizableVideoCard({
                                       playsInline
                                       style={{ maxWidth: '90%', maxHeight: '90%' }}
                                       onError={async () => {
-                                        console.log('🎯 Preview video failed to load, attempting re-fetch...')
                                         setIsLoadingPreview(true)
                                         try {
                                           if (video.originalUrl?.includes('pornhub.com') || video.originalUrl?.includes('pornhub.org')) {
@@ -1155,12 +1111,11 @@ export function ResizableVideoCard({
                                                   previewUrl: result.metadata.previewUrl,
                                                   thumbnailUrl: getProxiedThumbnailUrl(result.metadata.thumbnail) || previewData?.thumbnailUrl
                                                 })
-                                                console.log('🎯 Preview re-fetched successfully:', result.metadata.previewUrl)
                                               }
                                             }
                                           }
                                         } catch (error) {
-                                          console.error('🎯 Failed to re-fetch preview:', error)
+                                          console.error('Failed to re-fetch preview:', error)
                                         } finally {
                                           setIsLoadingPreview(false)
                                         }
