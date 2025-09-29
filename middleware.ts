@@ -42,7 +42,7 @@ const ENHANCED_CSP = {
 /**
  * Apply security headers to response based on environment
  */
-function applySecurityHeaders(response: NextResponse, isStaticAsset: boolean = false): NextResponse {
+function applySecurityHeaders(response: NextResponse, request: NextRequest, isStaticAsset: boolean = false): NextResponse {
   // Determine environment - prioritize test environment detection
   let environment: 'development' | 'production' = 'development'
   
@@ -150,7 +150,7 @@ export function middleware(request: NextRequest) {
   
   if (isStaticAsset) {
     const response = NextResponse.next()
-    return applySecurityHeaders(response, true) // Mark as static asset
+    return applySecurityHeaders(response, request, true) // Mark as static asset
   }
 
   // HTTPS enforcement in production (bypass for health checks and localhost/CI)
@@ -175,7 +175,7 @@ export function middleware(request: NextRequest) {
 
   // Create response and apply security headers
   const response = NextResponse.next()
-  return applySecurityHeaders(response, false)
+  return applySecurityHeaders(response, request, false)
 }
 
 /**
