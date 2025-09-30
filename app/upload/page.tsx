@@ -201,6 +201,19 @@ export default function UploadPage() {
 
       if (response.ok) {
         const result = await response.json()
+        
+        // Debug: Log the full API response
+        console.log('=== METADATA EXTRACTION RESPONSE ===')
+        console.log('Full API response:', result)
+        console.log('Metadata found:', result.metadata)
+        console.log('Title:', result.metadata?.title)
+        console.log('Description:', result.metadata?.description)
+        console.log('Thumbnail:', result.metadata?.thumbnail)
+        console.log('Preview URL:', result.metadata?.previewUrl)
+        console.log('Tags:', result.metadata?.tags)
+        console.log('Tags count:', result.metadata?.tags?.length || 0)
+        console.log('=== END METADATA RESPONSE ===')
+        
         if (result.success && result.metadata) {
           setExtractedMetadata({
             ...result.metadata,
@@ -215,6 +228,7 @@ export default function UploadPage() {
         }
       } else {
         const error = await response.json()
+        console.error('API Error Response:', error)
         toast.error(error.message || 'Failed to extract metadata')
       }
     } catch (error) {
