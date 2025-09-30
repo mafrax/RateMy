@@ -9,7 +9,11 @@ export default createApiRoute({
     return result
   }),
   
-  POST: requireAuth(validateBody<VideoUploadForm>(createVideoSchema, async (ctx, body) => {
+  POST: validateBody<VideoUploadForm>(createVideoSchema, async (ctx, body) => {
+    if (!ctx.user) {
+      throw new Error('Authentication required')
+    }
+    
     const result = await videoService.createVideo({
       title: body.title,
       originalUrl: body.originalUrl,
@@ -18,13 +22,13 @@ export default createApiRoute({
       thumbnail: body.thumbnail || null,
       previewUrl: body.previewUrl || null,
       isNsfw: body.isNsfw || false,
-      userId: ctx.user!.id,
+      userId: ctx.user.id,
       tags: body.tags as any, // Service will handle string to tags conversion
       tagRatings: body.tagRatings || [] // Tag ratings from upload flow
-    }, ctx.user!.id)
+    }, ctx.user.id)
     return result
-  }))
+  })
 }, {
   methods: ['GET', 'POST'],
-  requireAuth: false // GET doesn't need auth, POST uses requireAuth wrapper
+  requireAuth: { GET: false, POST: true } // Per-method auth configuration
 })

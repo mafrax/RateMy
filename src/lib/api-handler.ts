@@ -25,7 +25,7 @@ export type ApiHandler = (ctx: ApiContext) => Promise<any>
 
 export interface ApiRouteConfig {
   methods?: string[]
-  requireAuth?: boolean
+  requireAuth?: boolean | { [method: string]: boolean }
   rateLimit?: {
     windowMs: number
     maxRequests: number
@@ -67,9 +67,26 @@ export function createApiRoute(
         })
       }
 
+      // Determine if auth is required for this method
+      const methodRequiresAuth = typeof requireAuth === 'boolean' 
+        ? requireAuth 
+        : requireAuth && requireAuth[method] === true
+
       // Get user session if auth is required
-      if (requireAuth) {
+      if (methodRequiresAuth) {
         const session = await getServerSession(req, res, authOptions)
+        
+        // Enhanced session debugging
+        logger.debug('Session validation', {
+          hasSession: !!session,
+          hasUser: !!session?.user,
+          userId: session?.user ? (session.user as any).id : undefined,
+          userEmail: session?.user?.email,
+          cookies: req.headers.cookie,
+          method,
+          url: req.url
+        })
+        
         if (!session?.user) {
           return res.status(HTTP_STATUS.UNAUTHORIZED).json({
             success: false,
@@ -83,7 +100,8 @@ export function createApiRoute(
         if (!user?.id) {
           logger.warn('User ID missing from session, likely due to auth configuration changes', {
             userEmail: user?.email,
-            sessionSub: (session as any)?.token?.sub
+            sessionSub: (session as any)?.token?.sub,
+            sessionData: session
           })
           return res.status(HTTP_STATUS.UNAUTHORIZED).json({
             success: false,
