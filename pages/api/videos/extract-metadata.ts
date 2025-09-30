@@ -97,7 +97,23 @@ export default createApiRoute({
       // Extract metadata based on URL type
       if (xHamsterService.isXHamsterUrl(originalUrl)) {
         try {
+          console.log('\n=== PROCESSING XHAMSTER URL ===')
+          console.log('URL:', originalUrl)
+          
           const xHamsterData = await xHamsterService.processXHamsterUrl(originalUrl)
+          
+          console.log('XHAMSTER RESULT:', {
+            title: xHamsterData.title,
+            hasDescription: !!xHamsterData.description,
+            description: xHamsterData.description,
+            hasThumbnail: !!xHamsterData.thumbnail,
+            thumbnail: xHamsterData.thumbnail,
+            hasPreview: !!xHamsterData.previewUrl,
+            previewUrl: xHamsterData.previewUrl,
+            tagsCount: xHamsterData.tags?.length || 0,
+            tags: xHamsterData.tags
+          })
+          
           extractedMetadata = {
             title: xHamsterData.title || '',
             description: xHamsterData.description || '',
@@ -105,6 +121,10 @@ export default createApiRoute({
             thumbnail: xHamsterData.thumbnail
           }
           previewUrl = xHamsterData.previewUrl || null
+          
+          console.log('FINAL EXTRACTED METADATA:', extractedMetadata)
+          console.log('FINAL PREVIEW URL:', previewUrl)
+          console.log('=== END XHAMSTER PROCESSING ===\n')
         } catch (error) {
           logger.error('Failed to process XHamster URL, falling back to standard processing', { error })
           extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)

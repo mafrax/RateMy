@@ -419,11 +419,30 @@ export class XHamsterServiceImpl {
       logger.info('XHamster metadata extracted', {
         url: originalUrl,
         hasTitle: !!metadata.title,
+        title: metadata.title,
         hasDescription: !!metadata.description,
+        description: metadata.description,
         hasThumbnail: !!metadata.thumbnail,
+        thumbnail: metadata.thumbnail,
         hasPreviewUrl: !!metadata.previewUrl,
-        tagsCount: metadata.tags?.length || 0
+        previewUrl: metadata.previewUrl,
+        tagsCount: metadata.tags?.length || 0,
+        tags: metadata.tags
       })
+
+      // Enhanced debugging: Log the HTML patterns we're looking for
+      console.log('=== XHAMSTER DEBUG ===')
+      console.log('URL:', originalUrl)
+      console.log('Title found:', !!metadata.title, '-', metadata.title)
+      console.log('Description found:', !!metadata.description, '-', metadata.description)
+      console.log('Thumbnail found:', !!metadata.thumbnail, '-', metadata.thumbnail)
+      console.log('Preview found:', !!metadata.previewUrl, '-', metadata.previewUrl)
+      console.log('Tags found:', metadata.tags?.length || 0, '-', metadata.tags)
+      
+      // Sample a small part of HTML to see what we're working with
+      const htmlSample = html.substring(0, 2000)
+      console.log('HTML sample (first 2000 chars):', htmlSample)
+      console.log('=== END XHAMSTER DEBUG ===')
 
       return metadata
 
