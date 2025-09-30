@@ -217,43 +217,117 @@ export class XHamsterServiceImpl {
     try {
       logger.info('Processing XHamster URL for metadata extraction', { url: originalUrl })
 
-      // Add random delay to avoid rate limiting detection
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 1000))
-
-      // Fetch the HTML page with enhanced headers to bypass bot detection
-      const response = await fetch(originalUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'DNT': '1',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-          'Sec-Fetch-Dest': 'document',
-          'Sec-Fetch-Mode': 'navigate',
-          'Sec-Fetch-Site': 'none',
-          'Sec-Fetch-User': '?1',
-          'Cache-Control': 'max-age=0',
-          'Pragma': 'no-cache',
-          'Referer': 'https://www.google.com/'
+      // Try multiple strategies to bypass bot detection
+      const strategies: Array<{name: string, headers: Record<string, string>}> = [
+        // Strategy 1: Enhanced headers with session simulation
+        {
+          name: 'Enhanced Headers',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'cross-site',
+            'Sec-Fetch-User': '?1',
+            'Sec-CH-UA': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            'Sec-CH-UA-Mobile': '?0',
+            'Sec-CH-UA-Platform': '"Windows"',
+            'Cache-Control': 'max-age=0',
+            'Cookie': 'lang=en; ageGateConsent=1; cookieConsent=1'
+          }
+        },
+        // Strategy 2: Mobile User-Agent
+        {
+          name: 'Mobile Headers',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1'
+          }
+        },
+        // Strategy 3: Firefox headers
+        {
+          name: 'Firefox Headers',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1'
+          }
         }
-      })
+      ]
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch XHamster page: ${response.status}`)
+      let html = ''
+      let lastError = null
+
+      for (const strategy of strategies) {
+        try {
+          logger.info(`Trying XHamster strategy: ${strategy.name}`, { url: originalUrl })
+          
+          // Random delay between strategies
+          await new Promise(resolve => setTimeout(resolve, Math.random() * 3000 + 1000))
+
+          const response = await fetch(originalUrl, {
+            headers: strategy.headers
+          })
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+          }
+
+          html = await response.text()
+
+          // Check if we got valid content (not the generic landing page)
+          const isGenericPage = html.includes('<title>xHamster</title>') && 
+                               !html.includes('video-tags-list-container') &&
+                               html.length < 100000
+
+          if (!isGenericPage) {
+            logger.info(`XHamster strategy "${strategy.name}" succeeded`, { 
+              url: originalUrl, 
+              htmlLength: html.length 
+            })
+            break
+          } else {
+            logger.warn(`XHamster strategy "${strategy.name}" got generic page`, { 
+              url: originalUrl, 
+              htmlLength: html.length 
+            })
+            lastError = new Error(`Strategy "${strategy.name}": received generic landing page`)
+          }
+        } catch (error) {
+          logger.warn(`XHamster strategy "${strategy.name}" failed`, { 
+            url: originalUrl, 
+            error: error instanceof Error ? error.message : error 
+          })
+          lastError = error
+          continue
+        }
       }
 
-      const html = await response.text()
-
-      // Check if we got the generic landing page (bot detection triggered)
-      if (html.includes('<title>xHamster</title>') && html.length < 100000) {
-        logger.warn('XHamster bot detection triggered, got generic landing page', { 
-          url: originalUrl, 
-          htmlLength: html.length,
-          containsGenericTitle: html.includes('<title>xHamster</title>')
-        })
-        throw new Error('XHamster bot detection: received generic landing page instead of video content')
+      // If all strategies failed, throw the last error
+      if (!html || (html.includes('<title>xHamster</title>') && !html.includes('video-tags-list-container') && html.length < 100000)) {
+        throw lastError || new Error('All XHamster bot detection bypass strategies failed')
       }
 
       // Extract metadata from various sources
