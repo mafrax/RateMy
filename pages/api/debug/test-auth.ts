@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     console.log('Session result:', session)
     console.log('Session user:', session?.user)
-    console.log('User ID from session:', session?.user?.id)
+    console.log('User ID from session:', (session?.user as any)?.id)
     
     // Check environment variables
     const envCheck = {
