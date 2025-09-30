@@ -217,10 +217,26 @@ export class XHamsterServiceImpl {
     try {
       logger.info('Processing XHamster URL for metadata extraction', { url: originalUrl })
 
-      // Fetch the HTML page
+      // Add random delay to avoid rate limiting detection
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 1000))
+
+      // Fetch the HTML page with enhanced headers to bypass bot detection
       const response = await fetch(originalUrl, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+          'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Sec-Fetch-User': '?1',
+          'Cache-Control': 'max-age=0',
+          'Pragma': 'no-cache',
+          'Referer': 'https://www.google.com/'
         }
       })
 
@@ -229,6 +245,16 @@ export class XHamsterServiceImpl {
       }
 
       const html = await response.text()
+
+      // Check if we got the generic landing page (bot detection triggered)
+      if (html.includes('<title>xHamster</title>') && html.length < 100000) {
+        logger.warn('XHamster bot detection triggered, got generic landing page', { 
+          url: originalUrl, 
+          htmlLength: html.length,
+          containsGenericTitle: html.includes('<title>xHamster</title>')
+        })
+        throw new Error('XHamster bot detection: received generic landing page instead of video content')
+      }
 
       // Extract metadata from various sources
       const metadata: XHamsterMetadata = {}
