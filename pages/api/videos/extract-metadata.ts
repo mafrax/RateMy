@@ -1,177 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/src/lib/auth'
+import { createApiRoute, validateBody } from '@/src/lib/api-handler'
 import { videoMetadataService } from '@/src/services/video-metadata.service'
 import { xHamsterService } from '@/src/services/xhamster.service'
 import { redGifsService } from '@/src/services/redgifs.service'
 import { redditService } from '@/src/services/reddit.service'
 import { pornhubService } from '@/src/services/pornhub.service'
 import { logger } from '@/src/lib/logger'
+import { z } from 'zod'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
-  try {
-    // Skip authentication in development for video metadata extraction
-    if (process.env.NODE_ENV !== 'development') {
-      const session = await getServerSession(req, res, authOptions)
-      if (!session) {
-        return res.status(401).json({ error: 'Unauthorized' })
-      }
-    }
-
-    const { originalUrl } = req.body
-    if (!originalUrl) {
-      return res.status(400).json({ error: 'originalUrl is required' })
-    }
-
-    logger.info('Extracting metadata for URL', { url: originalUrl })
-
-    let extractedMetadata, previewUrl, embedUrl
-
-    // Extract metadata based on URL type
-    if (xHamsterService.isXHamsterUrl(originalUrl)) {
-      try {
-        const xHamsterData = await xHamsterService.processXHamsterUrl(originalUrl)
-        extractedMetadata = {
-          title: xHamsterData.title || '',
-          description: xHamsterData.description || '',
-          tags: xHamsterData.tags || [],
-          thumbnail: xHamsterData.thumbnail
-        }
-        previewUrl = xHamsterData.previewUrl || null
-      } catch (error) {
-        logger.error('Failed to process XHamster URL, falling back to standard processing', { error })
-        extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
-      }
-    } else if (pornhubService.isUrl(originalUrl)) {
-      try {
-        console.log('\n=== PROCESSING PORNHUB URL ===')
-        console.log('URL:', originalUrl)
-        
-        const pornhubData = await pornhubService.processUrl(originalUrl)
-        
-        console.log('PORNHUB RESULT:', {
-          title: pornhubData.metadata.title,
-          hasPreview: !!pornhubData.previewUrl,
-          previewUrl: pornhubData.previewUrl,
-          hasThumbnail: !!pornhubData.thumbnail
-        })
-        
-        extractedMetadata = {
-          title: pornhubData.metadata.title,
-          description: pornhubData.metadata.description || '',
-          tags: pornhubData.tags,
-          thumbnail: pornhubData.thumbnail
-        }
-        embedUrl = pornhubData.embedUrl
-        previewUrl = pornhubData.previewUrl || null
-        
-        console.log('FINAL PREVIEW URL:', previewUrl)
-        console.log('=== END PORNHUB PROCESSING ===\n')
-      } catch (error) {
-        console.error('PORNHUB ERROR:', error)
-        logger.error('Failed to process Pornhub URL, falling back to standard processing', { error })
-        extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
-      }
-    } else if (redGifsService.isRedGifsUrl(originalUrl)) {
-      try {
-        const redGifsData = await redGifsService.processRedGifsUrl(originalUrl)
-        extractedMetadata = {
-          title: redGifsData.metadata.title,
-          description: redGifsData.metadata.description || '',
-          tags: redGifsData.tags,
-          thumbnail: redGifsData.thumbnail
-        }
-        embedUrl = redGifsData.embedUrl
-      } catch (error) {
-        logger.error('Failed to process RedGifs URL, falling back to standard processing', { error })
-        extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
-      }
-    } else if (redditService.isRedditUrl(originalUrl)) {
-      try {
-        const redditData = await redditService.processRedditUrl(originalUrl)
-        extractedMetadata = {
-          title: redditData.metadata.title,
-          description: redditData.metadata.description || '',
-          tags: redditData.tags,
-          thumbnail: redditData.thumbnail
-        }
-        embedUrl = redditData.embedUrl
-      } catch (error) {
-        logger.error('Failed to process Reddit URL, falling back to standard processing', { error })
-        extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
-      }
-    } else {
-      // Standard metadata extraction
-      extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
-    }
-
-    // Generate embed URL if not already set
-    if (!embedUrl) {
-      embedUrl = convertToEmbedUrl(originalUrl)
-    }
-
-    // Generate default title if none found
-    let finalTitle = extractedMetadata.title
-    if (!finalTitle) {
-      if (originalUrl.includes('redgifs.com')) {
-        const match = originalUrl.match(/\/watch\/([a-zA-Z0-9]+)/)
-        const gifId = match ? match[1] : 'video'
-        finalTitle = `RedGifs ${gifId}`
-      } else {
-        finalTitle = 'Untitled Video'
-      }
-    }
-
-    // Determine NSFW status
-    const isRedGifs = redGifsService.isRedGifsUrl(originalUrl)
-    const isReddit = redditService.isRedditUrl(originalUrl)
-    const isXHamster = xHamsterService.isXHamsterUrl(originalUrl)
-    const isPornhub = originalUrl.includes('pornhub.com') || originalUrl.includes('pornhub.org')
-    
-    let isNSFW = false
-    if (isRedGifs || isXHamster || isPornhub) {
-      isNSFW = true // RedGifs, XHamster and Pornhub are automatically NSFW
-    } else if (isReddit && extractedMetadata.tags?.includes('nsfw')) {
-      isNSFW = true // Reddit marked as NSFW
-    }
-
-    const response = {
-      success: true,
-      metadata: {
-        title: finalTitle,
-        description: extractedMetadata.description || '',
-        tags: extractedMetadata.tags || [],
-        thumbnail: extractedMetadata.thumbnail || null,
-        previewUrl: previewUrl || null,
-        embedUrl,
-        isNsfw: isNSFW
-      }
-    }
-
-    logger.info('Metadata extraction completed', {
-      url: originalUrl,
-      tagsCount: response.metadata.tags.length,
-      hasTitle: !!response.metadata.title,
-      hasPreview: !!response.metadata.previewUrl,
-      title: response.metadata.title,
-      previewUrl: response.metadata.previewUrl,
-      isPornhub: originalUrl.includes('pornhub.com') || originalUrl.includes('pornhub.org')
-    })
-
-    res.status(200).json(response)
-
-  } catch (error) {
-    logger.error('Error extracting metadata', { error })
-    res.status(500).json({ 
-      error: 'Failed to extract metadata',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
-  }
-}
+const extractMetadataSchema = z.object({
+  originalUrl: z.string().url()
+})
 
 function convertToEmbedUrl(originalUrl: string): string {
   // YouTube URLs
@@ -246,3 +84,155 @@ function convertToEmbedUrl(originalUrl: string): string {
 
   return originalUrl
 }
+
+export default createApiRoute({
+  POST: validateBody(extractMetadataSchema, async (ctx, body: z.infer<typeof extractMetadataSchema>) => {
+    const { originalUrl } = body
+
+    logger.info('Extracting metadata for URL', { url: originalUrl })
+
+    let extractedMetadata, previewUrl, embedUrl
+
+    try {
+      // Extract metadata based on URL type
+      if (xHamsterService.isXHamsterUrl(originalUrl)) {
+        try {
+          const xHamsterData = await xHamsterService.processXHamsterUrl(originalUrl)
+          extractedMetadata = {
+            title: xHamsterData.title || '',
+            description: xHamsterData.description || '',
+            tags: xHamsterData.tags || [],
+            thumbnail: xHamsterData.thumbnail
+          }
+          previewUrl = xHamsterData.previewUrl || null
+        } catch (error) {
+          logger.error('Failed to process XHamster URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
+        }
+      } else if (pornhubService.isUrl(originalUrl)) {
+        try {
+          console.log('\n=== PROCESSING PORNHUB URL ===')
+          console.log('URL:', originalUrl)
+          
+          const pornhubData = await pornhubService.processUrl(originalUrl)
+          
+          console.log('PORNHUB RESULT:', {
+            title: pornhubData.metadata.title,
+            hasPreview: !!pornhubData.previewUrl,
+            previewUrl: pornhubData.previewUrl,
+            hasThumbnail: !!pornhubData.thumbnail
+          })
+          
+          extractedMetadata = {
+            title: pornhubData.metadata.title,
+            description: pornhubData.metadata.description || '',
+            tags: pornhubData.tags,
+            thumbnail: pornhubData.thumbnail
+          }
+          embedUrl = pornhubData.embedUrl
+          previewUrl = pornhubData.previewUrl || null
+          
+          console.log('FINAL PREVIEW URL:', previewUrl)
+          console.log('=== END PORNHUB PROCESSING ===\n')
+        } catch (error) {
+          console.error('PORNHUB ERROR:', error)
+          logger.error('Failed to process Pornhub URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
+        }
+      } else if (redGifsService.isRedGifsUrl(originalUrl)) {
+        try {
+          const redGifsData = await redGifsService.processRedGifsUrl(originalUrl)
+          extractedMetadata = {
+            title: redGifsData.metadata.title,
+            description: redGifsData.metadata.description || '',
+            tags: redGifsData.tags,
+            thumbnail: redGifsData.thumbnail
+          }
+          embedUrl = redGifsData.embedUrl
+        } catch (error) {
+          logger.error('Failed to process RedGifs URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
+        }
+      } else if (redditService.isRedditUrl(originalUrl)) {
+        try {
+          const redditData = await redditService.processRedditUrl(originalUrl)
+          extractedMetadata = {
+            title: redditData.metadata.title,
+            description: redditData.metadata.description || '',
+            tags: redditData.tags,
+            thumbnail: redditData.thumbnail
+          }
+          embedUrl = redditData.embedUrl
+        } catch (error) {
+          logger.error('Failed to process Reddit URL, falling back to standard processing', { error })
+          extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
+        }
+      } else {
+        // Standard metadata extraction
+        extractedMetadata = await videoMetadataService.extractMetadata(originalUrl)
+      }
+
+      // Generate embed URL if not already set
+      if (!embedUrl) {
+        embedUrl = convertToEmbedUrl(originalUrl)
+      }
+
+      // Generate default title if none found
+      let finalTitle = extractedMetadata.title
+      if (!finalTitle) {
+        if (originalUrl.includes('redgifs.com')) {
+          const match = originalUrl.match(/\/watch\/([a-zA-Z0-9]+)/)
+          const gifId = match ? match[1] : 'video'
+          finalTitle = `RedGifs ${gifId}`
+        } else {
+          finalTitle = 'Untitled Video'
+        }
+      }
+
+      // Determine NSFW status
+      const isRedGifs = redGifsService.isRedGifsUrl(originalUrl)
+      const isReddit = redditService.isRedditUrl(originalUrl)
+      const isXHamster = xHamsterService.isXHamsterUrl(originalUrl)
+      const isPornhub = originalUrl.includes('pornhub.com') || originalUrl.includes('pornhub.org')
+      
+      let isNSFW = false
+      if (isRedGifs || isXHamster || isPornhub) {
+        isNSFW = true // RedGifs, XHamster and Pornhub are automatically NSFW
+      } else if (isReddit && extractedMetadata.tags?.includes('nsfw')) {
+        isNSFW = true // Reddit marked as NSFW
+      }
+
+      const response = {
+        success: true,
+        metadata: {
+          title: finalTitle,
+          description: extractedMetadata.description || '',
+          tags: extractedMetadata.tags || [],
+          thumbnail: extractedMetadata.thumbnail || null,
+          previewUrl: previewUrl || null,
+          embedUrl,
+          isNsfw: isNSFW
+        }
+      }
+
+      logger.info('Metadata extraction completed', {
+        url: originalUrl,
+        tagsCount: response.metadata.tags.length,
+        hasTitle: !!response.metadata.title,
+        hasPreview: !!response.metadata.previewUrl,
+        title: response.metadata.title,
+        previewUrl: response.metadata.previewUrl,
+        isPornhub: originalUrl.includes('pornhub.com') || originalUrl.includes('pornhub.org')
+      })
+
+      return response
+
+    } catch (error) {
+      logger.error('Error extracting metadata', { error })
+      throw new Error(error instanceof Error ? error.message : 'Failed to extract metadata')
+    }
+  })
+}, {
+  methods: ['POST'],
+  requireAuth: true // Require authentication for metadata extraction
+})
